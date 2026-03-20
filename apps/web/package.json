@@ -37,6 +37,6 @@
     "alchemy": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "^5",
-    "wrangler": "^4.54.0"
+    "wrangler": "^4.76.0"
   }
 }
