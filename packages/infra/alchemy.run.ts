@@ -9,9 +9,11 @@ const app = await alchemy("better-stack-2");
 
 export const web = await Nextjs("web", {
   cwd: "../../apps/web",
+  vars: {
+    NEXT_PUBLIC_SERVER_URL: "", // Empty for relative URLs, auto-detected by Cloudflare
+  },
   bindings: {
-    NEXT_PUBLIC_SERVER_URL: alchemy.env.NEXT_PUBLIC_SERVER_URL!,
-    CORS_ORIGIN: alchemy.env.CORS_ORIGIN!,
+    CORS_ORIGIN: alchemy.env.CORS_ORIGIN,
   },
   dev: {
     env: {
