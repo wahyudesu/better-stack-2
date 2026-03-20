@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "main": "apps/web/.open-next/worker.js",
+  "name": "better-stack-2",
+  "compatibility_date": "2026-03-20",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "apps/web/.open-next/assets",
+    "binding": "ASSETS"
+  },
+  "keep_vars": true
+}
