@@ -9,3 +9,5 @@ Convex agent skills for common tasks can be installed by running `npx convex ai-
 OPENNEXT_DISABLE_MONOREPO=1 pnpm dlx @opennextjs/cloudflare build --skipWranglerConfigCheck && pnpm exec wrangler deploy .open-next
 
 OPENNEXT_DISABLE_MONOREPO=1 pnpm dlx @opennextjs/cloudflare build --skipWranglerConfigCheck && pnpm exec wrangler deploy --config wrangler.jsonc
+
+OPENNEXT_DISABLE_MONOREPO=1 pnpm dlx @opennextjs/cloudflare build --skipWranglerConfigCheck && pnpm exec wrangler deploy --config wrangler.jsonc
