@@ -1,0 +1,3 @@
+{
+  "extends": "@better-stack-2/config/tsconfig.base.json"
+}

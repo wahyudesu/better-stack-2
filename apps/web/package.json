@@ -1,0 +1,40 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start",
+    "dev:bare": "next dev --port 3001",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
+  },
+  "dependencies": {
+    "@better-stack-2/env": "workspace:*",
+    "@better-stack-2/ui": "workspace:*",
+    "@opennextjs/cloudflare": "^1.14.6",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "dotenv": "catalog:",
+    "lucide-react": "catalog:",
+    "next": "^16.2.0",
+    "next-themes": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sonner": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@better-stack-2/config": "workspace:*",
+    "@cloudflare/workers-types": "catalog:",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@tauri-apps/cli": "^2.4.0",
+    "@types/node": "^20",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "alchemy": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "^5",
+    "wrangler": "^4.54.0"
+  }
+}
