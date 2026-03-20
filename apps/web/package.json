@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cf": "OPENNEXT_DISABLE_MONOREPO=1 opennextjs-cloudflare build",
+    "build:cf": "OPENNEXT_DISABLE_MONOREPO=1 opennextjs-cloudflare build --skipWranglerConfigCheck",
     "start": "next start",
     "dev:bare": "next dev --port 3001",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
