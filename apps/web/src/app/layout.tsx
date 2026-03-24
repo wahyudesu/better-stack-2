@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { ui } from "@clerk/ui";
 
 import "../index.css";
 import Header from "@/components/header";
@@ -20,16 +22,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", figtree.variable)}>
-      <body className="antialiased">
-        <Providers>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
-            {children}
-          </div>
-          <BottomMenu />
-        </Providers>
-      </body>
-    </html>
+    <ClerkProvider ui={ui}>
+      <html lang="en" suppressHydrationWarning className={cn("font-sans", figtree.variable)}>
+        <body className="antialiased">
+          <Providers>
+            <div className="grid grid-rows-[auto_1fr] h-svh">
+              <Header />
+              {children}
+            </div>
+            <BottomMenu />
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

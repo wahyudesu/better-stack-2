@@ -6,25 +6,7 @@ import { cn } from "@/lib/utils";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import { PlatformIcon, getPlatformBgColor, getPlatformColor } from "@/components/ui/PlatformIcon";
 import type { CalendarEvent } from "@/data/mock";
-
-const statusBadgeStyles: Record<string, { bg: string; text: string }> = {
-  published: {
-    bg: "hsl(142 76% 36% / 0.15)",
-    text: "hsl(142 76% 36%)",
-  },
-  scheduled: {
-    bg: "hsl(var(--primary) / 0.15)",
-    text: "hsl(var(--primary))",
-  },
-  draft: {
-    bg: "hsl(var(--muted) / 0.5)",
-    text: "hsl(var(--muted-foreground))",
-  },
-  pending: {
-    bg: "hsl(38 92% 50% / 0.15)",
-    text: "hsl(38 92% 50%)",
-  },
-};
+import { statusBadgeStyles } from "@/lib/constants/status";
 
 interface ContentCardProps {
   event: CalendarEvent;
@@ -101,10 +83,21 @@ export function ContentCard({
               {event.status}
             </Badge>
 
-            {/* Platform icon */}
-            <span className="shrink-0 flex items-center rounded-full bg-background/50 p-0.5">
-              <PlatformIcon platform={event.platform as Platform} size={12} />
-            </span>
+            {/* Platform icons with overlap */}
+            <div className="shrink-0 flex items-center">
+              {platforms.slice(0, 3).map((platform, index) => (
+                <span
+                  key={platform}
+                  className={cn(
+                    "flex items-center rounded-full bg-background/70 p-0.5",
+                    index > 0 && "-ml-1.5"
+                  )}
+                  style={{ zIndex: platforms.length - index }}
+                >
+                  <PlatformIcon platform={platform as Platform} size={12} />
+                </span>
+              ))}
+            </div>
 
             {/* Time */}
             {event.time && (
@@ -172,11 +165,15 @@ export function ContentCard({
               >
                 {event.status}
               </Badge>
-              <div className="flex items-center gap-0.5 -space-x-1">
-                {platforms.map((platform) => (
+              <div className="flex items-center">
+                {platforms.slice(0, 3).map((platform, index) => (
                   <div
                     key={platform}
-                    className="relative rounded-full bg-muted/50 p-0.5"
+                    className={cn(
+                      "relative rounded-full bg-background border border-border/50 p-0.5",
+                      index > 0 && "-ml-2"
+                    )}
+                    style={{ zIndex: platforms.length - index }}
                   >
                     <PlatformIcon platform={platform as Platform} size={16} />
                   </div>
@@ -269,9 +266,16 @@ export function ContentCard({
         {/* Row 2: Platform icons + date/time */}
         {showDateTime && (
           <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
-            <div className="flex items-center gap-1">
-              {platforms.map((platform) => (
-                <div key={platform} className="rounded-full bg-muted/50 p-1">
+            <div className="flex items-center">
+              {platforms.map((platform, index) => (
+                <div
+                  key={platform}
+                  className={cn(
+                    "rounded-full bg-background border border-border/50 p-1",
+                    index > 0 && "-ml-2"
+                  )}
+                  style={{ zIndex: platforms.length - index }}
+                >
                   <PlatformIcon platform={platform as Platform} size={16} />
                 </div>
               ))}

@@ -21,15 +21,10 @@ import {
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import Image from "next/image";
+import { statusBadgeStyles } from "@/lib/constants/status";
 
 type SortField = "title" | "date" | "platform" | "status";
 type SortDirection = "asc" | "desc";
-
-const statusBadgeStyles: Record<string, { bg: string; text: string }> = {
-  published: { bg: "hsl(142 76% 36% / 0.15)", text: "hsl(142 76% 36%)" },
-  scheduled: { bg: "hsl(38 92% 50% / 0.15)", text: "hsl(32 95% 44%)" },
-  draft: { bg: "hsl(220 10% 46% / 0.15)", text: "hsl(220 10% 36%)" },
-};
 
 interface SortButtonProps {
   field: SortField;
@@ -200,7 +195,7 @@ export function ListView({ events, onEventClick }: ListViewProps) {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                      <span className="text-sm text-muted-foreground truncate max-w-[400px]">
                         {event.description || event.title}
                       </span>
                     </div>

@@ -3,6 +3,7 @@
 import { motion, useSpring } from "motion/react";
 import type { RefObject } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@better-stack-2/ui/lib/utils";
 
 // Spring config for smooth tooltip movement
@@ -118,9 +119,6 @@ export function TooltipBox({
     return null;
   }
 
-  // Dynamic import to avoid SSR issues
-  const { createPortal } = require("react-dom") as typeof import("react-dom");
-
   if (!visible) {
     return null;
   }
@@ -137,7 +135,7 @@ export function TooltipBox({
     >
       <motion.div
         animate={{ scale: 1, opacity: 1, x: 0 }}
-        className="min-w-[140px] overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-lg backdrop-blur-md"
+        className="min-w-[140px] overflow-hidden rounded-lg border border-border shadow-lg backdrop-blur-sm bg-popover text-popover-foreground"
         initial={{ scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }}
         key={flipKey}
         style={{ transformOrigin }}

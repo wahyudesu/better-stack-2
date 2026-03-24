@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -39,12 +40,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { teamMembers } from "@/data/mock";
-import { cn } from "@/lib/utils";
+import { cn, selectHandler } from "@/lib/utils";
 import { TeamMemberCard } from "@/components/ui/TeamMemberCard";
 import { IntegrationCard } from "@/components/ui/IntegrationCard";
 import { PlatformIcon, type Platform } from "@/components/ui/PlatformIcon";
-import { useUser } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
+
+// Mock user data (replace with actual auth when ClerkProvider is set up)
+const mockUser = {
+  id: "user_2xyz123abc",
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@example.com",
+  imageUrl: "",
+  createdAt: new Date("2024-01-15"),
+  lastSignInAt: new Date("2024-03-19"),
+  emailVerified: true,
+  twoFactorEnabled: false,
+};
 
 const tabs = [
   {
@@ -94,28 +107,23 @@ const tabs = [
 type TabId = (typeof tabs)[number]["id"];
 
 function AccountTab() {
-  const { user, isLoaded } = useUser();
-  const [fullName, setFullName] = useState(
-    () => {
-      if (user?.firstName && user?.lastName) {
-        return `${user.firstName} ${user.lastName}`;
+    const [fullName, setFullName] = useState(() => {
+      if (mockUser.firstName && mockUser.lastName) {
+        return `${mockUser.firstName} ${mockUser.lastName}`;
       }
-      return user?.firstName || user?.emailAddresses[0]?.emailAddress?.split('@')[0] || "";
-    }
-  );
-  const [jobTitle, setJobTitle] = useState("User");
-  const [originalFullName] = useState(
-    () => {
-      if (user?.firstName && user?.lastName) {
-        return `${user.firstName} ${user.lastName}`;
+      return mockUser.firstName || mockUser.email.split('@')[0] || "";
+    });
+    const [jobTitle, setJobTitle] = useState("User");
+    const [originalFullName] = useState(() => {
+      if (mockUser.firstName && mockUser.lastName) {
+        return `${mockUser.firstName} ${mockUser.lastName}`;
       }
-      return user?.firstName || user?.emailAddresses[0]?.emailAddress?.split('@')[0] || "";
-    }
-  );
-  const [originalJobTitle] = useState("User");
-  const [avatarUrl, setAvatarUrl] = useState(user?.imageUrl || "");
-  const [email] = useState(user?.emailAddresses[0]?.emailAddress || "");
-  const [userId] = useState(user?.id || "");
+      return mockUser.firstName || mockUser.email.split('@')[0] || "";
+    });
+    const [originalJobTitle] = useState("User");
+    const [avatarUrl, setAvatarUrl] = useState(mockUser.imageUrl || "");
+    const [email] = useState(mockUser.email || "");
+    const [userId] = useState(mockUser.id || "");
 
   const hasChanges =
     fullName !== originalFullName || jobTitle !== originalJobTitle;
@@ -125,39 +133,29 @@ function AccountTab() {
     console.log("Open avatar upload");
   };
 
-  const handleSave = async () => {
-    // Update user profile via Clerk
-    try {
-      const names = fullName.split(' ');
-      await user?.update({
-        firstName: names[0] || '',
-        lastName: names.slice(1).join(' ') || '',
-      });
-      console.log("Profile updated");
-    } catch (error) {
-      console.error("Failed to update profile:", error);
-    }
-  };
+const handleSave = async () => {
+      // Update user profile
+      console.log("Profile updated:", fullName);
+    };
 
-  // Get user initials for fallback
-  const getInitials = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
-    }
-    if (user?.firstName) {
-      return user.firstName[0].toUpperCase();
-    }
-    const email = user?.emailAddresses[0]?.emailAddress;
-    if (email) {
-      return email[0].toUpperCase();
-    }
-    return "U";
-  };
+    // Get user initials for fallback
+    const getInitials = () => {
+      if (mockUser.firstName && mockUser.lastName) {
+        return `${mockUser.firstName[0]}${mockUser.lastName[0]}`.toUpperCase();
+      }
+      if (mockUser.firstName) {
+        return mockUser.firstName[0].toUpperCase();
+      }
+      if (mockUser.email) {
+        return mockUser.email[0].toUpperCase();
+      }
+      return "U";
+    };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Card className="border-border/50">
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-6 flex flex-col gap-6">
           <div>
             <p className="font-display font-semibold text-base">Profile</p>
             <p className="text-sm text-muted-foreground">
@@ -171,53 +169,53 @@ function AccountTab() {
               onClick={handleAvatarClick}
               className="relative group cursor-pointer"
             >
-              <Avatar className="h-16 w-16 ring-2 ring-border group-hover:ring-primary transition-all">
-                <AvatarImage src={user?.imageUrl} />
-                <AvatarFallback>{getInitials()}</AvatarFallback>
-              </Avatar>
-              <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-xs font-medium">Change</span>
+<Avatar className="size-16 ring-2 ring-border group-hover:ring-primary transition-all">
+                  <AvatarImage src={mockUser.imageUrl} />
+                  <AvatarFallback>{getInitials()}</AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">Change</span>
+                </div>
+              </button>
+              <div>
+                <p className="text-sm font-medium">Profile Photo</p>
+                <p className="text-xs text-muted-foreground">
+                  Upload a profile photo
+                </p>
               </div>
-            </button>
-            <div>
-              <p className="text-sm font-medium">Profile Photo</p>
+            </div>
+
+            {/* Form Fields */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm">First Name</Label>
+                <Input
+                  value={mockUser.firstName || ""}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="h-10 font-medium"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm">Last Name</Label>
+                <Input
+                  value={mockUser.lastName || ""}
+                  className="h-10 font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm">Email</Label>
+              <Input
+                value={email}
+                type="email"
+                className="h-10 bg-muted/50 cursor-not-allowed font-medium"
+                disabled
+              />
               <p className="text-xs text-muted-foreground">
-                From Clerk account
+                Email cannot be changed
               </p>
             </div>
-          </div>
-
-          {/* Form Fields */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label className="text-sm">First Name</Label>
-              <Input
-                value={user?.firstName || ""}
-                onChange={(e) => setFullName(e.target.value)}
-                className="h-10 font-medium"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm">Last Name</Label>
-              <Input
-                value={user?.lastName || ""}
-                className="h-10 font-medium"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm">Email</Label>
-            <Input
-              value={email}
-              type="email"
-              className="h-10 bg-muted/50 cursor-not-allowed font-medium"
-              disabled
-            />
-            <p className="text-xs text-muted-foreground">
-              Managed by Clerk - change in your Clerk profile
-            </p>
-          </div>
 
           {/* Account Info */}
           <div className="space-y-2">
@@ -236,7 +234,7 @@ function AccountTab() {
                   navigator.clipboard.writeText(userId);
                 }}
               >
-                <Sparkles className="h-4 w-4" />
+                <Sparkles className="size-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -254,10 +252,10 @@ function AccountTab() {
       </Card>
 
       <Card className="border-border/50">
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-4 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-amber-500" />
+              <Zap className="size-4 text-amber-500" />
               <div>
                 <p className="font-display font-semibold text-sm">Plan Usage</p>
                 <p className="text-xs text-muted-foreground">
@@ -270,8 +268,8 @@ function AccountTab() {
             </Button>
           </div>
 
-          <div className="space-y-3">
-            <div className="space-y-1.5">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">AI Generations</span>
                 <span className="font-medium">847 / 1,000</span>
@@ -279,7 +277,7 @@ function AccountTab() {
               <Progress value={84.7} className="h-2" />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Scheduled Posts</span>
                 <span className="font-medium">23 / 50</span>
@@ -287,7 +285,7 @@ function AccountTab() {
               <Progress value={46} className="h-2" />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">
                   Connected Accounts
@@ -297,7 +295,7 @@ function AccountTab() {
               <Progress value={50} className="h-2" />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Storage Used</span>
                 <span className="font-medium">2.3 GB / 5 GB</span>
@@ -305,7 +303,7 @@ function AccountTab() {
               <Progress value={46} className="h-2" />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Team Members</span>
                 <span className="font-medium">3 / 5</span>
@@ -359,19 +357,59 @@ function AccountTab() {
                 Irreversible and destructive actions.
               </p>
             </div>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => window.location.href = "https://dashboard.clerk.com"}
-            >
-              Manage Account
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Go to Clerk Dashboard to delete your account or manage password
-          </p>
-        </CardContent>
-      </Card>
+<Button
+                variant="destructive"
+                size="sm"
+                onClick={() => console.log("Delete account")}
+              >
+                Manage Account
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Contact support to delete your account
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Account Info Card */}
+        <Card className="border-border/50">
+          <CardContent className="p-4 space-y-3">
+            <div>
+              <p className="font-display font-semibold text-sm">Account Information</p>
+              <p className="text-xs text-muted-foreground">
+                Your account details
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Account Created</span>
+                <span className="font-medium">
+                  {mockUser.createdAt ? new Date(mockUser.createdAt).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Last Sign In</span>
+                <span className="font-medium">
+                  {mockUser.lastSignInAt ? new Date(mockUser.lastSignInAt).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Email Verified</span>
+                <span className={mockUser.emailVerified
+                  ? 'font-medium text-green-600'
+                  : 'font-medium text-amber-600'}>
+                  {mockUser.emailVerified ? '✓ Verified' : 'Pending'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">2FA Enabled</span>
+                <span className="font-medium">
+                  {mockUser.twoFactorEnabled ? 'Yes' : 'No'}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
       {/* Account Info Card */}
       <Card className="border-border/50">
@@ -382,34 +420,34 @@ function AccountTab() {
               Your account details from Clerk
             </p>
           </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Account Created</span>
-              <span className="font-medium">
-                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-              </span>
+<div className="flex flex-col gap-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Account Created</span>
+                <span className="font-medium">
+                  {mockUser.createdAt ? new Date(mockUser.createdAt).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Last Sign In</span>
+                <span className="font-medium">
+                  {mockUser.lastSignInAt ? new Date(mockUser.lastSignInAt).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Email Verified</span>
+                <span className={mockUser.emailVerified
+                  ? 'font-medium text-green-600'
+                  : 'font-medium text-amber-600'}>
+                  {mockUser.emailVerified ? '✓ Verified' : 'Pending'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">2FA Enabled</span>
+                <span className="font-medium">
+                  {mockUser.twoFactorEnabled ? 'Yes' : 'No'}
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Last Sign In</span>
-              <span className="font-medium">
-                {user?.lastSignInAt ? new Date(user.lastSignInAt).toLocaleDateString() : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Email Verified</span>
-              <span className={user?.emailAddresses[0]?.verification?.status === 'verified'
-                ? 'font-medium text-green-600'
-                : 'font-medium text-amber-600'}>
-                {user?.emailAddresses[0]?.verification?.status === 'verified' ? '✓ Verified' : 'Pending'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">2FA Enabled</span>
-              <span className="font-medium">
-                {user?.twoFactorEnabled ? 'Yes' : 'No'}
-              </span>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
@@ -418,7 +456,7 @@ function AccountTab() {
 
 function TeamTab() {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div />
         <Button size="sm">Invite</Button>
@@ -644,7 +682,7 @@ function ConnectionsTab() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Connected Platforms */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -808,7 +846,7 @@ function PreferencesTab() {
           </div>
 
           {/* Theme */}
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <p className="text-xs text-muted-foreground">Theme</p>
             <div className="grid grid-cols-3 gap-3">
               {themeOptions.map((option) => (
@@ -837,7 +875,7 @@ function PreferencesTab() {
           </div>
 
           {/* Accent Color */}
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <p className="text-xs text-muted-foreground">Accent Color</p>
             <div className="flex flex-wrap gap-2">
               {accentColors.map((color) => (
@@ -888,7 +926,7 @@ function PreferencesTab() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label className="text-xs">First Day of Week</Label>
               <Select
                 value={firstDayOfWeek}
@@ -904,9 +942,9 @@ function PreferencesTab() {
               </Select>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label className="text-xs">Timezone</Label>
-              <Select value={timezone} onValueChange={setTimezone}>
+              <Select value={timezone} onValueChange={selectHandler(setTimezone, "Asia/Jakarta")}>
                 <SelectTrigger className="w-full h-8 text-sm font-medium">
                   <SelectValue placeholder="Select timezone" />
                 </SelectTrigger>
@@ -980,10 +1018,10 @@ const billingHistory = [
 
 function BillingTab() {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Current Plan */}
       <Card className="border-border/50">
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-4 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
@@ -1118,7 +1156,7 @@ function SecurityTab() {
       <Card className="border-border/50">
         <CardContent className="p-5 space-y-3">
           <p className="text-sm font-semibold">Password</p>
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label>Current password</Label>
               <Input type="password" />
@@ -1148,53 +1186,53 @@ function SecurityTab() {
 }
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("account");
-  const activeTabData = tabs.find((tab) => tab.id === activeTab);
+      const [activeTab, setActiveTab] = useState<TabId>("account");
+      const activeTabData = tabs.find((tab) => tab.id === activeTab);
 
-  return (
-    <div className="mx-auto max-w-6xl space-y-4">
-      <div className="text-center">
-        <h1 className="font-display text-xl font-bold tracking-tight">
-          {activeTabData?.title || "Settings"}
-        </h1>
-        <p className="text-xs text-muted-foreground">
-          {activeTabData?.description || "Manage your settings"}
-        </p>
-      </div>
+      return (
+        <div className="mx-auto w-full max-w-[1024px] px-5 py-4 pb-24 space-y-6">
+          <div className="text-center">
+            <h1 className="font-display text-xl font-bold tracking-tight">
+              {activeTabData?.title || "Settings"}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {activeTabData?.description || "Manage your settings"}
+            </p>
+          </div>
 
-      <div className="flex gap-6">
-        <nav className="w-[130px] shrink-0 space-y-0.5">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
-                activeTab === tab.id
-                  ? "bg-muted font-semibold text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-              )}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          ))}
-        </nav>
+          <div className="flex gap-6">
+            <nav className="w-[130px] shrink-0 space-y-0.5">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+                  activeTab === tab.id
+                    ? "bg-muted font-semibold text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                )}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
 
-        <div className="flex-1 min-w-0">
-          <Suspense fallback={<SettingsTabSkeleton />}>
-            {activeTab === "account" && <AccountTab />}
-            {activeTab === "connections" && <ConnectionsTab />}
-            {activeTab === "team" && <TeamTab />}
-            {activeTab === "billing" && <BillingTab />}
-            {activeTab === "preferences" && <PreferencesTab />}
-            {activeTab === "security" && <SecurityTab />}
-          </Suspense>
+          <div className="flex-1 min-w-0">
+            <Suspense fallback={<SettingsTabSkeleton />}>
+              {activeTab === "account" && <AccountTab />}
+              {activeTab === "connections" && <ConnectionsTab />}
+              {activeTab === "team" && <TeamTab />}
+              {activeTab === "billing" && <BillingTab />}
+              {activeTab === "preferences" && <PreferencesTab />}
+              {activeTab === "security" && <SecurityTab />}
+            </Suspense>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 function SettingsTabSkeleton() {
   return (

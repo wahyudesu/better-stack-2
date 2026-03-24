@@ -17,7 +17,7 @@ import {
 import { cn } from "@better-stack-2/ui/lib/utils";
 import { Area, type AreaProps } from "./area";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
-import { useChartInteraction } from "./use-chart-interaction";
+import { useChartInteraction } from "@/lib/hooks/use-chart-interaction";
 
 // Check if a component should render after the mouse overlay (markers need to be on top for interaction)
 function isPostOverlayComponent(child: ReactElement): boolean {

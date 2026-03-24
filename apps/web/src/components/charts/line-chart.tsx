@@ -17,7 +17,7 @@ import {
 import { cn } from "@better-stack-2/ui/lib/utils";
 import { ChartProvider, type LineConfig, type Margin } from "./chart-context";
 import { Line, type LineProps } from "./line";
-import { useChartInteraction } from "./use-chart-interaction";
+import { useChartInteraction } from "@/lib/hooks/use-chart-interaction";
 
 // Check if a component should render after the mouse overlay (markers need to be on top for interaction)
 function isPostOverlayComponent(child: ReactElement): boolean {
@@ -353,8 +353,10 @@ export { Line, type LineProps } from "./line";
 export { Grid, type GridProps } from "./grid";
 // Re-export XAxis for convenience
 export { XAxis, type XAxisProps } from "./x-axis";
+// Re-export YAxis for convenience
+export { YAxis, type YAxisProps } from "./y-axis";
 // Re-export ChartTooltip for convenience
-export { ChartTooltip, type ChartTooltipProps } from "./tooltip";
+export { ChartTooltip, type ChartTooltipProps } from "./chart-tooltip";
 // Re-export Segment components
 export {
   SegmentBackground,
@@ -363,5 +365,16 @@ export {
   type SegmentBackgroundProps,
   type SegmentLineProps,
 } from "./segment";
+// Re-export Marker components
+export {
+  ChartMarkers,
+  type ChartMarkersProps,
+  type ChartMarkerItem as ChartMarker,
+} from "./markers";
+export {
+  MarkerTooltipContent,
+  type MarkerTooltipContentProps,
+} from "./marker-tooltip-content";
+export { useActiveMarkers } from "./use-active-markers";
 
 export default LineChart;

@@ -3,7 +3,7 @@
 import { localPoint } from "@visx/event";
 import type { scaleLinear, scaleTime } from "@visx/scale";
 import { useCallback, useRef, useState } from "react";
-import type { LineConfig, Margin, TooltipData } from "./chart-context";
+import type { LineConfig, Margin, TooltipData } from "@/components/charts/chart-context";
 
 type ScaleTime = ReturnType<typeof scaleTime<number>>;
 type ScaleLinear = ReturnType<typeof scaleLinear<number>>;

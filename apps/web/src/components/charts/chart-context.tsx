@@ -19,7 +19,7 @@ import {
   type SetStateAction,
   useContext,
 } from "react";
-import type { ChartSelection } from "./use-chart-interaction";
+import type { ChartSelection } from "@/lib/hooks/use-chart-interaction";
 
 // CSS variable references for theming
 export const chartCssVars = {

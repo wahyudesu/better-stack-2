@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, selectHandler } from "@/lib/utils";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 
 const tools = [
@@ -40,7 +40,7 @@ function ScriptTool() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-2">
           <Label>Platform</Label>
-          <Select value={platform} onValueChange={setPlatform}>
+          <Select value={platform} onValueChange={selectHandler(setPlatform, "instagram")}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="instagram">Instagram</SelectItem>
@@ -52,7 +52,7 @@ function ScriptTool() {
         </div>
         <div className="space-y-2">
           <Label>Tone</Label>
-          <Select value={tone} onValueChange={setTone}>
+          <Select value={tone} onValueChange={selectHandler(setTone, "casual")}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="casual">Casual</SelectItem>
@@ -91,7 +91,7 @@ function BrandingTool() {
         </div>
         <div className="space-y-2">
           <Label>Niche</Label>
-          <Select value={niche} onValueChange={setNiche}>
+          <Select value={niche} onValueChange={selectHandler(setNiche, "tech")}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="tech">Tech</SelectItem>

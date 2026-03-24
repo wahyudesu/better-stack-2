@@ -1,13 +1,16 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Menu,
+  MenuTrigger,
+  MenuPanel,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuItem,
+  MenuSeparator,
+} from "@better-stack-2/ui/components/animate-ui/components/base/menu";
 import {
   Select,
   SelectContent,
@@ -55,7 +58,91 @@ export const PLATFORM_OPTIONS_NO_ALL = [
 export type PlatformFilterValue = Platform | "all";
 
 // ============================================
-// PlatformFilterDropdown - Dropdown based filter
+// PlatformFilterMenu - Animate UI Menu based filter
+// ============================================
+
+interface PlatformFilterMenuProps {
+  value: PlatformFilterValue;
+  onChange: (value: PlatformFilterValue) => void;
+  size?: "sm" | "default" | "lg";
+  className?: string;
+  triggerClassName?: string;
+}
+
+export function PlatformFilterMenu({
+  value,
+  onChange,
+  size = "sm",
+  className,
+  triggerClassName,
+}: PlatformFilterMenuProps) {
+  const sizeClasses = {
+    sm: "h-7 gap-1.5 px-3 text-xs",
+    default: "h-9 gap-2 px-4 text-sm",
+    lg: "h-10 gap-2 px-5 text-base",
+  };
+
+  const iconSize = size === "sm" ? 16 : size === "lg" ? 20 : 18;
+
+  return (
+    <Menu>
+      <MenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size={size === "sm" ? "sm" : size === "lg" ? "lg" : "default"}
+            className={cn(sizeClasses[size], "font-medium", triggerClassName)}
+          >
+            {value === "all" ? (
+              "All Platforms"
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <PlatformIcon platform={value} size={iconSize} />
+                {PLATFORM_OPTIONS.find((p) => p.value === value)?.label}
+              </span>
+            )}
+            <ChevronDown className="ml-auto size-4 opacity-50" />
+          </Button>
+        }
+      />
+      <MenuPanel className="w-56">
+        <MenuGroup>
+          <MenuGroupLabel>All Platforms</MenuGroupLabel>
+          <MenuItem onClick={() => onChange("all")}>
+            <span className="flex items-center gap-2.5 flex-1">
+              <span className="size-5 flex items-center justify-center bg-muted rounded-md">
+                <span className="text-xs">All</span>
+              </span>
+              <span className="font-medium">All Platforms</span>
+            </span>
+            {value === "all" && <Check className="size-4 text-primary" />}
+          </MenuItem>
+        </MenuGroup>
+        <MenuSeparator />
+        <MenuGroup>
+          <MenuGroupLabel>Social Media</MenuGroupLabel>
+          {PLATFORM_OPTIONS.filter((p) => p.value !== "all").map((platform) => (
+            <MenuItem
+              key={platform.value}
+              onClick={() => onChange(platform.value)}
+            >
+              <span className="flex items-center gap-2.5 flex-1">
+                <PlatformIcon platform={platform.value} size={20} />
+                <span className="font-medium">{platform.label}</span>
+              </span>
+              {value === platform.value && (
+                <Check className="size-4 text-primary" />
+              )}
+            </MenuItem>
+          ))}
+        </MenuGroup>
+      </MenuPanel>
+    </Menu>
+  );
+}
+
+// ============================================
+// PlatformFilterDropdown - Dropdown based filter (legacy)
 // ============================================
 
 interface PlatformFilterDropdownProps {
@@ -78,46 +165,50 @@ export function PlatformFilterDropdown({
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button
-          variant="ghost"
-          size={size === "sm" ? "sm" : size === "lg" ? "lg" : "default"}
-          className={cn(sizeClasses[size], "font-medium", className)}
-        >
-          {value === "all" ? (
-            "All Platforms"
-          ) : (
-            <span className="flex items-center gap-1.5">
-              <PlatformIcon
-                platform={value}
-                size={size === "sm" ? 16 : size === "lg" ? 20 : 18}
-              />
-              {PLATFORM_OPTIONS.find((p) => p.value === value)?.label}
-            </span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56 p-2">
+    <Menu>
+      <MenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size={size === "sm" ? "sm" : size === "lg" ? "lg" : "default"}
+            className={cn(sizeClasses[size], "font-medium", className)}
+          >
+            {value === "all" ? (
+              "All Platforms"
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <PlatformIcon
+                  platform={value}
+                  size={size === "sm" ? 16 : size === "lg" ? 20 : 18}
+                />
+                {PLATFORM_OPTIONS.find((p) => p.value === value)?.label}
+              </span>
+            )}
+            <ChevronDown className="ml-auto size-4 opacity-50" />
+          </Button>
+        }
+      />
+        <MenuPanel className="w-56" align="start">
+          <MenuGroup>
             {PLATFORM_OPTIONS.map((platform) => (
-              <DropdownMenuItem
-                key={platform.value}
-                onClick={() => onChange(platform.value)}
-                className="flex items-center justify-between py-2 text-sm rounded-lg"
-              >
-                <span className="flex items-center gap-2.5">
-                  {platform.value !== "all" && (
-                    <PlatformIcon platform={platform.value} size={20} />
-                  )}
-                  <span className="font-medium">{platform.label}</span>
-                </span>
-                {value === platform.value && (
-                  <Check className="h-4 w-4 text-primary" />
+            <MenuItem
+              key={platform.value}
+              onClick={() => onChange(platform.value)}
+            >
+              <span className="flex items-center gap-2.5 flex-1">
+                {platform.value !== "all" && (
+                  <PlatformIcon platform={platform.value} size={20} />
                 )}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-    </DropdownMenu>
+                <span className="font-medium">{platform.label}</span>
+              </span>
+              {value === platform.value && (
+                <Check className="size-4 text-primary" />
+              )}
+            </MenuItem>
+          ))}
+        </MenuGroup>
+      </MenuPanel>
+    </Menu>
   );
 }
 

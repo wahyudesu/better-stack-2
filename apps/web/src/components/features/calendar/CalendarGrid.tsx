@@ -37,9 +37,9 @@ export function CalendarGrid({
   if (calendarView === "week") {
     // Week view with card-based design (same as kanban)
     return (
-      <Card className="border-border/50 overflow-hidden">
-        {/* Header row with day names */}
-        <div className="grid grid-cols-7 border-b border-border/50">
+        <Card className="overflow-hidden">
+          {/* Header row with day names */}
+          <div className="grid grid-cols-7 border-b border-border/30">
           {DAY_NAMES.map((d) => (
             <div
               key={d}
@@ -121,11 +121,11 @@ export function CalendarGrid({
     );
   }
 
-  // Month view (original)
-  return (
-    <Card className="border-border/50 overflow-hidden">
-      {/* Day headers */}
-      <div className="grid grid-cols-7 border-b border-border/50">
+    // Month view (original)
+    return (
+      <Card className="overflow-hidden">
+        {/* Day headers */}
+        <div className="grid grid-cols-7 border-b border-border/30">
         {DAY_NAMES.map((d) => (
           <div
             key={d}
