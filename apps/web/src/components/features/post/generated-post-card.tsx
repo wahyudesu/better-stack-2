@@ -63,9 +63,9 @@ export function GeneratedPostCard({
   const shouldTruncate = lines.length > 3;
 
   return (
-    <Card className="border-border/50 overflow-hidden">
+    <Card className="border/50 overflow-hidden">
       {/* Header */}
-      <div className="border-b border-border/50 px-4 py-3 flex items-center justify-between bg-muted/30">
+      <div className="border-b border/50 px-4 py-3 flex items-center justify-between bg-muted/30">
         <div className="flex items-center gap-2">
           <span className="text-base">{platform?.icon}</span>
           <span className="font-medium text-sm">{platform?.name}</span>
@@ -101,7 +101,7 @@ export function GeneratedPostCard({
       <div className="p-4">
         <pre
           className={cn(
-            "whitespace-pre-wrap text-sm leading-relaxed font-sans text-foreground",
+            "whitespace-pre-wrap text-sm leading-relaxed font-sans",
             !expanded && "max-h-20 overflow-hidden",
           )}
         >
@@ -127,7 +127,7 @@ export function GeneratedPostCard({
       </div>
 
       {/* Actions */}
-      <div className="border-t border-border/50 px-4 py-3 flex items-center justify-between bg-muted/30">
+      <div className="border-t border/50 px-4 py-3 flex items-center justify-between bg-muted/30">
         <div className="flex items-center gap-2">
           <Button
             variant="outline"

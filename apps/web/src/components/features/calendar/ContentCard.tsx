@@ -89,7 +89,7 @@ export function ContentCard({
                 <span
                   key={platform}
                   className={cn(
-                    "flex items-center rounded-full bg-background/70 p-0.5",
+                    "flex items-center rounded-full bg-card/70 p-0.5",
                     index > 0 && "-ml-1.5"
                   )}
                   style={{ zIndex: platforms.length - index }}
@@ -170,7 +170,7 @@ export function ContentCard({
                   <div
                     key={platform}
                     className={cn(
-                      "relative rounded-full bg-background border border-border/50 p-0.5",
+                      "relative rounded-full bg-card border border/50 p-0.5",
                       index > 0 && "-ml-2"
                     )}
                     style={{ zIndex: platforms.length - index }}
@@ -265,13 +265,13 @@ export function ContentCard({
 
         {/* Row 2: Platform icons + date/time */}
         {showDateTime && (
-          <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border/50">
             <div className="flex items-center">
               {platforms.map((platform, index) => (
                 <div
                   key={platform}
                   className={cn(
-                    "rounded-full bg-background border border-border/50 p-1",
+                    "rounded-full bg-card border border/50 p-1",
                     index > 0 && "-ml-2"
                   )}
                   style={{ zIndex: platforms.length - index }}

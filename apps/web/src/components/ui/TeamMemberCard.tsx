@@ -32,7 +32,7 @@ export function TeamMemberCard({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg border border-border/50 p-3",
+        "flex items-center gap-3 rounded-lg border border/50 p-3",
         className
       )}
     >
@@ -44,7 +44,7 @@ export function TeamMemberCard({
         {online !== undefined && (
           <span
             className={cn(
-              "absolute bottom-0 right-0 size-3 rounded-full border-2 border-background",
+              "absolute bottom-0 right-0 size-3 rounded-full border-2",
               online ? "bg-green-500" : "bg-gray-400"
             )}
           />

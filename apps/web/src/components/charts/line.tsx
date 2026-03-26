@@ -54,9 +54,9 @@ export function Line({
   const [pathLength, setPathLength] = useState(0);
   const [clipWidth, setClipWidth] = useState(0);
 
-  // Unique gradient ID for this line
+  // Unique gradient ID for this line (deterministic for SSR)
   const gradientId = useMemo(
-    () => `line-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
+    () => `line-gradient-${dataKey}`,
     [dataKey]
   );
 
@@ -242,13 +242,13 @@ export function Line({
         <motion.path
           animate={{ opacity: 1 }}
           d={pathRef.current.getAttribute("d") || ""}
-          exit={{ opacity: 0 }}
           fill="none"
           initial={{ opacity: 0 }}
           stroke={stroke}
           strokeLinecap="round"
           strokeWidth={strokeWidth}
           style={{
+            opacity: 1,
             strokeDasharray: animatedDasharray,
             strokeDashoffset: offsetSpring,
           }}

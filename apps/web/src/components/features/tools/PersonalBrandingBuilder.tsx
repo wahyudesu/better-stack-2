@@ -243,7 +243,7 @@ export function PersonalBrandingBuilder() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="niche">Niche *</Label>
-            <Select value={input.niche} onValueChange={(v) => v && updateField("niche", v)}>
+            <Select value={input.niche} onValueChange={(v) => { if (v && typeof v === "string") updateField("niche", v); }}>
               <SelectTrigger id="niche" className="font-medium">
                 <SelectValue placeholder="Pilih niche" />
               </SelectTrigger>
@@ -384,7 +384,7 @@ export function PersonalBrandingBuilder() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="toneOfVoice">Tone of Voice *</Label>
-            <Select value={input.toneOfVoice} onValueChange={(v) => v && updateField("toneOfVoice", v)}>
+            <Select value={input.toneOfVoice} onValueChange={(v) => { if (v && typeof v === "string") updateField("toneOfVoice", v); }}>
               <SelectTrigger id="toneOfVoice" className="font-medium">
                 <SelectValue placeholder="Pilih tone" />
               </SelectTrigger>
@@ -467,7 +467,7 @@ export function PersonalBrandingBuilder() {
               )}
             </Button>
           </div>
-          <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
+          <div className="rounded-lg border border/50 bg-muted/30 p-4">
             <pre className="whitespace-pre-wrap text-sm leading-relaxed font-mono">
               {output}
             </pre>

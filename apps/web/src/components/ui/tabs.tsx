@@ -1,4 +1,4 @@
-import * as React from "react";
+import type * as React from "react";
 
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import type { TabsRootProps } from "@base-ui/react/tabs";

@@ -1,7 +1,7 @@
 import { LayoutGrid } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ContentCard } from "@/components/features/calendar/ContentCard";
-import { type CalendarEvent } from "@/data/mock";
+import type { CalendarEvent } from "@/data/mock";
 
 interface PostCardsViewProps {
   events: CalendarEvent[];
@@ -21,7 +21,7 @@ export function PostCardsView({ events, onEventClick, onCreateClick }: PostCards
         />
       ))}
       <Card
-        className="border-border/50 border-dashed cursor-pointer transition-all hover:border-primary/50 hover:bg-muted/30 min-h-[280px] flex items-center justify-center"
+        className="border/50 border-dashed cursor-pointer transition-all hover:border-primary/50 hover:bg-muted/30 min-h-[280px] flex items-center justify-center"
         onClick={onCreateClick}
       >
         <div className="text-center text-muted-foreground">

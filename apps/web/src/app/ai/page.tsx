@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, lazy, Suspense } from "react";
 import { Sparkles } from "lucide-react";
 import { Composer, type Tool, type ComposerContextOption, type UploadedFile } from "@/components/ui/composer";
 import { GeneratedPostCard } from "@/components/features/post";
@@ -9,9 +9,23 @@ import { TemplateManagerDialog } from "@/components/ui/template-manager-dialog";
 import { generatePost, platforms, tones, goals, contentTypes } from "@/lib/constants/ai-post";
 import type { Platform, ContentType, Tone, ScriptGoal, GeneratedPost } from "@/lib/types/ai-post";
 import { getTemplateManager, type ComposerTemplate } from "@/lib/types/template";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { AttachmentIcon, Image01Icon, FolderIcon } from "@/lib/utils/tool-icons";
 import { useAuthGate } from "@/components/auth";
+
+// Dynamically import heavy icon library to defer loading
+const HugeiconsIcon = lazy(() =>
+	import("@hugeicons/react").then((mod) => ({ default: mod.HugeiconsIcon }))
+);
+
+// Fallback component while lazy loading
+function IconFallback({ size }: { size: number }) {
+	return (
+		<span
+			style={{ width: size, height: size }}
+			className="inline-block animate-pulse bg-muted rounded"
+		/>
+	);
+}
 
 // Define AI tools
 const aiTools: Tool[] = [
@@ -279,21 +293,33 @@ export default function AIChatPage() {
 						id: "attach",
 						label: "Attach Files",
 						description: "Upload documents or images",
-						icon: <HugeiconsIcon icon={AttachmentIcon} size={18} />,
+						icon: (
+							<Suspense fallback={<IconFallback size={18} />}>
+								<HugeiconsIcon icon={AttachmentIcon} size={18} />
+							</Suspense>
+						),
 						onClick: openFilePicker,
 					},
 					{
 						id: "image",
 						label: "Add Image",
 						description: "Upload or generate an image",
-						icon: <HugeiconsIcon icon={Image01Icon} size={18} />,
+						icon: (
+							<Suspense fallback={<IconFallback size={18} />}>
+								<HugeiconsIcon icon={Image01Icon} size={18} />
+							</Suspense>
+						),
 						onClick: openImagePicker,
 					},
 					{
 						id: "content-type",
 						label: "Format: " + supportedContentTypes.find((c) => c.value === contentType)?.label,
 						description: supportedContentTypes.find((c) => c.value === contentType)?.description,
-						icon: <HugeiconsIcon icon={FolderIcon} size={18} />,
+						icon: (
+							<Suspense fallback={<IconFallback size={18} />}>
+								<HugeiconsIcon icon={FolderIcon} size={18} />
+							</Suspense>
+						),
 						onClick: cycleContentType,
 					},
 					{
@@ -315,29 +341,29 @@ export default function AIChatPage() {
 			/>
 
 			{/* Generated Posts List */}
-			{posts.length > 0 && (
+			{posts.length > 0 ? (
 				<div className="space-y-4">
 					<h2 className="text-sm font-medium text-muted-foreground">Generated Posts ({posts.length})</h2>
 					{posts.map((post) => (
 						<GeneratedPostCard key={post.id} post={post} onPlan={handlePlan} onPost={handlePost} onDelete={handleDelete} />
 					))}
 				</div>
-			)}
+			) : null}
 
 			{/* Empty State */}
-			{posts.length === 0 && !isGenerating && (
-				<Card className="border-border/50 border-dashed">
+			{posts.length === 0 && !isGenerating ? (
+				<Card className="border border-dashed">
 					<div className="text-center py-12">
 						<Sparkles className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
 						<h3 className="text-base font-semibold mb-1">Ready to create content?</h3>
 						<p className="text-sm text-muted-foreground">Type your topic above and let AI generate posts for you</p>
 					</div>
 				</Card>
-			)}
+			) : null}
 
 			{/* Loading State */}
-			{isGenerating && (
-				<Card className="border-border/50">
+			{isGenerating ? (
+				<Card className="border">
 					<div className="text-center py-12">
 						<div className="flex gap-1 justify-center mb-3">
 							<span className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -347,7 +373,7 @@ export default function AIChatPage() {
 						<p className="text-sm text-muted-foreground">Generating your post...</p>
 					</div>
 				</Card>
-			)}
+			) : null}
 		</div>
 	);
 }

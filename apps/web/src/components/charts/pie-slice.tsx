@@ -144,6 +144,7 @@ function AnimatedSliceTranslate({
       fill={fill}
       key={`slice-${animationKey}-${index}`}
       pointerEvents="none"
+      initial={{ opacity: 1, x: 0, y: 0 }}
       style={{
         filter:
           showGlow && isHovered ? `drop-shadow(0 0 12px ${glowColor})` : "none",
@@ -245,6 +246,7 @@ function AnimatedSliceGrow({
       fill={fill}
       key={`slice-${animationKey}-${index}`}
       pointerEvents="none"
+      initial={{ opacity: 1 }}
       style={{
         filter:
           showGlow && isHovered ? `drop-shadow(0 0 12px ${glowColor})` : "none",
@@ -391,6 +393,7 @@ export function PieSlice({
           }}
           d={hitboxPath}
           fill={fill}
+          initial={{ opacity: 1, d: hitboxPath }}
           pointerEvents="none"
           style={{
             filter:
@@ -418,6 +421,7 @@ export function PieSlice({
         }}
         d={hitboxPath}
         fill={fill}
+        initial={{ opacity: 1, x: 0, y: 0 }}
         pointerEvents="none"
         style={{
           filter:

@@ -230,7 +230,7 @@ export function PlatformFilterSelect({
   placeholder = "Select platform",
   className,
   showIcon = true,
-}: PlatformFilterSelectProps) {
+}: PlatformFilterSelectAdvancedProps) {
   return (
     <Select value={value} onValueChange={(val) => onChange(val as Platform)}>
       <SelectTrigger className={cn("w-[180px] h-8 font-medium", className)}>
@@ -364,4 +364,205 @@ export function PlatformFilterPills({
 
 export function getPlatformLabel(platform: PlatformFilterValue): string {
   return PLATFORM_OPTIONS.find((p) => p.value === platform)?.label || platform;
+}
+
+// ============================================
+// PlatformOption interface for custom options
+// ============================================
+
+export interface PlatformOption {
+  value: string;
+  label: string;
+}
+
+// ============================================
+// PlatformFilterSelectAdvanced - Flexible single/multi-select with custom options
+// ============================================
+
+interface PlatformFilterSelectAdvancedProps {
+  value: string | string[];
+  onChange: (value: string | string[]) => void;
+  options?: readonly PlatformOption[] | PlatformOption[];
+  multiSelect?: boolean;
+  placeholder?: string;
+  className?: string;
+  showIcon?: boolean;
+  label?: string;
+  triggerClassName?: string;
+}
+
+export function PlatformFilterSelectAdvanced({
+  value,
+  onChange,
+  options,
+  multiSelect = false,
+  placeholder = "Select platform",
+  className,
+  showIcon = true,
+  label,
+  triggerClassName,
+}: PlatformFilterSelectAdvancedProps) {
+  // Use provided options or default to all platforms without "all"
+  const platformOptions = options || PLATFORM_OPTIONS_NO_ALL;
+
+  if (multiSelect) {
+    const values = Array.isArray(value) ? value : [];
+    const toggleOption = (optionValue: string) => {
+      const newValues = values.includes(optionValue)
+        ? values.filter((v) => v !== optionValue)
+        : [...values, optionValue];
+      onChange(newValues);
+    };
+
+    return (
+      <div className={cn("space-y-2", className)}>
+        {label && <label className="text-sm font-medium">{label}</label>}
+        <Menu>
+          <MenuTrigger
+            render={
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-between font-medium",
+                  triggerClassName,
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  {values.length > 0 ? (
+                    <>
+                      {showIcon && values.length === 1 && (
+                        <PlatformIcon platform={values[0] as Platform} size={16} />
+                      )}
+                      <span>
+                        {values.length === 1
+                          ? platformOptions.find((o) => o.value === values[0])?.label
+                          : `${values.length} selected`}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">{placeholder}</span>
+                  )}
+                </span>
+                <ChevronDown className="size-4 opacity-50" />
+              </Button>
+            }
+          />
+          <MenuPanel className="w-56">
+            <MenuGroup>
+              {platformOptions.map((option) => (
+                <MenuItem
+                  key={option.value}
+                  onClick={() => toggleOption(option.value)}
+                >
+                  <span className="flex items-center gap-2.5 flex-1">
+                    {showIcon && (
+                      <PlatformIcon platform={option.value as Platform} size={20} />
+                    )}
+                    <span className="font-medium">{option.label}</span>
+                  </span>
+                  {values.includes(option.value) && (
+                    <Check className="size-4 text-primary" />
+                  )}
+                </MenuItem>
+              ))}
+            </MenuGroup>
+          </MenuPanel>
+        </Menu>
+      </div>
+    );
+  }
+
+  // Single select mode
+  const currentValue = typeof value === "string" ? value : undefined;
+
+  return (
+    <Select
+      value={currentValue}
+      onValueChange={(val) => onChange(val)}
+    >
+      <SelectTrigger className={cn("w-[180px] h-8 font-medium", className)}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {platformOptions.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            <span className="flex items-center gap-2 font-medium">
+              {showIcon && <PlatformIcon platform={option.value as Platform} size={16} />}
+              <span>{option.label}</span>
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+// ============================================
+// PlatformFilterPillsMulti - Multi-select pills with custom options
+// ============================================
+
+interface PlatformFilterPillsMultiProps {
+  values: string[];
+  onChange: (values: string[]) => void;
+  options?: readonly PlatformOption[] | PlatformOption[];
+  label?: string;
+  className?: string;
+  allowAll?: boolean;
+  showIcon?: boolean;
+}
+
+export function PlatformFilterPillsMulti({
+  values,
+  onChange,
+  options = PLATFORM_OPTIONS_NO_ALL,
+  label = "Platforms",
+  className,
+  allowAll = false,
+  showIcon = false,
+}: PlatformFilterPillsMultiProps) {
+  const displayOptions = allowAll
+    ? [{ value: "all", label: "All Platforms" }, ...options] as const
+    : options;
+
+  const togglePlatform = (platformValue: string) => {
+    if (platformValue === "all") {
+      onChange([]);
+      return;
+    }
+    onChange(
+      values.includes(platformValue)
+        ? values.filter((p) => p !== platformValue)
+        : [...values, platformValue],
+    );
+  };
+
+  return (
+    <div className={cn("space-y-2", className)}>
+      {label && <label className="text-sm font-medium">{label}</label>}
+      <div className="flex flex-wrap gap-2">
+        {displayOptions.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => togglePlatform(option.value)}
+            className={cn(
+              "cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5",
+              option.value === "all"
+                ? values.length === 0
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/70"
+                : values.includes(option.value)
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/70",
+            )}
+          >
+            {showIcon && option.value !== "all" && (
+              <PlatformIcon platform={option.value as Platform} size={14} />
+            )}
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }

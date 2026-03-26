@@ -114,7 +114,7 @@ export function PieCenter({
       )}
       style={{ width: centerSize, height: centerSize }}
     >
-      <span className={cn("text-foreground tabular-nums", valueClassName)}>
+      <span className={cn("tabular-nums", valueClassName)}>
         <NumberFlow
           format={formatOptions}
           prefix={prefix}

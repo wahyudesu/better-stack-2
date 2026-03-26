@@ -11,7 +11,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { ContentCard } from "@/components/features/calendar/ContentCard";
 import { Plus } from "lucide-react";
-import { type CalendarEvent } from "@/data/mock";
+import type { CalendarEvent } from "@/data/mock";
 import { cn } from "@/lib/utils";
 
 interface KanbanViewProps {
@@ -95,7 +95,7 @@ function PostColumn({ value, events, isOverlay, onEventClick, onCreateClick }: P
             {value === "draft" && onCreateClick && (
               <button
                 onClick={onCreateClick}
-                className="w-full p-4 border-2 border-dashed border-border/50 rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:bg-muted/30 transition-all"
+                className="w-full p-4 border-2 border-dashed border/50 rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:bg-muted/30 transition-all"
               >
                 <div className="text-center">
                   <Plus className="h-5 w-5 mx-auto mb-1 opacity-50" />

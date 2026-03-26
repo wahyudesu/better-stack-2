@@ -35,7 +35,7 @@ export default function ToolsPage() {
               "flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition-all",
               activeTool === tool.id
                 ? "border-primary bg-primary/5 text-primary font-medium"
-                : "border-border/50 hover:border-border text-muted-foreground hover:text-foreground"
+                : "border text-muted-foreground hover:text-foreground"
             )}
           >
             <tool.icon className="h-4 w-4" />
@@ -45,7 +45,7 @@ export default function ToolsPage() {
       </div>
 
       {/* Tool Content */}
-      <Card className="border-border/50">
+      <Card className="border">
         <CardContent className="p-6">
           {activeTool === "script-engine" && <ContentScriptEngine />}
           {activeTool === "branding" && <PersonalBrandingBuilder />}

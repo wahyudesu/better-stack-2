@@ -76,12 +76,11 @@ export function Area({
   // Unique IDs for this area
   const uniqueId = useId();
   const gradientId = useMemo(
-    () => `area-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
+    () => `area-gradient-${dataKey}`,
     [dataKey]
   );
   const strokeGradientId = useMemo(
-    () =>
-      `area-stroke-gradient-${dataKey}-${Math.random().toString(36).slice(2, 9)}`,
+    () => `area-stroke-gradient-${dataKey}`,
     [dataKey]
   );
   const edgeMaskId = `area-edge-mask-${dataKey}-${uniqueId}`;
@@ -353,13 +352,13 @@ export function Area({
           <motion.path
             animate={{ opacity: 1 }}
             d={pathRef.current.getAttribute("d") || ""}
-            exit={{ opacity: 0 }}
             fill="none"
             initial={{ opacity: 0 }}
             stroke={resolvedStroke}
             strokeLinecap="round"
             strokeWidth={strokeWidth}
             style={{
+              opacity: 1,
               strokeDasharray: animatedDasharray,
               strokeDashoffset: offsetSpring,
             }}

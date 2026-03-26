@@ -40,7 +40,7 @@ function ScriptTool() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-2">
           <Label>Platform</Label>
-          <Select value={platform} onValueChange={selectHandler(setPlatform, "instagram")}>
+          <Select value={platform} onValueChange={(v) => setPlatform(v ?? "instagram")}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="instagram">Instagram</SelectItem>
@@ -52,7 +52,7 @@ function ScriptTool() {
         </div>
         <div className="space-y-2">
           <Label>Tone</Label>
-          <Select value={tone} onValueChange={selectHandler(setTone, "casual")}>
+          <Select value={tone} onValueChange={(v) => setTone(v ?? "casual")}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="casual">Casual</SelectItem>
@@ -91,7 +91,7 @@ function BrandingTool() {
         </div>
         <div className="space-y-2">
           <Label>Niche</Label>
-          <Select value={niche} onValueChange={selectHandler(setNiche, "tech")}>
+          <Select value={niche} onValueChange={(v) => setNiche(v ?? "tech")}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="tech">Tech</SelectItem>

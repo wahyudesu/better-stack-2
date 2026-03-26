@@ -140,6 +140,7 @@ function AnimatedBar({
       }}
       fill={fill}
       height={animatedProps.height}
+      initial={{ opacity: 1 }}
       rx={rx}
       ry={ry}
       style={{
@@ -347,6 +348,7 @@ export function Bar({
             }}
             fill={fill}
             height={barHeight}
+            initial={{ opacity: 1 }}
             key={barKey}
             onMouseEnter={() => setHoveredBarIndex?.(i)}
             onMouseLeave={() => setHoveredBarIndex?.(null)}

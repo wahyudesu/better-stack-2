@@ -125,17 +125,16 @@ export function TooltipBox({
 
   return createPortal(
     <motion.div
-      animate={{ opacity: 1 }}
+      animate={{ opacity: visible ? 1 : 0 }}
       className={cn("pointer-events-none absolute z-50", className)}
-      exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       ref={tooltipRef}
-      style={{ left: finalLeft, top: finalTop }}
+      style={{ left: finalLeft, top: finalTop, opacity: visible ? 1 : 0 }}
       transition={{ duration: 0.1 }}
     >
       <motion.div
         animate={{ scale: 1, opacity: 1, x: 0 }}
-        className="min-w-[140px] overflow-hidden rounded-lg border border-border shadow-lg backdrop-blur-sm bg-popover text-popover-foreground"
+        className="min-w-[140px] overflow-hidden rounded-lg border shadow-lg backdrop-blur-sm bg-popover text-popover-foreground"
         initial={{ scale: 0.85, opacity: 0, x: isFlipped ? 20 : -20 }}
         key={flipKey}
         style={{ transformOrigin }}

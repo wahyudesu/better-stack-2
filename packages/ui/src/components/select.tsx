@@ -2,61 +2,12 @@
 
 import * as React from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
-import { AnimatePresence, motion } from "motion/react"
 
 import { cn } from "@better-stack-2/ui/lib/utils"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { UnfoldMoreIcon, Tick02Icon, ArrowUp01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons"
-import {
-  Highlight,
-  HighlightItem,
-  type HighlightItemProps,
-  type HighlightProps,
-} from '@better-stack-2/ui/components/animate-ui/primitives/effects/highlight';
-import { getStrictContext } from '@better-stack-2/ui/lib/get-strict-context';
-import { useControlledState } from '@better-stack-2/ui/hooks/use-controlled-state';
-import { useDataState } from '@better-stack-2/ui/hooks/use-data-state';
 
-// Context for tracking highlighted value
-type SelectActiveValueContextType = {
-  highlightedValue: string | null;
-  setHighlightedValue: (value: string | null) => void;
-};
-
-type SelectContextType = {
-  isOpen: boolean;
-  setIsOpen: SelectProps['onOpenChange'];
-};
-
-const [SelectActiveValueProvider, useSelectActiveValue] =
-  getStrictContext<SelectActiveValueContextType>('SelectActiveValueContext');
-const [SelectProvider, useSelect] =
-  getStrictContext<SelectContextType>('SelectContext');
-
-type SelectProps = React.ComponentProps<typeof SelectPrimitive.Root>;
-
-function Select(props: SelectProps) {
-  const [isOpen, setIsOpen] = useControlledState({
-    value: props?.open,
-    defaultValue: props?.defaultOpen,
-    onChange: props?.onOpenChange,
-  });
-  const [highlightedValue, setHighlightedValue] = React.useState<string | null>(
-    null,
-  );
-
-  return (
-    <SelectActiveValueProvider value={{ highlightedValue, setHighlightedValue }}>
-      <SelectProvider value={{ isOpen, setIsOpen }}>
-        <SelectPrimitive.Root
-          data-slot="select"
-          {...props}
-          onOpenChange={setIsOpen}
-        />
-      </SelectProvider>
-    </SelectActiveValueProvider>
-  );
-}
+const Select = SelectPrimitive.Root
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
@@ -106,37 +57,6 @@ function SelectTrigger({
   )
 }
 
-type SelectHighlightProps = Omit<
-  HighlightProps,
-  'controlledItems' | 'enabled' | 'hover'
-> & {
-  animateOnHover?: boolean;
-};
-
-function SelectHighlight({
-  transition = { type: 'spring', stiffness: 600, damping: 40 },
-  ...props
-}: SelectHighlightProps) {
-  const { highlightedValue } = useSelectActiveValue();
-
-  return (
-    <Highlight
-      data-slot="select-highlight"
-      click={false}
-      controlledItems
-      transition={transition}
-      value={highlightedValue}
-      {...props}
-    />
-  );
-}
-
-type SelectHighlightItemProps = HighlightItemProps;
-
-function SelectHighlightItem(props: SelectHighlightItemProps) {
-  return <HighlightItem data-slot="select-highlight-item" {...props} />;
-}
-
 function SelectContent({
   className,
   children,
@@ -145,51 +65,33 @@ function SelectContent({
   align = "center",
   alignOffset = 0,
   alignItemWithTrigger = true,
-  transition = { duration: 0.08 },
   ...props
 }: SelectPrimitive.Popup.Props &
   Pick<
     SelectPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
-  > & {
-    transition?: { duration: number };
-  }) {
-  const { isOpen } = useSelect();
-
+  >) {
   return (
     <SelectPrimitive.Portal>
-      <AnimatePresence>
-        {isOpen && (
-          <SelectPrimitive.Positioner
-            side={side}
-            sideOffset={sideOffset}
-            align={align}
-            alignOffset={alignOffset}
-            alignItemWithTrigger={alignItemWithTrigger}
-            className="isolate z-50"
-          >
-            <SelectPrimitive.Popup
-              data-slot="select-content"
-              data-align-trigger={alignItemWithTrigger}
-              render={
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={transition}
-                  style={{ willChange: 'opacity, transform' }}
-                  className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-2xl bg-popover text-popover-foreground shadow-2xl ring-1 ring-foreground/5", className)}
-                  {...props}
-                />
-              }
-            >
-              <SelectScrollUpButton />
-              <SelectPrimitive.List>{children}</SelectPrimitive.List>
-              <SelectScrollDownButton />
-            </SelectPrimitive.Popup>
-          </SelectPrimitive.Positioner>
-        )}
-      </AnimatePresence>
+      <SelectPrimitive.Positioner
+        side={side}
+        sideOffset={sideOffset}
+        align={align}
+        alignOffset={alignOffset}
+        alignItemWithTrigger={alignItemWithTrigger}
+        className="isolate z-50"
+      >
+        <SelectPrimitive.Popup
+          data-slot="select-content"
+          data-align-trigger={alignItemWithTrigger}
+          className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-2xl bg-popover text-popover-foreground shadow-2xl ring-1 ring-foreground/5 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          {...props}
+        >
+          <SelectScrollUpButton />
+          <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          <SelectScrollDownButton />
+        </SelectPrimitive.Popup>
+      </SelectPrimitive.Positioner>
     </SelectPrimitive.Portal>
   )
 }
@@ -212,22 +114,8 @@ function SelectItem({
   children,
   ...props
 }: SelectPrimitive.Item.Props) {
-  const { setHighlightedValue } = useSelectActiveValue();
-  const [, highlightedRef] = useDataState<HTMLDivElement>(
-    'highlighted',
-    undefined,
-    (value) => {
-      if (value === true) {
-        const el = highlightedRef.current;
-        const v = el?.dataset.value || el?.id || null;
-        if (v) setHighlightedValue(v);
-      }
-    },
-  );
-
   return (
     <SelectPrimitive.Item
-      ref={highlightedRef}
       data-slot="select-item"
       className={cn(
         "relative flex w-full cursor-default items-center gap-2.5 rounded-xl py-2 pr-8 pl-3 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
@@ -312,8 +200,4 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-  SelectHighlight,
-  SelectHighlightItem,
-  useSelectActiveValue,
-  useSelect,
 }

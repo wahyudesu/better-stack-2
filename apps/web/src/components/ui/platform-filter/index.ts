@@ -1,12 +1,16 @@
 export {
   PlatformFilterDropdown,
   PlatformFilterSelect,
+  PlatformFilterSelectAdvanced,
   PlatformFilterMulti,
   PlatformFilterPills,
+  PlatformFilterPillsMulti,
+  PlatformFilterMenu,
   PLATFORM_OPTIONS,
   PLATFORM_OPTIONS_NO_ALL,
   PLATFORM_MULTI_OPTIONS,
   type PlatformFilterValue,
   type PlatformMultiValue,
+  type PlatformOption,
   getPlatformLabel,
 } from "../platform-filter";

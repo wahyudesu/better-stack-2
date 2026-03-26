@@ -496,7 +496,7 @@ export const Composer: FC<ComposerProps> = ({
 								<span className="text-xs text-zinc-500 dark:text-zinc-400">Tone:</span>
 								<Select
 									value={selectedTone}
-									onValueChange={selectHandler(setSelectedTone, "casual")}
+									onValueChange={(v) => setSelectedTone(v ?? "casual")}
 									disabled={disabled || isLoading}
 								>
 									<SelectTrigger className="h-7 w-auto min-w-[90px] border-0 bg-zinc-200 dark:bg-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600 focus:ring-0 focus:ring-offset-0">

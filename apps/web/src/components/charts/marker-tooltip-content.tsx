@@ -20,7 +20,7 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
         transition={{ duration: 0.2 }}
-        className="mt-3 pt-3 border-t border-border/50"
+        className="mt-3 pt-3 border-t border/50"
       >
         <div className="space-y-2">
           {markers.map((marker, index) => (

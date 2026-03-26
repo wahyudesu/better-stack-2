@@ -32,7 +32,7 @@ export function IntegrationCard({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-lg border border-border/50 p-3",
+        "flex items-center gap-3 rounded-lg border border/50 p-3",
         className
       )}
     >

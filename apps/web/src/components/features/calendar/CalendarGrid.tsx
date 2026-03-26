@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { DAY_NAMES } from "@/lib/constants";
 import { PlatformIcon, type Platform } from "@/components/ui/PlatformIcon";
@@ -34,12 +35,59 @@ export function CalendarGrid({
   onDrop,
   calendarView = "month",
 }: CalendarGridProps) {
+  // Stable callbacks for week view
+  const handleWeekDragStart = useCallback((e: React.DragEvent, ev: CalendarEvent) => {
+    onDragStart(e, ev);
+  }, [onDragStart]);
+
+  const handleWeekDateClick = useCallback((dateStr: string) => {
+    return () => onDateClick(dateStr);
+  }, [onDateClick]);
+
+  const handleWeekEventClick = useCallback((ev: CalendarEvent) => {
+    return () => onEventClick(ev);
+  }, [onEventClick]);
+
+  const handleWeekDrop = useCallback((dateStr: string) => {
+    return (e: React.DragEvent) => onDrop(e, dateStr);
+  }, [onDrop]);
+
+  // Stable callbacks for month view
+  const handleMonthDateClick = useCallback((dateStr: string) => {
+    return () => onDateClick(dateStr);
+  }, [onDateClick]);
+
+  const handleMonthEventClick = useCallback((ev: CalendarEvent) => {
+    return (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onEventClick(ev);
+    };
+  }, [onEventClick]);
+
+  const handleMonthEventKeyDown = useCallback((ev: CalendarEvent) => {
+    return (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        onEventClick(ev);
+      }
+    };
+  }, [onEventClick]);
+
+  const handleMonthDragStart = useCallback((ev: CalendarEvent) => {
+    return (e: React.DragEvent) => onDragStart(e, ev);
+  }, [onDragStart]);
+
+  const handleMonthDrop = useCallback((dateStr: string) => {
+    return (e: React.DragEvent) => onDrop(e, dateStr);
+  }, [onDrop]);
+
   if (calendarView === "week") {
-    // Week view with card-based design (same as kanban)
-    return (
-        <Card className="overflow-hidden">
+      // Week view with card-based design (same as kanban)
+      return (
+          <Card className="overflow-hidden">
           {/* Header row with day names */}
-          <div className="grid grid-cols-7 border-b border-border/30">
+          <div className="grid grid-cols-7">
           {DAY_NAMES.map((d) => (
             <div
               key={d}
@@ -66,19 +114,19 @@ export function CalendarGrid({
               <div
                 key={cellKey}
                 className={cn(
-                  "border-r border-border/30 flex flex-col min-h-[600px]",
+                  "flex flex-col min-h-[600px]",
                   cell.day ? "bg-card" : "bg-muted/20",
                 )}
               >
                 {/* Date header */}
-                <div className="border-b border-border/30 p-3 text-center sticky top-0 bg-card/95 backdrop-blur-sm z-10">
+                <div className="p-3 text-center sticky top-0 bg-card/95 backdrop-blur-sm z-10">
                   {cell.day && (
                     <span
                       className={cn(
                         "inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold",
                         isToday
                           ? "bg-primary text-primary-foreground"
-                          : "text-foreground",
+                          : "",
                       )}
                     >
                       {cell.day}
@@ -95,19 +143,19 @@ export function CalendarGrid({
                       variant="vertical"
                       size="sm"
                       draggable
-                      onDragStart={(e) => onDragStart(e, ev)}
+                      onDragStart={(e) => handleWeekDragStart(e, ev)}
                       onDragEnd={onDragEnd}
-                      onClick={() => onEventClick(ev)}
+                      onClick={handleWeekEventClick(ev)}
                     />
                   ))}
 
                   {/* Empty slot indicator for creating new events */}
                   {cell.day && (
                     <button
-                      onClick={() => onDateClick(cell.dateStr)}
+                      onClick={handleWeekDateClick(cell.dateStr)}
                       onDragOver={onDragOver}
-                      onDrop={(e) => onDrop(e, cell.dateStr)}
-                      className="w-full p-3 border-2 border-dashed border-border/30 rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:bg-muted/30 transition-all"
+                      onDrop={handleWeekDrop(cell.dateStr)}
+                      className="w-full p-3 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:bg-muted/30 transition-all"
                     >
                       <span className="text-xs">+</span>
                     </button>
@@ -121,11 +169,11 @@ export function CalendarGrid({
     );
   }
 
-    // Month view (original)
-    return (
-      <Card className="overflow-hidden">
+      // Month view (original)
+      return (
+        <Card className="overflow-hidden">
         {/* Day headers */}
-        <div className="grid grid-cols-7 border-b border-border/30">
+        <div className="grid grid-cols-7">
         {DAY_NAMES.map((d) => (
           <div
             key={d}
@@ -149,7 +197,7 @@ export function CalendarGrid({
             return (
               <div
                 key={`month-empty-${dayNames[i % 7]}`}
-                className="min-h-[240px] border-b border-r border-border/30 p-2 bg-muted/20"
+                className="min-h-[240px] p-2 bg-muted/20"
               />
             );
           }
@@ -158,12 +206,12 @@ export function CalendarGrid({
             <div
               key={cell.dateStr}
               className={cn(
-                "min-h-[240px] border-b border-r border-border/30 p-2 transition-colors bg-card hover:bg-muted/30 cursor-pointer",
+                "min-h-[240px] p-2 transition-colors bg-card hover:bg-muted/30 cursor-pointer",
                 draggedEvent ? "hover:bg-primary/5" : "",
               )}
-              onClick={() => onDateClick(cell.dateStr)}
+              onClick={handleMonthDateClick(cell.dateStr)}
               onDragOver={onDragOver}
-              onDrop={(e) => onDrop(e, cell.dateStr)}
+              onDrop={handleMonthDrop(cell.dateStr)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
@@ -178,7 +226,7 @@ export function CalendarGrid({
                   "mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold",
                   isToday
                     ? "bg-primary text-primary-foreground"
-                    : "text-foreground",
+                    : "",
                 )}
               >
                 {cell.day}
@@ -188,12 +236,9 @@ export function CalendarGrid({
                     <div
                       key={ev.id}
                       draggable
-                      onDragStart={(e) => onDragStart(e, ev)}
+                      onDragStart={handleMonthDragStart(ev)}
                       onDragEnd={onDragEnd}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEventClick(ev);
-                      }}
+                      onClick={handleMonthEventClick(ev)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();

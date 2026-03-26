@@ -254,7 +254,7 @@ export default function CalendarPage() {
             <>
               <DialogHeader>
                 <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-10 h-10 rounded-full bg-background">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/50">
                     <PlatformIcon platform={selectedEvent.platform as Platform} size={20} />
                   </span>
                   <div className="flex-1">

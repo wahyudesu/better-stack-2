@@ -190,7 +190,10 @@ export function ContentScriptEngine() {
           {/* Tujuan Utama */}
           <div className="space-y-2">
             <Label>Tujuan Utama</Label>
-            <Select value={purpose} onValueChange={(val) => setPurpose(val ?? "")}>
+            <Select
+              value={purpose}
+              onValueChange={(val: unknown) => setPurpose((val as string | null) ?? "edukasi")}
+            >
               <SelectTrigger className="w-full font-medium">
                 <SelectValue placeholder="Pilih tujuan" />
               </SelectTrigger>
@@ -210,7 +213,10 @@ export function ContentScriptEngine() {
           {/* Role Pengguna */}
           <div className="space-y-2">
             <Label>Role Pengguna</Label>
-            <Select value={persona} onValueChange={(val) => setPersona(val ?? "")}>
+            <Select
+              value={persona}
+              onValueChange={(val: unknown) => setPersona((val as string | null) ?? "expert-mentor")}
+            >
               <SelectTrigger className="w-full font-medium">
                 <SelectValue placeholder="Pilih role" />
               </SelectTrigger>
@@ -230,7 +236,10 @@ export function ContentScriptEngine() {
           {/* Platform Target */}
           <div className="space-y-2">
             <Label>Platform Target</Label>
-            <Select value={platform} onValueChange={(val) => setPlatform(val ?? "")}>
+            <Select
+              value={platform}
+              onValueChange={(val: unknown) => setPlatform((val as string | null) ?? "instagram")}
+            >
               <SelectTrigger className="w-full font-medium">
                 <SelectValue placeholder="Pilih platform" />
               </SelectTrigger>
@@ -250,7 +259,10 @@ export function ContentScriptEngine() {
           {/* Tone */}
           <div className="space-y-2">
             <Label>Tone</Label>
-            <Select value={tone} onValueChange={(val) => setTone(val ?? "")}>
+            <Select
+              value={tone}
+              onValueChange={(val: unknown) => setTone((val as string | null) ?? "casual")}
+            >
               <SelectTrigger className="w-full font-medium">
                 <SelectValue placeholder="Pilih tone" />
               </SelectTrigger>
@@ -292,7 +304,10 @@ export function ContentScriptEngine() {
           {/* Format Konten */}
           <div className="space-y-2">
             <Label>Format Konten</Label>
-            <Select value={format} onValueChange={(val) => setFormat(val ?? "")}>
+            <Select
+              value={format}
+              onValueChange={(val: unknown) => setFormat((val as string | null) ?? "single")}
+            >
               <SelectTrigger className="w-full font-medium">
                 <SelectValue placeholder="Pilih format" />
               </SelectTrigger>
@@ -322,7 +337,10 @@ export function ContentScriptEngine() {
           {/* Framework */}
           <div className="space-y-2">
             <Label>Framework</Label>
-            <Select value={framework} onValueChange={(val) => setFramework(val ?? "")}>
+            <Select
+              value={framework}
+              onValueChange={(val: unknown) => setFramework((val as string | null) ?? "pas")}
+            >
               <SelectTrigger className="w-full font-medium">
                 <SelectValue placeholder="Pilih framework" />
               </SelectTrigger>
@@ -464,7 +482,7 @@ export function ContentScriptEngine() {
                     setExpandedOutputId(null);
                   }
                 }}
-                className="rounded-lg border border-border/50 bg-muted/30 overflow-hidden"
+                className="rounded-lg border border/50 bg-muted/30 overflow-hidden"
               >
                 <CollapsibleTrigger className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors data-[state=open]:bg-muted/50">
                   <div className="flex items-center gap-2">
@@ -485,7 +503,7 @@ export function ContentScriptEngine() {
                 </CollapsibleTrigger>
 
                 <CollapsibleContent className="px-4 pb-4">
-                  <div className="rounded-lg border border-border/50 bg-background p-4">
+                  <div className="rounded-lg border border/50 bg-muted p-4">
                     <pre className="whitespace-pre-wrap text-sm leading-relaxed font-mono">
                       {output.prompt}
                     </pre>

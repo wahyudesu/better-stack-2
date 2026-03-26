@@ -36,10 +36,10 @@ export function SegmentBackground({
   return (
     <motion.rect
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
       fill={fill}
       height={innerHeight}
       initial={{ opacity: 0 }}
+      style={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       width={dimensions.width}
       x={dimensions.x}
@@ -87,7 +87,6 @@ function SegmentLine({
         </defs>
         <motion.line
           animate={{ opacity: 1, y2: innerHeight }}
-          exit={{ opacity: 0 }}
           initial={{ opacity: 0, y2: innerHeight * 0.5 }}
           stroke={`url(#${segmentLineId})`}
           strokeLinecap="round"
@@ -104,7 +103,6 @@ function SegmentLine({
   return (
     <motion.line
       animate={{ opacity: 1, y2: innerHeight }}
-      exit={{ opacity: 0 }}
       initial={{ opacity: 0, y2: innerHeight * 0.5 }}
       stroke={stroke}
       strokeDasharray={strokeDasharray}

@@ -12,9 +12,9 @@ export function cn(...inputs: ClassValue[]) {
  * const [value, setValue] = useState("default")
  * <Select onValueChange={selectHandler(setValue, "default")}>
  */
-export function selectHandler(
-  setState: React.Dispatch<React.SetStateAction<string>>,
-  defaultValue: string
-): (value: string | null) => void {
+export function selectHandler<T extends string>(
+	setState: React.Dispatch<React.SetStateAction<T>>,
+	defaultValue: T
+): (value: T | null) => void {
   return (value) => setState(value ?? defaultValue);
 }

@@ -14,7 +14,11 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "tauri": "tauri",
     "desktop:dev": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check --write ."
   },
   "dependencies": {
     "@better-stack-2/env": "workspace:*",
@@ -51,6 +55,7 @@
   },
   "devDependencies": {
     "@better-stack-2/config": "workspace:*",
+    "@biomejs/biome": "2.4.9",
     "@cloudflare/workers-types": "catalog:",
     "@tailwindcss/postcss": "^4.1.18",
     "@tauri-apps/cli": "^2.4.0",

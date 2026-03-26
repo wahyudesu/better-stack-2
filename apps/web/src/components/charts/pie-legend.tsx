@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import React from "react";
 import { cn } from "@better-stack-2/ui/lib/utils";
 

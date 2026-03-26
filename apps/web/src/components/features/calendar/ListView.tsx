@@ -36,7 +36,7 @@ interface SortButtonProps {
 function SortButton({ field, label, sortField, onSort }: SortButtonProps) {
   return (
     <button
-      className="flex items-center gap-1 hover:text-foreground transition-colors"
+      className="flex items-center gap-1 transition-colors"
       onClick={() => onSort(field)}
     >
       {label}
@@ -99,10 +99,11 @@ export function ListView({ events, onEventClick }: ListViewProps) {
         case "platform":
           comparison = a.platform.localeCompare(b.platform);
           break;
-        case "status":
+        case "status": {
           const statusOrder = { draft: 0, scheduled: 1, published: 2 };
           comparison = statusOrder[a.status] - statusOrder[b.status];
           break;
+        }
       }
 
       return sortDirection === "asc" ? comparison : -comparison;
@@ -119,7 +120,7 @@ export function ListView({ events, onEventClick }: ListViewProps) {
   };
 
   return (
-    <div className="rounded-xl border border-border/50 bg-card overflow-hidden">
+    <div className="rounded-xl border border/50 bg-card overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
