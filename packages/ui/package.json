@@ -7,6 +7,10 @@
     "./globals.css": "./src/styles/globals.css",
     "./lib/*": "./src/lib/*.{ts,tsx}",
     "./components/*": "./src/components/*.tsx",
+    "./components/animate-ui/components/base/menu": "./src/components/animate-ui/components/base/menu.tsx",
+    "./components/animate-ui/primitives/base/menu": "./src/components/animate-ui/primitives/base/menu.tsx",
+    "./components/animate-ui/primitives/effects/highlight": "./src/components/animate-ui/primitives/effects/highlight.tsx",
+    "./components/animate-ui": "./src/components/animate-ui/index.ts",
     "./hooks/*": "./src/hooks/*.{ts,tsx}",
     "./postcss.config": "./postcss.config.mjs"
   },

@@ -37,7 +37,7 @@ import {
   type MenuShortcutProps as MenuShortcutPrimitiveProps,
   type MenuSubmenuProps as MenuSubmenuPrimitiveProps,
   type MenuSubmenuTriggerProps as MenuSubmenuTriggerPrimitiveProps,
-} from '@better-stack-2/ui/components/animate-ui/primitives/base/menu';
+} from '@better-stack-2/components/animate-ui/primitives/base/menu';
 import { cn } from '@better-stack-2/ui/lib/utils';
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react';
 
@@ -299,7 +299,7 @@ function MenuSubmenuPanel({
   id,
   children,
   sideOffset = 4,
-  transition = { duration: 0.01 },
+  transition = { duration: 0.2 },
   ...props
 }: MenuSubmenuPanelProps) {
   return (
