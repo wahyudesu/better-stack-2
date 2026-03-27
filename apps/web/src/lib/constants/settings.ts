@@ -10,11 +10,10 @@
 // RE-EXPORTS FROM NEW LOCATIONS
 // ============================================================
 
-// UI-related (theme, accent colors)
-export { ACCENT_COLORS, THEME_OPTIONS } from "./ui";
-
 // Time-related (timezones)
 export { TIMEZONES } from "./time";
+// UI-related (theme, accent colors)
+export { ACCENT_COLORS, THEME_OPTIONS } from "./ui";
 
 // ============================================================
 // SETTINGS-SPECIFIC CONSTANTS (kept here)

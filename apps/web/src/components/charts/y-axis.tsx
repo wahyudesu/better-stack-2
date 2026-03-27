@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "@better-stack-2/ui/lib/utils";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
-import { cn } from "@better-stack-2/ui/lib/utils";
-import { useChart } from "./chart-context";
 import { formatMetricValue } from "@/lib/metrics";
+import { useChart } from "./chart-context";
 
 export interface YAxisProps {
 	/** Number of ticks to show. Default: 5 */

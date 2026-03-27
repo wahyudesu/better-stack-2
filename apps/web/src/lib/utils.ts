@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+	return twMerge(clsx(inputs));
 }
 
 /**
@@ -14,7 +14,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function selectHandler<T extends string>(
 	setState: React.Dispatch<React.SetStateAction<T>>,
-	defaultValue: T
+	defaultValue: T,
 ): (value: T | null) => void {
-  return (value) => setState(value ?? defaultValue);
+	return (value) => setState(value ?? defaultValue);
 }

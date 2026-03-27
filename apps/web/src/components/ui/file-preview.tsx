@@ -1,8 +1,8 @@
 "use client";
 
 import type { FC, ReactNode } from "react";
-import { HugeiconsIcon, Cancel01Icon } from "@/lib/utils/tool-icons";
 import { cn } from "@/lib/utils";
+import { Cancel01Icon, HugeiconsIcon } from "@/lib/utils/tool-icons";
 
 export interface UploadedFile {
 	id: string;
@@ -37,7 +37,11 @@ export const FilePreview: FC<FilePreviewProps> = ({
 				>
 					{file.preview ? (
 						<div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden">
-							<img src={file.preview} alt="" className="w-full h-full object-cover" />
+							<img
+								src={file.preview}
+								alt=""
+								className="w-full h-full object-cover"
+							/>
 						</div>
 					) : (
 						<div className="flex-shrink-0 w-10 h-10 rounded bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
@@ -60,7 +64,11 @@ export const FilePreview: FC<FilePreviewProps> = ({
 							onClick={() => onRemove(file.id)}
 							className="flex-shrink-0 p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
 						>
-							<HugeiconsIcon icon={Cancel01Icon} size={16} className="text-zinc-500" />
+							<HugeiconsIcon
+								icon={Cancel01Icon}
+								size={16}
+								className="text-zinc-500"
+							/>
 						</button>
 					)}
 				</div>

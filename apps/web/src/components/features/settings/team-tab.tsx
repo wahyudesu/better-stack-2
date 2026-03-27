@@ -3,8 +3,8 @@
  */
 
 import { Button } from "@/components/ui/button";
-import { teamMembers } from "@/data/mock";
 import { TeamMemberCard } from "@/components/ui/TeamMemberCard";
+import { teamMembers } from "@/data/mock";
 
 export function TeamTab() {
 	return (

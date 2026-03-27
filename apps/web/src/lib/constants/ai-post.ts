@@ -8,9 +8,9 @@
  */
 
 export {
-  platforms,
-  contentTypes,
-  tones,
-  goals,
-  generatePost,
+	contentTypes,
+	generatePost,
+	goals,
+	platforms,
+	tones,
 } from "./platforms";

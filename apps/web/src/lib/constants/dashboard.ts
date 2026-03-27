@@ -12,14 +12,14 @@
 
 // Platform-related
 export {
+	PLATFORM_MULTIPLIERS,
 	PLATFORMS,
 	SOCIAL_MEDIA_OPTIONS,
-	PLATFORM_MULTIPLIERS,
 	type SocialMediaPlatform,
 } from "./platforms";
 
 // Time-related
-export { TIME_OPTIONS, DAYS_MAP } from "./time";
+export { DAYS_MAP, TIME_OPTIONS } from "./time";
 
 // ============================================================
 // DASHBOARD-SPECIFIC CONSTANTS (kept here)
@@ -89,20 +89,25 @@ export const POST_CONTENTS = [
 	{ title: "Event Announcement", description: "Join us at our upcoming event" },
 ] as const;
 
-// Country data for demographics
-export const COUNTRY_DATA = [
-	{ country: "Indonesia", users: 3500 },
-	{ country: "United States", users: 2800 },
-	{ country: "Japan", users: 1900 },
-	{ country: "Singapore", users: 1200 },
-	{ country: "Malaysia", users: 850 },
-] as const;
+// ============================================================
+// RE-EXPORTS FROM DATA FILES
+// ============================================================
 
-// Region data for demographics
-export const REGION_DATA = [
-	{ region: "Jakarta", users: 2100 },
-	{ region: "Surabaya", users: 1400 },
-	{ region: "Bandung", users: 980 },
-	{ region: "Bali", users: 720 },
-	{ region: "Medan", users: 580 },
-] as const;
+// Demographics data
+export {
+	COUNTRY_DATA,
+	type DemographicDataItem,
+	REGION_DATA,
+} from "@/lib/data/demographics";
+
+// Social media data (profiles, posts, analytics)
+export {
+	getCalendarItems,
+	getDashboardItems,
+	getPostAnalytics,
+	getPostsByStatus,
+	getScheduledPostsInRange,
+	sampleAnalytics,
+	samplePosts,
+	sampleProfiles,
+} from "@/lib/data/social-data";

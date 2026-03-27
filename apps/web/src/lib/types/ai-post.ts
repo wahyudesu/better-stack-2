@@ -4,14 +4,11 @@
  */
 
 export type {
-	Platform,
 	ContentType,
-	Tone,
-	ScriptGoal,
-} from "./platform";
-
-export type {
 	GeneratedPost,
-	ToneOption,
+	Platform,
 	PlatformConfig,
+	ScriptGoal,
+	Tone,
+	ToneOption,
 } from "./platform";

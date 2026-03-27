@@ -2,15 +2,21 @@
  * Content and post-related types.
  */
 
-import type { GeneratedPost, Platform, ContentType, Tone, ScriptGoal } from "./platform";
+import type {
+	ContentType,
+	GeneratedPost,
+	Platform,
+	ScriptGoal,
+	Tone,
+} from "./platform";
 
 // Re-export AI post types
 export type {
+	ContentType,
 	GeneratedPost,
 	Platform,
-	ContentType,
-	Tone,
 	ScriptGoal,
+	Tone,
 } from "./platform";
 
 /**

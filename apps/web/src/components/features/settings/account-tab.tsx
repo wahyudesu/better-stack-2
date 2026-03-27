@@ -4,15 +4,15 @@
 
 "use client";
 
+import { Sparkles, Zap } from "lucide-react";
 import { useState } from "react";
-import { Zap, Sparkles } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 // Mock user data (replace with actual auth when ClerkProvider is set up)

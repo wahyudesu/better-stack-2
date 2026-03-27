@@ -2,10 +2,10 @@
  * Billing Settings Tab Component.
  */
 
-import { Card, CardContent } from "@/components/ui/card";
+import { CreditCard, Download, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, CreditCard, Download } from "lucide-react";
 import { BILLING_HISTORY } from "@/lib/constants/settings";
 
 export function BillingTab() {

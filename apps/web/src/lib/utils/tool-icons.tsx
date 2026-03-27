@@ -1,11 +1,18 @@
-import { HugeiconsIcon } from "@hugeicons/react";
-
 // Import icons from core-free-icons
 import {
+	Add01Icon,
+	ArrowUp02Icon,
+	AttachmentIcon,
 	Brain02Icon,
 	Calendar03Icon,
+	Cancel01Icon,
 	CheckmarkCircle02Icon,
+	Copy02Icon,
+	Delete02Icon,
 	File02Icon,
+	FloppyDiskIcon,
+	FolderIcon,
+	Image01Icon,
 	Image02Icon,
 	InformationCircleIcon,
 	Layout01Icon,
@@ -14,26 +21,18 @@ import {
 	MapsIcon,
 	MessageMultiple02Icon,
 	Notification03Icon,
+	PlusSignIcon,
 	Search01Icon,
 	SourceCodeCircleIcon,
 	Sun03Icon,
 	TableIcon,
+	Tag01Icon,
 	Target02Icon,
 	Task01Icon,
-	VideoReplayIcon,
-	ArrowUp02Icon,
-	PlusSignIcon,
 	ToolsIcon,
-	FloppyDiskIcon,
-	Cancel01Icon,
-	Copy02Icon,
-	Add01Icon,
-	AttachmentIcon,
-	Image01Icon,
-	FolderIcon,
-	Delete02Icon,
-	Tag01Icon,
+	VideoReplayIcon,
 } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 export interface IconProps {
 	size?: number;
@@ -45,7 +44,10 @@ export interface IconProps {
 }
 
 // Icon type from @hugeicons/core-free-icons
-type IconSvgElement = readonly (readonly [string, { readonly [key: string]: string | number }])[];
+type IconSvgElement = readonly (readonly [
+	string,
+	{ readonly [key: string]: string | number },
+])[];
 
 // Category-specific icons with colors
 export interface IconConfig {
@@ -285,17 +287,17 @@ export const formatToolName = (name: string): string => {
 
 // Export commonly used icons for convenience
 export {
+	Add01Icon,
 	ArrowUp02Icon,
-	PlusSignIcon,
-	ToolsIcon,
-	FloppyDiskIcon,
+	AttachmentIcon,
 	Cancel01Icon,
 	Copy02Icon,
-	Add01Icon,
-	AttachmentIcon,
-	Image01Icon,
-	FolderIcon,
 	Delete02Icon,
-	Tag01Icon,
+	FloppyDiskIcon,
+	FolderIcon,
 	HugeiconsIcon,
+	Image01Icon,
+	PlusSignIcon,
+	Tag01Icon,
+	ToolsIcon,
 };

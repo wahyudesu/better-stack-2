@@ -1,34 +1,38 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { FilterBar } from "@/components/dashboard/filter-bar";
-import { StatsCards, type StatItem } from "@/components/dashboard/stats-cards";
-import {
-	LineChartCard,
-	type ChartDataPoint,
-} from "@/components/dashboard/line-chart-card";
-import { DemographicsCard } from "@/components/dashboard/demographics-card";
-import { AudienceCard } from "@/components/dashboard/audience-card";
-import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
+import { useMemo, useState } from "react";
 import type { ChartMarker } from "@/components/charts/line-chart";
-import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import { formatMetricValue, calculateTrend } from "@/lib/metrics";
-import type {
-	SocialMediaPlatform,
-	ReportType,
-	TimeRange,
-	GeoView,
-	DemoView,
-} from "@/lib/types/dashboard";
+import { AudienceCard } from "@/components/dashboard/audience-card";
+import { DemographicsCard } from "@/components/dashboard/demographics-card";
+import { FilterBar } from "@/components/dashboard/filter-bar";
 import {
+	type ChartDataPoint,
+	LineChartCard,
+} from "@/components/dashboard/line-chart-card";
+import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
+import {
+	PlaceholderCard,
+	SentimentCard,
+} from "@/components/dashboard/sentiment-card";
+import { type StatItem, StatsCards } from "@/components/dashboard/stats-cards";
+import {
+	COUNTRY_DATA,
 	DAYS_MAP,
 	PLATFORM_MULTIPLIERS,
-	TYPE_MULTIPLIERS,
 	PLATFORMS,
 	POST_CONTENTS,
-	COUNTRY_DATA,
 	REGION_DATA,
+	TYPE_MULTIPLIERS,
 } from "@/lib/constants/dashboard";
+import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
+import { calculateTrend, formatMetricValue } from "@/lib/metrics";
+import type {
+	DemoView,
+	GeoView,
+	ReportType,
+	SocialMediaPlatform,
+	TimeRange,
+} from "@/lib/types/dashboard";
 
 // Seeded random for consistent SSR/CSR values
 function seededRandom(seed: number): number {
@@ -216,6 +220,12 @@ export default function DashboardPage() {
 				formatMetricValue={formatMetricValue}
 				keyProp={`chart-${selectedSocial}-${selectedType}-${selectedTime}`}
 			/>
+
+			{/* Sentiment & Placeholder Cards */}
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<PlaceholderCard />
+				<SentimentCard />
+			</div>
 
 			{/* 2 Kotak Bawah - Lebih Panjang */}
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">

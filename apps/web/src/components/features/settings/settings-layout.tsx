@@ -5,16 +5,16 @@
 
 "use client";
 
-import { useState, Suspense } from "react";
 import {
-	Users,
-	Puzzle,
-	User,
-	Settings,
 	CreditCard,
-	Shield,
 	type LucideIcon,
+	Puzzle,
+	Settings,
+	Shield,
+	User,
+	Users,
 } from "lucide-react";
+import { Suspense, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { TabId } from "./types";
 
@@ -115,9 +115,7 @@ export function SettingsLayout({
 				</nav>
 
 				<div className="flex-1 min-w-0">
-					<Suspense fallback={<SettingsTabSkeleton />}>
-						{children}
-					</Suspense>
+					<Suspense fallback={<SettingsTabSkeleton />}>{children}</Suspense>
 				</div>
 			</div>
 		</div>

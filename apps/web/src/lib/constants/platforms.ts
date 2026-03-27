@@ -3,7 +3,14 @@
  * Merges platform definitions from dashboard.ts and ai-post.ts
  */
 
-import type { PlatformConfig, ToneOption, ContentType, Platform, Tone, ScriptGoal } from "@/lib/types/ai-post";
+import type {
+	ContentType,
+	Platform,
+	PlatformConfig,
+	ScriptGoal,
+	Tone,
+	ToneOption,
+} from "@/lib/types/ai-post";
 
 // ============================================================
 // SOCIAL MEDIA PLATFORMS (from dashboard.ts)
@@ -142,44 +149,169 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
  * Platform configurations for AI post generation.
  */
 export const platforms: PlatformConfig[] = [
-  { id: "threads", name: "Threads", icon: "🧵", color: "bg-black dark:bg-white", description: "Text & visual conversations", maxChars: 500, supports: ["single", "thread"] },
-  { id: "linkedin", name: "LinkedIn", icon: "💼", color: "bg-blue-600", description: "Professional networking", maxChars: 3000, supports: ["single", "carousel", "video"] },
-  { id: "twitter", name: "Twitter/X", icon: "𝕏", color: "bg-black", description: "Real-time conversations", maxChars: 280, supports: ["single", "thread"] },
-  { id: "instagram", name: "Instagram", icon: "📸", color: "bg-gradient-to-br from-purple-500 to-pink-500", description: "Visual storytelling", maxChars: 2200, supports: ["single", "carousel", "video"] },
-  { id: "tiktok", name: "TikTok", icon: "🎵", color: "bg-black", description: "Short-form video", maxChars: 150, supports: ["video"] },
+	{
+		id: "threads",
+		name: "Threads",
+		icon: "🧵",
+		color: "bg-black dark:bg-white",
+		description: "Text & visual conversations",
+		maxChars: 500,
+		supports: ["single", "thread"],
+	},
+	{
+		id: "linkedin",
+		name: "LinkedIn",
+		icon: "💼",
+		color: "bg-blue-600",
+		description: "Professional networking",
+		maxChars: 3000,
+		supports: ["single", "carousel", "video"],
+	},
+	{
+		id: "twitter",
+		name: "Twitter/X",
+		icon: "𝕏",
+		color: "bg-black",
+		description: "Real-time conversations",
+		maxChars: 280,
+		supports: ["single", "thread"],
+	},
+	{
+		id: "instagram",
+		name: "Instagram",
+		icon: "📸",
+		color: "bg-gradient-to-br from-purple-500 to-pink-500",
+		description: "Visual storytelling",
+		maxChars: 2200,
+		supports: ["single", "carousel", "video"],
+	},
+	{
+		id: "tiktok",
+		name: "TikTok",
+		icon: "🎵",
+		color: "bg-black",
+		description: "Short-form video",
+		maxChars: 150,
+		supports: ["video"],
+	},
 ];
 
 /**
  * Content type options for AI post generation.
  */
-export const contentTypes: { value: ContentType; label: string; icon: string; description: string }[] = [
-  { value: "single", label: "Single Post", icon: "📝", description: "One standalone post" },
-  { value: "thread", label: "Thread Series", icon: "🧵", description: "Multi-part thread" },
-  { value: "carousel", label: "Carousel", icon: "🎠", description: "Multi-slide content" },
-  { value: "video", label: "Video Script", icon: "🎬", description: "Script for short-form video" },
+export const contentTypes: {
+	value: ContentType;
+	label: string;
+	icon: string;
+	description: string;
+}[] = [
+	{
+		value: "single",
+		label: "Single Post",
+		icon: "📝",
+		description: "One standalone post",
+	},
+	{
+		value: "thread",
+		label: "Thread Series",
+		icon: "🧵",
+		description: "Multi-part thread",
+	},
+	{
+		value: "carousel",
+		label: "Carousel",
+		icon: "🎠",
+		description: "Multi-slide content",
+	},
+	{
+		value: "video",
+		label: "Video Script",
+		icon: "🎬",
+		description: "Script for short-form video",
+	},
 ];
 
 /**
  * Tone options for AI post generation.
  */
 export const tones: ToneOption[] = [
-  { value: "professional", label: "Pro", color: "bg-blue-500", shortDesc: "Expert" },
-  { value: "casual", label: "Casual", color: "bg-green-500", shortDesc: "Relaxed" },
-  { value: "inspirational", label: "Inspire", color: "bg-purple-500", shortDesc: "Motivating" },
-  { value: "educational", label: "Edu", color: "bg-orange-500", shortDesc: "Teaching" },
-  { value: "friendly", label: "Friendly", color: "bg-pink-500", shortDesc: "Warm" },
-  { value: "storytelling", label: "Story", color: "bg-indigo-500", shortDesc: "Narrative" },
+	{
+		value: "professional",
+		label: "Pro",
+		color: "bg-blue-500",
+		shortDesc: "Expert",
+	},
+	{
+		value: "casual",
+		label: "Casual",
+		color: "bg-green-500",
+		shortDesc: "Relaxed",
+	},
+	{
+		value: "inspirational",
+		label: "Inspire",
+		color: "bg-purple-500",
+		shortDesc: "Motivating",
+	},
+	{
+		value: "educational",
+		label: "Edu",
+		color: "bg-orange-500",
+		shortDesc: "Teaching",
+	},
+	{
+		value: "friendly",
+		label: "Friendly",
+		color: "bg-pink-500",
+		shortDesc: "Warm",
+	},
+	{
+		value: "storytelling",
+		label: "Story",
+		color: "bg-indigo-500",
+		shortDesc: "Narrative",
+	},
 ];
 
 /**
  * Goal options for AI post generation.
  */
-export const goals: { value: ScriptGoal; label: string; icon: string; description: string }[] = [
-  { value: "engagement", label: "Engagement", icon: "💬", description: "Get likes, comments, shares" },
-  { value: "sales", label: "Sales", icon: "🛒", description: "Drive purchases" },
-  { value: "branding", label: "Branding", icon: "🎯", description: "Build brand" },
-  { value: "education", label: "Educate", icon: "📚", description: "Share knowledge" },
-  { value: "entertainment", label: "Fun", icon: "🎭", description: "Entertain" },
+export const goals: {
+	value: ScriptGoal;
+	label: string;
+	icon: string;
+	description: string;
+}[] = [
+	{
+		value: "engagement",
+		label: "Engagement",
+		icon: "💬",
+		description: "Get likes, comments, shares",
+	},
+	{
+		value: "sales",
+		label: "Sales",
+		icon: "🛒",
+		description: "Drive purchases",
+	},
+	{
+		value: "branding",
+		label: "Branding",
+		icon: "🎯",
+		description: "Build brand",
+	},
+	{
+		value: "education",
+		label: "Educate",
+		icon: "📚",
+		description: "Share knowledge",
+	},
+	{
+		value: "entertainment",
+		label: "Fun",
+		icon: "🎭",
+		description: "Entertain",
+	},
 ];
 
 // ============================================================
@@ -187,35 +319,40 @@ export const goals: { value: ScriptGoal; label: string; icon: string; descriptio
 // ============================================================
 
 export const generatePost = async (
-  topic: string,
-  platform: Platform,
-  contentType: ContentType,
-  tone: Tone,
-  goal: ScriptGoal
+	topic: string,
+	platform: Platform,
+	contentType: ContentType,
+	tone: Tone,
+	goal: ScriptGoal,
 ): Promise<{ content: string; hashtags: string[]; cta: string }> => {
-  await new Promise(resolve => setTimeout(resolve, 1500));
+	await new Promise((resolve) => setTimeout(resolve, 1500));
 
-  const generateHashtags = (topic: string): string[] => {
-    const words = topic.toLowerCase().split(" ").filter((w: string) => w.length > 2);
-    const baseTags = words.map((w: string) => `#${w.replace(/[^a-z0-9]/g, "")}`);
-    return [...baseTags.slice(0, 3), "#AIContent", "#SocialMedia"];
-  };
+	const generateHashtags = (topic: string): string[] => {
+		const words = topic
+			.toLowerCase()
+			.split(" ")
+			.filter((w: string) => w.length > 2);
+		const baseTags = words.map(
+			(w: string) => `#${w.replace(/[^a-z0-9]/g, "")}`,
+		);
+		return [...baseTags.slice(0, 3), "#AIContent", "#SocialMedia"];
+	};
 
-  const generateCTA = (goal: ScriptGoal): string => {
-    const ctas = {
-      engagement: "💬 Drop your thoughts below!",
-      sales: "🔗 Link in bio for more!",
-      branding: "Follow for more insights",
-      education: "💡 Save this for later!",
-      entertainment: "👇 Double tap if you agree!",
-    };
-    return ctas[goal];
-  };
+	const generateCTA = (goal: ScriptGoal): string => {
+		const ctas = {
+			engagement: "💬 Drop your thoughts below!",
+			sales: "🔗 Link in bio for more!",
+			branding: "Follow for more insights",
+			education: "💡 Save this for later!",
+			entertainment: "👇 Double tap if you agree!",
+		};
+		return ctas[goal];
+	};
 
-  let content = "";
+	let content = "";
 
-  if (platform === "threads" && contentType === "thread") {
-    content = `🧵 ${topic}
+	if (platform === "threads" && contentType === "thread") {
+		content = `🧵 ${topic}
 
 1/${goal === "engagement" ? "Let's talk about something important..." : "Here's what most people get wrong:"}
 
@@ -246,8 +383,8 @@ You're not behind. You're just on your own timeline.
 Keep going. 💪
 
 5/${generateCTA(goal)}`;
-  } else if (platform === "linkedin") {
-    content = `${topic === topic.toUpperCase() ? topic : topic.charAt(0).toUpperCase() + topic.slice(1)}
+	} else if (platform === "linkedin") {
+		content = `${topic === topic.toUpperCase() ? topic : topic.charAt(0).toUpperCase() + topic.slice(1)}
 
 Here's my perspective:
 
@@ -269,9 +406,12 @@ I'd love to hear your thoughts below.
 
 ${generateCTA(goal)}
 
-#${topic.split(" ").join("").replace(/[^a-zA-Z0-9]/g, "")} #Growth #Success`;
-  } else if (platform === "twitter") {
-    content = `${topic.split(" ").slice(0, 4).join(" ")} 👇
+#${topic
+			.split(" ")
+			.join("")
+			.replace(/[^a-zA-Z0-9]/g, "")} #Growth #Success`;
+	} else if (platform === "twitter") {
+		content = `${topic.split(" ").slice(0, 4).join(" ")} 👇
 
 ${tone === "casual" ? "okay but seriously" : "Here's the truth"} — ${goal === "education" ? "most people get this wrong" : "nobody talks about this enough"}
 
@@ -287,8 +427,8 @@ Simple? Yes.
 Easy? No.
 
 ${generateCTA(goal)}`;
-  } else if (platform === "instagram") {
-    content = `${topic} ✨
+	} else if (platform === "instagram") {
+		content = `${topic} ✨
 
 ${goal === "engagement" ? "POV:" : "Here's something I wish I knew earlier:"}
 
@@ -296,8 +436,8 @@ ${topic.split(" ").slice(0, 6).join(" ")}...
 
 Save this for later 📌
 ${generateCTA(goal)}`;
-  } else if (platform === "tiktok") {
-    content = `🎬 TikTok Script: ${topic}
+	} else if (platform === "tiktok") {
+		content = `🎬 TikTok Script: ${topic}
 
 【HOOK - First 1-2 seconds】
 ${tone === "casual" ? "Okay wait," : "Stop scrolling if"} ${topic.split(" ").slice(0, 3).join(" ")}...
@@ -315,8 +455,8 @@ ${goal === "education" ? "Step 3:" : "Finally,"} Watch what happens
 【CTA】
 ${generateCTA(goal)}
 Follow for more ${goal === "education" ? "tips" : "content"}! 🚀`;
-  } else {
-    content = `${topic}
+	} else {
+		content = `${topic}
 
 ${tone === "professional" ? "Key points:" : "Here's the thing:"}
 
@@ -325,11 +465,11 @@ ${tone === "professional" ? "Key points:" : "Here's the thing:"}
 • Results take time
 
 ${generateCTA(goal)}`;
-  }
+	}
 
-  return {
-    content,
-    hashtags: generateHashtags(topic),
-    cta: generateCTA(goal),
-  };
+	return {
+		content,
+		hashtags: generateHashtags(topic),
+		cta: generateCTA(goal),
+	};
 };

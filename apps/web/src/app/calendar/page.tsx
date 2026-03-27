@@ -1,322 +1,357 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { calendarEvents, type CalendarEvent, type Platform as CalendarPlatform } from "@/data/mock";
-import { cn } from "@/lib/utils";
-import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import { DAY_NAMES, getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
-import { PlatformIcon, type Platform } from "@/components/ui/PlatformIcon";
-import {
-  PostHeader,
-  PostControls,
-  PostCardsView,
-  KanbanView,
-  ListView,
-  EventDetailDialog,
-  CreateContentDialog,
+	KanbanView,
+	ListView,
+	PostCardsView,
+	PostControls,
 } from "@/components/features/calendar";
 import { CalendarGrid } from "@/components/features/calendar/CalendarGrid";
+import { Badge } from "@/components/ui/badge";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { type Platform, PlatformIcon } from "@/components/ui/PlatformIcon";
+import {
+	type CalendarEvent,
+	type Platform as CalendarPlatform,
+	calendarEvents,
+} from "@/data/mock";
+import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
+import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 type ViewMode = "calendar" | "cards";
 type CalendarView = "month" | "week";
 type CardsView = "grid" | "kanban" | "list";
 
+// Calculate week range - defined outside component to avoid unnecessary re-renders
+function getWeekRange(date: Date) {
+	const d = new Date(date);
+	const day = d.getDay();
+	const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
+	const startOfWeek = new Date(d.setDate(diff));
+	const endOfWeek = new Date(startOfWeek);
+	endOfWeek.setDate(endOfWeek.getDate() + 6);
+	return { startOfWeek, endOfWeek };
+}
+
 export default function CalendarPage() {
-  // View mode states
-  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
-  const [calendarView, setCalendarView] = useState<CalendarView>("month");
-  const [cardsView, setCardsView] = useState<CardsView>("grid");
+	// View mode states
+	const [viewMode, setViewMode] = useState<ViewMode>("calendar");
+	const [calendarView, setCalendarView] = useState<CalendarView>("month");
+	const [cardsView, setCardsView] = useState<CardsView>("grid");
 
-  // Use a fixed date for initial render to prevent hydration mismatch
-  const [currentDate, setCurrentDate] = useState<Date>(
-    () => new Date("2026-01-01T00:00:00")
-  );
+	// Use a fixed date for initial render to prevent hydration mismatch
+	const [currentDate, setCurrentDate] = useState<Date>(
+		() => new Date("2026-01-01T00:00:00"),
+	);
 
-  // Update to actual date on client mount only (after hydration)
-  useEffect(() => {
-    setCurrentDate(new Date());
-  }, []);
+	// Update to actual date on client mount only (after hydration)
+	useEffect(() => {
+		setCurrentDate(new Date());
+	}, []);
 
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [events, setEvents] = useState(calendarEvents);
-  const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
-  const [selectedDateForCreate, setSelectedDateForCreate] = useState<string | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedPlatform, setSelectedPlatform] = useState<Platform | "all">("all" as const);
+	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+		null,
+	);
+	const [events, setEvents] = useState(calendarEvents);
+	const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
+	const [selectedDateForCreate, setSelectedDateForCreate] = useState<
+		string | null
+	>(null);
+	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+	const [selectedPlatform, setSelectedPlatform] = useState<Platform | "all">(
+		"all" as const,
+	);
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfMonth(year, month);
-  const monthName = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
+	const year = currentDate.getFullYear();
+	const month = currentDate.getMonth();
+	const daysInMonth = getDaysInMonth(year, month);
+	const firstDay = getFirstDayOfMonth(year, month);
+	const monthName = currentDate.toLocaleString("default", {
+		month: "long",
+		year: "numeric",
+	});
 
-  // Calculate week range for week view
-  const getWeekRange = (date: Date) => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
-    const startOfWeek = new Date(d.setDate(diff));
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(endOfWeek.getDate() + 6);
-    return { startOfWeek, endOfWeek };
-  };
+	const weekRange = useMemo(() => getWeekRange(currentDate), [currentDate]);
+	const weekName = `${weekRange.startOfWeek.toLocaleDateString("default", { month: "short", day: "numeric" })} - ${weekRange.endOfWeek.toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}`;
 
-  const weekRange = useMemo(() => getWeekRange(currentDate), [currentDate]);
-  const weekName = `${weekRange.startOfWeek.toLocaleDateString("default", { month: "short", day: "numeric" })} - ${weekRange.endOfWeek.toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" })}`;
+	const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+	const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
-  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
-  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+	const prevWeek = () => {
+		const newDate = new Date(currentDate);
+		newDate.setDate(newDate.getDate() - 7);
+		setCurrentDate(newDate);
+	};
 
-  const prevWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setCurrentDate(newDate);
-  };
+	const nextWeek = () => {
+		const newDate = new Date(currentDate);
+		newDate.setDate(newDate.getDate() + 7);
+		setCurrentDate(newDate);
+	};
 
-  const nextWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setCurrentDate(newDate);
-  };
+	const handlePrev = calendarView === "week" ? prevWeek : prevMonth;
+	const handleNext = calendarView === "week" ? nextWeek : nextMonth;
+	const displayName = calendarView === "week" ? weekName : monthName;
 
-  const handlePrev = calendarView === "week" ? prevWeek : prevMonth;
-  const handleNext = calendarView === "week" ? nextWeek : nextMonth;
-  const displayName = calendarView === "week" ? weekName : monthName;
+	// Filter events by platform
+	const filteredEvents = useMemo(
+		() =>
+			selectedPlatform === "all"
+				? events
+				: events.filter(
+						(e) => e.platform === (selectedPlatform as CalendarPlatform),
+					),
+		[events, selectedPlatform],
+	);
 
-  // Filter events by platform
-  const filteredEvents = useMemo(() =>
-    selectedPlatform === "all"
-      ? events
-      : events.filter((e) => e.platform === selectedPlatform as CalendarPlatform),
-    [events, selectedPlatform]
-  );
+	const eventsByDate = useMemo(() => {
+		const map: Record<string, CalendarEvent[]> = {};
+		filteredEvents.forEach((e) => {
+			if (!map[e.date]) map[e.date] = [];
+			map[e.date].push(e);
+		});
+		return map;
+	}, [filteredEvents]);
 
-  const eventsByDate = useMemo(() => {
-    const map: Record<string, CalendarEvent[]> = {};
-    filteredEvents.forEach((e) => {
-      if (!map[e.date]) map[e.date] = [];
-      map[e.date].push(e);
-    });
-    return map;
-  }, [filteredEvents]);
+	const handleDragStart = useCallback(
+		(e: React.DragEvent, event: CalendarEvent) => {
+			setDraggedEvent(event);
+			e.dataTransfer.effectAllowed = "move";
+			if (e.currentTarget instanceof HTMLElement) {
+				e.currentTarget.style.opacity = "0.5";
+			}
+		},
+		[],
+	);
 
-  const handleDragStart = useCallback((e: React.DragEvent, event: CalendarEvent) => {
-    setDraggedEvent(event);
-    e.dataTransfer.effectAllowed = "move";
-    if (e.currentTarget instanceof HTMLElement) {
-      e.currentTarget.style.opacity = "0.5";
-    }
-  }, []);
+	const handleDragEnd = useCallback((e: React.DragEvent) => {
+		if (e.currentTarget instanceof HTMLElement) {
+			e.currentTarget.style.opacity = "1";
+		}
+		setDraggedEvent(null);
+	}, []);
 
-  const handleDragEnd = useCallback((e: React.DragEvent) => {
-    if (e.currentTarget instanceof HTMLElement) {
-      e.currentTarget.style.opacity = "1";
-    }
-    setDraggedEvent(null);
-  }, []);
+	const handleDragOver = useCallback((e: React.DragEvent) => {
+		e.preventDefault();
+		e.dataTransfer.dropEffect = "move";
+	}, []);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  }, []);
+	const handleDrop = useCallback(
+		(e: React.DragEvent, targetDate: string) => {
+			e.preventDefault();
+			if (!draggedEvent) return;
+			setEvents((prev) =>
+				prev.map((ev) =>
+					ev.id === draggedEvent.id ? { ...ev, date: targetDate } : ev,
+				),
+			);
+			setDraggedEvent(null);
+		},
+		[draggedEvent],
+	);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent, targetDate: string) => {
-      e.preventDefault();
-      if (!draggedEvent) return;
-      setEvents((prev) =>
-        prev.map((ev) => (ev.id === draggedEvent.id ? { ...ev, date: targetDate } : ev))
-      );
-      setDraggedEvent(null);
-    },
-    [draggedEvent]
-  );
+	const handleDateClick = useCallback((dateStr: string) => {
+		setSelectedDateForCreate(dateStr);
+		setIsCreateDialogOpen(true);
+	}, []);
 
-  const handleDateClick = useCallback((dateStr: string) => {
-    setSelectedDateForCreate(dateStr);
-    setIsCreateDialogOpen(true);
-  }, []);
+	const handleEventClick = useCallback((event: CalendarEvent) => {
+		setSelectedEvent(event);
+	}, []);
 
-  const handleEventClick = useCallback((event: CalendarEvent) => {
-    setSelectedEvent(event);
-  }, []);
+	const today = currentDate;
+	const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-  const today = currentDate;
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+	// Calculate cells based on calendar view
+	const cells: { day: number | null; dateStr: string }[] = useMemo(() => {
+		if (calendarView === "month") {
+			const monthCells: { day: number | null; dateStr: string }[] = [];
+			for (let i = 0; i < firstDay; i++)
+				monthCells.push({ day: null, dateStr: "" });
+			for (let d = 1; d <= daysInMonth; d++) {
+				monthCells.push({
+					day: d,
+					dateStr: `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
+				});
+			}
+			while (monthCells.length % 7 !== 0)
+				monthCells.push({ day: null, dateStr: "" });
+			return monthCells;
+		} else {
+			// Week view - show 7 days of the current week
+			const weekCells: { day: number | null; dateStr: string }[] = [];
+			const startOfWeek = weekRange.startOfWeek;
+			for (let i = 0; i < 7; i++) {
+				const d = new Date(startOfWeek);
+				d.setDate(startOfWeek.getDate() + i);
+				weekCells.push({
+					day: d.getDate(),
+					dateStr: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+				});
+			}
+			return weekCells;
+		}
+	}, [calendarView, firstDay, daysInMonth, year, month, weekRange]);
 
-  // Calculate cells based on calendar view
-  const cells: { day: number | null; dateStr: string }[] = useMemo(() => {
-    if (calendarView === "month") {
-      const monthCells: { day: number | null; dateStr: string }[] = [];
-      for (let i = 0; i < firstDay; i++)
-        monthCells.push({ day: null, dateStr: "" });
-      for (let d = 1; d <= daysInMonth; d++) {
-        monthCells.push({
-          day: d,
-          dateStr: `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
-        });
-      }
-      while (monthCells.length % 7 !== 0)
-        monthCells.push({ day: null, dateStr: "" });
-      return monthCells;
-    } else {
-      // Week view - show 7 days of the current week
-      const weekCells: { day: number | null; dateStr: string }[] = [];
-      const startOfWeek = weekRange.startOfWeek;
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(startOfWeek);
-        d.setDate(startOfWeek.getDate() + i);
-        weekCells.push({
-          day: d.getDate(),
-          dateStr: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
-        });
-      }
-      return weekCells;
-    }
-  }, [calendarView, firstDay, daysInMonth, year, month, weekRange]);
+	return (
+		<div className={pageContainerClassName} style={pageMaxWidth}>
+			{/* Header */}
+			<div className="mb-6">
+				<h1 className="text-2xl font-bold tracking-tight">Calendar</h1>
+				<p className="text-sm text-muted-foreground">
+					Content schedule & planning
+				</p>
+			</div>
 
-  return (
-    <div className={pageContainerClassName} style={pageMaxWidth}>
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Calendar</h1>
-        <p className="text-sm text-muted-foreground">Content schedule & planning</p>
-      </div>
+			{/* Controls */}
+			<PostControls
+				viewMode={viewMode}
+				onViewModeChange={setViewMode}
+				monthName={displayName}
+				onPrevMonth={handlePrev}
+				onNextMonth={handleNext}
+				calendarView={calendarView}
+				onCalendarViewChange={setCalendarView}
+				cardsView={cardsView}
+				onCardsViewChange={setCardsView}
+				selectedPlatform={selectedPlatform}
+				onPlatformChange={(value) => setSelectedPlatform(value)}
+			/>
 
-      {/* Controls */}
-      <PostControls
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        monthName={displayName}
-        onPrevMonth={handlePrev}
-        onNextMonth={handleNext}
-        calendarView={calendarView}
-        onCalendarViewChange={setCalendarView}
-        cardsView={cardsView}
-        onCardsViewChange={setCardsView}
-        selectedPlatform={selectedPlatform}
-        onPlatformChange={(value) => setSelectedPlatform(value)}
-      />
+			{/* Content */}
+			{viewMode === "calendar" && (
+				<CalendarGrid
+					cells={cells}
+					eventsByDate={eventsByDate}
+					todayStr={todayStr}
+					draggedEvent={draggedEvent}
+					onDateClick={handleDateClick}
+					onEventClick={handleEventClick}
+					onDragStart={handleDragStart}
+					onDragEnd={handleDragEnd}
+					onDragOver={handleDragOver}
+					onDrop={handleDrop}
+					calendarView={calendarView}
+				/>
+			)}
 
-      {/* Content */}
-      {viewMode === "calendar" && (
-        <CalendarGrid
-          cells={cells}
-          eventsByDate={eventsByDate}
-          todayStr={todayStr}
-          draggedEvent={draggedEvent}
-          onDateClick={handleDateClick}
-          onEventClick={handleEventClick}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          calendarView={calendarView}
-        />
-      )}
+			{viewMode === "cards" && cardsView === "grid" && (
+				<PostCardsView
+					events={filteredEvents}
+					onEventClick={handleEventClick}
+					onCreateClick={() => setIsCreateDialogOpen(true)}
+				/>
+			)}
 
-      {viewMode === "cards" && cardsView === "grid" && (
-        <PostCardsView
-          events={filteredEvents}
-          onEventClick={handleEventClick}
-          onCreateClick={() => setIsCreateDialogOpen(true)}
-        />
-      )}
+			{viewMode === "cards" && cardsView === "kanban" && (
+				<KanbanView
+					events={filteredEvents}
+					onEventClick={handleEventClick}
+					onCreateClick={() => setIsCreateDialogOpen(true)}
+					onEventsChange={setEvents}
+				/>
+			)}
 
-      {viewMode === "cards" && cardsView === "kanban" && (
-        <KanbanView
-          events={filteredEvents}
-          onEventClick={handleEventClick}
-          onCreateClick={() => setIsCreateDialogOpen(true)}
-          onEventsChange={setEvents}
-        />
-      )}
+			{viewMode === "cards" && cardsView === "list" && (
+				<ListView events={filteredEvents} onEventClick={handleEventClick} />
+			)}
 
-      {viewMode === "cards" && cardsView === "list" && (
-        <ListView events={filteredEvents} onEventClick={handleEventClick} />
-      )}
+			{/* Event Detail Dialog */}
+			<Dialog
+				open={!!selectedEvent}
+				onOpenChange={() => setSelectedEvent(null)}
+			>
+				<DialogContent className="sm:max-w-md">
+					{selectedEvent && (
+						<>
+							<DialogHeader>
+								<div className="flex items-center gap-2">
+									<span className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/50">
+										<PlatformIcon
+											platform={selectedEvent.platform as Platform}
+											size={20}
+										/>
+									</span>
+									<div className="flex-1">
+										<DialogTitle className="text-base">
+											{selectedEvent.title}
+										</DialogTitle>
+										<p className="text-xs text-muted-foreground mt-0.5">
+											{selectedEvent.platform} • {selectedEvent.type}
+										</p>
+									</div>
+								</div>
+								<DialogDescription className="sr-only">
+									Event details
+								</DialogDescription>
+							</DialogHeader>
+							<div className="space-y-4">
+								<div className="flex items-center gap-2 flex-wrap">
+									<Badge
+										variant="secondary"
+										className={cn(
+											"text-xs capitalize",
+											selectedEvent.status === "published" &&
+												"bg-success/10 text-success",
+											selectedEvent.status === "scheduled" &&
+												"bg-primary/10 text-primary",
+											selectedEvent.status === "draft" &&
+												"bg-muted text-muted-foreground",
+										)}
+									>
+										{selectedEvent.status}
+									</Badge>
+								</div>
+								{selectedEvent.description && (
+									<p className="text-sm text-muted-foreground">
+										{selectedEvent.description}
+									</p>
+								)}
+								<div className="flex items-center gap-4 text-sm text-muted-foreground">
+									<span className="flex items-center gap-1.5">
+										<CalendarIcon className="h-4 w-4" />
+										{selectedEvent.date}
+									</span>
+									{selectedEvent.time && (
+										<span className="flex items-center gap-1.5">
+											<span className="h-1 w-1 rounded-full bg-border" />
+											{selectedEvent.time}
+										</span>
+									)}
+								</div>
+							</div>
+						</>
+					)}
+				</DialogContent>
+			</Dialog>
 
-      {/* Event Detail Dialog */}
-      <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
-        <DialogContent className="sm:max-w-md">
-          {selectedEvent && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/50">
-                    <PlatformIcon platform={selectedEvent.platform as Platform} size={20} />
-                  </span>
-                  <div className="flex-1">
-                    <DialogTitle className="text-base">{selectedEvent.title}</DialogTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {selectedEvent.platform} • {selectedEvent.type}
-                    </p>
-                  </div>
-                </div>
-                <DialogDescription className="sr-only">Event details</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      "text-xs capitalize",
-                      selectedEvent.status === "published" && "bg-success/10 text-success",
-                      selectedEvent.status === "scheduled" && "bg-primary/10 text-primary",
-                      selectedEvent.status === "draft" && "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {selectedEvent.status}
-                  </Badge>
-                </div>
-                {selectedEvent.description && (
-                  <p className="text-sm text-muted-foreground">{selectedEvent.description}</p>
-                )}
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <CalendarIcon className="h-4 w-4" />
-                    {selectedEvent.date}
-                  </span>
-                  {selectedEvent.time && (
-                    <span className="flex items-center gap-1.5">
-                      <span className="h-1 w-1 rounded-full bg-border" />
-                      {selectedEvent.time}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Create Content Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Schedule Content</DialogTitle>
-            <DialogDescription>
-              Create new content for {selectedDateForCreate || "the selected date"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              Create content dialog would appear here. This is a placeholder for the content creation form.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+			{/* Create Content Dialog */}
+			<Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>Schedule Content</DialogTitle>
+						<DialogDescription>
+							Create new content for{" "}
+							{selectedDateForCreate || "the selected date"}
+						</DialogDescription>
+					</DialogHeader>
+					<div className="py-4">
+						<p className="text-sm text-muted-foreground">
+							Create content dialog would appear here. This is a placeholder for
+							the content creation form.
+						</p>
+					</div>
+				</DialogContent>
+			</Dialog>
+		</div>
+	);
 }

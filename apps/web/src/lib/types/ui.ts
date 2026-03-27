@@ -10,7 +10,15 @@ export type ThemeMode = "light" | "dark" | "system";
 /**
  * Accent color options.
  */
-export type AccentColor = "default" | "blue" | "green" | "purple" | "orange" | "pink" | "red" | "cyan";
+export type AccentColor =
+	| "default"
+	| "blue"
+	| "green"
+	| "purple"
+	| "orange"
+	| "pink"
+	| "red"
+	| "cyan";
 
 /**
  * Dialog size options.

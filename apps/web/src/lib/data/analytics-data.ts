@@ -141,7 +141,7 @@ const STAT_DEFINITIONS = [
 export { STAT_DEFINITIONS };
 
 // Type exports
-export type PlatformDataItem = typeof platformData[number];
-export type ContentTypeDataItem = typeof contentTypeData[number];
-export type TopPostItem = typeof topPosts[number];
-export type StatDefinition = typeof STAT_DEFINITIONS[number];
+export type PlatformDataItem = (typeof platformData)[number];
+export type ContentTypeDataItem = (typeof contentTypeData)[number];
+export type TopPostItem = (typeof topPosts)[number];
+export type StatDefinition = (typeof STAT_DEFINITIONS)[number];

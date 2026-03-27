@@ -1,27 +1,27 @@
 {
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "base-maia",
-  "rsc": true,
-  "tsx": true,
-  "tailwind": {
-    "config": "",
-    "css": "../../packages/ui/src/styles/globals.css",
-    "baseColor": "neutral",
-    "cssVariables": true,
-    "prefix": ""
-  },
-  "iconLibrary": "hugeicons",
-  "rtl": false,
-  "menuColor": "default",
-  "menuAccent": "subtle",
-  "aliases": {
-    "components": "@/components",
-    "utils": "@better-stack-2/ui/lib/utils",
-    "ui": "@better-stack-2/ui/components",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "registries": {
-    "@animate-ui": "https://animate-ui.com/r/{name}.json"
-  }
+	"$schema": "https://ui.shadcn.com/schema.json",
+	"style": "base-maia",
+	"rsc": true,
+	"tsx": true,
+	"tailwind": {
+		"config": "",
+		"css": "../../packages/ui/src/styles/globals.css",
+		"baseColor": "neutral",
+		"cssVariables": true,
+		"prefix": ""
+	},
+	"iconLibrary": "hugeicons",
+	"rtl": false,
+	"menuColor": "default",
+	"menuAccent": "subtle",
+	"aliases": {
+		"components": "@/components",
+		"utils": "@better-stack-2/ui/lib/utils",
+		"ui": "@better-stack-2/ui/components",
+		"lib": "@/lib",
+		"hooks": "@/hooks"
+	},
+	"registries": {
+		"@animate-ui": "https://animate-ui.com/r/{name}.json"
+	}
 }

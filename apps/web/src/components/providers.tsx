@@ -1,9 +1,9 @@
 "use client";
 
 import { Toaster } from "@better-stack-2/ui/components/sonner";
-import { ThemeProvider } from "./theme-provider";
-import { AuthGateProvider } from "./auth/AuthGateContext";
 import { useAuth } from "@clerk/nextjs";
+import { AuthGateProvider } from "./auth/AuthGateContext";
+import { ThemeProvider } from "./theme-provider";
 
 function ProvidersWithAuth({ children }: { children: React.ReactNode }) {
 	const { isSignedIn, isLoaded } = useAuth();
@@ -18,10 +18,13 @@ function ProvidersWithAuth({ children }: { children: React.ReactNode }) {
 
 export default function Providers({ children }: { children: React.ReactNode }) {
 	return (
-		<ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-			<ProvidersWithAuth>
-				{children}
-			</ProvidersWithAuth>
+		<ThemeProvider
+			attribute="class"
+			defaultTheme="light"
+			enableSystem={false}
+			disableTransitionOnChange
+		>
+			<ProvidersWithAuth>{children}</ProvidersWithAuth>
 			<Toaster richColors />
 		</ThemeProvider>
 	);

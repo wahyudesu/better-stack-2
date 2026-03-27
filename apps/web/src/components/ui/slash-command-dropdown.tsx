@@ -2,15 +2,15 @@
 
 import type React from "react";
 import { useEffect, useMemo, useRef } from "react";
+import { cn } from "@/lib/utils";
 import {
 	Cancel01Icon,
+	formatToolName,
+	getToolCategoryIcon,
 	HugeiconsIcon,
 	Tag01Icon,
 	ToolsIcon,
 } from "@/lib/utils/tool-icons";
-
-import { cn } from "@/lib/utils";
-import { formatToolName, getToolCategoryIcon } from "@/lib/utils/tool-icons";
 
 export interface Tool {
 	/** Unique tool identifier */

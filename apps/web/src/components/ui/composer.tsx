@@ -1,24 +1,9 @@
 "use client";
 
+import { HugeiconsIcon } from "@hugeicons/react";
 import type { FC, ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-	ArrowUp02Icon,
-	PlusSignIcon,
-	ToolsIcon,
-	FloppyDiskIcon,
-} from "@/lib/utils/tool-icons";
-import { cn, selectHandler } from "@/lib/utils";
-import {
-	FilePreview,
-	type UploadedFile,
-} from "@/components/ui/file-preview";
-import {
-	SlashCommandDropdown,
-	type SlashCommandMatch,
-	type Tool,
-} from "@/components/ui/slash-command-dropdown";
+import { FilePreview, type UploadedFile } from "@/components/ui/file-preview";
 import {
 	Select,
 	SelectContent,
@@ -26,9 +11,21 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	SlashCommandDropdown,
+	type SlashCommandMatch,
+	type Tool,
+} from "@/components/ui/slash-command-dropdown";
+import { cn, selectHandler } from "@/lib/utils";
+import {
+	ArrowUp02Icon,
+	FloppyDiskIcon,
+	PlusSignIcon,
+	ToolsIcon,
+} from "@/lib/utils/tool-icons";
 
 // Re-export types for convenience
-export type { Tool, SlashCommandMatch, UploadedFile };
+export type { SlashCommandMatch, Tool, UploadedFile };
 
 export interface ComposerContextOption {
 	id: string;
@@ -82,7 +79,12 @@ export interface ComposerProps {
 	/** Show tone selector */
 	showToneSelector?: boolean;
 	/** Tone options */
-	toneOptions?: Array<{ value: string; label: string; color: string; shortDesc?: string }>;
+	toneOptions?: Array<{
+		value: string;
+		label: string;
+		color: string;
+		shortDesc?: string;
+	}>;
 	/** Default tone */
 	defaultTone?: string;
 	/** Show template button */
@@ -101,12 +103,42 @@ export interface ComposerProps {
 
 // Internal tone options
 const defaultToneOptions = [
-	{ value: "professional", label: "Pro", color: "bg-blue-500", shortDesc: "Expert" },
-	{ value: "casual", label: "Casual", color: "bg-green-500", shortDesc: "Relaxed" },
-	{ value: "inspirational", label: "Inspire", color: "bg-purple-500", shortDesc: "Motivating" },
-	{ value: "educational", label: "Edu", color: "bg-orange-500", shortDesc: "Teaching" },
-	{ value: "friendly", label: "Friendly", color: "bg-pink-500", shortDesc: "Warm" },
-	{ value: "storytelling", label: "Story", color: "bg-indigo-500", shortDesc: "Narrative" },
+	{
+		value: "professional",
+		label: "Pro",
+		color: "bg-blue-500",
+		shortDesc: "Expert",
+	},
+	{
+		value: "casual",
+		label: "Casual",
+		color: "bg-green-500",
+		shortDesc: "Relaxed",
+	},
+	{
+		value: "inspirational",
+		label: "Inspire",
+		color: "bg-purple-500",
+		shortDesc: "Motivating",
+	},
+	{
+		value: "educational",
+		label: "Edu",
+		color: "bg-orange-500",
+		shortDesc: "Teaching",
+	},
+	{
+		value: "friendly",
+		label: "Friendly",
+		color: "bg-pink-500",
+		shortDesc: "Warm",
+	},
+	{
+		value: "storytelling",
+		label: "Story",
+		color: "bg-indigo-500",
+		shortDesc: "Narrative",
+	},
 ];
 
 // Primary color matching GAIA: #00bbff
@@ -183,13 +215,25 @@ export const Composer: FC<ComposerProps> = ({
 			e?.preventDefault();
 			if (isLoading) return;
 			if (currentValue.trim() || attachedFiles.length > 0) {
-				onSubmit?.(currentValue, attachedFiles, showToneSelector ? selectedTone : undefined);
+				onSubmit?.(
+					currentValue,
+					attachedFiles,
+					showToneSelector ? selectedTone : undefined,
+				);
 				if (value === undefined) {
 					setInputValue("");
 				}
 			}
 		},
-		[currentValue, attachedFiles, onSubmit, value, isLoading, showToneSelector, selectedTone],
+		[
+			currentValue,
+			attachedFiles,
+			onSubmit,
+			value,
+			isLoading,
+			showToneSelector,
+			selectedTone,
+		],
 	);
 
 	// Handle key down
@@ -310,18 +354,24 @@ export const Composer: FC<ComposerProps> = ({
 				{platformOptions && platformOptions.length > 0 && (
 					<div className="px-3 pt-2 pb-1">
 						<div className="flex items-center gap-2">
-							<span className="text-xs text-zinc-500 dark:text-zinc-400">Platform:</span>
+							<span className="text-xs text-zinc-500 dark:text-zinc-400">
+								Platform:
+							</span>
 							<Select
 								value={selectedPlatform}
 								onValueChange={(value) => value && onPlatformSelect?.(value)}
 								disabled={disabled || isLoading}
 							>
 								<SelectTrigger className="h-7 w-auto min-w-[120px] border-0 bg-zinc-200 dark:bg-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600 focus:ring-0 focus:ring-offset-0">
-								<SelectValue placeholder="Select platform" />
+									<SelectValue placeholder="Select platform" />
 								</SelectTrigger>
 								<SelectContent className="min-w-[140px]">
 									{platformOptions.map((platform) => (
-										<SelectItem key={platform.id} value={platform.id} className="text-xs">
+										<SelectItem
+											key={platform.id}
+											value={platform.id}
+											className="text-xs"
+										>
 											<div className="flex items-center gap-2">
 												{platform.icon}
 												{platform.name}
@@ -493,7 +543,9 @@ export const Composer: FC<ComposerProps> = ({
 						{/* Tone Selector - dropdown */}
 						{showToneSelector && (
 							<div className="flex items-center gap-2 ml-2">
-								<span className="text-xs text-zinc-500 dark:text-zinc-400">Tone:</span>
+								<span className="text-xs text-zinc-500 dark:text-zinc-400">
+									Tone:
+								</span>
 								<Select
 									value={selectedTone}
 									onValueChange={(v) => setSelectedTone(v ?? "casual")}
@@ -504,9 +556,18 @@ export const Composer: FC<ComposerProps> = ({
 									</SelectTrigger>
 									<SelectContent className="min-w-[120px]">
 										{toneOptions.map((toneOption) => (
-											<SelectItem key={toneOption.value} value={toneOption.value} className="text-xs">
+											<SelectItem
+												key={toneOption.value}
+												value={toneOption.value}
+												className="text-xs"
+											>
 												<div className="flex items-center gap-2">
-													<span className={cn("w-2 h-2 rounded-full", toneOption.color)} />
+													<span
+														className={cn(
+															"w-2 h-2 rounded-full",
+															toneOption.color,
+														)}
+													/>
 													{toneOption.label}
 												</div>
 											</SelectItem>

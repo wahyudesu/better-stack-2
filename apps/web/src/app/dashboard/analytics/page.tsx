@@ -1,17 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
 import {
-	TrendingUp,
-	TrendingDown,
-	Info,
-	ChevronDown,
 	ArrowLeft,
 	Calendar,
+	ChevronDown,
 	Download,
+	Info,
 	Share2,
+	TrendingDown,
+	TrendingUp,
 } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
 	Select,
 	SelectContent,
@@ -20,16 +27,9 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { SimpleTooltip } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn, selectHandler } from "@/lib/utils";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { formatMetricValue } from "@/lib/metrics";
+import { cn, selectHandler } from "@/lib/utils";
 
 // Seeded random for consistent SSR/CSR values
 function seededRandom(seed: number): number {
@@ -37,38 +37,38 @@ function seededRandom(seed: number): number {
 	return x - Math.floor(x);
 }
 
+import { Bar } from "@/components/charts/bar";
+import { BarChart } from "@/components/charts/bar-chart";
+import { BarYAxis } from "@/components/charts/bar-y-axis";
 import {
-	LineChart,
-	Line,
-	XAxis,
 	ChartTooltip,
+	Line,
+	LineChart,
 	SegmentBackground,
 	SegmentLineFrom,
 	SegmentLineTo,
+	XAxis,
 } from "@/components/charts/line-chart";
-import {
-	platformData,
-	contentTypeData,
-	ageData,
-	genderData,
-	topPosts,
-	socialMediaOptions,
-	timeOptions,
-	STAT_DEFINITIONS,
-	type StatDefinition,
-} from "@/lib/data/analytics-data";
 import { ChartMarkers } from "@/components/charts/markers";
-import { BarChart } from "@/components/charts/bar-chart";
-import { Bar } from "@/components/charts/bar";
-import { BarYAxis } from "@/components/charts/bar-y-axis";
 import { PieChart } from "@/components/charts/pie-chart";
-import { PieSlice } from "@/components/charts/pie-slice";
 import {
 	Legend,
 	LegendItemComponent,
-	LegendMarker,
 	LegendLabel,
+	LegendMarker,
 } from "@/components/charts/pie-legend";
+import { PieSlice } from "@/components/charts/pie-slice";
+import {
+	ageData,
+	contentTypeData,
+	genderData,
+	platformData,
+	STAT_DEFINITIONS,
+	type StatDefinition,
+	socialMediaOptions,
+	timeOptions,
+	topPosts,
+} from "@/lib/data/analytics-data";
 
 // Colors for pie chart
 const pieColors = [
@@ -329,7 +329,9 @@ export default function AnalyticsPage() {
 						<div key={stat.label} className="border rounded-lg p-4">
 							<p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
 							<p className="text-xl font-bold">
-								{formatMetricValue(totals[stat.key as keyof typeof totals] as number)}
+								{formatMetricValue(
+									totals[stat.key as keyof typeof totals] as number,
+								)}
 							</p>
 							<div className="flex items-center gap-0.5 text-xs text-success mt-1">
 								<TrendingUp className="size-3" />

@@ -9,8 +9,8 @@
 
 "use client";
 
-import type * as React from "react";
 import { X } from "lucide-react";
+import type * as React from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -18,8 +18,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 import type { DialogSize } from "@/lib/types/ui";
+import { cn } from "@/lib/utils";
 
 export interface BaseDialogProps {
 	open: boolean;

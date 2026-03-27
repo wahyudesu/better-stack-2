@@ -1,28 +1,25 @@
-export { FilterBar } from "./filter-bar";
-export type { FilterBarProps } from "./filter-bar";
-
-export { StatsCards } from "./stats-cards";
-export type { StatItem, StatsCardsProps } from "./stats-cards";
-
-export { MetricsGrid } from "./metrics-grid";
-export type { MetricItem, MetricsGridProps } from "./metrics-grid";
-
-export { AnalyticsChart } from "./analytics-chart";
+export type { DemographicDataItem } from "@/lib/data/demographics";
 export type {
 	AnalyticsChartProps,
 	ChartDataPoint as AnalyticsChartDataPoint,
 	ChartMarker,
 	MetricOption,
 } from "./analytics-chart";
-
-export { LineChartCard } from "./line-chart-card";
-export type { LineChartCardProps, ChartDataPoint } from "./line-chart-card";
-
-export { DemographicsCard } from "./demographics-card";
-export type { DemographicsCardProps, DemographicsDataItem } from "./demographics-card";
-
-export { AudienceCard } from "./audience-card";
+export { AnalyticsChart } from "./analytics-chart";
 export type { AudienceCardProps } from "./audience-card";
-
+export { AudienceCard } from "./audience-card";
+export {
+	DemographicsCard,
+	type DemographicsCardProps,
+} from "./demographics-card";
+export type { FilterBarProps } from "./filter-bar";
+export { FilterBar } from "./filter-bar";
+export type { ChartDataPoint, LineChartCardProps } from "./line-chart-card";
+export { LineChartCard } from "./line-chart-card";
+export type { MetricItem, MetricsGridProps } from "./metrics-grid";
+export { MetricsGrid } from "./metrics-grid";
+export type { RecentPostsCardProps } from "./recent-posts-card";
 export { RecentPostsCard } from "./recent-posts-card";
-export type { RecentPostsCardProps, PostItem } from "./recent-posts-card";
+export { PlaceholderCard, SentimentCard } from "./sentiment-card";
+export type { StatItem, StatsCardsProps } from "./stats-cards";
+export { StatsCards } from "./stats-cards";

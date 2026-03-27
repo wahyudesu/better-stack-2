@@ -1,39 +1,37 @@
-import type { Metadata } from "next";
-import { Figtree } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ui } from "@clerk/ui";
+import { GeistSans } from "geist/font/sans";
+import type { Metadata } from "next";
 
 import "../index.css";
+import { cn } from "@better-stack-2/ui/lib/utils";
+import BottomMenu from "@/components/bottom-menu";
 import Header from "@/components/header";
 import Providers from "@/components/providers";
-import BottomMenu from "@/components/bottom-menu";
-import { cn } from "@better-stack-2/ui/lib/utils";
-
-const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "better-stack-2",
-  description: "better-stack-2",
+	title: "better-stack-2",
+	description: "better-stack-2",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <ClerkProvider ui={ui}>
-      <html lang="en" suppressHydrationWarning className={cn("font-sans", figtree.variable)}>
-        <body className="antialiased">
-          <Providers>
-            <div className="grid grid-rows-[auto_1fr] h-svh">
-              <Header />
-              {children}
-            </div>
-            <BottomMenu />
-          </Providers>
-        </body>
-      </html>
-    </ClerkProvider>
-  );
+	return (
+		<ClerkProvider ui={ui}>
+			<html lang="en" suppressHydrationWarning className={GeistSans.variable}>
+				<body className="antialiased">
+					<Providers>
+						<div className="grid grid-rows-[auto_1fr] h-svh">
+							<Header />
+							{children}
+						</div>
+						<BottomMenu />
+					</Providers>
+				</body>
+			</html>
+		</ClerkProvider>
+	);
 }

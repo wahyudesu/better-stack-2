@@ -61,3 +61,9 @@ dev-dist
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Moat task system
+.moat/
+
+# Claude Code configuration
+.claude/

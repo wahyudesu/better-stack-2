@@ -92,3 +92,87 @@ pnpm run desktop:build # Build desktop app
 - **Barrel imports**: Dashboard barrel causes tree-shaking issues - import directly
 - **Hugeicons**: Heavy library - defer with `lazy()` if only used for icons
 - **Dialog**: DialogContent requires `DialogContentProps` interface export for type compatibility
+
+## Data Structure: Social Media, Posts & Analytics
+
+### Overview
+Centralized data types for dashboard and calendar features. Defined in `src/lib/types/social.ts` with sample data in `src/lib/data/social-data.ts`. Future: Will migrate to Convex.
+
+### 1. Social Media Profile
+```typescript
+interface SocialMediaProfile {
+  id: string;
+  platform: ProfilePlatform;  // instagram, tiktok, twitter, linkedin, youtube, facebook, pinterest
+  name: string;
+  username: string;
+  avatarUrl?: string;
+  status: "active" | "disconnected" | "error" | "pending";
+  connectedAt: Date;
+  lastSyncAt?: Date;
+  platformUserId?: string;
+  errorMessage?: string;
+}
+```
+
+### 2. Content Post
+```typescript
+interface ContentPost {
+  id: string;
+  title: string;
+  content: string;
+  media: PostMedia[];  // { url, type: 'image'|'video', alt?, thumbnailUrl? }
+  platforms: ProfilePlatform[];  // Multiple platforms (cross-posting)
+  profileIds: string[];  // Which profiles to use
+  createdAt: Date;
+  updatedAt: Date;
+  status: "draft" | "review" | "scheduled" | "publishing" | "published" | "failed" | "cancelled";
+  scheduledAt?: Date;
+  publishedAt?: Date;
+  errorMessage?: string;
+  hashtags?: string[];
+  cta?: string;
+  notes?: string;
+  platformPostIds?: Partial<Record<ProfilePlatform, string>>;  // External IDs
+}
+```
+
+### 3. Post Analytics (Per Platform)
+```typescript
+interface PostAnalytics {
+  id: string;
+  postId: string;
+  platform: ProfilePlatform;
+  profileId: string;
+  fetchedAt: Date;
+  views?: number;
+  likes?: number;
+  comments?: number;
+  shares?: number;
+  clicks?: number;
+  saves?: number;
+  engagementRate?: number;
+  extraMetrics?: Record<string, number | string>;
+}
+```
+
+### Usage
+```typescript
+import { samplePosts, sampleAnalytics, getCalendarItems } from "@/lib/data/social-data";
+import type { ContentPost, SocialMediaProfile } from "@/lib/types";
+
+// Get all posts
+const posts = samplePosts;
+
+// Get posts by status
+const scheduledPosts = samplePosts.filter(p => p.status === "scheduled");
+
+// Get calendar items with analytics
+const calendarItems = getCalendarItems();
+```
+
+### Design Decisions
+- **Multi-profile support**: Each user can have multiple social media profiles (one per platform)
+- **Cross-posting**: One post can be published to multiple platforms at once
+- **Per-platform analytics**: Analytics are stored separately per platform, enabling comparison
+- **No tags/categories**: Content organization is simple (by status and date only)
+- **Approval workflow**: Draft → Review → Scheduled → Published flow

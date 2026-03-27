@@ -1,15 +1,13 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "main": ".open-next/worker.js",
-  "name": "better-stack-2",
-  // Set this to today's date
-  "compatibility_date": "2026-03-20",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "keep_vars": true
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"main": ".open-next/worker.js",
+	"name": "better-stack-2",
+	// Set this to today's date
+	"compatibility_date": "2026-03-20",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"keep_vars": true
 }

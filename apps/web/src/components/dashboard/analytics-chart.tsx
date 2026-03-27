@@ -8,13 +8,13 @@
 
 import { ChevronDown } from "lucide-react";
 import {
-	LineChart,
-	Line,
-	XAxis,
 	ChartTooltip,
+	Line,
+	LineChart,
 	SegmentBackground,
 	SegmentLineFrom,
 	SegmentLineTo,
+	XAxis,
 } from "@/components/charts/line-chart";
 import { ChartMarkers } from "@/components/charts/markers";
 import { Button } from "@/components/ui/button";
@@ -68,10 +68,7 @@ export function AnalyticsChart({
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" className="text-lg font-semibold">
-							{
-								metricOptions.find((m) => m.value === activeMetric)
-									?.label
-							}{" "}
+							{metricOptions.find((m) => m.value === activeMetric)?.label}{" "}
 							Performance
 							<ChevronDown className="ml-1.5" />
 						</Button>
@@ -127,8 +124,8 @@ export function AnalyticsChart({
 							{
 								color: "var(--chart-line-primary)",
 								label:
-									metricOptions.find((m) => m.value === activeMetric)
-										?.label || "Value",
+									metricOptions.find((m) => m.value === activeMetric)?.label ||
+									"Value",
 								value: point[activeMetric] as number,
 							},
 							compareMetric

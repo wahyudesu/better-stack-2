@@ -4,13 +4,13 @@
  */
 
 export type {
-	SocialMediaPlatform,
-	ReportType,
-	TimeRange,
-	DashboardConfig,
-	PlatformMultiplier,
-	StatItem,
 	ChartDataPoint,
-	GeoView,
+	DashboardConfig,
 	DemoView,
+	GeoView,
+	PlatformMultiplier,
+	ReportType,
+	SocialMediaPlatform,
+	StatItem,
+	TimeRange,
 } from "./platform";

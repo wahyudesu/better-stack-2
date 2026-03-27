@@ -9,14 +9,14 @@
 import { useState } from "react";
 import {
 	AccountTab,
-	ConnectionsTab,
-	TeamTab,
 	BillingTab,
+	ConnectionsTab,
 	PreferencesTab,
 	SecurityTab,
 	SettingsLayout,
 	settingsTabs,
 	type TabId,
+	TeamTab,
 } from "@/components/features/settings";
 
 export default function SettingsPage() {

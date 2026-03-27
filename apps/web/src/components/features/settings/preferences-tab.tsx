@@ -5,13 +5,12 @@
 
 "use client";
 
+import { Palette, Settings } from "lucide-react";
 import { useState } from "react";
-import { Settings, Palette } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
 	Select,
 	SelectContent,
@@ -19,10 +18,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
-	TIMEZONES,
 	ACCENT_COLORS,
 	THEME_OPTIONS,
+	TIMEZONES,
 } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
 import type { FirstDayOfWeek, TimeFormat } from "./types";

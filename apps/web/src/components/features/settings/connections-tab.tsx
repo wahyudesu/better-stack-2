@@ -173,7 +173,8 @@ const initialConnections: Connection[] = [
 ];
 
 export function ConnectionsTab() {
-	const [connections, setConnections] = useState<Connection[]>(initialConnections);
+	const [connections, setConnections] =
+		useState<Connection[]>(initialConnections);
 	const [disconnectDialog, setDisconnectDialog] = useState<{
 		open: boolean;
 		platformId: string;
@@ -212,6 +213,11 @@ export function ConnectionsTab() {
 				return conn;
 			}),
 		);
+	};
+
+	const handleInvite = (platform: Platform) => {
+		// TODO: Implement invite functionality
+		console.log(`Invite user to connect ${platform}`);
 	};
 
 	const confirmDisconnect = () => {
@@ -267,6 +273,7 @@ export function ConnectionsTab() {
 							key={conn.id}
 							{...conn}
 							onToggle={toggleConnection}
+							onInvite={handleInvite}
 						/>
 					))}
 				</div>

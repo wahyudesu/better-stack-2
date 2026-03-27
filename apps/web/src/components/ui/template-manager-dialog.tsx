@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useEffect, useState } from "react";
+import type { ComposerTemplate, TemplateManager } from "@/lib/types/template";
+import { cn } from "@/lib/utils";
 import {
-	Delete02Icon,
-	FloppyDiskIcon,
 	Add01Icon,
 	Cancel01Icon,
 	Copy02Icon,
+	Delete02Icon,
+	FloppyDiskIcon,
 } from "@/lib/utils/tool-icons";
-import { cn } from "@/lib/utils";
-import type { ComposerTemplate, TemplateManager } from "@/lib/types/template";
 
 export interface TemplateManagerDialogProps {
 	isOpen: boolean;
@@ -238,7 +238,8 @@ export function TemplateManagerDialog({
 										</div>
 										{template.message && (
 											<div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
-												"{template.message.slice(0, 60)}{template.message.length > 60 ? "..." : ""}"
+												"{template.message.slice(0, 60)}
+												{template.message.length > 60 ? "..." : ""}"
 											</div>
 										)}
 									</button>
@@ -277,7 +278,7 @@ export function TemplateManagerDialog({
 				</div>
 			</div>
 		</>
-		);
+	);
 }
 
 export default TemplateManagerDialog;

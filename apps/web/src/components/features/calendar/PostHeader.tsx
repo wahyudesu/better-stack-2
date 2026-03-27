@@ -1,3 +1,3 @@
 export function PostHeader() {
-  return null; // Header is handled in the page component
+	return null; // Header is handled in the page component
 }

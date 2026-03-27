@@ -9,8 +9,8 @@
 "use client";
 
 import type * as React from "react";
-import { cn } from "@/lib/utils";
 import { statusBadgeStyles } from "@/lib/constants/ui";
+import { cn } from "@/lib/utils";
 
 export type StatusType = keyof typeof statusBadgeStyles;
 
@@ -20,11 +20,7 @@ export interface StatusBadgeProps {
 	children?: React.ReactNode;
 }
 
-export function StatusBadge({
-	status,
-	className,
-	children,
-}: StatusBadgeProps) {
+export function StatusBadge({ status, className, children }: StatusBadgeProps) {
 	const styles = statusBadgeStyles[status] || statusBadgeStyles.draft;
 
 	return (
