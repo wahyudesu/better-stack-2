@@ -50,6 +50,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { InboxAutomation } from "./InboxAutomation";
 
 type CustomerLabel = "vip" | "lead" | "customer" | "partner" | "none";
@@ -435,7 +436,7 @@ export function InboxContent() {
 	};
 
 	return (
-		<div className="mx-auto max-w-6xl h-[calc(100vh-8rem)]">
+		<div className={pageContainerClassName} style={pageMaxWidth}>
 			{/* Header */}
 			<div className="mb-4">
 				<h1 className="font-display text-2xl font-bold tracking-tight">
@@ -481,7 +482,7 @@ export function InboxContent() {
 					</div>
 
 					{/* CRM Layout */}
-					<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100%-6rem)]">
+					<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[600px]">
 						{/* Conversation List */}
 						<Card className="lg:col-span-1 border-border/50 overflow-hidden flex flex-col">
 							{/* Search & Sort */}

@@ -1,5 +1,3 @@
-"use client";
-
 import { FilterDropdown } from "@/components/ui/filter-dropdown";
 import type { PlatformFilterValue } from "@/components/ui/platform-filter";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
@@ -42,14 +40,16 @@ export function FilterBar({
 				value={selectedSocial}
 				onChange={onSocialChange}
 				variant="ghost"
+				className="w-full sm:w-auto"
 			/>
 
-			<div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+			<div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 -mx-2 px-2 scrollbar-hide">
 				<FilterDropdown
 					value={selectedType}
 					onChange={onTypeChange}
 					options={typeOptions}
 					placeholder="Type"
+					className="flex-shrink-0"
 				/>
 
 				<FilterDropdown
@@ -57,8 +57,9 @@ export function FilterBar({
 					onChange={onTimeChange}
 					options={timeOptions}
 					placeholder="Time range"
+					className="flex-shrink-0"
 				/>
 			</div>
 		</div>
-	);
+);
 }

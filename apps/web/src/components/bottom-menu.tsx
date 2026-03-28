@@ -2,7 +2,14 @@
 
 import { cn } from "@better-stack-2/ui/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { FileText, Home, Inbox, Settings, Sparkles, Wrench } from "lucide-react";
+import {
+	FileText,
+	Home,
+	Inbox,
+	Settings,
+	Sparkles,
+	Wrench,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
@@ -21,7 +28,13 @@ const TOOLTIP_SHOW_DELAY_MS = 400;
 // Key-to-item map for O(1) keyboard lookup (Ctrl+1 through Ctrl+6)
 const KEY_TO_ITEM_MAP = new Map(
 	[
-		{ href: "/posts", icon: FileText, label: "Posts", shortcut: "⌃1", key: "1" },
+		{
+			href: "/posts",
+			icon: FileText,
+			label: "Posts",
+			shortcut: "⌃1",
+			key: "1",
+		},
 		{
 			href: "/dashboard",
 			icon: Home,

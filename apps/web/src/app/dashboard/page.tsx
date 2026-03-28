@@ -10,10 +10,8 @@ import {
 	LineChartCard,
 } from "@/components/dashboard/line-chart-card";
 import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
-import {
-	PlaceholderCard,
-	SentimentCard,
-} from "@/components/dashboard/sentiment-card";
+import { SentimentCard } from "@/components/dashboard/sentiment-card";
+import { ViewerCard } from "@/components/dashboard/viewer-card";
 import { type StatItem, StatsCards } from "@/components/dashboard/stats-cards";
 import {
 	COUNTRY_DATA,
@@ -221,9 +219,9 @@ export default function DashboardPage() {
 				keyProp={`chart-${selectedSocial}-${selectedType}-${selectedTime}`}
 			/>
 
-			{/* Sentiment & Placeholder Cards */}
+			{/* Sentiment & Viewer Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<PlaceholderCard />
+				<ViewerCard timeRange={selectedTime} />
 				<SentimentCard />
 			</div>
 

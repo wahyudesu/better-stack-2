@@ -67,21 +67,23 @@ export function LineChartCard({
 
 	return (
 		<div
-			className="bg-white border rounded-xl p-3 sm:p-4 overflow-visible pb-4 sm:pb-6 group"
+			className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 overflow-visible pb-4 sm:pb-6 group"
 			key={keyProp}
 			onMouseEnter={() => {}}
 		>
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-3 mb-4">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4">
 				{/* Primary Metric Selector */}
 				<DropdownMenu>
 					<DropdownMenuTrigger>
 						<Button
 							variant="ghost"
-							className="text-base sm:text-lg font-semibold whitespace-nowrap"
+							className="text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap text-left justify-start"
 						>
-							{metricOptions.find((m) => m.value === primaryMetric)?.label}{" "}
-							Performance
-							<ChevronDown className="ml-1.5" />
+							<span className="truncate max-w-[200px] sm:max-w-none">
+								{metricOptions.find((m) => m.value === primaryMetric)?.label}{" "}
+								Performance
+							</span>
+							<ChevronDown className="ml-1.5 shrink-0" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="start" className="min-w-[160px]">
@@ -113,22 +115,25 @@ export function LineChartCard({
 						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
-				{/* Secondary Metric Selector - appears on hover */}
+				{/* Secondary Metric Selector - visible on mobile, hover on desktop */}
 				<div className="flex items-center gap-1">
 					<DropdownMenu>
 						<DropdownMenuTrigger>
 							<Button
 								variant="ghost"
 								className={cn(
-									"text-base sm:text-lg font-semibold whitespace-nowrap transition-opacity duration-200",
-									"opacity-0 group-hover:opacity-100",
+									"text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap text-left justify-start",
+									// Always visible on mobile, hover on desktop
+									"opacity-100 sm:opacity-0 group-hover:opacity-100",
 									secondaryMetric && "opacity-100",
 								)}
 							>
-								{secondaryMetric
-									? `vs ${metricOptions.find((m) => m.value === secondaryMetric)?.label}`
-									: "Secondary Metrics"}
-								<ChevronDown className="ml-1.5" />
+								<span className="truncate max-w-[120px] sm:max-w-none">
+									{secondaryMetric
+										? `vs ${metricOptions.find((m) => m.value === secondaryMetric)?.label}`
+										: "Compare"}
+								</span>
+								<ChevronDown className="ml-1.5 shrink-0" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="start" className="min-w-[160px]">
@@ -209,8 +214,8 @@ export function LineChartCard({
 								? {
 										color: "var(--chart-line-secondary)",
 										label:
-											metricOptions.find((m) => m.value === secondaryMetric)
-												?.label || "Followers",
+												metricOptions.find((m) => m.value === secondaryMetric)
+													?.label || "Followers",
 										value: formatMetricValue(point.followers as number),
 									}
 								: null,
@@ -233,7 +238,7 @@ export function LineChartCard({
 			<p className="sr-only">
 				Chart showing social media performance over {chartData.length} days.{" "}
 				Engagements range from{" "}
-				{formatMetricValue(Math.min(...chartData.map((d) => d.engagements)))} to{" "}
+				{formatMetricValue(Math.min(...chartData.map((d) => d.engagements)))} to {" "}
 				{formatMetricValue(Math.max(...chartData.map((d) => d.engagements)))}
 				{secondaryMetric &&
 					`. Followers range from ${formatMetricValue(Math.min(...chartData.map((d) => d.followers)))} to ${formatMetricValue(Math.max(...chartData.map((d) => d.followers)))}.`}

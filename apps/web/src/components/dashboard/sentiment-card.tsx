@@ -2,16 +2,20 @@
 
 import { ChevronRight, Info } from "lucide-react";
 import Link from "next/link";
+import { Ring } from "@/components/charts/ring";
+import { RingCenter } from "@/components/charts/ring-center";
+import { RingChart } from "@/components/charts/ring-chart";
 import { Button } from "@/components/ui/button";
-import { PieCenter } from "@/components/charts/pie-center";
-import { PieChart } from "@/components/charts/pie-chart";
-import { PieSlice } from "@/components/charts/pie-slice";
 import { SimpleTooltip } from "@/components/ui/tooltip";
 import { statusBadgeStyles } from "@/lib/constants/ui";
 
-const pieData = [
-	{ label: "Positive", value: 78, color: statusBadgeStyles.published.text },
-	{ label: "Negative", value: 22, color: "#d4d4d8" },
+const ringData = [
+	{
+		label: "Sentiment",
+		value: 78,
+		maxValue: 100,
+		color: statusBadgeStyles.published.text,
+	},
 ];
 
 // Get health status based on sentiment score
@@ -49,37 +53,34 @@ function getHealthStatus(score: number): {
 	};
 }
 
-// Pie Chart with center value
-function SentimentPieChart({ score }: { score: number }) {
+// Ring Chart with center value
+function SentimentRingChart({ score }: { score: number }) {
 	return (
-		<PieChart
-			data={pieData}
-			size={80}
-			innerRadius={75}
-			hoverOffset={0}
-			cornerRadius={50}
+		<RingChart
+			data={ringData}
+			size={70}
+			strokeWidth={7}
+			ringGap={3}
+			baseInnerRadius={24}
 		>
-			{/* Background gray circle - radius matches innerRadius (30px) */}
-			<circle cx={0} cy={0} r={30} fill="none" stroke="#e4e4e7" strokeWidth={10} />
-			<PieSlice index={0} key={0} hoverOffset={0} />
-			<PieCenter
-				value={pieData[0].value}
+			<Ring index={0} showGlow={false} />
+			<RingCenter
 				defaultLabel=""
 				suffix="%"
-				className="text-md"
+				className="text-sm"
 				valueClassName="font-semibold text-foreground"
 				labelClassName="hidden"
 			/>
-		</PieChart>
+		</RingChart>
 	);
 }
 
 export function SentimentCard() {
-	const sentimentScore = pieData[0].value; // 78
+	const sentimentScore = ringData[0].value; // 78
 	const healthStatus = getHealthStatus(sentimentScore);
 
 	return (
-		<div className="bg-white border rounded-xl p-3 sm:p-4 relative">
+		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 relative">
 			<div className="flex items-center justify-between mb-3">
 				<div className="flex items-center gap-2">
 					<p className="text-base font-semibold">Sentiment Score</p>
@@ -87,22 +88,22 @@ export function SentimentCard() {
 						<Info className="size-4 text-muted-foreground cursor-help" />
 					</SimpleTooltip>
 				</div>
-				<Button asChild variant="secondary" className="">
+				<Button asChild variant="secondary" size="sm" className="h-7 px-2 text-xs">
 					<Link href="/analytics" className="flex items-center gap-1.5">
-						Read more <ChevronRight className="size-4" />
+						Sentiment Analysis <ChevronRight className="size-3.5 sm:size-4" />
 					</Link>
 				</Button>
 			</div>
-			<div className="flex items-center justify-start gap-4">
-				{/* Smaller pie chart on the left */}
-				<SentimentPieChart score={sentimentScore} />
+			<div className="flex items-center justify-start gap-3 sm:gap-4">
+				{/* Smaller ring chart on the left */}
+				<SentimentRingChart score={sentimentScore} />
 
 				{/* Text on the right */}
-				<div className="flex flex-col flex-1 min-w-0 pr-8">
-					<p className={`text-xl sm:text-2xl font-bold ${healthStatus.color}`}>
+				<div className="flex flex-col flex-1 min-w-0 pr-4 sm:pr-8">
+					<p className={`text-lg sm:text-2xl font-bold ${healthStatus.color}`}>
 						{healthStatus.label}
 					</p>
-					<p className="text-xs sm:text-sm text-muted-foreground">
+					<p className="text-xs text-muted-foreground line-clamp-2">
 						{healthStatus.description}
 					</p>
 				</div>
@@ -114,7 +115,7 @@ export function SentimentCard() {
 // Placeholder card for future use
 export function PlaceholderCard({ title = "Coming Soon" }: { title?: string }) {
 	return (
-		<div className="bg-white border rounded-xl p-3 sm:p-4 min-h-48 flex items-center justify-center">
+		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-40 sm:min-h-48 flex items-center justify-center">
 			<div className="text-center">
 				<p className="text-base font-semibold text-muted-foreground">{title}</p>
 				<p className="text-sm text-muted-foreground/70 mt-1">

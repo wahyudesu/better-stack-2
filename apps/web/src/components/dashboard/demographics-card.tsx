@@ -5,10 +5,9 @@ import { Info } from "lucide-react";
 import React from "react";
 import { Bar } from "@/components/charts/bar";
 import { BarChart } from "@/components/charts/bar-chart";
-import { BarYAxis } from "@/components/charts/bar-y-axis";
 import { useChart } from "@/components/charts/chart-context";
 import { ChartTooltip } from "@/components/charts/chart-tooltip";
-import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { SimpleTooltip } from "@/components/ui/tooltip";
 import { TAB_TRIGGER_CLASSNAME } from "@/lib/constants/ui";
 import type { DemographicDataItem } from "@/lib/data/demographics";
@@ -63,20 +62,20 @@ function BarInsideLabels({
 					<g key={label} transform={`translate(0, ${bandY})`}>
 						{/* Flag */}
 						{Flag && (
-							<foreignObject x={8} y={bandWidth / 2 - 8} width={16} height={16}>
+							<foreignObject x={6} y={bandWidth / 2 - 7} width={14} height={14}>
 								{React.createElement(Flag, {
-									className: "size-4 rounded-full object-cover",
+									className: "size-3.5 rounded-full object-cover",
 								})}
 							</foreignObject>
 						)}
 
 						{/* Country Name - same color as value */}
 						<text
-							x={28}
+							x={Flag ? 24 : 6}
 							y={bandWidth / 2}
 							dy="0.35em"
 							fill="#6b7280"
-							fontSize="14"
+							fontSize="12"
 							fontWeight="600"
 							style={{
 								pointerEvents: "none",
@@ -91,7 +90,7 @@ function BarInsideLabels({
 							y={bandWidth / 2}
 							dy="0.35em"
 							fill="#6b7280"
-							fontSize="14"
+							fontSize="12"
 							fontWeight="600"
 							textAnchor="end"
 							style={{
@@ -129,28 +128,25 @@ export function DemographicsCard({
 
 	return (
 		<Tabs value={geoView} onValueChange={handleValueChange} className="gap-4">
-			<div className="bg-white border rounded-xl p-3 sm:p-4 min-h-80 h-full flex flex-col">
-				<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+			<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-72 sm:min-h-80 h-full flex flex-col">
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
 					<div className="flex items-center gap-2">
 						<p className="text-base font-semibold">Demographics</p>
 						<SimpleTooltip content="Menampilkan distribusi pengguna berdasarkan negara atau daerah">
 							<Info className="size-4 text-muted-foreground cursor-help" />
 						</SimpleTooltip>
 					</div>
-					<div className="flex flex-col sm:items-end gap-1">
-						<TabsList
-							variant="line"
-							className="bg-transparent rounded-none gap-4"
-						>
-							<TabsTab value="country" className={getTabClassName("country")}>
-								Negara
-							</TabsTab>
-							<TabsTab value="region" className={getTabClassName("region")}>
-								Daerah
-							</TabsTab>
-						</TabsList>
-						<p className="text-xs text-muted-foreground">Distribution</p>
-					</div>
+					<TabsList
+						variant="line"
+						className="bg-transparent rounded-none gap-4"
+					>
+						<TabsTab value="country" className={getTabClassName("country")}>
+							Negara
+						</TabsTab>
+						<TabsTab value="region" className={getTabClassName("region")}>
+							Daerah
+						</TabsTab>
+					</TabsList>
 				</div>
 
 				{/* Country View - BarChart with inside labels */}
@@ -170,7 +166,7 @@ export function DemographicsCard({
 							</BarChart>
 						</div>
 						{/* White gradient fade at bottom */}
-						<div className="absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-white to-transparent pointer-events-none" />
+						<div className="absolute bottom-0 left-0 right-0 h-8 sm:h-12 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none" />
 					</div>
 				)}
 
@@ -191,7 +187,7 @@ export function DemographicsCard({
 							</BarChart>
 						</div>
 						{/* White gradient fade at bottom */}
-						<div className="absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-white to-transparent pointer-events-none" />
+						<div className="absolute bottom-0 left-0 right-0 h-8 sm:h-12 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none" />
 					</div>
 				)}
 			</div>

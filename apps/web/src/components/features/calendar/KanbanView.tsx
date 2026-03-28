@@ -101,10 +101,8 @@ function PostColumn({
 
 	return (
 		<KanbanColumn value={value}>
-			<Card className="h-full">
-				<div
-					className={cn("flex items-center p-4 border-b", config.colorClass)}
-				>
+			<Card className={cn("h-full flex flex-col", config.colorClass)}>
+				<div className="flex items-center p-4 border-b border-white/10">
 					<div className="flex items-center gap-2.5">
 						<span className="text-sm font-semibold">{config.title}</span>
 						<span

@@ -18,7 +18,7 @@ export function RecentPostsCard({
 	analyticsHref = "/analytics",
 }: RecentPostsCardProps) {
 	return (
-		<div className="bg-white border rounded-xl p-3 sm:p-4">
+		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4">
 			<div className="flex items-center justify-between mb-3 sm:mb-4">
 				<h3 className="text-base font-semibold">Recent Posts</h3>
 				<Link
@@ -76,42 +76,37 @@ function PostListItem({ post }: { post: ContentPost }) {
 	};
 
 	return (
-		<div className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/50 transition-colors cursor-pointer group">
+		<div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-gray-100 dark:border-zinc-800 hover:border-gray-200 dark:hover:border-zinc-700 hover:bg-gray-50/50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group">
 			{/* Date/Time */}
-			<div className="flex-shrink-0 w-16 sm:w-20 text-xs sm:text-sm text-muted-foreground">
+			<div className="flex-shrink-0 w-12 sm:w-14 text-xs text-muted-foreground">
 				{formatDate(scheduledDate)}
 			</div>
 
 			{/* Content Preview */}
-			<div className="flex-1 min-w-0">
-				<p className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
+			<div className="flex-1 min-w-0 max-w-[200px] sm:max-w-[280px]">
+				<p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 mb-1">
 					{post.title}
 				</p>
-				<p className="text-xs text-muted-foreground line-clamp-1">
+				<p className="text-xs text-muted-foreground line-clamp-3">
 					{post.content.split("\n")[0]}
 				</p>
 			</div>
 
-			{/* Right Side: Platform Icons & Status */}
-			<div className="flex flex-col items-end gap-2">
-				{/* Platform Icons */}
+			{/* Right Side: Platform Icons */}
+			<div className="flex flex-col items-end gap-1.5">
+				{/* Platform Icons - Bigger size */}
 				<div className="flex items-center gap-1">
 					{post.platforms.map((platform) => (
-						<PlatformIcon key={platform} platform={platform} size={14} />
+						<PlatformIcon key={platform} platform={platform} size={20} />
 					))}
 				</div>
-
-				{/* Status Badge */}
-				<StatusBadge
-					status={post.status as StatusType}
-					className="text-[10px] px-1.5 py-0"
-				/>
 			</div>
 
 			{/* More Actions */}
 			<button
 				type="button"
-				className="flex-shrink-0 p-1 rounded-md hover:bg-gray-200 transition-colors opacity-0 group-hover:opacity-100"
+				className="flex-shrink-0 p-1 rounded-md hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors opacity-0 group-hover:opacity-100"
+				aria-label="More options"
 			>
 				<MoreHorizontal className="size-4 text-muted-foreground" />
 			</button>

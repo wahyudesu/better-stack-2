@@ -166,7 +166,7 @@ export function CalendarGrid({
 										<ContentCard
 											key={ev.id}
 											event={ev}
-											variant="vertical"
+											variant="calendar"
 											size="sm"
 											draggable
 											onDragStart={(e) => handleWeekDragStart(e, ev)}

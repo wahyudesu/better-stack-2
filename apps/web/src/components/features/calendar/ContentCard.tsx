@@ -204,6 +204,9 @@ export function ContentCard({
 			draggable={draggable}
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
+			style={{
+				backgroundColor: badgeStyle.bg,
+			}}
 		>
 			<div className="p-0">
 				{/* Row 1: Image left, content right */}
@@ -234,22 +237,9 @@ export function ContentCard({
 					)}
 
 					<div className="flex-1 min-w-0 flex flex-col">
-						<Badge
-							variant="secondary"
-							className={cn(
-								"capitalize pointer-events-none w-fit mb-1.5",
-								isSm && "h-5 rounded-sm px-1.5",
-							)}
-							style={{
-								backgroundColor: badgeStyle.bg,
-								color: badgeStyle.text,
-							}}
-						>
-							{event.status}
-						</Badge>
 						<p
 							className={cn(
-								"text-muted-foreground line-clamp-2",
+								"text-foreground/80 line-clamp-3",
 								isSm ? "text-xs" : "text-sm",
 							)}
 						>
@@ -260,11 +250,11 @@ export function ContentCard({
 
 				{/* Row 2: Platform icons + date/time */}
 				{showDateTime && (
-					<div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border/50">
+					<div className="flex items-center justify-between text-xs text-foreground/70 pt-2 border-t border-white/10">
 						<AvatarGroup>
 							{platforms.map((platform) => (
 								<Avatar key={platform} size="sm" className="size-6">
-									<AvatarFallback className="bg-card">
+									<AvatarFallback className="bg-white/20">
 										<PlatformIcon platform={platform as Platform} size={14} />
 									</AvatarFallback>
 								</Avatar>
@@ -274,7 +264,7 @@ export function ContentCard({
 							<span>{event.date}</span>
 							{event.time && (
 								<>
-									<span className="text-muted-foreground/50">•</span>
+									<span className="text-foreground/50">•</span>
 									<span>{event.time}</span>
 								</>
 							)}
