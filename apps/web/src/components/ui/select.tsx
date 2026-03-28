@@ -42,7 +42,7 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
 	);
 }
 
-type SelectVariant = "default" | "outline";
+type SelectVariant = "default" | "secondary" | "outline" | "ghost";
 
 function SelectTrigger({
 	className,
@@ -60,10 +60,14 @@ function SelectTrigger({
 			data-size={size}
 			data-variant={variant}
 			className={cn(
-				"flex w-fit items-center justify-between gap-1.5 rounded-4xl border px-3 py-2 text-sm whitespace-nowrap transition-colors outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+				"flex w-fit items-center justify-between gap-1.5 rounded-4xl px-3 py-2 text-sm whitespace-nowrap transition-colors outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+				// Base styles - override per variant
+				"rounded-4xl border",
 				// Variant styles
 				"data-[variant=default]:bg-input/30 data-[variant=default]:border-input data-[variant=default]:dark:hover:bg-input/50",
+				"data-[variant=secondary]:bg-secondary data-[variant=secondary]:text-secondary-foreground data-[variant=secondary]:border-transparent data-[variant=secondary]:hover:bg-secondary/80 data-[variant=secondary]:aria-expanded:bg-secondary data-[variant=secondary]:aria-expanded:text-secondary-foreground",
 				"data-[variant=outline]:bg-transparent data-[variant=outline]:border-input data-[variant=outline]:hover:bg-accent data-[variant=outline]:dark:hover:bg-accent/50",
+				"data-[variant=ghost]:bg-transparent data-[variant=ghost]:border-transparent data-[variant=ghost]:hover:bg-accent data-[variant=ghost]:hover:text-accent-foreground data-[variant=ghost]:dark:hover:bg-accent/50",
 				// Invalid state per variant
 				"dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
 				className,

@@ -26,6 +26,8 @@ export interface PieCenterProps {
 	defaultLabel?: string;
 	/** Format options for NumberFlow. Default: standard notation */
 	formatOptions?: NumberFlowFormat;
+	/** Override the displayed value (useful for showing specific data instead of total) */
+	value?: number;
 	/** Custom render function for complete control over center content */
 	children?: (props: {
 		value: number;
@@ -64,6 +66,7 @@ const defaultFormatOptions: NumberFlowFormat = {
 export function PieCenter({
 	defaultLabel = "Total",
 	formatOptions = defaultFormatOptions,
+	value: overrideValue,
 	children,
 	className = "",
 	valueClassName = "text-2xl font-bold",
@@ -74,7 +77,8 @@ export function PieCenter({
 	const { data, hoveredIndex, totalValue, innerRadius } = usePie();
 
 	const hoveredData = hoveredIndex !== null ? data[hoveredIndex] : null;
-	const displayValue = hoveredData ? hoveredData.value : totalValue;
+	// Use override value prop if provided, otherwise use hovered or total
+	const displayValue = overrideValue ?? hoveredData?.value ?? totalValue;
 	const displayLabel = hoveredData ? hoveredData.label : defaultLabel;
 	const isHovered = hoveredIndex !== null;
 
@@ -114,7 +118,7 @@ export function PieCenter({
 			)}
 			style={{ width: centerSize, height: centerSize }}
 		>
-			<span className={cn("tabular-nums", valueClassName)}>
+			<span className={cn("text-foreground tabular-nums", valueClassName)}>
 				<NumberFlow
 					format={formatOptions}
 					prefix={prefix}

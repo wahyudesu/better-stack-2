@@ -42,7 +42,7 @@ function getWeekRange(date: Date) {
 	return { startOfWeek, endOfWeek };
 }
 
-export default function CalendarPage() {
+export default function PostsPage() {
 	// View mode states
 	const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 	const [calendarView, setCalendarView] = useState<CalendarView>("month");
@@ -206,9 +206,9 @@ export default function CalendarPage() {
 		<div className={pageContainerClassName} style={pageMaxWidth}>
 			{/* Header */}
 			<div className="mb-6">
-				<h1 className="text-2xl font-bold tracking-tight">Calendar</h1>
+				<h1 className="text-2xl font-bold tracking-tight">Posts</h1>
 				<p className="text-sm text-muted-foreground">
-					Content schedule & planning
+					Manage & schedule your content
 				</p>
 			</div>
 

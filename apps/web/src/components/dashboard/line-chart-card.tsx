@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { useState } from "react";
 import {
 	type ChartMarker,
@@ -71,50 +71,50 @@ export function LineChartCard({
 			key={keyProp}
 			onMouseEnter={() => {}}
 		>
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-				<div className="flex items-center gap-2 overflow-x-auto">
-					{/* Primary Metric Selector */}
-					<DropdownMenu>
-						<DropdownMenuTrigger>
-							<Button
-								variant="ghost"
-								className="text-base sm:text-lg font-semibold whitespace-nowrap"
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-3 mb-4">
+				{/* Primary Metric Selector */}
+				<DropdownMenu>
+					<DropdownMenuTrigger>
+						<Button
+							variant="ghost"
+							className="text-base sm:text-lg font-semibold whitespace-nowrap"
+						>
+							{metricOptions.find((m) => m.value === primaryMetric)?.label}{" "}
+							Performance
+							<ChevronDown className="ml-1.5" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="start" className="min-w-[160px]">
+						{metricOptions.map((option) => (
+							<DropdownMenuItem
+								key={option.value}
+								onClick={() => {
+									setPrimaryMetric(option.value);
+									if (secondaryMetric === option.value) {
+										setSecondaryMetric(null);
+									}
+								}}
 							>
-								{metricOptions.find((m) => m.value === primaryMetric)?.label}{" "}
-								Performance
-								<ChevronDown className="ml-1.5" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start" className="min-w-[160px]">
-							{metricOptions.map((option) => (
-								<DropdownMenuItem
-									key={option.value}
-									onClick={() => {
-										setPrimaryMetric(option.value);
-										if (secondaryMetric === option.value) {
-											setSecondaryMetric(null);
-										}
-									}}
-								>
-									<span className="flex-1">{option.label}</span>
-									{primaryMetric === option.value && (
-										<svg
-											className="size-4 text-primary"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fillRule="evenodd"
-												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-												clipRule="evenodd"
-											/>
-										</svg>
-									)}
-								</DropdownMenuItem>
-							))}
-						</DropdownMenuContent>
-					</DropdownMenu>
-					{/* Secondary Metric Selector - appears on hover */}
+								<span className="flex-1">{option.label}</span>
+								{primaryMetric === option.value && (
+									<svg
+										className="size-4 text-primary"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
+										<path
+											fillRule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clipRule="evenodd"
+										/>
+									</svg>
+								)}
+							</DropdownMenuItem>
+						))}
+					</DropdownMenuContent>
+				</DropdownMenu>
+				{/* Secondary Metric Selector - appears on hover */}
+				<div className="flex items-center gap-1">
 					<DropdownMenu>
 						<DropdownMenuTrigger>
 							<Button
@@ -161,6 +161,17 @@ export function LineChartCard({
 								))}
 						</DropdownMenuContent>
 					</DropdownMenu>
+					{/* Clear button - only show when secondary metric is active */}
+					{secondaryMetric && (
+						<Button
+							variant="ghost"
+							size="icon"
+							className="size-7 hover:bg-muted"
+							onClick={() => setSecondaryMetric(null)}
+						>
+							<X className="size-4" />
+						</Button>
+					)}
 				</div>
 			</div>
 			<LineChart

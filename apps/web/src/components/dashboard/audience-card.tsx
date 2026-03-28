@@ -28,6 +28,13 @@ const viewerData = [
 	{ label: "External", value: 5 },
 ];
 
+const pieColors = [
+	"hsl(var(--chart-1))",
+	"hsl(var(--chart-2))",
+	"hsl(var(--chart-3))",
+	"hsl(var(--chart-4))",
+];
+
 export interface AudienceCardProps {
 	demoView?: "follower" | "viewer";
 	onDemoViewChange?: (view: "follower" | "viewer") => void;
@@ -98,6 +105,7 @@ export function AudienceCard({
 		const isSelected = value === demoView;
 		return cn(
 			TAB_TRIGGER_CLASSNAME,
+			"p-0",
 			isSelected && "!font-semibold !text-foreground",
 		);
 	};
@@ -110,7 +118,7 @@ export function AudienceCard({
 				className="gap-4"
 			>
 				<div className="bg-white border rounded-xl p-3 sm:p-4 min-h-80 h-full">
-					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-4">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
 						<div className="flex items-center gap-2">
 							<p className="text-base font-semibold">Audience</p>
 							<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
@@ -119,7 +127,7 @@ export function AudienceCard({
 						</div>
 						<TabsList
 							variant="line"
-							className="bg-transparent rounded-none p-0"
+							className="bg-transparent rounded-none gap-4"
 						>
 							<TabsTab value="follower" className={getTabClassName("follower")}>
 								Follower
@@ -152,7 +160,7 @@ export function AudienceCard({
 
 	return (
 		<div className="bg-white border rounded-xl p-3 sm:p-4 min-h-80">
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
 				<div className="flex items-center gap-2">
 					<p className="text-base font-semibold">Audience</p>
 					<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">

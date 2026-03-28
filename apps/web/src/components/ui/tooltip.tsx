@@ -83,9 +83,9 @@ function SimpleTooltip({
 	return (
 		<div className="group relative inline-flex">
 			{children}
-			<div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-foreground text-background text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 whitespace-nowrap z-50">
+			<div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 px-2.5 py-1.5 bg-foreground text-background text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-[100] pointer-events-none">
 				{content}
-				<div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground" />
+				<div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-foreground" />
 			</div>
 		</div>
 	);

@@ -1,6 +1,7 @@
 "use client";
 
 import { FilterDropdown } from "@/components/ui/filter-dropdown";
+import type { PlatformFilterValue } from "@/components/ui/platform-filter";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 
 const typeOptions = [
@@ -19,8 +20,8 @@ const timeOptions = [
 ] as const;
 
 export interface FilterBarProps {
-	selectedSocial: string;
-	onSocialChange: (value: string) => void;
+	selectedSocial: PlatformFilterValue;
+	onSocialChange: (value: PlatformFilterValue) => void;
 	selectedType: string;
 	onTypeChange: (value: string) => void;
 	selectedTime: string;
@@ -43,7 +44,7 @@ export function FilterBar({
 				variant="ghost"
 			/>
 
-			<div className="flex items-center gap-0.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+			<div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
 				<FilterDropdown
 					value={selectedType}
 					onChange={onTypeChange}

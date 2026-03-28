@@ -2,7 +2,7 @@
 
 import { cn } from "@better-stack-2/ui/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Calendar, Home, Settings, Sparkles, Wrench } from "lucide-react";
+import { FileText, Home, Inbox, Settings, Sparkles, Wrench } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
@@ -18,31 +18,26 @@ const SPRING_TRANSITION = {
 // Tooltip show delay in milliseconds
 const TOOLTIP_SHOW_DELAY_MS = 400;
 
-// Key-to-item map for O(1) keyboard lookup
+// Key-to-item map for O(1) keyboard lookup (Ctrl+1 through Ctrl+6)
 const KEY_TO_ITEM_MAP = new Map(
 	[
-		{
-			href: "/calendar",
-			icon: Calendar,
-			label: "Calendar",
-			shortcut: "C",
-			key: "c",
-		},
+		{ href: "/posts", icon: FileText, label: "Posts", shortcut: "⌃1", key: "1" },
 		{
 			href: "/dashboard",
 			icon: Home,
 			label: "Dashboard",
-			shortcut: "D",
-			key: "d",
+			shortcut: "⌃2",
+			key: "2",
 		},
-		{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "A", key: "a" },
-		{ href: "/tools", icon: Wrench, label: "Tools", shortcut: "T", key: "t" },
+		{ href: "/inbox", icon: Inbox, label: "Inbox", shortcut: "⌃3", key: "3" },
+		{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "⌃4", key: "4" },
+		{ href: "/tools", icon: Wrench, label: "Tools", shortcut: "⌃5", key: "5" },
 		{
 			href: "/settings",
 			icon: Settings,
 			label: "Settings",
-			shortcut: "S",
-			key: "s",
+			shortcut: "⌃6",
+			key: "6",
 		},
 	]
 		.filter((item) => item.key)
@@ -56,28 +51,23 @@ const menuItems: Array<{
 	shortcut?: string;
 	key?: string;
 }> = [
-	{
-		href: "/calendar",
-		icon: Calendar,
-		label: "Calendar",
-		shortcut: "C",
-		key: "c",
-	},
+	{ href: "/posts", icon: FileText, label: "Posts", shortcut: "⌃1", key: "1" },
 	{
 		href: "/dashboard",
 		icon: Home,
 		label: "Dashboard",
-		shortcut: "D",
-		key: "d",
+		shortcut: "⌃2",
+		key: "2",
 	},
-	{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "A", key: "a" },
-	{ href: "/tools", icon: Wrench, label: "Tools", shortcut: "T", key: "t" },
+	{ href: "/inbox", icon: Inbox, label: "Inbox", shortcut: "⌃3", key: "3" },
+	{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "⌃4", key: "4" },
+	{ href: "/tools", icon: Wrench, label: "Tools", shortcut: "⌃5", key: "5" },
 	{
 		href: "/settings",
 		icon: Settings,
 		label: "Settings",
-		shortcut: "S",
-		key: "s",
+		shortcut: "⌃6",
+		key: "6",
 	},
 ];
 
@@ -153,15 +143,20 @@ export default function BottomMenu() {
 		setShowTooltip(false);
 	};
 
-	// Keyboard shortcuts
+	// Keyboard shortcuts (Ctrl+1 through Ctrl+6, or Cmd+1 through Cmd+6 on Mac)
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (shouldIgnoreKeyboard(e.target as HTMLElement)) return;
 
-			const key = e.key.toLowerCase();
+			// Check for Ctrl (Windows/Linux) or Cmd (Mac) modifier
+			const hasModifier = e.ctrlKey || e.metaKey;
+			if (!hasModifier) return;
+
+			const key = e.key;
 			const matchingItem = KEY_TO_ITEM_MAP.get(key);
 
 			if (matchingItem && pathnameRef.current !== matchingItem.href) {
+				e.preventDefault();
 				routerRef.current.push(matchingItem.href as any);
 			}
 		};

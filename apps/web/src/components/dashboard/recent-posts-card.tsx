@@ -29,7 +29,8 @@ export function RecentPostsCard({
 					<ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
 				</Link>
 			</div>
-			<div className="space-y-3">
+			{/* Single column layout on all screen sizes */}
+			<div className="grid grid-cols-1 gap-3">
 				{posts.map((post) => (
 					<PostListItem key={post.id} post={post} />
 				))}

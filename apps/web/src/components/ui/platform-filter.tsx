@@ -65,17 +65,6 @@ interface PlatformFilterDropdownProps {
 	variant?: PlatformFilterVariant;
 }
 
-const variantStyles: Record<PlatformFilterVariant, string> = {
-	default:
-		"h-9 gap-2 px-4 text-sm font-medium rounded-lg justify-start bg-primary text-primary-foreground hover:bg-primary/90",
-	secondary:
-		"h-9 gap-2 px-4 text-sm font-medium rounded-lg justify-start bg-secondary text-secondary-foreground hover:bg-secondary/80",
-	outline:
-		"h-9 gap-2 px-4 text-sm font-medium rounded-lg justify-start border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-	ghost:
-		"h-9 gap-2 px-4 text-sm font-medium rounded-lg justify-start border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
-};
-
 export function PlatformFilterDropdown({
 	value,
 	onChange,
@@ -88,8 +77,12 @@ export function PlatformFilterDropdown({
 			onValueChange={(v) => onChange(v as PlatformFilterValue)}
 		>
 			<SelectTrigger
-				variant={variant === "outline" ? "outline" : undefined}
-				className={cn(variantStyles[variant], className)}
+				variant={variant}
+				className={cn(
+					// Override default rounded-4xl for more button-like appearance
+					"rounded-lg",
+					className,
+				)}
 			>
 				{value === "all" ? (
 					"All Platforms"

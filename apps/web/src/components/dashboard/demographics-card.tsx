@@ -54,6 +54,7 @@ function BarInsideLabels({
 		<g>
 			{data.map((item) => {
 				const label = item.country ?? item.region;
+				if (!label) return null;
 				const bandY = barScale(label) ?? 0;
 				const value = item.users;
 				const Flag = item.countryCode ? flagMap[item.countryCode] : null;
@@ -121,13 +122,14 @@ export function DemographicsCard({
 		const isSelected = value === geoView;
 		return cn(
 			TAB_TRIGGER_CLASSNAME,
+			"p-0",
 			isSelected && "!font-semibold !text-foreground",
 		);
 	};
 
 	return (
 		<Tabs value={geoView} onValueChange={handleValueChange} className="gap-4">
-			<div className="bg-white border rounded-xl p-3 sm:p-4 min-h-80 h-full">
+			<div className="bg-white border rounded-xl p-3 sm:p-4 min-h-80 h-full flex flex-col">
 				<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
 					<div className="flex items-center gap-2">
 						<p className="text-base font-semibold">Demographics</p>
@@ -135,44 +137,62 @@ export function DemographicsCard({
 							<Info className="size-4 text-muted-foreground cursor-help" />
 						</SimpleTooltip>
 					</div>
-					<TabsList variant="line" className="bg-transparent rounded-none p-0">
-						<TabsTab value="country" className={getTabClassName("country")}>
-							Negara
-						</TabsTab>
-						<TabsTab value="region" className={getTabClassName("region")}>
-							Daerah
-						</TabsTab>
-					</TabsList>
+					<div className="flex flex-col sm:items-end gap-1">
+						<TabsList
+							variant="line"
+							className="bg-transparent rounded-none gap-4"
+						>
+							<TabsTab value="country" className={getTabClassName("country")}>
+								Negara
+							</TabsTab>
+							<TabsTab value="region" className={getTabClassName("region")}>
+								Daerah
+							</TabsTab>
+						</TabsList>
+						<p className="text-xs text-muted-foreground">Distribution</p>
+					</div>
 				</div>
 
 				{/* Country View - BarChart with inside labels */}
 				{geoView === "country" && (
-					<BarChart
-						data={data as unknown as Record<string, unknown>[]}
-						xDataKey="country"
-						orientation="horizontal"
-						margin={{ left: 10, right: 10, top: 0, bottom: 0 }}
-						aspectRatio="4 / 3"
-					>
-						<Bar dataKey="users" fill="#e5e7eb" lineCap={4} />
-						<BarInsideLabels data={data} flagMap={flagMap} />
-						<ChartTooltip showCrosshair={false} />
-					</BarChart>
+					<div className="flex-1 min-h-0 relative">
+						<div className="absolute inset-0 overflow-y-auto no-scrollbar">
+							<BarChart
+								data={data as unknown as Record<string, unknown>[]}
+								xDataKey="country"
+								orientation="horizontal"
+								margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+								aspectRatio="4 / 3"
+							>
+								<Bar dataKey="users" fill="#e5e7eb" lineCap={4} />
+								<BarInsideLabels data={data} flagMap={flagMap} />
+								<ChartTooltip showCrosshair={false} />
+							</BarChart>
+						</div>
+						{/* White gradient fade at bottom */}
+						<div className="absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-white to-transparent pointer-events-none" />
+					</div>
 				)}
 
-				{/* Region View - Keep the original bar chart */}
+				{/* Region View - Same style as country view with inside labels */}
 				{geoView === "region" && (
-					<BarChart
-						data={data as unknown as Record<string, unknown>[]}
-						xDataKey="region"
-						orientation="horizontal"
-						margin={{ left: 85, right: 20, top: 0, bottom: 0 }}
-						aspectRatio="4 / 3"
-					>
-						<Bar dataKey="users" fill="#e5e7eb" lineCap={4} />
-						<BarYAxis />
-						<ChartTooltip showCrosshair={false} />
-					</BarChart>
+					<div className="flex-1 min-h-0 relative">
+						<div className="absolute inset-0 overflow-y-auto no-scrollbar">
+							<BarChart
+								data={data as unknown as Record<string, unknown>[]}
+								xDataKey="region"
+								orientation="horizontal"
+								margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+								aspectRatio="4 / 3"
+							>
+								<Bar dataKey="users" fill="#e5e7eb" lineCap={4} />
+								<BarInsideLabels data={data} flagMap={flagMap} />
+								<ChartTooltip showCrosshair={false} />
+							</BarChart>
+						</div>
+						{/* White gradient fade at bottom */}
+						<div className="absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-white to-transparent pointer-events-none" />
+					</div>
 				)}
 			</div>
 		</Tabs>

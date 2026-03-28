@@ -138,7 +138,12 @@ function PieChartInner({
 	// Calculate radii with padding based on hover offset to prevent clipping
 	const padding = hoverOffset;
 	const outerRadius = center - padding;
-	const innerRadius = innerRadiusProp;
+	// Inner radius is proportional: if prop > 1, treat as percentage of outerRadius
+	// Otherwise use as-is for backwards compatibility
+	const innerRadius =
+		innerRadiusProp > outerRadius
+			? (innerRadiusProp / 100) * outerRadius
+			: innerRadiusProp;
 
 	// Calculate total value
 	const totalValue = useMemo(
