@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { PlatformIcon } from "@/components/ui/PlatformIcon";
 import type { Platform } from "@/components/ui/PlatformIcon";
+import { PlatformIcon } from "@/components/ui/PlatformIcon";
+import { cn } from "@/lib/utils";
 
 export interface PlatformAvatarGroupProps {
 	platforms: Platform[];

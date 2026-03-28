@@ -11,8 +11,8 @@ import {
 } from "@/components/dashboard/line-chart-card";
 import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
 import { SentimentCard } from "@/components/dashboard/sentiment-card";
-import { ViewerCard } from "@/components/dashboard/viewer-card";
 import { type StatItem, StatsCards } from "@/components/dashboard/stats-cards";
+import { ViewerCard } from "@/components/dashboard/viewer-card";
 import {
 	COUNTRY_DATA,
 	DAYS_MAP,
@@ -22,6 +22,7 @@ import {
 	REGION_DATA,
 	TYPE_MULTIPLIERS,
 } from "@/lib/constants/dashboard";
+import type { DemographicDataItem } from "@/lib/data/demographics";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { calculateTrend, formatMetricValue } from "@/lib/metrics";
 import type {
@@ -46,8 +47,8 @@ function generateData(
 	stats: StatItem[];
 	chartData: ChartDataPoint[];
 	markers: ChartMarker[];
-	countryData: { country: string; users: number }[];
-	regionData: { region: string; users: number }[];
+	countryData: DemographicDataItem[];
+	regionData: DemographicDataItem[];
 } {
 	// Create seed from parameters for deterministic results
 	const seedString = `${socialMedia}-${type}-${timeRange}`;

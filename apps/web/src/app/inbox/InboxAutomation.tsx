@@ -21,6 +21,8 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import type { Platform } from "@/components/ui/PlatformIcon";
+import { PlatformAvatarGroup } from "@/components/ui/platform-avatar-group";
 import {
 	PLATFORM_MULTI_OPTIONS,
 	PlatformFilterMulti,
@@ -432,16 +434,11 @@ export function InboxAutomation() {
 										{/* Platforms */}
 										<div className="flex items-center gap-1">
 											<span>Platforms:</span>
-											{rule.platforms.map((p) => {
-												const platform = PLATFORM_MULTI_OPTIONS.find(
-													(opt) => opt.value === p,
-												);
-												return (
-													<span key={p} className="font-medium">
-														{platform?.label}
-													</span>
-												);
-											})}
+											<PlatformAvatarGroup
+												platforms={rule.platforms as Platform[]}
+												maxVisible={3}
+												size={16}
+											/>
 										</div>
 
 										{/* Trigger */}

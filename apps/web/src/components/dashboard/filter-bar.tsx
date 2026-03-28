@@ -61,5 +61,5 @@ export function FilterBar({
 				/>
 			</div>
 		</div>
-);
+	);
 }

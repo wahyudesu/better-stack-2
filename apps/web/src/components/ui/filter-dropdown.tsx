@@ -34,7 +34,10 @@ export function FilterDropdown({
 	const selectedOption = options.find((opt) => opt.value === value);
 
 	return (
-		<Select value={value} onValueChange={onChange}>
+		<Select
+			value={value}
+			onValueChange={(v) => onChange(v ?? options[0]?.value ?? "")}
+		>
 			<SelectTrigger
 				className={cn(
 					"h-9 gap-2 px-4 text-sm font-medium bg-transparent hover:bg-muted/50 data-[state=open]:bg-muted/50 border-none shadow-none rounded-lg justify-start",

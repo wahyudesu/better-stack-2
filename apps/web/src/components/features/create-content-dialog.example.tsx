@@ -1,14 +1,22 @@
 // Example usage of CreateContentDialog
 // Add this to your dashboard or any page where you want to create posts
 
+import { PlusIcon } from "lucide-react";
 import { CreateContentDialog } from "@/components/features/create-content-dialog";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
 
 export default function DashboardPage() {
 	const handleCreatePost = (data: {
 		content: string;
-		platforms: ("instagram" | "tiktok" | "twitter" | "linkedin" | "youtube" | "facebook" | "pinterest")[];
+		platforms: (
+			| "instagram"
+			| "tiktok"
+			| "twitter"
+			| "linkedin"
+			| "youtube"
+			| "facebook"
+			| "pinterest"
+		)[];
 		postType: "quick" | "custom";
 		mode: "now" | "schedule";
 		scheduledAt?: Date;
@@ -38,7 +46,12 @@ export default function DashboardPage() {
 		<div className="p-6">
 			{/* Using with trigger button */}
 			<CreateContentDialog
-				trigger={<Button><PlusIcon className="size-4" />Create Post</Button>}
+				trigger={
+					<Button>
+						<PlusIcon className="size-4" />
+						Create Post
+					</Button>
+				}
 				onCreatePost={handleCreatePost}
 			/>
 

@@ -83,12 +83,12 @@ export function SentimentCard() {
 		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 relative">
 			<div className="flex items-center justify-between mb-3">
 				<div className="flex items-center gap-2">
-					<p className="text-base font-semibold">Sentiment Score</p>
+					<p className="text-base font-medium">Sentiment Score</p>
 					<SimpleTooltip content="Analisis sentimen berdasarkan engagement dan komentar dari postingan">
 						<Info className="size-4 text-muted-foreground cursor-help" />
 					</SimpleTooltip>
 				</div>
-				<Button asChild variant="secondary" size="sm" className="h-7 px-2 text-xs">
+				<Button variant="secondary" size="xs">
 					<Link href="/analytics" className="flex items-center gap-1.5">
 						Sentiment Analysis <ChevronRight className="size-3.5 sm:size-4" />
 					</Link>

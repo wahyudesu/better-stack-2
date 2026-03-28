@@ -51,10 +51,7 @@ export function BaseDialog({
 }: BaseDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent
-				className={cn(sizeClasses[size], className)}
-				onCloseAutoFocus={(e: Event) => e.preventDefault()}
-			>
+			<DialogContent className={cn(sizeClasses[size], className)}>
 				{showCloseButton && (
 					<button
 						onClick={() => onOpenChange(false)}

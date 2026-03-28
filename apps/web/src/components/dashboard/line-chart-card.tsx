@@ -24,6 +24,11 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	FilterSelect,
+	PlatformFilter,
+	type PlatformFilterValue,
+} from "@/components/ui/filter-select";
 import { cn } from "@/lib/utils";
 
 const metricOptions = [
@@ -64,6 +69,7 @@ export function LineChartCard({
 }: LineChartCardProps) {
 	const [primaryMetric, setPrimaryMetric] = useState("engagement");
 	const [secondaryMetric, setSecondaryMetric] = useState<string | null>(null);
+	const [platform, setPlatform] = useState<PlatformFilterValue>("all");
 
 	return (
 		<div
@@ -71,113 +77,123 @@ export function LineChartCard({
 			key={keyProp}
 			onMouseEnter={() => {}}
 		>
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-2 sm:gap-3 mb-3 sm:mb-4">
-				{/* Primary Metric Selector */}
-				<DropdownMenu>
-					<DropdownMenuTrigger>
-						<Button
-							variant="ghost"
-							className="text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap text-left justify-start"
-						>
-							<span className="truncate max-w-[200px] sm:max-w-none">
-								{metricOptions.find((m) => m.value === primaryMetric)?.label}{" "}
-								Performance
-							</span>
-							<ChevronDown className="ml-1.5 shrink-0" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="start" className="min-w-[160px]">
-						{metricOptions.map((option) => (
-							<DropdownMenuItem
-								key={option.value}
-								onClick={() => {
-									setPrimaryMetric(option.value);
-									if (secondaryMetric === option.value) {
-										setSecondaryMetric(null);
-									}
-								}}
-							>
-								<span className="flex-1">{option.label}</span>
-								{primaryMetric === option.value && (
-									<svg
-										className="size-4 text-primary"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-									>
-										<path
-											fillRule="evenodd"
-											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-											clipRule="evenodd"
-										/>
-									</svg>
-								)}
-							</DropdownMenuItem>
-						))}
-					</DropdownMenuContent>
-				</DropdownMenu>
-				{/* Secondary Metric Selector - visible on mobile, hover on desktop */}
-				<div className="flex items-center gap-1">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-2 sm:gap-3">
+					{/* Primary Metric Selector */}
 					<DropdownMenu>
 						<DropdownMenuTrigger>
 							<Button
 								variant="ghost"
-								className={cn(
-									"text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap text-left justify-start",
-									// Always visible on mobile, hover on desktop
-									"opacity-100 sm:opacity-0 group-hover:opacity-100",
-									secondaryMetric && "opacity-100",
-								)}
+								className="text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap text-left justify-start"
 							>
-								<span className="truncate max-w-[120px] sm:max-w-none">
-									{secondaryMetric
-										? `vs ${metricOptions.find((m) => m.value === secondaryMetric)?.label}`
-										: "Compare"}
+								<span className="truncate max-w-[200px] sm:max-w-none">
+									{metricOptions.find((m) => m.value === primaryMetric)?.label}{" "}
+									Performance
 								</span>
 								<ChevronDown className="ml-1.5 shrink-0" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="start" className="min-w-[160px]">
-							{metricOptions
-								.filter((m) => m.value !== primaryMetric)
-								.map((option) => (
-									<DropdownMenuItem
-										key={option.value}
-										onClick={() =>
-											setSecondaryMetric(
-												secondaryMetric === option.value ? null : option.value,
-											)
+							{metricOptions.map((option) => (
+								<DropdownMenuItem
+									key={option.value}
+									onClick={() => {
+										setPrimaryMetric(option.value);
+										if (secondaryMetric === option.value) {
+											setSecondaryMetric(null);
 										}
-									>
-										<span className="flex-1">{option.label}</span>
-										{secondaryMetric === option.value && (
-											<svg
-												className="size-4 text-primary"
-												fill="currentColor"
-												viewBox="0 0 20 20"
-											>
-												<path
-													fillRule="evenodd"
-													d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-													clipRule="evenodd"
-												/>
-											</svg>
-										)}
-									</DropdownMenuItem>
-								))}
+									}}
+								>
+									<span className="flex-1">{option.label}</span>
+									{primaryMetric === option.value && (
+										<svg
+											className="size-4 text-primary"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									)}
+								</DropdownMenuItem>
+							))}
 						</DropdownMenuContent>
 					</DropdownMenu>
-					{/* Clear button - only show when secondary metric is active */}
-					{secondaryMetric && (
-						<Button
-							variant="ghost"
-							size="icon"
-							className="size-7 hover:bg-muted"
-							onClick={() => setSecondaryMetric(null)}
-						>
-							<X className="size-4" />
-						</Button>
-					)}
+					{/* Secondary Metric Selector - visible on mobile, hover on desktop */}
+					<div className="flex items-center gap-1">
+						<DropdownMenu>
+							<DropdownMenuTrigger>
+								<Button
+									variant="ghost"
+									className={cn(
+										"text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap text-left justify-start",
+										// Always visible on mobile, hover on desktop
+										"opacity-100 sm:opacity-0 group-hover:opacity-100",
+										secondaryMetric && "opacity-100",
+									)}
+								>
+									<span className="truncate max-w-[120px] sm:max-w-none">
+										{secondaryMetric
+											? `vs ${metricOptions.find((m) => m.value === secondaryMetric)?.label}`
+											: "Compare"}
+									</span>
+									<ChevronDown className="ml-1.5 shrink-0" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="start" className="min-w-[160px]">
+								{metricOptions
+									.filter((m) => m.value !== primaryMetric)
+									.map((option) => (
+										<DropdownMenuItem
+											key={option.value}
+											onClick={() =>
+												setSecondaryMetric(
+													secondaryMetric === option.value
+														? null
+														: option.value,
+												)
+											}
+										>
+											<span className="flex-1">{option.label}</span>
+											{secondaryMetric === option.value && (
+												<svg
+													className="size-4 text-primary"
+													fill="currentColor"
+													viewBox="0 0 20 20"
+												>
+													<path
+														fillRule="evenodd"
+														d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+														clipRule="evenodd"
+													/>
+												</svg>
+											)}
+										</DropdownMenuItem>
+									))}
+							</DropdownMenuContent>
+						</DropdownMenu>
+						{/* Clear button - only show when secondary metric is active */}
+						{secondaryMetric && (
+							<Button
+								variant="ghost"
+								size="icon"
+								className="size-7 hover:bg-muted"
+								onClick={() => setSecondaryMetric(null)}
+							>
+								<X className="size-4" />
+							</Button>
+						)}
+					</div>
 				</div>
+				{/* Platform Filter */}
+				<PlatformFilter
+					value={platform}
+					onChange={setPlatform}
+					className="w-fit"
+				/>
 			</div>
 			<LineChart
 				data={chartData as unknown as Record<string, unknown>[]}
@@ -214,8 +230,8 @@ export function LineChartCard({
 								? {
 										color: "var(--chart-line-secondary)",
 										label:
-												metricOptions.find((m) => m.value === secondaryMetric)
-													?.label || "Followers",
+											metricOptions.find((m) => m.value === secondaryMetric)
+												?.label || "Followers",
 										value: formatMetricValue(point.followers as number),
 									}
 								: null,
@@ -238,7 +254,7 @@ export function LineChartCard({
 			<p className="sr-only">
 				Chart showing social media performance over {chartData.length} days.{" "}
 				Engagements range from{" "}
-				{formatMetricValue(Math.min(...chartData.map((d) => d.engagements)))} to {" "}
+				{formatMetricValue(Math.min(...chartData.map((d) => d.engagements)))} to{" "}
 				{formatMetricValue(Math.max(...chartData.map((d) => d.engagements)))}
 				{secondaryMetric &&
 					`. Followers range from ${formatMetricValue(Math.min(...chartData.map((d) => d.followers)))} to ${formatMetricValue(Math.max(...chartData.map((d) => d.followers)))}.`}

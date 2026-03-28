@@ -49,8 +49,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 import { InboxAutomation } from "./InboxAutomation";
 
 type CustomerLabel = "vip" | "lead" | "customer" | "partner" | "none";
@@ -464,7 +464,7 @@ export function InboxContent() {
 						<PlatformFilterDropdown
 							value={platform}
 							onChange={setPlatform}
-							size="default"
+							variant="secondary"
 						/>
 
 						<Select
@@ -669,14 +669,6 @@ export function InboxContent() {
 														<h3 className="font-semibold">
 															{selectedConversation.sender}
 														</h3>
-														{selectedConversation.isOnline && (
-															<Badge
-																variant="outline"
-																className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20"
-															>
-																Online
-															</Badge>
-														)}
 														{/* Customer Label - Only for messages */}
 														{selectedConversation.type === "message" && (
 															<DropdownMenu>

@@ -99,8 +99,17 @@ export function ListView({ events, onEventClick }: ListViewProps) {
 					comparison = a.platform.localeCompare(b.platform);
 					break;
 				case "status": {
-					const statusOrder = { draft: 0, scheduled: 1, published: 2 };
-					comparison = statusOrder[a.status] - statusOrder[b.status];
+					const statusOrder: Record<string, number> = {
+						draft: 0,
+						review: 1,
+						scheduled: 2,
+						publishing: 3,
+						published: 4,
+						failed: 5,
+						cancelled: 6,
+					};
+					comparison =
+						(statusOrder[a.status] ?? 0) - (statusOrder[b.status] ?? 0);
 					break;
 				}
 			}

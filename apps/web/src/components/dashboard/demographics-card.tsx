@@ -121,24 +121,24 @@ export function DemographicsCard({
 		const isSelected = value === geoView;
 		return cn(
 			TAB_TRIGGER_CLASSNAME,
-			"p-0",
-			isSelected && "!font-semibold !text-foreground",
+			"p-0 font-normal",
+			isSelected && "!font-medium !text-foreground",
 		);
 	};
 
 	return (
 		<Tabs value={geoView} onValueChange={handleValueChange} className="gap-4">
 			<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-72 sm:min-h-80 h-full flex flex-col">
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-2">
 					<div className="flex items-center gap-2">
-						<p className="text-base font-semibold">Demographics</p>
+						<p className="text-base font-medium">Demographics</p>
 						<SimpleTooltip content="Menampilkan distribusi pengguna berdasarkan negara atau daerah">
 							<Info className="size-4 text-muted-foreground cursor-help" />
 						</SimpleTooltip>
 					</div>
 					<TabsList
 						variant="line"
-						className="bg-transparent rounded-none gap-4"
+						className="bg-transparent rounded-none gap-4 font-extrabold"
 					>
 						<TabsTab value="country" className={getTabClassName("country")}>
 							Negara

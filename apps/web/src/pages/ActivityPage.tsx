@@ -14,11 +14,12 @@ import { type CalendarEvent, calendarEvents, type Platform } from "@/data/mock";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
-const platformIcons: Record<Platform, string> = {
+const platformIcons: Record<string, string> = {
 	instagram: "📸",
 	tiktok: "🎵",
 	twitter: "𝕏",
 	youtube: "▶️",
+	facebook: "👤",
 };
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { Calendar, Clock, Plus, Send } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -11,17 +13,10 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTab,
-} from "@/components/ui/tabs";
 import { FilePreview, type UploadedFile } from "@/components/ui/file-preview";
 import { PlatformIcon } from "@/components/ui/PlatformIcon";
+import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { PLATFORMS } from "@/lib/constants/platforms";
 import type { ProfilePlatform } from "@/lib/types/social";
 import { cn } from "@/lib/utils";
@@ -64,7 +59,9 @@ export function CreateContentDialog({
 }: CreateContentDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [content, setContent] = useState("");
-	const [selectedPlatforms, setSelectedPlatforms] = useState<ProfilePlatform[]>([]);
+	const [selectedPlatforms, setSelectedPlatforms] = useState<ProfilePlatform[]>(
+		[],
+	);
 	const [postType, setPostType] = useState<PostType>("quick");
 	const [mode, setMode] = useState<PostMode>("now");
 	const [scheduledDate, setScheduledDate] = useState("");
@@ -97,10 +94,9 @@ export function CreateContentDialog({
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const files = Array.from(e.target.files || []);
 			const newFiles: UploadedFile[] = files.map((file) => {
-				const preview =
-					file.type.startsWith("image/")
-						? URL.createObjectURL(file)
-						: undefined;
+				const preview = file.type.startsWith("image/")
+					? URL.createObjectURL(file)
+					: undefined;
 				return {
 					id: `${Date.now()}-${Math.random()}`,
 					name: file.name,
@@ -184,12 +180,11 @@ export function CreateContentDialog({
 	);
 
 	const isFormValid = content.trim() && selectedPlatforms.length > 0;
-	const isScheduleValid =
-		mode === "now" || (scheduledDate && scheduledTime);
+	const isScheduleValid = mode === "now" || (scheduledDate && scheduledTime);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
-			{trigger && <DialogTrigger render={trigger} />}
+			{trigger && <DialogTrigger render={() => trigger as any} />}
 			<DialogContent className="max-w-lg gap-0 p-0">
 				<DialogHeader className="px-6 pt-6 pb-4">
 					<DialogTitle>Create New Post</DialogTitle>
@@ -201,21 +196,15 @@ export function CreateContentDialog({
 				<div className="flex flex-col gap-4 px-6 pb-6 overflow-y-auto max-h-[calc(100vh-200px)]">
 					{/* Platform Selection */}
 					<div className="space-y-3">
-						<label className="text-sm font-medium">
-							Select Platforms
-						</label>
+						<label className="text-sm font-medium">Select Platforms</label>
 						<div className="grid grid-cols-3 gap-2">
 							{PLATFORM_OPTIONS.map((platform) => {
-								const isSelected = selectedPlatforms.includes(
-									platform.value,
-								);
+								const isSelected = selectedPlatforms.includes(platform.value);
 								return (
 									<button
 										key={platform.value}
 										type="button"
-										onClick={() =>
-											handleTogglePlatform(platform.value)
-										}
+										onClick={() => handleTogglePlatform(platform.value)}
 										className={cn(
 											"flex items-center gap-2 p-3 rounded-xl border-2 transition-all",
 											isSelected
@@ -225,17 +214,10 @@ export function CreateContentDialog({
 									>
 										<Checkbox
 											checked={isSelected}
-											onChange={() =>
-												handleTogglePlatform(
-													platform.value,
-												)
-											}
+											onChange={() => handleTogglePlatform(platform.value)}
 											className="pointer-events-none"
 										/>
-										<PlatformIcon
-											platform={platform.value}
-											size={16}
-										/>
+										<PlatformIcon platform={platform.value} size={16} />
 										<span className="text-xs font-medium">
 											{platform.label}
 										</span>
@@ -257,16 +239,15 @@ export function CreateContentDialog({
 
 						<TabsContent value="quick" className="mt-4 space-y-4">
 							<p className="text-sm text-muted-foreground">
-								Create a quick post for your selected platforms.
-								Perfect for daily updates and simple content.
+								Create a quick post for your selected platforms. Perfect for
+								daily updates and simple content.
 							</p>
 						</TabsContent>
 
 						<TabsContent value="custom" className="mt-4 space-y-4">
 							<p className="text-sm text-muted-foreground">
-								Customize your post with advanced options.
-								Add hashtags, CTAs, and platform-specific
-								tweaks.
+								Customize your post with advanced options. Add hashtags, CTAs,
+								and platform-specific tweaks.
 							</p>
 						</TabsContent>
 					</Tabs>
@@ -285,9 +266,7 @@ export function CreateContentDialog({
 						<div className="flex justify-between text-xs text-muted-foreground">
 							<span>{content.length} characters</span>
 							{selectedPlatforms.length > 0 && (
-								<span>
-									{selectedPlatforms.join(", ")}
-								</span>
+								<span>{selectedPlatforms.join(", ")}</span>
 							)}
 						</div>
 					</div>
@@ -315,17 +294,12 @@ export function CreateContentDialog({
 							className="hidden"
 							onChange={handleFileUpload}
 						/>
-						<FilePreview
-							files={mediaFiles}
-							onRemove={handleRemoveMedia}
-						/>
+						<FilePreview files={mediaFiles} onRemove={handleRemoveMedia} />
 					</div>
 
 					{/* Post Mode Selection */}
 					<div className="space-y-3">
-						<label className="text-sm font-medium">
-							When to post?
-						</label>
+						<label className="text-sm font-medium">When to post?</label>
 						<div className="grid grid-cols-2 gap-2">
 							<button
 								type="button"
@@ -351,9 +325,7 @@ export function CreateContentDialog({
 								)}
 							>
 								<Clock className="size-4" />
-								<span className="text-sm font-medium">
-									Schedule
-								</span>
+								<span className="text-sm font-medium">Schedule</span>
 							</button>
 						</div>
 					</div>
@@ -374,9 +346,7 @@ export function CreateContentDialog({
 										type="date"
 										min={new Date().toISOString().split("T")[0]}
 										value={scheduledDate}
-										onChange={(e) =>
-											setScheduledDate(e.target.value)
-										}
+										onChange={(e) => setScheduledDate(e.target.value)}
 										className={cn(
 											"w-full h-10 px-3 pr-10 rounded-lg border border-input bg-input/30 text-sm outline-none",
 											"focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
@@ -396,9 +366,7 @@ export function CreateContentDialog({
 										id="schedule-time"
 										type="time"
 										value={scheduledTime}
-										onChange={(e) =>
-											setScheduledTime(e.target.value)
-										}
+										onChange={(e) => setScheduledTime(e.target.value)}
 										className={cn(
 											"w-full h-10 px-3 pr-10 rounded-lg border border-input bg-input/30 text-sm outline-none",
 											"focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
@@ -411,10 +379,7 @@ export function CreateContentDialog({
 				</div>
 
 				<DialogFooter className="px-6 pb-6 pt-2">
-					<Button
-						variant="outline"
-						onClick={() => handleOpenChange(false)}
-					>
+					<Button variant="outline" onClick={() => handleOpenChange(false)}>
 						Cancel
 					</Button>
 					<Button

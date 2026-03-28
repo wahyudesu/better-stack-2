@@ -1,10 +1,10 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
+import { cn } from "@better-stack-2/ui/lib/utils";
+import { Check, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
-import { cn } from "@better-stack-2/ui/lib/utils";
 
 // ============================================================================
 // Types
@@ -41,28 +41,29 @@ export interface AnimatedSelectProps {
 // Variant Configs
 // ============================================================================
 
-const variantStyles: Record<SelectVariant, { trigger: string; item: string }> = {
-	pill: {
-		trigger:
-			"rounded-full border bg-background/50 backdrop-blur-sm data-[state=open]:bg-accent/50 hover:bg-accent/30 transition-all duration-200",
-		item: "rounded-full data-[highlighted]:bg-accent/50 data-[selected]:bg-accent data-[selected]:font-medium",
-	},
-	filter: {
-		trigger:
-			"rounded-lg border-none bg-transparent shadow-none data-[state=open]:bg-muted/50 hover:bg-muted/30 transition-colors duration-150",
-		item: "rounded-lg data-[highlighted]:bg-accent/50 data-[selected]:bg-accent/50",
-	},
-	segment: {
-		trigger:
-			"rounded-xl border bg-muted/30 data-[state=open]:bg-muted/50 hover:bg-muted/40 transition-colors duration-150",
-		item: "rounded-xl data-[highlighted]:bg-accent/60 data-[selected]:bg-primary data-[selected]:text-primary-foreground",
-	},
-	minimal: {
-		trigger:
-			"rounded-none border-b border-transparent data-[state=open]:border-border hover:border-border/50 transition-colors duration-150",
-		item: "rounded-none data-[highlighted]:bg-accent/30 data-[selected]:border-l-2 data-[selected]:border-primary",
-	},
-};
+const variantStyles: Record<SelectVariant, { trigger: string; item: string }> =
+	{
+		pill: {
+			trigger:
+				"rounded-full border bg-background/50 backdrop-blur-sm data-[state=open]:bg-accent/50 hover:bg-accent/30 transition-all duration-200",
+			item: "rounded-full data-[highlighted]:bg-accent/50 data-[selected]:bg-accent data-[selected]:font-medium",
+		},
+		filter: {
+			trigger:
+				"rounded-lg border-none bg-transparent shadow-none data-[state=open]:bg-muted/50 hover:bg-muted/30 transition-colors duration-150",
+			item: "rounded-lg data-[highlighted]:bg-accent/50 data-[selected]:bg-accent/50",
+		},
+		segment: {
+			trigger:
+				"rounded-xl border bg-muted/30 data-[state=open]:bg-muted/50 hover:bg-muted/40 transition-colors duration-150",
+			item: "rounded-xl data-[highlighted]:bg-accent/60 data-[selected]:bg-primary data-[selected]:text-primary-foreground",
+		},
+		minimal: {
+			trigger:
+				"rounded-none border-b border-transparent data-[state=open]:border-border hover:border-border/50 transition-colors duration-150",
+			item: "rounded-none data-[highlighted]:bg-accent/30 data-[selected]:border-l-2 data-[selected]:border-primary",
+		},
+	};
 
 const sizeStyles: Record<SelectSize, { trigger: string; item: string }> = {
 	sm: { trigger: "h-8 px-3 py-1.5 text-xs", item: "py-1.5 px-2.5 text-xs" },
@@ -95,7 +96,11 @@ interface SelectItemProps {
 	showCheckmark?: boolean;
 }
 
-function SelectItemComponent({ option, isSelected, showCheckmark = true }: SelectItemProps) {
+function SelectItemComponent({
+	option,
+	isSelected,
+	showCheckmark = true,
+}: SelectItemProps) {
 	return (
 		<SelectPrimitive.Item
 			value={option.value}
@@ -122,7 +127,9 @@ function SelectItemComponent({ option, isSelected, showCheckmark = true }: Selec
 			<SelectPrimitive.ItemText className="flex flex-1 flex-col gap-0.5">
 				<span className="font-medium">{option.label}</span>
 				{option.description && (
-					<span className="text-xs text-muted-foreground">{option.description}</span>
+					<span className="text-xs text-muted-foreground">
+						{option.description}
+					</span>
 				)}
 			</SelectPrimitive.ItemText>
 
@@ -165,14 +172,14 @@ interface SelectContentProps {
 	align?: "start" | "center" | "end";
 }
 
-function SelectContentComponent({ children, className, align = "start" }: SelectContentProps) {
+function SelectContentComponent({
+	children,
+	className,
+	align = "start",
+}: SelectContentProps) {
 	return (
 		<SelectPrimitive.Portal>
-			<SelectPrimitive.Positioner
-				align={align}
-				sideOffset={8}
-				className="z-50"
-			>
+			<SelectPrimitive.Positioner align={align} sideOffset={8} className="z-50">
 				<SelectPrimitive.Popup
 					className={cn(
 						"min-w-[160px] max-w-[280px]",
@@ -184,7 +191,9 @@ function SelectContentComponent({ children, className, align = "start" }: Select
 						className,
 					)}
 				>
-					<SelectPrimitive.List className="p-1">{children}</SelectPrimitive.List>
+					<SelectPrimitive.List className="p-1">
+						{children}
+					</SelectPrimitive.List>
 				</SelectPrimitive.Popup>
 			</SelectPrimitive.Positioner>
 		</SelectPrimitive.Portal>
@@ -268,7 +277,8 @@ export function AnimatedSelect({
 // Preset: Time Range Select
 // ============================================================================
 
-export interface TimeRangeSelectProps extends Omit<AnimatedSelectProps, "options" | "triggerClassName"> {
+export interface TimeRangeSelectProps
+	extends Omit<AnimatedSelectProps, "options" | "triggerClassName"> {
 	className?: string;
 }
 
@@ -299,7 +309,8 @@ export function TimeRangeSelect({ className, ...props }: TimeRangeSelectProps) {
 // Preset: Report Type Select
 // ============================================================================
 
-export interface ReportTypeSelectProps extends Omit<AnimatedSelectProps, "options" | "triggerClassName"> {
+export interface ReportTypeSelectProps
+	extends Omit<AnimatedSelectProps, "options" | "triggerClassName"> {
 	className?: string;
 }
 
@@ -310,7 +321,10 @@ const reportTypeOptions: SelectOption[] = [
 	{ value: "impressions", label: "Impressions" },
 ];
 
-export function ReportTypeSelect({ className, ...props }: ReportTypeSelectProps) {
+export function ReportTypeSelect({
+	className,
+	...props
+}: ReportTypeSelectProps) {
 	return (
 		<AnimatedSelect
 			{...props}
@@ -328,7 +342,8 @@ export function ReportTypeSelect({ className, ...props }: ReportTypeSelectProps)
 // Preset: Platform Select
 // ============================================================================
 
-export interface PlatformSelectProps extends Omit<AnimatedSelectProps, "options" | "triggerClassName"> {
+export interface PlatformSelectProps
+	extends Omit<AnimatedSelectProps, "options" | "triggerClassName"> {
 	className?: string;
 }
 
@@ -447,11 +462,16 @@ export interface CompactFilterBarProps {
 	className?: string;
 }
 
-export function CompactFilterBar({ filters, className }: CompactFilterBarProps) {
+export function CompactFilterBar({
+	filters,
+	className,
+}: CompactFilterBarProps) {
 	return (
 		<div className={cn("flex items-center gap-2 overflow-x-auto", className)}>
 			{filters.map((filter) => {
-				const selectedOption = filter.options.find((opt) => opt.value === filter.value);
+				const selectedOption = filter.options.find(
+					(opt) => opt.value === filter.value,
+				);
 				return (
 					<AnimatedSelect
 						key={filter.key}

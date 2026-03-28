@@ -79,7 +79,11 @@ function PieChartWithLegend({
 			>
 				<LegendItemComponent>
 					<LegendMarker className="size-2 sm:size-3 rounded-full" />
-					<LegendLabel showValue valueSuffix="%" className="text-xs sm:text-sm" />
+					<LegendLabel
+						showValue
+						valueSuffix="%"
+						className="text-xs sm:text-sm"
+					/>
 				</LegendItemComponent>
 			</Legend>
 		</>
@@ -105,8 +109,8 @@ export function AudienceCard({
 		const isSelected = value === demoView;
 		return cn(
 			TAB_TRIGGER_CLASSNAME,
-			"p-0",
-			isSelected && "!font-semibold !text-foreground",
+			"p-0 font-normal",
+			isSelected && "!font-medium !text-foreground",
 		);
 	};
 
@@ -120,7 +124,7 @@ export function AudienceCard({
 				<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-72 sm:min-h-80 h-full">
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
 						<div className="flex items-center gap-2">
-							<p className="text-base font-semibold">Audience</p>
+							<p className="text-base font-medium">Audience</p>
 							<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
 								<Info className="size-4 text-muted-foreground cursor-help" />
 							</SimpleTooltip>
@@ -156,7 +160,7 @@ export function AudienceCard({
 		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-72 sm:min-h-80">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
 				<div className="flex items-center gap-2">
-					<p className="text-base font-semibold">Audience</p>
+					<p className="text-base font-medium">Audience</p>
 					<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
 						<Info className="size-4 text-muted-foreground cursor-help" />
 					</SimpleTooltip>

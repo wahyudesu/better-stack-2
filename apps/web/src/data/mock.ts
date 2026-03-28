@@ -466,6 +466,7 @@ function postToCalendarEvent(post: ContentPost): CalendarEvent {
  * Uses the centralized data from @/lib/data/social-data.ts.
  */
 import { samplePosts } from "@/lib/data/social-data";
+import type { ContentPost } from "@/lib/types/social";
 
 export const calendarEvents: CalendarEvent[] =
 	samplePosts.map(postToCalendarEvent);
