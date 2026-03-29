@@ -1,6 +1,8 @@
-import { FilterDropdown } from "@/components/ui/filter-dropdown";
 import type { PlatformFilterValue } from "@/components/ui/platform-filter";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
+import { DepthButton, DepthButtonGroup } from "@/components/ui/depth-buttons";
+import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
+import { Download } from "lucide-react";
 
 const typeOptions = [
 	{ value: "overview", label: "Overview" },
@@ -34,32 +36,43 @@ export function FilterBar({
 	selectedTime,
 	onTimeChange,
 }: FilterBarProps) {
+
 	return (
-		<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+		<div className="flex items-start gap-3 sm:gap-4">
+			{/* Left: Platform Filter */}
 			<PlatformFilterDropdown
 				value={selectedSocial}
 				onChange={onSocialChange}
 				variant="ghost"
-				className="w-full sm:w-auto"
 			/>
 
-			<div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 -mx-2 px-2 scrollbar-hide">
-				<FilterDropdown
+			{/* Spacer to push buttons to the right */}
+			<div className="flex-1 min-w-0" />
+
+			{/* Right: Filters + Export - Grouped */}
+			<DepthButtonGroup className="gap-2">
+				<DepthButtonMenu
 					value={selectedType}
 					onChange={onTypeChange}
 					options={typeOptions}
 					placeholder="Type"
-					className="flex-shrink-0"
+					size="default"
+					// position="first"
 				/>
 
-				<FilterDropdown
+				<DepthButtonMenu
 					value={selectedTime}
 					onChange={onTimeChange}
 					options={timeOptions}
 					placeholder="Time range"
-					className="flex-shrink-0"
+					size="default"
+					// position="middle"
 				/>
-			</div>
+
+				<DepthButton variant="outline" size="default">
+					<Download className="size-4" />
+				</DepthButton>
+			</DepthButtonGroup>
 		</div>
 	);
 }

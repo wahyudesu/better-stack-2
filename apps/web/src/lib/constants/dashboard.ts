@@ -35,6 +35,7 @@ export const TYPE_MULTIPLIERS: Record<
 		likes: number;
 		visits: number;
 		replies: number;
+		shares: number;
 	}
 > = {
 	overview: {
@@ -44,6 +45,7 @@ export const TYPE_MULTIPLIERS: Record<
 		likes: 1,
 		visits: 1,
 		replies: 1,
+		shares: 1,
 	},
 	engagement: {
 		engagements: 1.5,
@@ -52,6 +54,7 @@ export const TYPE_MULTIPLIERS: Record<
 		likes: 1.3,
 		visits: 0.9,
 		replies: 1.8,
+		shares: 1.5,
 	},
 	reach: {
 		engagements: 0.6,
@@ -60,6 +63,7 @@ export const TYPE_MULTIPLIERS: Record<
 		likes: 0.7,
 		visits: 1.3,
 		replies: 0.5,
+		shares: 0.7,
 	},
 	impressions: {
 		engagements: 0.5,
@@ -68,6 +72,7 @@ export const TYPE_MULTIPLIERS: Record<
 		likes: 0.5,
 		visits: 0.8,
 		replies: 0.3,
+		shares: 0.4,
 	},
 } as const;
 

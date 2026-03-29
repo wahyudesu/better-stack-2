@@ -10,6 +10,7 @@ import {
 	LegendMarker,
 } from "@/components/charts/pie-legend";
 import { PieSlice } from "@/components/charts/pie-slice";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { SimpleTooltip } from "@/components/ui/tooltip";
 import { TAB_TRIGGER_CLASSNAME } from "@/lib/constants/ui";
@@ -121,54 +122,62 @@ export function AudienceCard({
 				onValueChange={handleValueChange}
 				className="gap-4"
 			>
-				<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-72 sm:min-h-80 h-full">
-					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
-						<div className="flex items-center gap-2">
-							<p className="text-base font-medium">Audience</p>
-							<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
-								<Info className="size-4 text-muted-foreground cursor-help" />
-							</SimpleTooltip>
+				<Card className="min-h-72 sm:min-h-80 h-full">
+					<CardHeader>
+						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+							<div className="flex items-center gap-2">
+								<CardTitle>Audience</CardTitle>
+								<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
+									<Info className="size-4 text-muted-foreground cursor-help" />
+								</SimpleTooltip>
+							</div>
+							<TabsList
+								variant="line"
+								className="bg-transparent rounded-none gap-4"
+							>
+								<TabsTab value="follower" className={getTabClassName("follower")}>
+									Follower
+								</TabsTab>
+								<TabsTab value="viewer" className={getTabClassName("viewer")}>
+									Viewer
+								</TabsTab>
+							</TabsList>
 						</div>
-						<TabsList
-							variant="line"
-							className="bg-transparent rounded-none gap-4"
-						>
-							<TabsTab value="follower" className={getTabClassName("follower")}>
-								Follower
-							</TabsTab>
-							<TabsTab value="viewer" className={getTabClassName("viewer")}>
-								Viewer
-							</TabsTab>
-						</TabsList>
-					</div>
-					<TabsPanel value="follower">
-						<div className="flex flex-col items-center justify-center">
-							<PieChartWithLegend data={currentFollowerData} size={150} />
-						</div>
-					</TabsPanel>
-					<TabsPanel value="viewer">
-						<div className="flex flex-col items-center justify-center">
-							<PieChartWithLegend data={currentViewerData} size={150} />
-						</div>
-					</TabsPanel>
-				</div>
+					</CardHeader>
+					<CardContent>
+						<TabsPanel value="follower">
+							<div className="flex flex-col items-center justify-center">
+								<PieChartWithLegend data={currentFollowerData} size={150} />
+							</div>
+						</TabsPanel>
+						<TabsPanel value="viewer">
+							<div className="flex flex-col items-center justify-center">
+								<PieChartWithLegend data={currentViewerData} size={150} />
+							</div>
+						</TabsPanel>
+					</CardContent>
+				</Card>
 			</Tabs>
 		);
 	}
 
 	return (
-		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-72 sm:min-h-80">
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-4">
-				<div className="flex items-center gap-2">
-					<p className="text-base font-medium">Audience</p>
-					<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
-						<Info className="size-4 text-muted-foreground cursor-help" />
-					</SimpleTooltip>
+		<Card className="min-h-72 sm:min-h-80">
+			<CardHeader>
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+					<div className="flex items-center gap-2">
+						<CardTitle>Audience</CardTitle>
+						<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
+							<Info className="size-4 text-muted-foreground cursor-help" />
+						</SimpleTooltip>
+					</div>
 				</div>
-			</div>
-			<div className="flex flex-col items-center justify-center">
-				<PieChartWithLegend data={currentFollowerData} size={150} />
-			</div>
-		</div>
+			</CardHeader>
+			<CardContent>
+				<div className="flex flex-col items-center justify-center">
+					<PieChartWithLegend data={currentFollowerData} size={150} />
+				</div>
+			</CardContent>
+		</Card>
 	);
 }

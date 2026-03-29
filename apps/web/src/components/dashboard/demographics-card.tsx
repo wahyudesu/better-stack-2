@@ -7,11 +7,20 @@ import { Bar } from "@/components/charts/bar";
 import { BarChart } from "@/components/charts/bar-chart";
 import { useChart } from "@/components/charts/chart-context";
 import { ChartTooltip } from "@/components/charts/chart-tooltip";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { SimpleTooltip } from "@/components/ui/tooltip";
 import { TAB_TRIGGER_CLASSNAME } from "@/lib/constants/ui";
 import type { DemographicDataItem } from "@/lib/data/demographics";
 import { cn } from "@/lib/utils";
+
+// Dark mode aware colors - using currentColor for labels to inherit text color
+// Bar color uses CSS variables that adapt to theme
 
 const flagMap: Record<string, React.ComponentType<{ className?: string }>> = {
 	ID,
@@ -50,7 +59,7 @@ function BarInsideLabels({
 	}
 
 	return (
-		<g>
+		<g className="dark:fill-white">
 			{data.map((item) => {
 				const label = item.country ?? item.region;
 				if (!label) return null;
@@ -69,12 +78,12 @@ function BarInsideLabels({
 							</foreignObject>
 						)}
 
-						{/* Country Name - same color as value */}
+						{/* Country Name - dark mode aware */}
 						<text
 							x={Flag ? 24 : 6}
 							y={bandWidth / 2}
 							dy="0.35em"
-							fill="#6b7280"
+							className="fill-[hsl(var(--foreground))] dark:fill-white"
 							fontSize="12"
 							fontWeight="600"
 							style={{
@@ -84,12 +93,12 @@ function BarInsideLabels({
 							{label}
 						</text>
 
-						{/* Value - dark text at far right */}
+						{/* Value - dark mode aware */}
 						<text
 							x={innerWidth}
 							y={bandWidth / 2}
 							dy="0.35em"
-							fill="#6b7280"
+							className="fill-[hsl(var(--foreground))] dark:fill-white"
 							fontSize="12"
 							fontWeight="600"
 							textAnchor="end"
@@ -128,69 +137,69 @@ export function DemographicsCard({
 
 	return (
 		<Tabs value={geoView} onValueChange={handleValueChange} className="gap-4">
-			<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-72 sm:min-h-80 h-full flex flex-col">
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-2">
-					<div className="flex items-center gap-2">
-						<p className="text-base font-medium">Demographics</p>
-						<SimpleTooltip content="Menampilkan distribusi pengguna berdasarkan negara atau daerah">
-							<Info className="size-4 text-muted-foreground cursor-help" />
-						</SimpleTooltip>
+			<Card className="min-h-72 sm:min-h-80 h-full flex flex-col dark:bg-card/50">
+				<CardHeader className="mb-3 sm:mb-2">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+						<div className="flex items-center gap-2">
+							<CardTitle>Demographics</CardTitle>
+							<SimpleTooltip content="Menampilkan distribusi pengguna berdasarkan negara atau daerah">
+								<Info className="size-4 text-muted-foreground cursor-help" />
+							</SimpleTooltip>
+						</div>
+						<TabsList
+							variant="line"
+							className="bg-transparent rounded-none gap-4 font-extrabold"
+						>
+							<TabsTab value="country" className={getTabClassName("country")}>
+								Negara
+							</TabsTab>
+							<TabsTab value="region" className={getTabClassName("region")}>
+								Daerah
+							</TabsTab>
+						</TabsList>
 					</div>
-					<TabsList
-						variant="line"
-						className="bg-transparent rounded-none gap-4 font-extrabold"
-					>
-						<TabsTab value="country" className={getTabClassName("country")}>
-							Negara
-						</TabsTab>
-						<TabsTab value="region" className={getTabClassName("region")}>
-							Daerah
-						</TabsTab>
-					</TabsList>
-				</div>
+				</CardHeader>
 
 				{/* Country View - BarChart with inside labels */}
 				{geoView === "country" && (
-					<div className="flex-1 min-h-0 relative">
+					<CardContent className="flex-1 min-h-0 relative p-0">
 						<div className="absolute inset-0 overflow-y-auto no-scrollbar">
 							<BarChart
 								data={data as unknown as Record<string, unknown>[]}
 								xDataKey="country"
 								orientation="horizontal"
-								margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-								aspectRatio="4 / 3"
+								margin={{ left: 10, right: 10, top: 0, bottom: 10 }}
 							>
-								<Bar dataKey="users" fill="#e5e7eb" lineCap={4} />
+								<Bar dataKey="users" fill="hsl(var(--primary))" lineCap={4} />
 								<BarInsideLabels data={data} flagMap={flagMap} />
 								<ChartTooltip showCrosshair={false} />
 							</BarChart>
 						</div>
 						{/* White gradient fade at bottom */}
-						<div className="absolute bottom-0 left-0 right-0 h-8 sm:h-12 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none" />
-					</div>
+						<div className="absolute bottom-0 left-0 right-0 h-8 sm:h-12 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none dark:from-card dark:via-card/80" />
+					</CardContent>
 				)}
 
 				{/* Region View - Same style as country view with inside labels */}
 				{geoView === "region" && (
-					<div className="flex-1 min-h-0 relative">
+					<CardContent className="flex-1 min-h-0 relative p-0">
 						<div className="absolute inset-0 overflow-y-auto no-scrollbar">
 							<BarChart
 								data={data as unknown as Record<string, unknown>[]}
 								xDataKey="region"
 								orientation="horizontal"
-								margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-								aspectRatio="4 / 3"
+								margin={{ left: 10, right: 10, top: 0, bottom: 10 }}
 							>
-								<Bar dataKey="users" fill="#e5e7eb" lineCap={4} />
+								<Bar dataKey="users" fill="hsl(var(--primary))" lineCap={4} />
 								<BarInsideLabels data={data} flagMap={flagMap} />
 								<ChartTooltip showCrosshair={false} />
 							</BarChart>
 						</div>
 						{/* White gradient fade at bottom */}
-						<div className="absolute bottom-0 left-0 right-0 h-8 sm:h-12 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none" />
-					</div>
+						<div className="absolute bottom-0 left-0 right-0 h-8 sm:h-12 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none dark:from-card dark:via-card/80" />
+					</CardContent>
 				)}
-			</div>
+			</Card>
 		</Tabs>
 	);
 }

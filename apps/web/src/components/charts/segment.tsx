@@ -38,8 +38,8 @@ export function SegmentBackground({
 			animate={{ opacity: 1 }}
 			fill={fill}
 			height={innerHeight}
-			initial={{ opacity: 0 }}
-			style={{ opacity: 1 }}
+			initial={false}
+			style={{}}
 			transition={{ duration: 0.2 }}
 			width={dimensions.width}
 			x={dimensions.x}

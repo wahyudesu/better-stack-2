@@ -4,7 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 
 import "../index.css";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import "./globals.css";
 import BottomMenu from "@/components/bottom-menu";
 import Header from "@/components/header";
 import Providers from "@/components/providers";

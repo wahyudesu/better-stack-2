@@ -1,0 +1,332 @@
+/**
+ * Custom animations and keyframes.
+ * Extends @better-stack-2/ui/globals.css
+ *
+ * Best Practices Applied:
+ * - CSS @layer for cascade management
+ * - Consistent oklch color format
+ * - CSS variables for theming
+ * - Reduced motion support
+ * - Hardware-accelerated animations
+ */
+
+/* ==================================================
+   CSS LAYERS - Order matters for specificity!
+   ================================================== */
+@layer reset, theme, base, components, utilities;
+
+/* ==================================================
+   THEME LAYER - CSS Custom Properties
+   ================================================== */
+@layer theme {
+	:root {
+		/* ----- Easing & Timing ----- */
+		--ease-bounce: cubic-bezier(0.3, 0.7, 0.4, 1);
+		--ease-bounce-responsive: cubic-bezier(0.3, 0.7, 0.4, 1.5);
+		--ease-instant: 34ms;
+		--ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+
+		/* ----- Spacing Scale ----- */
+		--radius-sm: 8px;
+		--radius-md: 12px;
+		--radius-lg: 16px;
+
+		/* ----- Size Variants ----- */
+		--button-padding-sm: 8px 16px;
+		--button-padding-md: 12px 24px;
+		--button-padding-lg: 16px 32px;
+		--button-padding-icon: 12px;
+
+		/* ----- Colors - Light Mode ----- */
+		--background: oklch(0.98 0.001 260);
+		--foreground: oklch(0.145 0 0);
+		--card: oklch(1 0 0);
+		--card-foreground: oklch(0.145 0 0);
+		--popover: oklch(1 0 0);
+		--popover-foreground: oklch(0.145 0 0);
+		--primary: oklch(0.205 0 0);
+		--primary-foreground: oklch(0.985 0 0);
+		--secondary: oklch(0.965 0 0);
+		--secondary-foreground: oklch(0.205 0 0);
+		--muted: oklch(0.965 0 0);
+		--muted-foreground: oklch(0.556 0 0);
+		--accent: oklch(0.97 0 0);
+		--accent-foreground: oklch(0.205 0 0);
+		--destructive: oklch(0.577 0.245 27.325);
+
+		/* Border: more visible for better separation */
+		--border: oklch(0.90 0 0);
+		--input: oklch(0.90 0 0);
+		--ring: oklch(0.708 0 0);
+
+		/* ----- Pushable Button Colors (oklch format) ----- */
+		--pushable-bg: oklch(0.58 0.22 12); /* equivalent to hsl(345deg 100% 47%) */
+		--pushable-foreground: oklch(0.985 0 0);
+		--pushable-shadow: oklch(0.35 0 0);
+
+		/* ----- Chart Colors ----- */
+		--chart-1: 142 76% 36%;
+		--chart-2: 160 60% 45%;
+		--chart-3: 173 58% 39%;
+		--chart-4: 190 60% 42%;
+		--chart-5: 215 60% 45%;
+		--chart-muted: 214 32% 91%;
+		--chart-line-primary: 142 76% 36%;
+		--chart-line-secondary: 215 90% 60%;
+
+		/* ----- Depth Button Shadows - Light Mode ----- */
+		--depth-shadow-gray: oklch(0.35 0 0);
+		--depth-shadow-light: oklch(0.85 0.005 250);
+		--depth-shadow-blue: oklch(0.42 0.18 266);
+		--depth-shadow-blue-active: oklch(0.58 0.20 250);
+		--depth-shadow-destructive: oklch(0.58 0.22 25);
+	}
+
+	.dark {
+		/* ----- Colors - Dark Mode ----- */
+		--background: oklch(0.19 0 0);
+		--foreground: oklch(0.97 0 0);
+		--card: oklch(0.25 0 0);
+		--card-foreground: oklch(0.97 0 0);
+		--popover: oklch(0.25 0 0);
+		--popover-foreground: oklch(0.97 0 0);
+		--primary: oklch(0.94 0 0);
+		--primary-foreground: oklch(0.19 0 0);
+		--secondary: oklch(0.32 0 0);
+		--secondary-foreground: oklch(0.97 0 0);
+		--muted: oklch(0.28 0 0);
+		--muted-foreground: oklch(0.65 0 0);
+		--accent: oklch(0.30 0 0);
+		--accent-foreground: oklch(0.97 0 0);
+		--destructive: oklch(0.65 0.20 25);
+		--border: oklch(1 0 0 / 12%);
+		--input: oklch(1 0 0 / 18%);
+		--ring: oklch(0.60 0 0);
+
+		/* ----- Chart Colors - Dark Mode ----- */
+		--chart-1: 142 70% 50%;
+		--chart-2: 160 65% 55%;
+		--chart-3: 173 63% 50%;
+		--chart-4: 190 65% 55%;
+		--chart-5: 215 65% 55%;
+		--chart-muted: 214 20% 30%;
+		--chart-line-primary: 142 70% 50%;
+		--chart-line-secondary: 215 80% 65%;
+
+		/* ----- Depth Button Shadows - Dark Mode ----- */
+		--depth-shadow-gray: oklch(0.65 0 0);
+		--depth-shadow-light: oklch(0.75 0.005 250);
+		--depth-shadow-blue: oklch(0.49 0.22 264);
+		--depth-shadow-blue-active: oklch(0.75 0.22 250);
+		--depth-shadow-destructive: oklch(0.70 0.22 25);
+	}
+}
+
+/* ==================================================
+   KEYFRAMES - Animations
+   ================================================== */
+@layer base {
+	/* Fade In */
+	@keyframes fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	/* Slide In (from bottom) */
+	@keyframes slide-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* Scale In */
+	@keyframes scale-in {
+		from {
+			opacity: 0;
+			transform: scale(0.95);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* Stagger In */
+	@keyframes stagger-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+}
+
+/* ==================================================
+   COMPONENTS LAYER
+   ================================================== */
+@layer components {
+	/* ----- Hover Utilities ----- */
+	@media (hover: hover) and (pointer: fine) {
+		.hover-lift {
+			transition: transform 150ms var(--ease-smooth);
+		}
+		.hover-lift:hover {
+			transform: translateY(-1px);
+		}
+
+		.hover-scale:hover {
+			transform: scale(1.02);
+		}
+	}
+
+	/* ----- Press Feedback ----- */
+	.press-feedback {
+		transition: transform 150ms var(--ease-smooth);
+	}
+	.press-feedback:active {
+		transform: scale(0.97);
+	}
+
+	/* ----- Stagger Animation ----- */
+	.stagger-item {
+		animation: stagger-in 200ms var(--ease-smooth) backwards;
+	}
+
+	/* Stagger delays (0-9) */
+	.stagger-item:nth-child(1) { animation-delay: 0ms; }
+	.stagger-item:nth-child(2) { animation-delay: 40ms; }
+	.stagger-item:nth-child(3) { animation-delay: 80ms; }
+	.stagger-item:nth-child(4) { animation-delay: 120ms; }
+	.stagger-item:nth-child(5) { animation-delay: 160ms; }
+	.stagger-item:nth-child(6) { animation-delay: 200ms; }
+	.stagger-item:nth-child(7) { animation-delay: 240ms; }
+	.stagger-item:nth-child(8) { animation-delay: 280ms; }
+	.stagger-item:nth-child(9) { animation-delay: 320ms; }
+	.stagger-item:nth-child(10) { animation-delay: 360ms; }
+
+	/* ----- Pushable Button - 3D Tactile Effect ----- */
+	/* Based on Emil Kowalski's design principles with hardware-accelerated transforms */
+	.button-pushable {
+		position: relative;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.button-shadow {
+		position: absolute;
+		inset: 0;
+		border-radius: var(--radius-md);
+		will-change: transform;
+		transform: translateY(2px);
+		transition: transform 600ms var(--ease-bounce);
+	}
+
+	.button-edge {
+		position: absolute;
+		inset: 0;
+		border-radius: var(--radius-md);
+		background: linear-gradient(
+			to left,
+			oklch(0 0 0 / 0.1) 0%,
+			oklch(0 0 0 / 0.05) 8%,
+			oklch(0 0 0 / 0.05) 92%,
+			oklch(0 0 0 / 0.1) 100%
+		);
+	}
+
+	.button-front {
+		display: flex;
+		position: relative;
+		padding: var(--button-padding-md);
+		border-radius: var(--radius-md);
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--pushable-foreground);
+		background: var(--pushable-bg);
+		will-change: transform;
+		transform: translateY(-4px);
+		transition: transform 600ms var(--ease-bounce);
+	}
+
+	/* Size variants */
+	.button-pushable[data-size="sm"] .button-front {
+		padding: var(--button-padding-sm);
+		font-size: 0.875rem;
+	}
+	.button-pushable[data-size="lg"] .button-front {
+		padding: var(--button-padding-lg);
+		font-size: 1.125rem;
+	}
+	.button-pushable[data-size="icon"] .button-front {
+		padding: var(--button-padding-icon);
+	}
+
+	/* Hover state - faster, more responsive */
+	@media (hover: hover) and (pointer: fine) {
+		.button-pushable:hover .button-front {
+			transform: translateY(-6px);
+			transition: transform 250ms var(--ease-bounce-responsive);
+		}
+		.button-pushable:hover .button-shadow {
+			transform: translateY(4px);
+			transition: transform 250ms var(--ease-bounce-responsive);
+		}
+	}
+
+	/* Active state - instant feedback */
+	.button-pushable:active .button-front,
+	.button-pushable[aria-pressed="true"] .button-front {
+		transform: translateY(-2px);
+		transition: transform var(--ease-instant);
+	}
+	.button-pushable:active .button-shadow,
+	.button-pushable[aria-pressed="true"] .button-shadow {
+		transform: translateY(1px);
+		transition: transform var(--ease-instant);
+	}
+
+	/* Button Group */
+	.button-group-pushable {
+		display: inline-flex;
+		align-items: center;
+		gap: 1rem;
+	}
+}
+
+/* ==================================================
+   UTILITIES LAYER
+   ================================================== */
+@layer utilities {
+	/* ----- Reduced Motion Support ----- */
+	/* Respect user's motion preferences */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
+
+		/* Pushable button fallback */
+		.button-shadow,
+		.button-front {
+			transition-duration: 0.2s !important;
+			transform: none !important;
+		}
+		.button-pushable:hover .button-front,
+		.button-pushable:active .button-front {
+			transform: scale(0.97);
+		}
+	}
+}

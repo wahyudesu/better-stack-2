@@ -7,6 +7,7 @@
 
 import { Palette, Settings } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,9 +29,9 @@ import { cn } from "@/lib/utils";
 import type { FirstDayOfWeek, TimeFormat } from "./types";
 
 export function PreferencesTab() {
-	// const { theme, setTheme } = useTheme(); // Theme disabled for now
+	const { theme, setTheme } = useTheme();
 	const [firstDayOfWeek, setFirstDayOfWeek] =
-		useState<FirstDayOfWeek>("monday");
+	useState<FirstDayOfWeek>("monday");
 	const [timezone, setTimezone] = useState("Asia/Jakarta");
 	const [timeFormat, setTimeFormat] = useState<TimeFormat>("24h");
 	const [selectedColor, setSelectedColor] = useState("default");
@@ -76,8 +77,8 @@ export function PreferencesTab() {
 						<p className="text-sm font-semibold">Appearance</p>
 					</div>
 
-					{/* Theme - Disabled for now */}
-					{/* <div className="flex flex-col gap-3">
+					{/* Theme */}
+					<div className="flex flex-col gap-3">
 						<p className="text-xs text-muted-foreground">Theme</p>
 						<div className="grid grid-cols-3 gap-3">
 							{THEME_OPTIONS.map((option) => (
@@ -104,7 +105,7 @@ export function PreferencesTab() {
 								</button>
 							))}
 						</div>
-					</div> */}
+					</div>
 
 					{/* Accent Color */}
 					<div className="flex flex-col gap-3">

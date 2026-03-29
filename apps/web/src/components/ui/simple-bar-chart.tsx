@@ -2,8 +2,8 @@
 
 import { ParentSize } from "@visx/responsive";
 import { scaleBand, scaleLinear } from "@visx/scale";
-import { useCallback, useMemo, useState } from "react";
 import { motion } from "motion/react";
+import { useCallback, useMemo, useState } from "react";
 
 export interface SimpleBarChartProps {
 	data: Array<{ name: string; value: number }>;

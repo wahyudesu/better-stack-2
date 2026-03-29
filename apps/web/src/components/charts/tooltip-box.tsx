@@ -127,9 +127,9 @@ export function TooltipBox({
 		<motion.div
 			animate={{ opacity: visible ? 1 : 0 }}
 			className={cn("pointer-events-none absolute z-50", className)}
-			initial={{ opacity: 0 }}
+			initial={false}
 			ref={tooltipRef}
-			style={{ left: finalLeft, top: finalTop, opacity: visible ? 1 : 0 }}
+			style={{ left: finalLeft, top: finalTop }}
 			transition={{ duration: 0.1 }}
 		>
 			<motion.div

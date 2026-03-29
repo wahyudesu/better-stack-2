@@ -8,6 +8,27 @@
 	"files": {
 		"ignoreUnknown": false
 	},
+	"overrides": [
+		{
+			"includes": ["convex/_generated/**"],
+			"linter": {
+				"enabled": false
+			}
+		},
+		{
+			"includes": ["**/*.css"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnknownProperty": "off"
+					},
+					"complexity": {
+						"noImportantStyles": "off"
+					}
+				}
+			}
+		}
+	],
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab"

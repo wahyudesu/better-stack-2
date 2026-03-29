@@ -240,12 +240,11 @@ export function Line({
 					animate={{ opacity: 1 }}
 					d={pathRef.current.getAttribute("d") || ""}
 					fill="none"
-					initial={{ opacity: 0 }}
+					initial={false}
 					stroke={stroke}
 					strokeLinecap="round"
 					strokeWidth={strokeWidth}
 					style={{
-						opacity: 1,
 						strokeDasharray: animatedDasharray,
 						strokeDashoffset: offsetSpring,
 					}}

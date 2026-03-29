@@ -11,7 +11,6 @@ import {
 } from "@/components/dashboard/line-chart-card";
 import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
 import { SentimentCard } from "@/components/dashboard/sentiment-card";
-import { type StatItem, StatsCards } from "@/components/dashboard/stats-cards";
 import { ViewerCard } from "@/components/dashboard/viewer-card";
 import {
 	COUNTRY_DATA,
@@ -32,6 +31,8 @@ import type {
 	SocialMediaPlatform,
 	TimeRange,
 } from "@/lib/types/dashboard";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChevronRightIcon } from "lucide-react";
 
 // Seeded random for consistent SSR/CSR values
 function seededRandom(seed: number): number {
@@ -44,7 +45,7 @@ function generateData(
 	type: ReportType,
 	timeRange: TimeRange,
 ): {
-	stats: StatItem[];
+	stats: Array<{ label: string; value: string; change: string; metricKey: string }>;
 	chartData: ChartDataPoint[];
 	markers: ChartMarker[];
 	countryData: DemographicDataItem[];
@@ -63,25 +64,31 @@ function generateData(
 		PLATFORM_MULTIPLIERS[socialMedia] ?? PLATFORM_MULTIPLIERS.all;
 	const typeMult = TYPE_MULTIPLIERS[type] ?? TYPE_MULTIPLIERS.overview;
 
-	// Generate chart data
+	// Generate chart data with all metrics
 	const chartData: ChartDataPoint[] = Array.from({ length: days }, (_, i) => {
 		const date = new Date();
 		date.setDate(date.getDate() - (days - 1 - i));
 		const baseMultiplier = platformMult.engagements * typeMult.engagements;
 		const followerMultiplier = platformMult.followers * typeMult.followers;
 
+		const engagements = Math.floor(
+			(8000 + Math.sin(i / 4) * 3000 + ((i * 150) % 5000)) *
+				baseMultiplier *
+				(1 + (days - 7) * 0.02),
+		);
+
 		return {
 			date,
-			engagements: Math.floor(
-				(8000 + Math.sin(i / 4) * 3000 + ((i * 150) % 5000)) *
-					baseMultiplier *
-					(1 + (days - 7) * 0.02),
-			),
+			engagements,
 			followers: Math.floor(
 				(50000 + i * 100 + Math.cos(i / 3) * 2000 + ((i * 80) % 3000)) *
 					followerMultiplier *
 					(1 + (days - 7) * 0.01),
 			),
+			views: Math.floor(engagements * platformMult.impressions * typeMult.impressions * 3.5),
+			comments: Math.floor(engagements * platformMult.replies * typeMult.replies * 0.15),
+			impression: Math.floor(engagements * platformMult.impressions * typeMult.impressions * 4.2),
+			share: Math.floor(engagements * platformMult.shares * typeMult.shares * 0.1),
 		};
 	});
 
@@ -93,7 +100,7 @@ function generateData(
 	// Calculate previous period for trend
 	const previousEngagements = totalEngagements * (0.85 + random() * 0.1);
 
-	const stats: StatItem[] = [
+	const stats = [
 		{
 			label: "Impressions",
 			value: formatMetricValue(
@@ -105,18 +112,21 @@ function generateData(
 				),
 			),
 			change: `+${(10 + random() * 15).toFixed(1)}%`,
+			metricKey: "impression",
 		},
 		{
 			label: "Engagements",
 			value: formatMetricValue(Math.floor(totalEngagements)),
 			change: `+${calculateTrend(totalEngagements, previousEngagements).toFixed(1)}%`,
+			metricKey: "engagement",
 		},
 		{
 			label: "Likes",
 			value: formatMetricValue(
-				Math.floor(avgEngagements * platformMult.likes * typeMult.likes * 0.8),
+				Math.floor(totalFollowers * platformMult.likes * typeMult.likes * 0.8),
 			),
 			change: `+${(8 + random() * 20).toFixed(1)}%`,
+			metricKey: "followers",
 		},
 		{
 			label: "Profile Visits",
@@ -126,6 +136,7 @@ function generateData(
 				),
 			),
 			change: `+${(5 + random() * 12).toFixed(1)}%`,
+			metricKey: "views",
 		},
 		{
 			label: "Replies",
@@ -135,6 +146,17 @@ function generateData(
 				),
 			),
 			change: `+${(12 + random() * 25).toFixed(1)}%`,
+			metricKey: "comments",
+		},
+		{
+			label: "Shares",
+			value: formatMetricValue(
+				Math.floor(
+					avgEngagements * platformMult.shares * typeMult.shares * 0.1,
+				),
+			),
+			change: `+${(3 + random() * 10).toFixed(1)}%`,
+			metricKey: "share",
 		},
 	];
 
@@ -187,12 +209,17 @@ export default function DashboardPage() {
 	const [selectedTime, setSelectedTime] = useState<TimeRange>("7d");
 	const [geoView, setGeoView] = useState<GeoView>("country");
 	const [demoView, setDemoView] = useState<DemoView>("follower");
+	const [selectedMetric, setSelectedMetric] = useState<string>("engagement");
 
-	// Generate data based on filters
-	const { stats, chartData, markers, countryData, regionData } = useMemo(
-		() => generateData(selectedSocial, selectedType, selectedTime),
-		[selectedSocial, selectedType, selectedTime],
-	);
+	// Generate default data (not affected by filters)
+	const defaultData = useMemo(() => generateData("all", "overview", "7d"), []);
+
+	// Generate filtered data only for line chart
+	const { chartData: filteredChartData, markers: filteredMarkers } =
+		useMemo(() => {
+			const result = generateData(selectedSocial, selectedType, selectedTime);
+			return { chartData: result.chartData, markers: result.markers };
+		}, [selectedSocial, selectedType, selectedTime]);
 
 	return (
 		<div className={pageContainerClassName} style={pageMaxWidth}>
@@ -206,23 +233,20 @@ export default function DashboardPage() {
 				onTimeChange={(v) => setSelectedTime(v as TimeRange)}
 			/>
 
-			{/* Stats */}
-			<StatsCards
-				stats={stats}
-				keyProp={`${selectedSocial}-${selectedType}-${selectedTime}`}
-			/>
-
-			{/* Line Chart */}
+			{/* Line Chart with Stats - Affected by filters */}
 			<LineChartCard
-				chartData={chartData}
-				markers={markers}
+				chartData={filteredChartData}
+				markers={filteredMarkers}
 				formatMetricValue={formatMetricValue}
 				keyProp={`chart-${selectedSocial}-${selectedType}-${selectedTime}`}
+				stats={defaultData.stats}
+				primaryMetric={selectedMetric}
+				onMetricChange={setSelectedMetric}
 			/>
 
-			{/* Sentiment & Viewer Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<ViewerCard timeRange={selectedTime} />
+			{/* Sentiment & Viewer Cards - Not affected by filters */}
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+				<ViewerCard />
 				<SentimentCard />
 			</div>
 
@@ -231,13 +255,44 @@ export default function DashboardPage() {
 				<DemographicsCard
 					geoView={geoView}
 					onGeoViewChange={setGeoView}
-					data={geoView === "country" ? countryData : regionData}
+					data={
+						geoView === "country"
+							? defaultData.countryData
+							: defaultData.regionData
+					}
 				/>
 				<AudienceCard demoView={demoView} onDemoViewChange={setDemoView} />
 			</div>
 
 			{/* Recent Posts */}
 			<RecentPostsCard />
+
+			<Card size="sm" className="mx-auto w-full max-w-xs">
+				<CardHeader>
+					<CardTitle>featurename</CardTitle>
+					<CardDescription>
+						Weekly snapshots. No more manual exports.
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<ul className="grid gap-2 py-2 text-sm">
+						<li className="flex gap-2">
+							<ChevronRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+							<span>Choose a schedule (daily, or weekly).</span>
+						</li>
+						<li className="flex gap-2">
+							<ChevronRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+							<span>Send to channels or specific teammates.</span>
+						</li>
+						<li className="flex gap-2">
+							<ChevronRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+							<span>Include charts, tables, and key metrics.</span>
+						</li>
+					</ul>
+				</CardContent>
+				<CardFooter className="flex-col gap-2">
+				</CardFooter>
+			</Card>
 		</div>
 	);
 }

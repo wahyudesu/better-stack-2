@@ -169,7 +169,7 @@ export function ContentCard({
 								{platforms.slice(0, 3).map((platform) => (
 									<Avatar key={platform} size="sm" className="size-5">
 										<AvatarFallback className="bg-card">
-											<PlatformIcon platform={platform as Platform} size={14} />
+											<PlatformIcon platform={platform as Platform} size={18} />
 										</AvatarFallback>
 									</Avatar>
 								))}
@@ -212,12 +212,12 @@ export function ContentCard({
 				{/* Row 1: Image left, content right */}
 				<div className="flex gap-3 mb-2">
 					{event.thumbnail ? (
-						<div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
+						<div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg">
 							<Image
 								src={event.thumbnail}
 								alt={event.description || event.title}
-								width={80}
-								height={80}
+								width={56}
+								height={56}
 								className="h-full w-full object-cover"
 							/>
 							{event.mediaType === "video" && (
@@ -227,7 +227,7 @@ export function ContentCard({
 							)}
 						</div>
 					) : (
-						<div className="h-20 w-20 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
+						<div className="h-14 w-14 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
 							{event.mediaType === "video" ? (
 								<Video className="h-8 w-8 text-muted-foreground/50" />
 							) : (
@@ -253,9 +253,9 @@ export function ContentCard({
 					<div className="flex items-center justify-between text-xs text-foreground/70 pt-2 border-t border-white/10">
 						<AvatarGroup>
 							{platforms.map((platform) => (
-								<Avatar key={platform} size="sm" className="size-6">
+								<Avatar key={platform} size="sm" className="size-7">
 									<AvatarFallback className="bg-white/20">
-										<PlatformIcon platform={platform as Platform} size={14} />
+										<PlatformIcon platform={platform as Platform} size={18} />
 									</AvatarFallback>
 								</Avatar>
 							))}

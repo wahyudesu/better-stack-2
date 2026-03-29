@@ -14,12 +14,10 @@ export {
 } from "./demographics-card";
 export type { FilterBarProps } from "./filter-bar";
 export { FilterBar } from "./filter-bar";
-export type { ChartDataPoint, LineChartCardProps } from "./line-chart-card";
+export type { ChartDataPoint, LineChartCardProps, StatItem } from "./line-chart-card";
 export { LineChartCard } from "./line-chart-card";
 export type { MetricItem, MetricsGridProps } from "./metrics-grid";
 export { MetricsGrid } from "./metrics-grid";
 export type { RecentPostsCardProps } from "./recent-posts-card";
 export { RecentPostsCard } from "./recent-posts-card";
 export { PlaceholderCard, SentimentCard } from "./sentiment-card";
-export type { StatItem, StatsCardsProps } from "./stats-cards";
-export { StatsCards } from "./stats-cards";

@@ -68,6 +68,7 @@ export interface PlatformMultiplier {
 	likes: number;
 	visits: number;
 	replies: number;
+	shares: number;
 }
 
 /**
@@ -82,6 +83,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 1,
 		visits: 1,
 		replies: 1,
+		shares: 1,
 	},
 	facebook: {
 		engagements: 0.8,
@@ -90,6 +92,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 0.9,
 		visits: 1.1,
 		replies: 0.7,
+		shares: 1.2,
 	},
 	instagram: {
 		engagements: 1.5,
@@ -98,6 +101,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 1.8,
 		visits: 0.9,
 		replies: 0.6,
+		shares: 0.8,
 	},
 	twitter: {
 		engagements: 1.2,
@@ -106,6 +110,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 0.7,
 		visits: 1.3,
 		replies: 1.8,
+		shares: 1.5,
 	},
 	tiktok: {
 		engagements: 2.0,
@@ -114,6 +119,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 2.2,
 		visits: 0.7,
 		replies: 0.4,
+		shares: 1.8,
 	},
 	youtube: {
 		engagements: 0.6,
@@ -122,6 +128,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 0.8,
 		visits: 1.2,
 		replies: 0.5,
+		shares: 0.4,
 	},
 	linkedin: {
 		engagements: 0.5,
@@ -130,6 +137,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 0.4,
 		visits: 1.8,
 		replies: 1.2,
+		shares: 0.6,
 	},
 	pinterest: {
 		engagements: 0.4,
@@ -138,6 +146,7 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 		likes: 0.6,
 		visits: 2.0,
 		replies: 0.3,
+		shares: 1.5,
 	},
 } as const;
 

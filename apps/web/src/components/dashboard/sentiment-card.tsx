@@ -6,8 +6,16 @@ import { Ring } from "@/components/charts/ring";
 import { RingCenter } from "@/components/charts/ring-center";
 import { RingChart } from "@/components/charts/ring-chart";
 import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardAction,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { SimpleTooltip } from "@/components/ui/tooltip";
 import { statusBadgeStyles } from "@/lib/constants/ui";
+import { cn } from "@/lib/utils";
 
 const ringData = [
 	{
@@ -58,9 +66,9 @@ function SentimentRingChart({ score }: { score: number }) {
 	return (
 		<RingChart
 			data={ringData}
-			size={70}
-			strokeWidth={7}
-			ringGap={3}
+			size={80}
+			strokeWidth={6}
+			ringGap={10}
 			baseInnerRadius={24}
 		>
 			<Ring index={0} showGlow={false} />
@@ -80,48 +88,54 @@ export function SentimentCard() {
 	const healthStatus = getHealthStatus(sentimentScore);
 
 	return (
-		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 relative">
-			<div className="flex items-center justify-between mb-3">
+		<Card>
+			<CardHeader>
 				<div className="flex items-center gap-2">
-					<p className="text-base font-medium">Sentiment Score</p>
+					<CardTitle>Sentiment Score</CardTitle>
 					<SimpleTooltip content="Analisis sentimen berdasarkan engagement dan komentar dari postingan">
 						<Info className="size-4 text-muted-foreground cursor-help" />
 					</SimpleTooltip>
 				</div>
-				<Button variant="secondary" size="xs">
+				<CardAction>
 					<Link href="/analytics" className="flex items-center gap-1.5">
-						Sentiment Analysis <ChevronRight className="size-3.5 sm:size-4" />
+						<Button variant="secondary" size="xs">
+							Sentiment Analysis <ChevronRight className="size-3.5 sm:size-4" />
+						</Button>
 					</Link>
-				</Button>
-			</div>
-			<div className="flex items-center justify-start gap-3 sm:gap-4">
-				{/* Smaller ring chart on the left */}
-				<SentimentRingChart score={sentimentScore} />
+				</CardAction>
+			</CardHeader>
+			<CardContent>
+				<div className="flex items-center justify-start gap-2">
+					{/* Smaller ring chart on the left */}
+					<SentimentRingChart score={sentimentScore} />
 
-				{/* Text on the right */}
-				<div className="flex flex-col flex-1 min-w-0 pr-4 sm:pr-8">
-					<p className={`text-lg sm:text-2xl font-bold ${healthStatus.color}`}>
-						{healthStatus.label}
-					</p>
-					<p className="text-xs text-muted-foreground line-clamp-2">
-						{healthStatus.description}
-					</p>
+					{/* Text on the right */}
+					<div className="flex flex-col flex-1 min-w-0 pr-4 sm:pr-8">
+						<p
+							className={cn("text-lg sm:text-2xl font-bold", healthStatus.color)}
+						>
+							{healthStatus.label}
+						</p>
+						<p className="text-xs text-muted-foreground line-clamp-2">
+							{healthStatus.description}
+						</p>
+					</div>
 				</div>
-			</div>
-		</div>
+			</CardContent>
+		</Card>
 	);
 }
 
 // Placeholder card for future use
 export function PlaceholderCard({ title = "Coming Soon" }: { title?: string }) {
 	return (
-		<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl p-3 sm:p-4 min-h-40 sm:min-h-48 flex items-center justify-center">
+		<Card className="min-h-40 sm:min-h-48 flex items-center justify-center">
 			<div className="text-center">
 				<p className="text-base font-semibold text-muted-foreground">{title}</p>
 				<p className="text-sm text-muted-foreground/70 mt-1">
 					More insights coming soon
 				</p>
 			</div>
-		</div>
+		</Card>
 	);
 }
