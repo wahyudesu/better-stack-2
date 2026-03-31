@@ -171,7 +171,8 @@ function generateDetailedData(timeRange: string, platform: string) {
 
 	const markers = Array.from({ length: Math.floor(days / 7) }, (_, i) => ({
 		date: new Date(Date.now() - (days - (i + 1) * 7) * 24 * 60 * 60 * 1000),
-		icon: ["📱", "🎯", "🔥", "📢", "💡", "🚀"][i % 6],
+		network: ["instagram", "facebook", "x", "tiktok", "linkedin", "youtube"][i % 6],
+		color: ["#E1306C", "#1877F2", "#000000", "#000000", "#0077B5", "#FF0000"][i % 6],
 		title: [
 			"Product Launch",
 			"Campaign Start",
@@ -265,9 +266,9 @@ export default function AnalyticsPage() {
 				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 					<div className="flex items-center gap-4">
 						<Link href="/dashboard">
-							<Button variant="ghost" size="icon">
+							<span className="inline-flex items-center justify-center size-10 rounded-md hover:bg-muted transition-colors cursor-pointer">
 								<ArrowLeft className="size-5" />
-							</Button>
+							</span>
 						</Link>
 						<div>
 							<h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
@@ -277,14 +278,14 @@ export default function AnalyticsPage() {
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
-						<Button variant="outline" size="sm">
+						<span className="inline-flex items-center justify-center border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 rounded-md text-sm transition-colors cursor-pointer">
 							<Calendar className="size-4 mr-2" />
 							Export Report
-						</Button>
-						<Button variant="outline" size="sm">
+						</span>
+						<span className="inline-flex items-center justify-center border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 rounded-md text-sm transition-colors cursor-pointer">
 							<Share2 className="size-4 mr-2" />
 							Share
-						</Button>
+						</span>
 					</div>
 				</div>
 
@@ -345,12 +346,10 @@ export default function AnalyticsPage() {
 				<div className="border rounded-lg p-4">
 					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" className="text-lg font-semibold">
-									{metricOptions.find((m) => m.value === activeMetric)?.label}{" "}
-									Performance
-									<ChevronDown className="ml-1.5" />
-								</Button>
+							<DropdownMenuTrigger className="text-lg font-semibold hover:bg-muted px-3 py-2 rounded-md transition-colors flex items-center cursor-pointer">
+								{metricOptions.find((m) => m.value === activeMetric)?.label}{" "}
+								Performance
+								<ChevronDown className="ml-1.5" />
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="start" className="min-w-[160px]">
 								{metricOptions.map((option) => (

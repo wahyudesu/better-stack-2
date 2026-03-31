@@ -1,6 +1,7 @@
 "use client";
 
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
+import React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -80,14 +81,49 @@ function SimpleTooltip({
 	content: string;
 	children: React.ReactNode;
 }) {
+	const [isVisible, setIsVisible] = React.useState(false);
+	const [position, setPosition] = React.useState({ top: 0, left: 0 });
+	const triggerRef = React.useRef<HTMLDivElement>(null);
+
+	const handleMouseEnter = () => {
+		if (triggerRef.current) {
+			const rect = triggerRef.current.getBoundingClientRect();
+			setPosition({
+				top: rect.top - 8, // 8px offset above
+				left: rect.left + rect.width / 2,
+			});
+		}
+		setIsVisible(true);
+	};
+
+	const handleMouseLeave = () => {
+		setIsVisible(false);
+	};
+
 	return (
-		<div className="group relative inline-flex">
-			{children}
-			<div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 px-2.5 py-1.5 bg-foreground text-background text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-[100] pointer-events-none">
-				{content}
-				<div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-foreground" />
+		<>
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: Tooltip trigger wrapper */}
+			<div
+				ref={triggerRef}
+				className="inline-flex"
+				onMouseEnter={handleMouseEnter}
+				onMouseLeave={handleMouseLeave}
+			>
+				{children}
 			</div>
-		</div>
+			{isVisible && (
+				<div
+					className="fixed -translate-x-1/2 -translate-y-full px-2.5 py-1.5 bg-foreground text-background text-xs rounded-lg whitespace-nowrap z-[9999] pointer-events-none animate-in fade-in-0 zoom-in-95 duration-200"
+					style={{
+						top: `${position.top}px`,
+						left: `${position.left}px`,
+					}}
+				>
+					{content}
+					<div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-foreground" />
+				</div>
+			)}
+		</>
 	);
 }
 

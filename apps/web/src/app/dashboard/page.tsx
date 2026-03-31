@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRightIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { ChartMarker } from "@/components/charts/line-chart";
 import { AudienceCard } from "@/components/dashboard/audience-card";
@@ -7,11 +8,19 @@ import { DemographicsCard } from "@/components/dashboard/demographics-card";
 import { FilterBar } from "@/components/dashboard/filter-bar";
 import {
 	type ChartDataPoint,
-	LineChartCard,
+	AreaChartCard,
 } from "@/components/dashboard/line-chart-card";
 import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
 import { SentimentCard } from "@/components/dashboard/sentiment-card";
 import { ViewerCard } from "@/components/dashboard/viewer-card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import {
 	COUNTRY_DATA,
 	DAYS_MAP,
@@ -22,6 +31,7 @@ import {
 	TYPE_MULTIPLIERS,
 } from "@/lib/constants/dashboard";
 import type { DemographicDataItem } from "@/lib/data/demographics";
+import { useMetricPreference } from "@/lib/hooks/use-metric-pref";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { calculateTrend, formatMetricValue } from "@/lib/metrics";
 import type {
@@ -31,8 +41,6 @@ import type {
 	SocialMediaPlatform,
 	TimeRange,
 } from "@/lib/types/dashboard";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronRightIcon } from "lucide-react";
 
 // Seeded random for consistent SSR/CSR values
 function seededRandom(seed: number): number {
@@ -45,7 +53,12 @@ function generateData(
 	type: ReportType,
 	timeRange: TimeRange,
 ): {
-	stats: Array<{ label: string; value: string; change: string; metricKey: string }>;
+	stats: Array<{
+		label: string;
+		value: string;
+		change: string;
+		metricKey: string;
+	}>;
 	chartData: ChartDataPoint[];
 	markers: ChartMarker[];
 	countryData: DemographicDataItem[];
@@ -85,10 +98,18 @@ function generateData(
 					followerMultiplier *
 					(1 + (days - 7) * 0.01),
 			),
-			views: Math.floor(engagements * platformMult.impressions * typeMult.impressions * 3.5),
-			comments: Math.floor(engagements * platformMult.replies * typeMult.replies * 0.15),
-			impression: Math.floor(engagements * platformMult.impressions * typeMult.impressions * 4.2),
-			share: Math.floor(engagements * platformMult.shares * typeMult.shares * 0.1),
+			views: Math.floor(
+				engagements * platformMult.impressions * typeMult.impressions * 3.5,
+			),
+			comments: Math.floor(
+				engagements * platformMult.replies * typeMult.replies * 0.15,
+			),
+			impression: Math.floor(
+				engagements * platformMult.impressions * typeMult.impressions * 4.2,
+			),
+			share: Math.floor(
+				engagements * platformMult.shares * typeMult.shares * 0.1,
+			),
 		};
 	});
 
@@ -173,7 +194,7 @@ function generateData(
 			const prevDayOffset = Math.floor((days / (markerCount + 1)) * i);
 			return {
 				date: new Date(Date.now() - prevDayOffset * 24 * 60 * 60 * 1000),
-				icon: platform.icon,
+				network: platform.network,
 				title: `${platform.name} Post`,
 				description: content.description,
 				color: platform.color,
@@ -184,7 +205,7 @@ function generateData(
 
 		return {
 			date: new Date(Date.now() - dayOffset * 24 * 60 * 60 * 1000),
-			icon: platform.icon,
+			network: platform.network,
 			title: `${platform.name} Post`,
 			description: content.description,
 			color: platform.color,
@@ -209,7 +230,8 @@ export default function DashboardPage() {
 	const [selectedTime, setSelectedTime] = useState<TimeRange>("7d");
 	const [geoView, setGeoView] = useState<GeoView>("country");
 	const [demoView, setDemoView] = useState<DemoView>("follower");
-	const [selectedMetric, setSelectedMetric] = useState<string>("engagement");
+	const { metric: selectedMetric, setMetric: setSelectedMetric } =
+		useMetricPreference();
 
 	// Generate default data (not affected by filters)
 	const defaultData = useMemo(() => generateData("all", "overview", "7d"), []);
@@ -222,7 +244,7 @@ export default function DashboardPage() {
 		}, [selectedSocial, selectedType, selectedTime]);
 
 	return (
-		<div className={pageContainerClassName} style={pageMaxWidth}>
+		<div className={`${pageContainerClassName}`} style={pageMaxWidth}>
 			{/* Filters */}
 			<FilterBar
 				selectedSocial={selectedSocial}
@@ -234,7 +256,7 @@ export default function DashboardPage() {
 			/>
 
 			{/* Line Chart with Stats - Affected by filters */}
-			<LineChartCard
+			<AreaChartCard
 				chartData={filteredChartData}
 				markers={filteredMarkers}
 				formatMetricValue={formatMetricValue}
@@ -245,13 +267,13 @@ export default function DashboardPage() {
 			/>
 
 			{/* Sentiment & Viewer Cards - Not affected by filters */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
 				<ViewerCard />
 				<SentimentCard />
 			</div>
 
 			{/* 2 Kotak Bawah - Lebih Panjang */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
 				<DemographicsCard
 					geoView={geoView}
 					onGeoViewChange={setGeoView}
@@ -266,33 +288,6 @@ export default function DashboardPage() {
 
 			{/* Recent Posts */}
 			<RecentPostsCard />
-
-			<Card size="sm" className="mx-auto w-full max-w-xs">
-				<CardHeader>
-					<CardTitle>featurename</CardTitle>
-					<CardDescription>
-						Weekly snapshots. No more manual exports.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<ul className="grid gap-2 py-2 text-sm">
-						<li className="flex gap-2">
-							<ChevronRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-							<span>Choose a schedule (daily, or weekly).</span>
-						</li>
-						<li className="flex gap-2">
-							<ChevronRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-							<span>Send to channels or specific teammates.</span>
-						</li>
-						<li className="flex gap-2">
-							<ChevronRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-							<span>Include charts, tables, and key metrics.</span>
-						</li>
-					</ul>
-				</CardContent>
-				<CardFooter className="flex-col gap-2">
-				</CardFooter>
-			</Card>
 		</div>
 	);
 }

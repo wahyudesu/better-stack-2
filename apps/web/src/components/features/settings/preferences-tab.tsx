@@ -6,8 +6,8 @@
 "use client";
 
 import { Palette, Settings } from "lucide-react";
-import { useState } from "react";
 import { useTheme } from "next-themes";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,7 @@ import type { FirstDayOfWeek, TimeFormat } from "./types";
 export function PreferencesTab() {
 	const { theme, setTheme } = useTheme();
 	const [firstDayOfWeek, setFirstDayOfWeek] =
-	useState<FirstDayOfWeek>("monday");
+		useState<FirstDayOfWeek>("monday");
 	const [timezone, setTimezone] = useState("Asia/Jakarta");
 	const [timeFormat, setTimeFormat] = useState<TimeFormat>("24h");
 	const [selectedColor, setSelectedColor] = useState("default");

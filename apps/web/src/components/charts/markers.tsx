@@ -1,49 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import { SocialIcon } from "react-social-icons";
 import { useChart } from "./chart-context";
 
 export interface ChartMarkerItem {
-	/** Date for the marker position */
 	date: Date;
-	/** Icon/emoji to display */
-	icon: string;
-	/** Title for tooltip */
+	network: string;
 	title: string;
-	/** Optional description for tooltip */
 	description?: string;
-	/** Optional URL to navigate to when clicked */
-	href?: string;
-	/** Link target (_blank or _self). Default: "_blank" */
-	target?: "_blank" | "_self";
-	/** Optional click handler */
-	onClick?: () => void;
-	/** Optional background color override */
 	color?: string;
+	href?: string;
+	target?: "_blank" | "_self";
+	onClick?: () => void;
 }
 
 export interface ChartMarkersProps {
-	/** Array of marker items to display */
 	items: ChartMarkerItem[];
-	/** Size of marker icon. Default: 20 */
 	size?: number;
-	/** Whether to show vertical guide lines. Default: true */
 	showLines?: boolean;
 }
 
 export function ChartMarkers({
 	items,
-	size = 20,
+	size = 28,
 	showLines = true,
 }: ChartMarkersProps) {
-	const { xScale, innerHeight, margin, xAccessor, data } = useChart();
+	const { xScale, innerHeight, xAccessor, data, setTooltipData } = useChart();
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-	// Find the closest data point index for each marker date
 	const markers = items.map((item, index) => {
 		const markerTime = item.date.getTime();
-
-		// Find the data point with the closest date
 		let closestIndex = 0;
 		let minDiff = Infinity;
 
@@ -59,20 +46,12 @@ export function ChartMarkers({
 		return { ...item, closestIndex, originalIndex: index };
 	});
 
-	const handleMarkerClick = (
-		marker: ChartMarkerItem & { originalIndex: number },
-		e: React.MouseEvent,
-	) => {
+	const handleClick = (marker: ChartMarkerItem, e: React.MouseEvent) => {
 		e.stopPropagation();
 
-		// If marker has onClick, call it
 		if (marker.onClick) {
 			marker.onClick();
-			return;
-		}
-
-		// If marker has href, navigate to it
-		if (marker.href) {
+		} else if (marker.href) {
 			if (marker.target === "_self") {
 				window.location.href = marker.href;
 			} else {
@@ -88,73 +67,77 @@ export function ChartMarkers({
 				if (x === undefined) return null;
 
 				const isHovered = hoveredIndex === marker.originalIndex;
-				const hasInteraction = marker.href || marker.onClick;
+				const hasAction = marker.href || marker.onClick;
+				const yOffset = -innerHeight - size - 8;
 
 				return (
 					<g
 						key={marker.originalIndex}
 						transform={`translate(${x}, ${innerHeight})`}
-						onMouseEnter={() =>
-							hasInteraction && setHoveredIndex(marker.originalIndex)
-						}
-						onMouseLeave={() => setHoveredIndex(null)}
-						onClick={(e) => handleMarkerClick(marker, e)}
-						style={{ cursor: hasInteraction ? "pointer" : "default" }}
+						onMouseEnter={() => {
+							if (hasAction) {
+								setHoveredIndex(marker.originalIndex);
+								setTooltipData?.({
+									index: marker.closestIndex,
+									point: data[marker.closestIndex],
+									x,
+									yPositions: {},
+									});
+							}
+						}}
+						onMouseLeave={() => {
+							setHoveredIndex(null);
+						}}
+						onClick={(e) => handleClick(marker, e)}
+						style={{ cursor: hasAction ? "pointer" : "default" }}
 					>
-						{/* Marker line */}
+						{/* Vertical guide line */}
 						{showLines && (
 							<line
 								x1={0}
 								y1={0}
 								x2={0}
 								y2={-innerHeight}
-								stroke="var(--chart-grid)"
-								strokeDasharray="2,2"
-								strokeOpacity={isHovered ? 0.8 : 0.5}
+								stroke={marker.color || "var(--chart-1)"}
+								strokeDasharray="4,4"
+								strokeOpacity={isHovered ? 0.8 : 0.4}
 								strokeWidth={isHovered ? 1.5 : 1}
+								className="transition-all duration-200"
 							/>
 						)}
 
-						{/* Marker circle at bottom */}
+						{/* Bottom dot */}
 						<circle
 							cx={0}
 							cy={0}
-							r={isHovered ? 8 : 6}
+							r={isHovered ? 8 : 5}
 							fill={marker.color || "var(--chart-1)"}
 							stroke="var(--background)"
 							strokeWidth={2}
-							className={hasInteraction ? "transition-all duration-200" : ""}
+							className="transition-all duration-200"
 						/>
 
-						{/* Hover glow effect */}
-						{isHovered && hasInteraction && (
-							<circle
-								cx={0}
-								cy={0}
-								r={12}
-								fill={marker.color || "var(--chart-1)"}
-								fillOpacity={0.2}
-								className="animate-pulse"
-							/>
-						)}
-
-						{/* Marker icon above */}
-						<text
-							x={0}
-							y={-innerHeight - (isHovered ? 14 : 10)}
-							textAnchor="middle"
-							dominantBaseline="auto"
-							fontSize={isHovered ? size * 1.2 : size}
-							style={{
-								fontFamily: "system-ui, sans-serif",
-								filter: isHovered
-									? "drop-shadow(0 2px 4px rgba(0,0,0,0.2))"
-									: "none",
-							}}
-							className={hasInteraction ? "transition-all duration-200" : ""}
+						{/* Social icon via foreignObject */}
+						<foreignObject
+							x={-size / 2}
+							y={yOffset}
+							width={size}
+							height={size}
 						>
-							{marker.icon}
-						</text>
+							<div
+								className="flex items-center justify-center w-full h-full"
+								style={{
+									transform: isHovered ? "scale(1.15)" : "scale(1)",
+									transition: "transform 0.2s",
+								}}
+							>
+								<SocialIcon
+									network={marker.network}
+									bgColor={marker.color}
+									style={{ width: size, height: size }}
+								/>
+							</div>
+						</foreignObject>
 					</g>
 				);
 			})}
@@ -163,7 +146,6 @@ export function ChartMarkers({
 }
 
 ChartMarkers.displayName = "ChartMarkers";
-// Mark this component for special handling in LineChart
 (ChartMarkers as any).__isChartMarkers = true;
 
 export default ChartMarkers;

@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "opsera-devsecops@claude-plugins-official": true
+  }
+}

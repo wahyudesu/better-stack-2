@@ -19,11 +19,7 @@ import {
 } from "@/components/charts/line-chart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -76,7 +72,8 @@ function getDirection(value: string): "up" | "down" | "neutral" {
 const badgeVariants = {
 	up: "bg-green-500/15 text-green-600 dark:text-green-400 hover:bg-green-500/15 border-green-500/20",
 	down: "bg-red-500/15 text-red-600 dark:text-red-400 hover:bg-red-500/15 border-red-500/20",
-	neutral: "bg-muted/50 text-muted-foreground hover:bg-muted/50 border-transparent",
+	neutral:
+		"bg-muted/50 text-muted-foreground hover:bg-muted/50 border-transparent",
 };
 
 // Marker content component for displaying active markers in tooltip
@@ -116,7 +113,10 @@ export function CombinedStatsChart({
 									className="text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap text-left justify-start"
 								>
 									<span className="truncate max-w-[200px] sm:max-w-none">
-										{metricOptions.find((m) => m.value === primaryMetric)?.label}{" "}
+										{
+											metricOptions.find((m) => m.value === primaryMetric)
+												?.label
+										}{" "}
 										Performance
 									</span>
 									<ChevronDown className="ml-1.5 shrink-0" />
@@ -230,43 +230,55 @@ export function CombinedStatsChart({
 
 			<CardContent className="p-3 sm:p-4 pt-0 space-y-4">
 				{/* Stats Section */}
-				<div
-					className={cn(
-						"flex flex-col sm:flex-row sm:divide-x sm:divide-y-0 divide-y divide-border/50",
-						"gap-4 sm:gap-0 w-full",
-					)}
-				>
-					{stats.map((stat) => {
-						const direction = getDirection(stat.change);
+				<div className="relative">
+					{/* Mobile: Horizontal scroll, Desktop: Flex row */}
+					<div
+						className={cn(
+							"flex overflow-x-auto gap-2 sm:gap-0 scrollbar-hide",
+							"sm:flex sm:divide-x sm:divide-y-0",
+							"-mx-3 px-3 sm:mx-0 sm:px-0",
+							"scroll-smooth",
+						)}
+					>
+						{stats.map((stat) => {
+							const direction = getDirection(stat.change);
 
-						return (
-							<div
-								key={stat.label}
-								className="flex flex-col items-start text-left space-y-2 flex-1 sm:px-6 sm:py-2"
-							>
-								{/* Title */}
-								<span className="text-xs font-medium text-muted-foreground">
-									{stat.label}
-								</span>
-
-								{/* Large value */}
-								<span className="text-2xl font-bold text-foreground">
-									{stat.value}
-								</span>
-
-								{/* Percentage badge */}
-								<Badge
-									variant="outline"
+							return (
+								<div
+									key={stat.label}
 									className={cn(
-										"text-xs px-2 py-0.5",
-										badgeVariants[direction],
+										"flex flex-col items-start text-left",
+										"flex-shrink-0 w-36 sm:flex-1 sm:w-auto",
+										"p-3 sm:px-6 sm:py-2",
+										"space-y-1.5 sm:space-y-2",
 									)}
 								>
-									{stat.change}
-								</Badge>
-							</div>
-						);
-					})}
+									{/* Title */}
+									<span className="text-xs font-medium text-muted-foreground">
+										{stat.label}
+									</span>
+
+									{/* Large value */}
+									<span className="text-lg sm:text-2xl font-bold text-foreground tabular-nums leading-tight">
+										{stat.value}
+									</span>
+
+									{/* Percentage badge */}
+									<Badge
+										variant="outline"
+										className={cn(
+											"text-xs px-2 py-0.5 w-fit",
+											badgeVariants[direction],
+										)}
+									>
+										{stat.change}
+									</Badge>
+								</div>
+							);
+						})}
+					</div>
+					{/* Fade indicator for mobile scroll */}
+					<div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card via-card/80 to-transparent sm:hidden pointer-events-none" />
 				</div>
 
 				{/* Chart Section */}
@@ -289,7 +301,11 @@ export function CombinedStatsChart({
 						/>
 					)}
 					<XAxis numTicks={6} />
-					<YAxis numTicks={5} position="right" formatValue={formatMetricValue} />
+					<YAxis
+						numTicks={5}
+						position="right"
+						formatValue={formatMetricValue}
+					/>
 					<ChartMarkers items={markers} />
 					<ChartTooltip
 						rows={(point) =>
@@ -297,8 +313,8 @@ export function CombinedStatsChart({
 								{
 									color: "var(--chart-line-primary)",
 									label:
-										metricOptions.find((m) => m.value === primaryMetric)?.label ||
-										"Engagements",
+										metricOptions.find((m) => m.value === primaryMetric)
+											?.label || "Engagements",
 									value: formatMetricValue(point.engagements as number),
 								},
 								secondaryMetric
@@ -329,7 +345,8 @@ export function CombinedStatsChart({
 				<p className="sr-only">
 					Chart showing social media performance over {chartData.length} days.{" "}
 					Engagements range from{" "}
-					{formatMetricValue(Math.min(...chartData.map((d) => d.engagements)))} to{" "}
+					{formatMetricValue(Math.min(...chartData.map((d) => d.engagements)))}{" "}
+					to{" "}
 					{formatMetricValue(Math.max(...chartData.map((d) => d.engagements)))}
 					{secondaryMetric &&
 						`. Followers range from ${formatMetricValue(Math.min(...chartData.map((d) => d.followers)))} to ${formatMetricValue(Math.max(...chartData.map((d) => d.followers)))}.`}

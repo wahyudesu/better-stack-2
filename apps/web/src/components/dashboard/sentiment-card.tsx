@@ -66,16 +66,16 @@ function SentimentRingChart({ score }: { score: number }) {
 	return (
 		<RingChart
 			data={ringData}
-			size={80}
-			strokeWidth={6}
-			ringGap={10}
-			baseInnerRadius={24}
+			size={70}
+			strokeWidth={8}
+			ringGap={8}
+			baseInnerRadius={30}
 		>
 			<Ring index={0} showGlow={false} />
 			<RingCenter
 				defaultLabel=""
-				suffix="%"
-				className="text-sm"
+				suffix=""
+				className="text-xs sm:text-sm tabular-nums"
 				valueClassName="font-semibold text-foreground"
 				labelClassName="hidden"
 			/>
@@ -88,35 +88,49 @@ export function SentimentCard() {
 	const healthStatus = getHealthStatus(sentimentScore);
 
 	return (
-		<Card>
-			<CardHeader>
-				<div className="flex items-center gap-2">
-					<CardTitle>Sentiment Score</CardTitle>
-					<SimpleTooltip content="Analisis sentimen berdasarkan engagement dan komentar dari postingan">
-						<Info className="size-4 text-muted-foreground cursor-help" />
-					</SimpleTooltip>
-				</div>
-				<CardAction>
-					<Link href="/analytics" className="flex items-center gap-1.5">
+		<Card className="h-full flex flex-col gap-0 pb-0 touch-[action:manipulation]">
+			<CardHeader className="pb-3 sm:pb-4">
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+					<div className="flex items-center gap-2 min-w-0">
+						<CardTitle className="text-base sm:text-lg text-wrap:balance">
+							Sentiment Score
+						</CardTitle>
+						<SimpleTooltip content="Analisis sentimen berdasarkan engagement dan komentar dari postingan">
+							<Info
+								className="size-3.5 sm:size-4 text-muted-foreground cursor-help shrink-0"
+								aria-label="Sentiment info"
+							/>
+						</SimpleTooltip>
+					</div>
+					<Link
+						href="/analytics"
+						className="flex items-center gap-1.5 self-start sm:self-auto shrink-0"
+					>
 						<Button variant="secondary" size="xs">
-							Sentiment Analysis <ChevronRight className="size-3.5 sm:size-4" />
+							<span className="truncate">Sentiment Analysis</span>
+							<ChevronRight className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
 						</Button>
 					</Link>
-				</CardAction>
+				</div>
 			</CardHeader>
-			<CardContent>
-				<div className="flex items-center justify-start gap-2">
-					{/* Smaller ring chart on the left */}
-					<SentimentRingChart score={sentimentScore} />
+			<CardContent className="flex-1 flex items-center px-4 sm:px-6">
+				<div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 w-full">
+					{/* Ring chart */}
+					<div className="shrink-0">
+						<SentimentRingChart score={sentimentScore} />
+					</div>
 
-					{/* Text on the right */}
-					<div className="flex flex-col flex-1 min-w-0 pr-4 sm:pr-8">
+					{/* Text */}
+					<div className="flex flex-col flex-1 min-w-0 gap-1 sm:gap-1.5 py-1">
 						<p
-							className={cn("text-lg sm:text-2xl font-bold", healthStatus.color)}
+							className={cn(
+								"text-lg sm:text-xl lg:text-2xl font-bold",
+								healthStatus.color,
+							)}
 						>
 							{healthStatus.label}
 						</p>
-						<p className="text-xs text-muted-foreground line-clamp-2">
+						<p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
 							{healthStatus.description}
 						</p>
 					</div>
@@ -129,11 +143,11 @@ export function SentimentCard() {
 // Placeholder card for future use
 export function PlaceholderCard({ title = "Coming Soon" }: { title?: string }) {
 	return (
-		<Card className="min-h-40 sm:min-h-48 flex items-center justify-center">
-			<div className="text-center">
+		<Card className="min-h-36 sm:min-h-40 flex items-center justify-center touch-[action:manipulation]">
+			<div className="text-center px-4">
 				<p className="text-base font-semibold text-muted-foreground">{title}</p>
 				<p className="text-sm text-muted-foreground/70 mt-1">
-					More insights coming soon
+					More insights coming soon…
 				</p>
 			</div>
 		</Card>

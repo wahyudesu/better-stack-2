@@ -18,8 +18,8 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
 
-  /* Primary: deep near-black for strong contrast */
-  --primary: oklch(0.205 0 0);
+  /* Primary: indigo for branding */
+  --primary: oklch(0.55 0.22 264);
   --primary-foreground: oklch(0.985 0 0);
 
   /* Secondary: light gray surface for secondary actions */
@@ -93,8 +93,8 @@
   --popover: oklch(0.25 0 0);
   --popover-foreground: oklch(0.97 0 0);
 
-  /* Primary: nearly white for strong contrast on dark */
-  --primary: oklch(0.94 0 0);
+  /* Primary: indigo for dark mode */
+  --primary: oklch(0.7 0.18 264);
   --primary-foreground: oklch(0.19 0 0);
 
   /* Secondary: light gray for subtle secondary actions */

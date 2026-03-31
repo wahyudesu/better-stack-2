@@ -31,13 +31,16 @@ export type SocialMediaPlatform =
 
 /**
  * Platform icons and colors for dashboard display.
+ * Uses react-social-icons network names.
  */
 export const PLATFORMS = [
-	{ name: "Instagram", icon: "📷", color: "#E1306C" },
-	{ name: "Threads", icon: "🧵", color: "#000000" },
-	{ name: "Twitter/X", icon: "𝕏", color: "#000000" },
-	{ name: "TikTok", icon: "♪", color: "#000000" },
-	{ name: "LinkedIn", icon: "💼", color: "#0077B5" },
+	{ name: "Instagram", network: "instagram", color: "#E1306C", url: "https://instagram.com" },
+	{ name: "Facebook", network: "facebook", color: "#1877F2", url: "https://facebook.com" },
+	{ name: "Twitter/X", network: "x", color: "#000000", url: "https://x.com" },
+	{ name: "TikTok", network: "tiktok", color: "#000000", url: "https://tiktok.com" },
+	{ name: "LinkedIn", network: "linkedin", color: "#0077B5", url: "https://linkedin.com" },
+	{ name: "YouTube", network: "youtube", color: "#FF0000", url: "https://youtube.com" },
+	{ name: "Pinterest", network: "pinterest", color: "#E60023", url: "https://pinterest.com" },
 ] as const;
 
 /**
@@ -398,8 +401,6 @@ Keep going. 💪
 Here's my perspective:
 
 ${tone === "professional" ? "After analyzing this topic extensively," : "I've been thinking about this a lot,"}
-
-${goal === "education" ? "Here's what most people miss:" : "Here's the thing:"}
 
 ${topic.split(" ")[0]?.charAt(0).toUpperCase() + topic.split(" ")[0]?.slice(1)} is not just about the surface level.
 

@@ -10,30 +10,33 @@ import {
 	LegendMarker,
 } from "@/components/charts/pie-legend";
 import { PieSlice } from "@/components/charts/pie-slice";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { SimpleTooltip } from "@/components/ui/tooltip";
 import { TAB_TRIGGER_CLASSNAME } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 const followerData = [
-	{ label: "Verified", value: 35 },
-	{ label: "Regular", value: 45 },
-	{ label: "New", value: 20 },
+	{ label: "Verified", value: 65 },
+	{ label: "Regular", value: 22 },
+	{ label: "New", value: 8 },
+	{ label: "Inactive", value: 5 },
 ];
 
 const viewerData = [
-	{ label: "Organic", value: 52 },
-	{ label: "Suggested", value: 28 },
-	{ label: "Hashtag", value: 15 },
-	{ label: "External", value: 5 },
+	{ label: "FYP", value: 58 },
+	{ label: "Following", value: 18 },
+	{ label: "Hashtag", value: 14 },
+	{ label: "Sound", value: 7 },
+	{ label: "External", value: 3 },
 ];
 
 const pieColors = [
-	"hsl(var(--chart-1))",
-	"hsl(var(--chart-2))",
-	"hsl(var(--chart-3))",
-	"hsl(var(--chart-4))",
+	"var(--chart-1)",
+	"var(--chart-2)",
+	"var(--chart-3)",
+	"var(--chart-4)",
+	"var(--chart-5)",
 ];
 
 export interface AudienceCardProps {
@@ -53,7 +56,17 @@ function PieChartWithLegend({
 }) {
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-	// Add colors to legend items
+	// Find max value for opacity normalization
+	const maxValue = Math.max(...data.map((d) => d.value));
+
+	// Calculate opacity for each slice based on value
+	const sliceOpacities = data.map((item) => {
+		// Normalize value to opacity range (0.1 to 1.0)
+		const normalizedValue = item.value / maxValue;
+		return 0.1 + normalizedValue * 0.9;
+	});
+
+	// Add colors to legend items (use base colors for legend)
 	const legendItems = data.map((item, index) => ({
 		...item,
 		color: pieColors[index % pieColors.length],
@@ -69,7 +82,11 @@ function PieChartWithLegend({
 				onHoverChange={setHoveredIndex}
 			>
 				{data.map((item, index) => (
-					<PieSlice index={index} key={item.label} />
+					<PieSlice
+						index={index}
+						key={item.label}
+						baseOpacity={sliceOpacities[index]}
+					/>
 				))}
 			</PieChart>
 			<Legend
@@ -122,20 +139,23 @@ export function AudienceCard({
 				onValueChange={handleValueChange}
 				className="gap-4"
 			>
-				<Card className="min-h-72 sm:min-h-80 h-full">
-					<CardHeader>
-						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-							<div className="flex items-center gap-2">
-								<CardTitle>Audience</CardTitle>
+				<Card className="h-72 flex flex-col dark:bg-card/50 py-2 gap-0">
+					<CardHeader className="pb-2">
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex items-center gap-2 min-w-0">
+								<CardTitle className="truncate">Audience</CardTitle>
 								<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
-									<Info className="size-4 text-muted-foreground cursor-help" />
+									<Info className="size-4 text-muted-foreground cursor-help shrink-0" />
 								</SimpleTooltip>
 							</div>
 							<TabsList
 								variant="line"
-								className="bg-transparent rounded-none gap-4"
+								className="bg-transparent rounded-none gap-3"
 							>
-								<TabsTab value="follower" className={getTabClassName("follower")}>
+								<TabsTab
+									value="follower"
+									className={getTabClassName("follower")}
+								>
 									Follower
 								</TabsTab>
 								<TabsTab value="viewer" className={getTabClassName("viewer")}>
@@ -147,12 +167,12 @@ export function AudienceCard({
 					<CardContent>
 						<TabsPanel value="follower">
 							<div className="flex flex-col items-center justify-center">
-								<PieChartWithLegend data={currentFollowerData} size={150} />
+								<PieChartWithLegend data={currentFollowerData} size={180} />
 							</div>
 						</TabsPanel>
 						<TabsPanel value="viewer">
 							<div className="flex flex-col items-center justify-center">
-								<PieChartWithLegend data={currentViewerData} size={150} />
+								<PieChartWithLegend data={currentViewerData} size={180} />
 							</div>
 						</TabsPanel>
 					</CardContent>
@@ -162,13 +182,13 @@ export function AudienceCard({
 	}
 
 	return (
-		<Card className="min-h-72 sm:min-h-80">
-			<CardHeader>
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-					<div className="flex items-center gap-2">
-						<CardTitle>Audience</CardTitle>
+		<Card className="h-72 flex flex-col gap-0 rounded-none">
+			<CardHeader className="p-4 pb-2">
+				<div className="flex items-center justify-between gap-2">
+					<div className="flex items-center gap-2 min-w-0">
+						<CardTitle className="truncate">Audience</CardTitle>
 						<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
-							<Info className="size-4 text-muted-foreground cursor-help" />
+							<Info className="size-4 text-muted-foreground cursor-help shrink-0" />
 						</SimpleTooltip>
 					</div>
 				</div>

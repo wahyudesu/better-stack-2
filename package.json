@@ -12,6 +12,7 @@
     "check-types": "pnpm -r check-types",
     "dev:web": "pnpm --filter web dev",
     "dev:server": "pnpm --filter server dev",
+    "dev:landing": "pnpm --filter landing dev",
     "deploy": "pnpm --filter @better-stack-2/infra deploy",
     "destroy": "pnpm --filter @better-stack-2/infra destroy"
   },

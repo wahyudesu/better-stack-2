@@ -14,8 +14,12 @@ export {
 } from "./demographics-card";
 export type { FilterBarProps } from "./filter-bar";
 export { FilterBar } from "./filter-bar";
-export type { ChartDataPoint, LineChartCardProps, StatItem } from "./line-chart-card";
-export { LineChartCard } from "./line-chart-card";
+export type {
+	ChartDataPoint,
+	AreaChartCardProps,
+	StatItem,
+} from "./line-chart-card";
+export { AreaChartCard as LineChartCard } from "./line-chart-card";
 export type { MetricItem, MetricsGridProps } from "./metrics-grid";
 export { MetricsGrid } from "./metrics-grid";
 export type { RecentPostsCardProps } from "./recent-posts-card";

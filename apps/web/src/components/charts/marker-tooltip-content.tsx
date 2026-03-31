@@ -2,6 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { SocialIcon } from "react-social-icons";
 import type { ChartMarkerItem } from "./markers";
 
 export interface MarkerTooltipContentProps {
@@ -20,9 +21,12 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
 				animate={{ opacity: 1, y: 0 }}
 				exit={{ opacity: 0, y: 10 }}
 				transition={{ duration: 0.2 }}
-				className="mt-3 pt-3 border-t border/50"
+				className="mt-3 pt-3 border-t border-border/50"
 			>
-				<div className="space-y-2">
+				<p className="text-xs font-medium text-muted-foreground mb-2 px-1">
+					{markers.length > 1 ? `${markers.length} posts` : "Post"}
+				</p>
+				<div className="space-y-1.5">
 					{markers.map((marker, index) => (
 						<MarkerItem key={`${marker.title}-${index}`} marker={marker} />
 					))}
@@ -44,17 +48,21 @@ function MarkerItem({ marker }: MarkerItemProps) {
 				href={marker.href}
 				target={marker.target || "_blank"}
 				rel="noopener noreferrer"
-				onClick={marker.onClick}
-				className="flex items-start gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
+				className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer group border border-transparent hover:border-border/50"
 			>
-				<span className="text-base flex-shrink-0 mt-0.5">{marker.icon}</span>
+				<SocialIcon
+					network={marker.network}
+					bgColor={marker.color}
+					style={{ width: 32, height: 32 }}
+				/>
+
 				<div className="flex-1 min-w-0">
-					<div className="flex items-center gap-1 text-sm font-medium group-hover:text-primary transition-colors">
+					<div className="flex items-center gap-1.5 text-sm font-medium group-hover:text-primary transition-colors">
 						<span className="truncate">{marker.title}</span>
-						<ExternalLink className="size-3 flex-shrink-0 opacity-50" />
+						<ExternalLink className="size-3.5 flex-shrink-0 opacity-50" />
 					</div>
 					{marker.description && (
-						<p className="text-xs text-muted-foreground line-clamp-2">
+						<p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
 							{marker.description}
 						</p>
 					)}
@@ -67,14 +75,20 @@ function MarkerItem({ marker }: MarkerItemProps) {
 	if (marker.onClick) {
 		return (
 			<button
+				type="button"
 				onClick={marker.onClick}
-				className="flex items-start gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer w-full text-left"
+				className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer w-full border border-transparent hover:border-border/50"
 			>
-				<span className="text-base flex-shrink-0 mt-0.5">{marker.icon}</span>
-				<div className="flex-1 min-w-0">
+				<SocialIcon
+					network={marker.network}
+					bgColor={marker.color}
+					style={{ width: 32, height: 32 }}
+				/>
+
+				<div className="flex-1 min-w-0 text-left">
 					<p className="text-sm font-medium truncate">{marker.title}</p>
 					{marker.description && (
-						<p className="text-xs text-muted-foreground line-clamp-2">
+						<p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
 							{marker.description}
 						</p>
 					)}
@@ -85,12 +99,17 @@ function MarkerItem({ marker }: MarkerItemProps) {
 
 	// Default: render as non-clickable item
 	return (
-		<div className="flex items-start gap-2 p-2 rounded-md bg-muted/30">
-			<span className="text-base flex-shrink-0 mt-0.5">{marker.icon}</span>
+		<div className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/30">
+			<SocialIcon
+				network={marker.network}
+				bgColor={marker.color}
+				style={{ width: 32, height: 32 }}
+			/>
+
 			<div className="flex-1 min-w-0">
 				<p className="text-sm font-medium truncate">{marker.title}</p>
 				{marker.description && (
-					<p className="text-xs text-muted-foreground line-clamp-2">
+					<p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
 						{marker.description}
 					</p>
 				)}

@@ -44,19 +44,19 @@
 		--card-foreground: oklch(0.145 0 0);
 		--popover: oklch(1 0 0);
 		--popover-foreground: oklch(0.145 0 0);
-		--primary: oklch(0.205 0 0);
+		--primary: oklch(0.55 0.22 264);
 		--primary-foreground: oklch(0.985 0 0);
 		--secondary: oklch(0.965 0 0);
-		--secondary-foreground: oklch(0.205 0 0);
+		--secondary-foreground: oklch(0.55 0.22 264);
 		--muted: oklch(0.965 0 0);
 		--muted-foreground: oklch(0.556 0 0);
 		--accent: oklch(0.97 0 0);
-		--accent-foreground: oklch(0.205 0 0);
+		--accent-foreground: oklch(0.55 0.22 264);
 		--destructive: oklch(0.577 0.245 27.325);
 
 		/* Border: more visible for better separation */
-		--border: oklch(0.90 0 0);
-		--input: oklch(0.90 0 0);
+		--border: oklch(0.9 0 0);
+		--input: oklch(0.9 0 0);
 		--ring: oklch(0.708 0 0);
 
 		/* ----- Pushable Button Colors (oklch format) ----- */
@@ -78,7 +78,7 @@
 		--depth-shadow-gray: oklch(0.35 0 0);
 		--depth-shadow-light: oklch(0.85 0.005 250);
 		--depth-shadow-blue: oklch(0.42 0.18 266);
-		--depth-shadow-blue-active: oklch(0.58 0.20 250);
+		--depth-shadow-blue-active: oklch(0.58 0.2 250);
 		--depth-shadow-destructive: oklch(0.58 0.22 25);
 	}
 
@@ -90,18 +90,18 @@
 		--card-foreground: oklch(0.97 0 0);
 		--popover: oklch(0.25 0 0);
 		--popover-foreground: oklch(0.97 0 0);
-		--primary: oklch(0.94 0 0);
+		--primary: oklch(0.7 0.18 264); /* Indigo for dark mode */
 		--primary-foreground: oklch(0.19 0 0);
 		--secondary: oklch(0.32 0 0);
 		--secondary-foreground: oklch(0.97 0 0);
 		--muted: oklch(0.28 0 0);
 		--muted-foreground: oklch(0.65 0 0);
-		--accent: oklch(0.30 0 0);
+		--accent: oklch(0.3 0 0);
 		--accent-foreground: oklch(0.97 0 0);
-		--destructive: oklch(0.65 0.20 25);
+		--destructive: oklch(0.65 0.2 25);
 		--border: oklch(1 0 0 / 12%);
 		--input: oklch(1 0 0 / 18%);
-		--ring: oklch(0.60 0 0);
+		--ring: oklch(0.6 0 0);
 
 		/* ----- Chart Colors - Dark Mode ----- */
 		--chart-1: 142 70% 50%;
@@ -118,7 +118,7 @@
 		--depth-shadow-light: oklch(0.75 0.005 250);
 		--depth-shadow-blue: oklch(0.49 0.22 264);
 		--depth-shadow-blue-active: oklch(0.75 0.22 250);
-		--depth-shadow-destructive: oklch(0.70 0.22 25);
+		--depth-shadow-destructive: oklch(0.7 0.22 25);
 	}
 }
 
@@ -128,8 +128,12 @@
 @layer base {
 	/* Fade In */
 	@keyframes fade-in {
-		from { opacity: 0; }
-		to { opacity: 1; }
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	/* Slide In (from bottom) */
@@ -201,16 +205,36 @@
 	}
 
 	/* Stagger delays (0-9) */
-	.stagger-item:nth-child(1) { animation-delay: 0ms; }
-	.stagger-item:nth-child(2) { animation-delay: 40ms; }
-	.stagger-item:nth-child(3) { animation-delay: 80ms; }
-	.stagger-item:nth-child(4) { animation-delay: 120ms; }
-	.stagger-item:nth-child(5) { animation-delay: 160ms; }
-	.stagger-item:nth-child(6) { animation-delay: 200ms; }
-	.stagger-item:nth-child(7) { animation-delay: 240ms; }
-	.stagger-item:nth-child(8) { animation-delay: 280ms; }
-	.stagger-item:nth-child(9) { animation-delay: 320ms; }
-	.stagger-item:nth-child(10) { animation-delay: 360ms; }
+	.stagger-item:nth-child(1) {
+		animation-delay: 0ms;
+	}
+	.stagger-item:nth-child(2) {
+		animation-delay: 40ms;
+	}
+	.stagger-item:nth-child(3) {
+		animation-delay: 80ms;
+	}
+	.stagger-item:nth-child(4) {
+		animation-delay: 120ms;
+	}
+	.stagger-item:nth-child(5) {
+		animation-delay: 160ms;
+	}
+	.stagger-item:nth-child(6) {
+		animation-delay: 200ms;
+	}
+	.stagger-item:nth-child(7) {
+		animation-delay: 240ms;
+	}
+	.stagger-item:nth-child(8) {
+		animation-delay: 280ms;
+	}
+	.stagger-item:nth-child(9) {
+		animation-delay: 320ms;
+	}
+	.stagger-item:nth-child(10) {
+		animation-delay: 360ms;
+	}
 
 	/* ----- Pushable Button - 3D Tactile Effect ----- */
 	/* Based on Emil Kowalski's design principles with hardware-accelerated transforms */
@@ -306,6 +330,16 @@
    UTILITIES LAYER
    ================================================== */
 @layer utilities {
+	/* ----- Scrollbar Utilities ----- */
+	/* Hide scrollbar but keep functionality */
+	.scrollbar-hide {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none; /* Chrome, Safari, Opera */
+	}
+
 	/* ----- Reduced Motion Support ----- */
 	/* Respect user's motion preferences */
 	@media (prefers-reduced-motion: reduce) {

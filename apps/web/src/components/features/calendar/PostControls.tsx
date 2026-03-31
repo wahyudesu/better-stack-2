@@ -122,7 +122,6 @@ export function PostControls({
 					<PlatformFilterDropdown
 						value={selectedPlatform}
 						onChange={(value) => onPlatformChange(value)}
-						variant="secondary"
 					/>
 				)}
 			</div>

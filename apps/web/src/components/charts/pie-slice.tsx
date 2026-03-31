@@ -64,6 +64,8 @@ export interface PieSliceProps {
 	hoverOffset?: number;
 	/** Additional CSS class */
 	className?: string;
+	/** Base opacity for the slice (0-1). Applied before hover animations. Default: 1 */
+	baseOpacity?: number;
 }
 
 interface AnimatedSliceTranslateProps {
@@ -81,6 +83,7 @@ interface AnimatedSliceTranslateProps {
 	animationKey: number;
 	showGlow: boolean;
 	hoverOffset: number;
+	baseOpacity?: number;
 }
 
 function AnimatedSliceTranslate({
@@ -98,6 +101,7 @@ function AnimatedSliceTranslate({
 	animationKey,
 	showGlow,
 	hoverOffset,
+	baseOpacity = 1,
 }: AnimatedSliceTranslateProps) {
 	const animationDelay = 0.1 + index * 0.08;
 
@@ -136,7 +140,7 @@ function AnimatedSliceTranslate({
 	return (
 		<motion.path
 			animate={{
-				opacity: isFaded ? 0.4 : 1,
+				opacity: isFaded ? baseOpacity * 0.4 : baseOpacity,
 				x: isHovered ? offset.x : 0,
 				y: isHovered ? offset.y : 0,
 			}}
@@ -172,6 +176,7 @@ interface AnimatedSliceGrowProps {
 	animationKey: number;
 	showGlow: boolean;
 	hoverOffset: number;
+	baseOpacity?: number;
 }
 
 function AnimatedSliceGrow({
@@ -189,6 +194,7 @@ function AnimatedSliceGrow({
 	animationKey,
 	showGlow,
 	hoverOffset,
+	baseOpacity = 1,
 }: AnimatedSliceGrowProps) {
 	const animationDelay = 0.1 + index * 0.08;
 
@@ -239,7 +245,7 @@ function AnimatedSliceGrow({
 	return (
 		<motion.path
 			animate={{
-				opacity: isFaded ? 0.4 : 1,
+				opacity: isFaded ? baseOpacity * 0.4 : baseOpacity,
 			}}
 			d={animatedPath}
 			fill={fill}
@@ -264,6 +270,7 @@ export function PieSlice({
 	showGlow = true,
 	hoverEffect = "translate",
 	hoverOffset: hoverOffsetProp,
+	baseOpacity,
 }: PieSliceProps) {
 	const {
 		arcs,
@@ -342,6 +349,7 @@ export function PieSlice({
 			return (
 				<AnimatedSliceGrow
 					animationKey={animationKey}
+					baseOpacity={baseOpacity}
 					color={color}
 					cornerRadius={cornerRadius}
 					endAngle={arcData.endAngle}
@@ -386,7 +394,7 @@ export function PieSlice({
 			return (
 				<motion.path
 					animate={{
-						opacity: isFaded ? 0.4 : 1,
+						opacity: isFaded ? (baseOpacity ?? 1) * 0.4 : (baseOpacity ?? 1),
 						d: grownPath,
 					}}
 					d={hitboxPath}
@@ -412,7 +420,7 @@ export function PieSlice({
 		return (
 			<motion.path
 				animate={{
-					opacity: isFaded ? 0.4 : 1,
+					opacity: isFaded ? (baseOpacity ?? 1) * 0.4 : (baseOpacity ?? 1),
 					x: translateX,
 					y: translateY,
 				}}

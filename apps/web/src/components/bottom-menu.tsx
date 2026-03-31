@@ -3,12 +3,12 @@
 import { cn } from "@better-stack-2/ui/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-	FileText,
-	Home,
-	Inbox,
+	BarChart3,
+	MessageSquare,
+	Newspaper,
 	Settings,
 	Sparkles,
-	Wrench,
+	SquareStack,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,21 +30,33 @@ const KEY_TO_ITEM_MAP = new Map(
 	[
 		{
 			href: "/posts",
-			icon: FileText,
+			icon: Newspaper,
 			label: "Posts",
 			shortcut: "⌃1",
 			key: "1",
 		},
 		{
 			href: "/dashboard",
-			icon: Home,
+			icon: BarChart3,
 			label: "Dashboard",
 			shortcut: "⌃2",
 			key: "2",
 		},
-		{ href: "/inbox", icon: Inbox, label: "Inbox", shortcut: "⌃3", key: "3" },
+		{
+			href: "/inbox",
+			icon: MessageSquare,
+			label: "Inbox",
+			shortcut: "⌃3",
+			key: "3",
+		},
 		{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "⌃4", key: "4" },
-		{ href: "/tools", icon: Wrench, label: "Tools", shortcut: "⌃5", key: "5" },
+		{
+			href: "/tools",
+			icon: SquareStack,
+			label: "Tools",
+			shortcut: "⌃5",
+			key: "5",
+		},
 		{
 			href: "/settings",
 			icon: Settings,
@@ -64,17 +76,23 @@ const menuItems: Array<{
 	shortcut?: string;
 	key?: string;
 }> = [
-	{ href: "/posts", icon: FileText, label: "Posts", shortcut: "⌃1", key: "1" },
+	{ href: "/posts", icon: Newspaper, label: "Posts", shortcut: "⌃1", key: "1" },
 	{
 		href: "/dashboard",
-		icon: Home,
+		icon: BarChart3,
 		label: "Dashboard",
 		shortcut: "⌃2",
 		key: "2",
 	},
-	{ href: "/inbox", icon: Inbox, label: "Inbox", shortcut: "⌃3", key: "3" },
+	{
+		href: "/inbox",
+		icon: MessageSquare,
+		label: "Inbox",
+		shortcut: "⌃3",
+		key: "3",
+	},
 	{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "⌃4", key: "4" },
-	{ href: "/tools", icon: Wrench, label: "Tools", shortcut: "⌃5", key: "5" },
+	{ href: "/tools", icon: SquareStack, label: "Tools", shortcut: "⌃5", key: "5" },
 	{
 		href: "/settings",
 		icon: Settings,
@@ -204,7 +222,7 @@ export default function BottomMenu() {
 					boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
 				}}
 			>
-				<nav className="flex items-center gap-0.5">
+				<nav className="flex items-center gap-1">
 					{menuItems.map((item, index) => {
 						const isActive = pathname === item.href;
 						return (
@@ -215,15 +233,15 @@ export default function BottomMenu() {
 								}}
 								href={item.href as any}
 								className={cn(
-									"relative flex items-center justify-center p-2.5 rounded-2xl transition-all",
+									"relative flex items-center justify-center p-2.5 rounded-2xl transition-all duration-200",
 									isActive
-										? "bg-neutral-700 text-white"
-										: "text-neutral-400 hover:text-white hover:bg-neutral-800",
+										? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+										: "text-neutral-400 hover:text-white hover:bg-neutral-800/80",
 								)}
 								onMouseEnter={() => handleMouseEnter(index)}
 								onMouseLeave={handleMouseLeave}
 							>
-								<item.icon className="size-[18px]" />
+								<item.icon className="size-5" />
 							</Link>
 						);
 					})}

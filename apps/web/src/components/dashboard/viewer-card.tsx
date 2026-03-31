@@ -3,7 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Tooltip, XAxis } from "recharts";
+import { Bar, BarChart, Cell, Tooltip, XAxis } from "recharts";
 import { buttonVariants } from "@/components/ui/button";
 import {
 	Card,
@@ -12,10 +12,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import {
-	ChartContainer,
-	type ChartConfig,
-} from "@/components/ui/chart";
+import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { formatMetricValue } from "@/lib/metrics";
 import type { TimeRange } from "@/lib/types/dashboard";
 
@@ -26,9 +23,19 @@ export interface ViewerCardProps {
 const chartConfig = {
 	viewers: {
 		label: "Viewers",
-		color: "#a855f7",
+		color: "var(--primary)",
 	},
 } satisfies ChartConfig;
+
+// Single indigo color for all bars
+const barColor = "var(--primary)";
+
+function calculateOpacity(value: number, maxValue: number): number {
+	const minOpacity = 0.1;
+	const maxOpacity = 1.0;
+	const normalized = value / maxValue;
+	return minOpacity + normalized * (maxOpacity - minOpacity);
+}
 
 export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 	const [hoveredValue, setHoveredValue] = useState<number | null>(null);
@@ -42,6 +49,22 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 	};
 
 	const days = daysMap[timeRange] ?? 30;
+
+	// Calculate date range for display
+	const dateRange = useMemo(() => {
+		const now = new Date();
+		const startDate = new Date(now);
+		startDate.setDate(startDate.getDate() - days + 1);
+
+		const formatDate = (date: Date) => {
+			return date.toLocaleDateString("en-US", {
+				day: "numeric",
+				month: "short",
+			});
+		};
+
+		return `${formatDate(startDate)} - ${formatDate(now)}`;
+	}, [days]);
 
 	const chartData = useMemo(() => {
 		const data: Array<{ month: string; viewers: number }> = [];
@@ -68,10 +91,12 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 	);
 
 	const displayValue = hoveredValue ?? totalViewers;
-	const labelText = hoveredValue !== null ? "viewers" : `viewers in the last ${days} days`;
+	const labelText = hoveredValue !== null ? "viewers" : `viewers (${dateRange})`;
+
+	const maxViewers = Math.max(...chartData.map((d) => d.viewers));
 
 	return (
-		<Card>
+		<Card className="h-full flex flex-col pb-0">
 			<CardHeader>
 				<CardTitle>
 					{formatMetricValue(displayValue)} {labelText}
@@ -86,23 +111,43 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 				</CardAction>
 			</CardHeader>
 
-			<CardContent className="pb-4">
+			<CardContent className="pb-0 flex-1 flex items-center">
 				<ChartContainer config={chartConfig} className="h-16 sm:h-20 w-full">
-					<BarChart accessibilityLayer data={chartData}>
-						<CartesianGrid vertical={false} />
-						<XAxis hide />
+					<BarChart
+						accessibilityLayer
+						data={chartData}
+						margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+						barCategoryGap={2}
+					>
+						<XAxis hide axisLine={false} tickLine={false} />
 						<Tooltip
-							content={({ active, payload }) => {
-								if (active && payload && payload.length) {
-									setHoveredValue(payload[0].value as number);
-								} else {
-									setHoveredValue(null);
-								}
-								return null;
-							}}
-							cursor={{ fill: "rgba(168, 85, 247, 0.1)" }}
+							content={() => null}
+							cursor={false}
+							allowEscapeViewBox={{ x: false, y: false }}
 						/>
-						<Bar dataKey="viewers" fill="var(--color-viewers)" radius={4} />
+						<Bar
+							dataKey="viewers"
+							radius={[20, 20, 0, 0]}
+							fill="none"
+							onMouseEnter={(data) => {
+								if (data?.payload?.viewers !== undefined) {
+									setHoveredValue(data.payload.viewers);
+								}
+							}}
+							onMouseLeave={() => setHoveredValue(null)}
+						>
+							{chartData.map((entry, index) => {
+								const opacity = calculateOpacity(entry.viewers, maxViewers);
+								return (
+									<Cell
+										key={`cell-${index}`}
+										fill={barColor}
+										fillOpacity={opacity}
+										style={{ cursor: "pointer" }}
+									/>
+								);
+							})}
+						</Bar>
 					</BarChart>
 				</ChartContainer>
 			</CardContent>

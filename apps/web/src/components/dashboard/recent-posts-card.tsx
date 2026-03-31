@@ -1,10 +1,7 @@
 "use client";
 
-import { ArrowRight, MoreHorizontal } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import { PlatformIcon } from "@/components/ui/PlatformIcon";
-import type { StatusType } from "@/components/ui/status-badge";
-import { StatusBadge } from "@/components/ui/status-badge";
 import {
 	Card,
 	CardAction,
@@ -12,6 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { PlatformIcon } from "@/components/ui/PlatformIcon";
 import { samplePosts } from "@/lib/data/social-data";
 import type { ContentPost } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -22,7 +20,7 @@ export interface RecentPostsCardProps {
 }
 
 export function RecentPostsCard({
-	posts = samplePosts.slice(0, 5),
+	posts = samplePosts.slice(0, 8),
 	analyticsHref = "/analytics",
 }: RecentPostsCardProps) {
 	return (
@@ -40,10 +38,10 @@ export function RecentPostsCard({
 				</CardAction>
 			</CardHeader>
 			<CardContent>
-				{/* Single column layout on all screen sizes */}
-				<div className="grid grid-cols-1 gap-3">
+				{/* 4 Column Grid Layout */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 					{posts.map((post) => (
-						<PostListItem key={post.id} post={post} />
+						<PostCardItem key={post.id} post={post} />
 					))}
 				</div>
 			</CardContent>
@@ -51,8 +49,9 @@ export function RecentPostsCard({
 	);
 }
 
-function PostListItem({ post }: { post: ContentPost }) {
+function PostCardItem({ post }: { post: ContentPost }) {
 	const scheduledDate = post.scheduledAt || post.publishedAt || post.createdAt;
+	const hasMedia = post.media && post.media.length > 0;
 
 	// Format date using native Intl
 	const formatDate = (date: Date) => {
@@ -69,7 +68,6 @@ function PostListItem({ post }: { post: ContentPost }) {
 		const isToday = targetDate.getTime() === today.getTime();
 		const isYesterday = targetDate.getTime() === yesterday.getTime();
 
-		// Format time (HH:mm)
 		const timeFormatter = new Intl.DateTimeFormat("id-ID", {
 			hour: "2-digit",
 			minute: "2-digit",
@@ -83,45 +81,52 @@ function PostListItem({ post }: { post: ContentPost }) {
 		if (isYesterday) {
 			return `Yesterday, ${timeStr}`;
 		}
-		// Format date (dd MMM, HH:mm)
-		return `${date.getDate()} ${date.toLocaleString("id-ID", { month: "short" })}, ${timeStr}`;
+		return `${date.getDate()} ${date.toLocaleString("id-ID", { month: "short" })}`;
 	};
 
 	return (
-		<div className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-border hover:bg-muted/50 transition-colors cursor-pointer group">
-			{/* Date/Time */}
-			<div className="flex-shrink-0 w-12 sm:w-14 text-xs text-muted-foreground">
-				{formatDate(scheduledDate)}
-			</div>
+		<div className="group relative rounded-xl border border-border hover:border-primary/50 hover:bg-muted/50 transition-all cursor-pointer overflow-hidden">
+			{/* Media Thumbnail */}
+			{hasMedia ? (
+				<div className="aspect-square w-full overflow-hidden bg-muted relative">
+					<img
+						src={post.media[0].url}
+						alt={post.title}
+						className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+					/>
+					{/* Multiple media indicator */}
+					{post.media.length > 1 && (
+						<div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded-md flex items-center gap-1">
+							<ImageIcon className="size-3" />
+							<span>{post.media.length}</span>
+						</div>
+					)}
+				</div>
+			) : (
+				<div className="aspect-square w-full bg-muted flex items-center justify-center">
+					<ImageIcon className="size-8 text-muted-foreground/30" />
+				</div>
+			)}
 
-			{/* Content Preview */}
-			<div className="flex-1 min-w-0 max-w-[200px] sm:max-w-[280px]">
-				<p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 mb-1">
+			{/* Content Overlay */}
+			<div className="p-3">
+				{/* Title */}
+				<h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 mb-2">
 					{post.title}
-				</p>
-				<p className="text-xs text-muted-foreground line-clamp-3">
-					{post.content.split("\n")[0]}
-				</p>
-			</div>
+				</h3>
 
-			{/* Right Side: Platform Icons */}
-			<div className="flex flex-col items-end gap-1.5">
-				{/* Platform Icons - Bigger size */}
-				<div className="flex items-center gap-1">
-					{post.platforms.map((platform) => (
-						<PlatformIcon key={platform} platform={platform} size={20} />
-					))}
+				{/* Bottom Row: Date + Platform */}
+				<div className="flex items-center justify-between">
+					<span className="text-xs text-muted-foreground">
+						{formatDate(scheduledDate)}
+					</span>
+					<div className="flex items-center gap-1">
+						{post.platforms.map((platform) => (
+							<PlatformIcon key={platform} platform={platform} size={16} />
+						))}
+					</div>
 				</div>
 			</div>
-
-			{/* More Actions */}
-			<button
-				type="button"
-				className="flex-shrink-0 p-1 rounded-md hover:bg-muted transition-colors opacity-0 group-hover:opacity-100"
-				aria-label="More options"
-			>
-				<MoreHorizontal className="size-4 text-muted-foreground" />
-			</button>
 		</div>
 	);
 }

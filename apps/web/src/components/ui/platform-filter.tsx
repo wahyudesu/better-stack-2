@@ -1,16 +1,10 @@
 "use client";
 
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { type Platform, PlatformIcon } from "@/components/ui/PlatformIcon";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+	DepthButtonMenu,
+	type DepthMenuOption,
+} from "@/components/ui/depth-button-menu";
+import { type Platform, PlatformIcon } from "@/components/ui/PlatformIcon";
 
 // Platform configuration
 export const PLATFORM_OPTIONS = [
@@ -46,111 +40,6 @@ export const PLATFORM_OPTIONS_NO_ALL = [
 	{ value: "snapchat", label: "Snapchat" },
 ] as const;
 
-export type PlatformFilterValue = Platform | "all";
-
-// ============================================
-// PlatformFilterDropdown - Main dropdown filter
-// ============================================
-
-export type PlatformFilterVariant =
-	| "default"
-	| "secondary"
-	| "outline"
-	| "ghost";
-
-interface PlatformFilterDropdownProps {
-	value: PlatformFilterValue;
-	onChange: (value: PlatformFilterValue) => void;
-	className?: string;
-	variant?: PlatformFilterVariant;
-}
-
-export function PlatformFilterDropdown({
-	value,
-	onChange,
-	className,
-	variant = "default",
-}: PlatformFilterDropdownProps) {
-	return (
-		<Select
-			value={value}
-			onValueChange={(v) => onChange(v as PlatformFilterValue)}
-		>
-			<SelectTrigger
-				variant={variant}
-				className={cn(
-					// Override default rounded-4xl for more button-like appearance
-					"rounded-lg",
-					className,
-				)}
-			>
-				{value === "all" ? (
-					"All Platforms"
-				) : (
-					<span className="flex items-center gap-1.5">
-						<PlatformIcon platform={value} size={18} />
-						{PLATFORM_OPTIONS.find((p) => p.value === value)?.label}
-					</span>
-				)}
-			</SelectTrigger>
-			<SelectContent className="w-56" alignItemWithTrigger={false}>
-				{PLATFORM_OPTIONS.map((platform) => (
-					<SelectItem key={platform.value} value={platform.value}>
-						<span className="flex items-center gap-2.5 flex-1">
-							{platform.value !== "all" && (
-								<PlatformIcon platform={platform.value} size={20} />
-							)}
-							<span className="font-medium">{platform.label}</span>
-						</span>
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
-	);
-}
-
-// ============================================
-// PlatformFilterSelect - Select based filter
-// ============================================
-
-interface PlatformFilterSelectProps {
-	value: Platform;
-	onChange: (value: Platform) => void;
-	placeholder?: string;
-	className?: string;
-	showIcon?: boolean;
-}
-
-export function PlatformFilterSelect({
-	value,
-	onChange,
-	placeholder = "Select platform",
-	className,
-	showIcon = true,
-}: PlatformFilterSelectProps) {
-	return (
-		<Select value={value} onValueChange={(val) => onChange(val as Platform)}>
-			<SelectTrigger className={cn("w-[180px] h-8 font-medium", className)}>
-				<SelectValue placeholder={placeholder} />
-			</SelectTrigger>
-			<SelectContent>
-				{PLATFORM_OPTIONS_NO_ALL.map((platform) => (
-					<SelectItem key={platform.value} value={platform.value}>
-						<span className="flex items-center gap-2 font-medium">
-							{showIcon && <PlatformIcon platform={platform.value} size={16} />}
-							<span>{platform.label}</span>
-						</span>
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
-	);
-}
-
-// ============================================
-// PlatformFilterMulti - Multi-select button group
-// ============================================
-
 export const PLATFORM_MULTI_OPTIONS = [
 	{ value: "instagram", label: "Instagram" },
 	{ value: "tiktok", label: "TikTok" },
@@ -161,14 +50,94 @@ export const PLATFORM_MULTI_OPTIONS = [
 	{ value: "threads", label: "Threads" },
 ] as const;
 
+export type PlatformFilterValue = Platform | "all";
 export type PlatformMultiValue =
 	(typeof PLATFORM_MULTI_OPTIONS)[number]["value"];
 
-interface PlatformFilterMultiProps {
+// ============================================
+// Helpers
+// ============================================
+
+export function getPlatformLabel(platform: PlatformFilterValue): string {
+	return PLATFORM_OPTIONS.find((p) => p.value === platform)?.label || platform;
+}
+
+export function getPlatformOptions(
+	includeAll: boolean = true,
+): DepthMenuOption[] {
+	const baseOptions = includeAll ? PLATFORM_OPTIONS : PLATFORM_OPTIONS_NO_ALL;
+	return baseOptions.map((p) => ({
+		value: p.value,
+		label: p.label,
+		icon:
+			p.value !== "all" ? (
+				<PlatformIcon platform={p.value} size={16} />
+			) : undefined,
+	}));
+}
+
+// ============================================
+// Types
+// ============================================
+
+export interface PlatformOption {
+	value: string;
+	label: string;
+}
+
+// ============================================
+// PlatformFilterDropdown - Single select with depth style
+// ============================================
+
+export type PlatformFilterVariant =
+	| "default"
+	| "secondary"
+	| "outline"
+	| "ghost";
+
+export interface PlatformFilterDropdownProps {
+	value: PlatformFilterValue;
+	onChange: (value: PlatformFilterValue) => void;
+	className?: string;
+	size?: "default" | "sm" | "lg";
+	align?: "start" | "center" | "end";
+	includeAllOption?: boolean;
+}
+
+export function PlatformFilterDropdown({
+	value,
+	onChange,
+	className,
+	size = "default",
+	align = "start",
+	includeAllOption = true,
+}: PlatformFilterDropdownProps) {
+	return (
+		<DepthButtonMenu
+			mode="radio"
+			value={value}
+			onChange={onChange}
+			options={getPlatformOptions(includeAllOption)}
+			placeholder="All Platforms"
+			className={className}
+			size={size}
+			align={align}
+		/>
+	);
+}
+
+// ============================================
+// PlatformFilterMulti - Multi select with depth style
+// ============================================
+
+export interface PlatformFilterMultiProps {
 	values: PlatformMultiValue[];
 	onChange: (values: PlatformMultiValue[]) => void;
 	label?: string;
 	className?: string;
+	size?: "default" | "sm" | "lg";
+	align?: "start" | "center" | "end";
+	keepOpen?: boolean;
 }
 
 export function PlatformFilterMulti({
@@ -176,44 +145,38 @@ export function PlatformFilterMulti({
 	onChange,
 	label = "Platforms",
 	className,
+	size = "default",
+	align = "start",
+	keepOpen = true, // default true for multi-select UX
 }: PlatformFilterMultiProps) {
-	const togglePlatform = (platform: PlatformMultiValue) => {
-		onChange(
-			values.includes(platform)
-				? values.filter((p) => p !== platform)
-				: [...values, platform],
-		);
-	};
+	const multiOptions: DepthMenuOption[] = PLATFORM_MULTI_OPTIONS.map((p) => ({
+		value: p.value,
+		label: p.label,
+		icon: <PlatformIcon platform={p.value} size={16} />,
+	}));
 
 	return (
-		<div className={cn("space-y-2", className)}>
-			<label className="text-sm font-medium">{label}</label>
-			<div className="flex flex-wrap gap-2">
-				{PLATFORM_MULTI_OPTIONS.map((platform) => (
-					<button
-						key={platform.value}
-						type="button"
-						onClick={() => togglePlatform(platform.value)}
-						className={cn(
-							"cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
-							values.includes(platform.value)
-								? "bg-primary text-primary-foreground"
-								: "bg-muted text-muted-foreground hover:bg-muted/70",
-						)}
-					>
-						{platform.label}
-					</button>
-				))}
-			</div>
-		</div>
+		<DepthButtonMenu
+			mode="checkbox"
+			values={values}
+			onValuesChange={(newValues) =>
+				onChange(newValues as PlatformMultiValue[])
+			}
+			options={multiOptions}
+			placeholder={label}
+			className={className}
+			size={size}
+			align={align}
+			keepOpen={keepOpen}
+		/>
 	);
 }
 
 // ============================================
-// Compact platform pills (horizontal scrollable)
+// PlatformFilterPills - Horizontal scrollable pills
 // ============================================
 
-interface PlatformFilterPillsProps {
+export interface PlatformFilterPillsProps {
 	value: PlatformFilterValue;
 	onChange: (value: PlatformFilterValue) => void;
 	options?: typeof PLATFORM_OPTIONS;
@@ -228,22 +191,22 @@ export function PlatformFilterPills({
 }: PlatformFilterPillsProps) {
 	return (
 		<div
-			className={cn(
-				"flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide",
-				className,
-			)}
+			className={
+				"flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide " +
+				className
+			}
 		>
 			{options.map((platform) => (
 				<button
 					key={platform.value}
 					type="button"
 					onClick={() => onChange(platform.value)}
-					className={cn(
-						"cursor-pointer shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all",
-						value === platform.value
+					className={
+						"cursor-pointer shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all " +
+						(value === platform.value
 							? "bg-primary text-primary-foreground"
-							: "bg-muted text-muted-foreground hover:bg-muted/70",
-					)}
+							: "bg-muted text-muted-foreground hover:bg-muted/70")
+					}
 				>
 					{platform.value !== "all" && (
 						<PlatformIcon platform={platform.value} size={14} />
@@ -256,18 +219,33 @@ export function PlatformFilterPills({
 }
 
 // ============================================
-// Helper to get platform label
+// PlatformFilterSelect - Simple select (alias for dropdown)
 // ============================================
 
-export function getPlatformLabel(platform: PlatformFilterValue): string {
-	return PLATFORM_OPTIONS.find((p) => p.value === platform)?.label || platform;
+export interface PlatformFilterSelectProps {
+	value: Platform;
+	onChange: (value: Platform) => void;
+	placeholder?: string;
+	className?: string;
+	size?: "default" | "sm" | "lg";
 }
 
-// ============================================
-// PlatformOption interface for custom options
-// ============================================
-
-export interface PlatformOption {
-	value: string;
-	label: string;
+export function PlatformFilterSelect({
+	value,
+	onChange,
+	placeholder = "Select platform",
+	className,
+	size = "default",
+}: PlatformFilterSelectProps) {
+	return (
+		<DepthButtonMenu
+			mode="radio"
+			value={value}
+			onChange={onChange}
+			options={getPlatformOptions(false)}
+			placeholder={placeholder}
+			className={className}
+			size={size}
+		/>
+	);
 }

@@ -29,26 +29,21 @@ import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
 	PlatformFilterDropdown,
 	type PlatformFilterValue,
 } from "@/components/ui/platform-filter";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+	DepthButton,
+	DepthButtonGroup,
+	GroupedDepthButton,
+} from "@/components/ui/depth-buttons";
+import {
+	DepthButtonMenu,
+	DepthActionMenu,
+	type DepthMenuOption,
+} from "@/components/ui/depth-button-menu";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { InboxAutomation } from "./InboxAutomation";
@@ -464,21 +459,18 @@ export function InboxContent() {
 						<PlatformFilterDropdown
 							value={platform}
 							onChange={setPlatform}
-							variant="secondary"
 						/>
 
-						<Select
+						<DepthButtonMenu
 							value={typeFilter}
-							onValueChange={(v) => setTypeFilter(v as TypeFilter)}
-						>
-							<SelectTrigger className="w-[140px]">
-								<SelectValue placeholder="Select type" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="message">Messages</SelectItem>
-								<SelectItem value="comment">Comments</SelectItem>
-							</SelectContent>
-						</Select>
+							onChange={(v) => setTypeFilter(v as TypeFilter)}
+							options={[
+								{ value: "message", label: "Messages", icon: <MessageSquare className="h-4 w-4" /> },
+								{ value: "comment", label: "Comments", icon: <MessageSquare className="h-4 w-4" /> },
+							]}
+							placeholder="Type"
+							size="default"
+						/>
 					</div>
 
 					{/* CRM Layout */}
@@ -489,40 +481,42 @@ export function InboxContent() {
 							<div className="p-3 border-b border-border/50 space-y-2">
 								{/* Filter Tabs + Sort in one row */}
 								<div className="flex items-center justify-between gap-2">
-									<div className="flex items-center gap-1">
-										{(["all", "unread", "favorites"] as MessageFilter[]).map(
-											(filter) => (
-												<button
-													key={filter}
-													onClick={() => setMessageFilter(filter)}
-													className={cn(
-														"px-3 py-1.5 text-xs font-medium rounded-full transition-all",
-														messageFilter === filter
-															? "bg-primary text-primary-foreground"
-															: "text-muted-foreground hover:bg-muted hover:text-foreground",
-													)}
-												>
-													{filter === "all"
-														? "All"
-														: filter === "unread"
-															? "Unread"
-															: "Favorites"}
-												</button>
-											),
-										)}
-									</div>
-									<Select
+									<DepthButtonGroup>
+										<GroupedDepthButton
+											position="first"
+											size="sm"
+											variant={messageFilter === "all" ? "blue" : "outline"}
+											onClick={() => setMessageFilter("all")}
+										>
+											All
+										</GroupedDepthButton>
+										<GroupedDepthButton
+											position="middle"
+											size="sm"
+											variant={messageFilter === "unread" ? "blue" : "outline"}
+											onClick={() => setMessageFilter("unread")}
+										>
+											Unread
+										</GroupedDepthButton>
+										<GroupedDepthButton
+											position="last"
+											size="sm"
+											variant={messageFilter === "favorites" ? "blue" : "outline"}
+											onClick={() => setMessageFilter("favorites")}
+										>
+											Favorites
+										</GroupedDepthButton>
+									</DepthButtonGroup>
+									<DepthButtonMenu
 										value={sortBy}
-										onValueChange={(v) => setSortBy(v as SortBy)}
-									>
-										<SelectTrigger className="w-[100px] h-7 text-xs">
-											<SelectValue placeholder="Sort by" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="newest">Terbaru</SelectItem>
-											<SelectItem value="name">Nama</SelectItem>
-										</SelectContent>
-									</Select>
+										onChange={(v) => setSortBy(v as SortBy)}
+										options={[
+											{ value: "newest", label: "Terbaru" },
+											{ value: "name", label: "Nama" },
+										]}
+										placeholder="Sort"
+										size="sm"
+									/>
 								</div>
 
 								<div className="relative">
@@ -670,97 +664,55 @@ export function InboxContent() {
 															{selectedConversation.sender}
 														</h3>
 														{/* Customer Label - Only for messages */}
-														{selectedConversation.type === "message" && (
-															<DropdownMenu>
-																<DropdownMenuTrigger
-																	className={buttonVariants({
-																		variant: "ghost",
-																		size: "sm",
-																		className: "h-6 px-2 gap-1 text-xs",
-																	})}
-																>
-																	<Tag className="h-3 w-3" />
-																	{selectedConversation.customerLabel &&
-																	selectedConversation.customerLabel !==
-																		"none" ? (
-																		<span
-																			className={
-																				labelConfig[
-																					selectedConversation.customerLabel
-																				].color
-																			}
-																		>
-																			{
-																				labelConfig[
-																					selectedConversation.customerLabel
-																				].label
-																			}
-																		</span>
-																	) : (
-																		<span className="text-muted-foreground">
-																			Add Label
-																		</span>
-																	)}
-																</DropdownMenuTrigger>
-																<DropdownMenuContent
-																	align="start"
-																	className="w-40"
-																>
-																	<DropdownMenuLabel>
-																		Customer Label
-																	</DropdownMenuLabel>
-																	<DropdownMenuSeparator />
-																	{(Object.keys(labelConfig) as CustomerLabel[])
-																		.filter((l) => l !== "none")
-																		.map((labelKey) => {
-																			const cfg = labelConfig[labelKey];
-																			const isSelected =
-																				selectedConversation.customerLabel ===
-																				labelKey;
-																			return (
-																				<DropdownMenuItem
-																					key={labelKey}
-																					onClick={() => {
-																						// Update the conversation label
-																						setSelectedConversation({
-																							...selectedConversation,
-																							customerLabel: labelKey,
-																						});
-																					}}
-																					className="flex items-center justify-between"
-																				>
-																					<span className={cfg.color}>
-																						{cfg.label}
-																					</span>
-																					{isSelected && (
-																						<Check className="h-3 w-3" />
-																					)}
-																				</DropdownMenuItem>
-																			);
-																		})}
-																	{selectedConversation.customerLabel &&
-																		selectedConversation.customerLabel !==
-																			"none" && (
-																			<>
-																				<DropdownMenuSeparator />
-																				<DropdownMenuItem
-																					onClick={() => {
-																						setSelectedConversation({
-																							...selectedConversation,
-																							customerLabel: "none",
-																						});
-																					}}
-																					className="text-muted-foreground"
-																				>
-																					Remove Label
-																				</DropdownMenuItem>
-																			</>
-																		)}
-																</DropdownMenuContent>
-															</DropdownMenu>
-														)}
-													</div>
-													<div className="flex items-center gap-1.5">
+															{/* Customer Label - Only for messages */}
+															{selectedConversation.type === "message" && (
+																<DepthButtonMenu
+																	value={
+																		selectedConversation.customerLabel &&
+																		selectedConversation.customerLabel !== "none"
+																			? selectedConversation.customerLabel
+																			: undefined
+																	}
+																	onChange={(label) =>
+																		setSelectedConversation({
+																			...selectedConversation,
+																			customerLabel: label as CustomerLabel,
+																		})
+																	}
+																	options={[
+																		{
+																			value: "vip",
+																			label: "VIP",
+																			icon: (
+																				<Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+																			),
+																			description: "Very important",
+																		},
+																		{
+																			value: "lead",
+																			label: "Lead",
+																			icon: <MessageSquare className="h-3 w-3 text-blue-600" />,
+																			description: "Potential customer",
+																		},
+																		{
+																			value: "customer",
+																			label: "Customer",
+																			icon: <Check className="h-3 w-3 text-green-600" />,
+																			description: "Active customer",
+																		},
+																		{
+																			value: "partner",
+																			label: "Partner",
+																			icon: <Tag className="h-3 w-3 text-purple-600" />,
+																			description: "Business partner",
+																		},
+																	]}
+																	placeholder="Add Label"
+																	size="sm"
+																	panelClassName="w-44"
+																/>
+															)}
+														<div className="flex items-center gap-1.5">
 														{(() => {
 															const config =
 																platformConfig[selectedConversation.platform];
@@ -776,13 +728,14 @@ export function InboxContent() {
 																</>
 															);
 														})()}
+														</div>
 													</div>
-												</div>
 											</div>
 											<Button variant="ghost" size="icon">
 												<MoreVertical className="h-5 w-5" />
 											</Button>
 										</div>
+									</div>
 
 										{selectedConversation.mediaPost && (
 											<div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">

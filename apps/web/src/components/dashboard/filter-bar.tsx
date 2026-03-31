@@ -1,8 +1,8 @@
+import { Download } from "lucide-react";
+import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
+import { DepthButton, DepthButtonGroup } from "@/components/ui/depth-buttons";
 import type { PlatformFilterValue } from "@/components/ui/platform-filter";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
-import { DepthButton, DepthButtonGroup } from "@/components/ui/depth-buttons";
-import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
-import { Download } from "lucide-react";
 
 const typeOptions = [
 	{ value: "overview", label: "Overview" },
@@ -16,7 +16,6 @@ const timeOptions = [
 	{ value: "14d", label: "Last 14 days" },
 	{ value: "30d", label: "Last 30 days" },
 	{ value: "90d", label: "Last 90 days" },
-	{ value: "custom", label: "Custom range" },
 ] as const;
 
 export interface FilterBarProps {
@@ -36,14 +35,12 @@ export function FilterBar({
 	selectedTime,
 	onTimeChange,
 }: FilterBarProps) {
-
 	return (
 		<div className="flex items-start gap-3 sm:gap-4">
 			{/* Left: Platform Filter */}
 			<PlatformFilterDropdown
 				value={selectedSocial}
 				onChange={onSocialChange}
-				variant="ghost"
 			/>
 
 			{/* Spacer to push buttons to the right */}

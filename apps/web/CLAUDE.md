@@ -47,9 +47,10 @@ Key directories:
 
 - **Auth**: Clerk (`@clerk/nextjs`) - see Clerk docs for patterns
 - **Backend**: Convex - read `convex/_generated/ai/guidelines.md` before modifying
-- **Charts**: @visx (d3-based) - heavy library, consider lazy loading
+- **Charts**: Hybrid - @visx for custom charts (line/area/ring/pie), Recharts for simple charts
 - **UI Primitives**: @base-ui/react (NOT Radix) - different API patterns
 - **Styling**: Tailwind CSS + Biome for linting/formatting
+- **Animations**: Motion (Framer Motion v12) - use `<motion>` components for transitions
 
 ## Component Patterns
 
@@ -59,6 +60,19 @@ Key directories:
   import { StatsCards } from "@/components/dashboard";
   // ✅ Do
   import { StatsCards } from "@/components/dashboard/stats-cards";
+  ```
+- **Platform filtering**: Use centralized filter from `@/components/ui/platform-filter`:
+  ```tsx
+  import { PlatformFilterDropdown, PLATFORM_OPTIONS } from "@/components/ui/platform-filter";
+  ```
+- **Metric persistence**: Use `useMetricPreference` hook for user metric preferences:
+  ```tsx
+  import { useMetricPreference } from "@/lib/hooks/use-metric-pref";
+  const { metric, setMetric } = useMetricPreference();
+  ```
+- **Depth buttons**: Use DepthButtonMenu for app's distinctive dropdown style:
+  ```tsx
+  import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
   ```
 - **Select onChange**: Use inline null coalescing:
   ```tsx
