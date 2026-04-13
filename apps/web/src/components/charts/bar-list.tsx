@@ -82,7 +82,8 @@ function BarListInner<T>(
 											// hover
 											!isSelected && "hover:bg-gray-50 dark:hover:bg-gray-900",
 											// selected
-											isSelected && "bg-blue-50 dark:bg-blue-950/30 ring-1 ring-blue-200 dark:ring-blue-800",
+											isSelected &&
+												"bg-blue-50 dark:bg-blue-950/30 ring-1 ring-blue-200 dark:ring-blue-800",
 										]
 									: "",
 							)}

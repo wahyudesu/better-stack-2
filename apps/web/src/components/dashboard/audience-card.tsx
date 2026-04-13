@@ -140,29 +140,21 @@ export function AudienceCard({
 				className="gap-4"
 			>
 				<Card className="h-72 flex flex-col dark:bg-card/50 py-2 gap-0">
-					<CardHeader className="pb-2">
-						<div className="flex items-center justify-between gap-2">
-							<div className="flex items-center gap-2 min-w-0">
-								<CardTitle className="truncate">Audience</CardTitle>
-								<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
-									<Info className="size-4 text-muted-foreground cursor-help shrink-0" />
-								</SimpleTooltip>
-							</div>
-							<TabsList
-								variant="line"
-								className="bg-transparent rounded-none gap-3"
-							>
-								<TabsTab
-									value="follower"
-									className={getTabClassName("follower")}
-								>
-									Follower
-								</TabsTab>
-								<TabsTab value="viewer" className={getTabClassName("viewer")}>
-									Viewer
-								</TabsTab>
-							</TabsList>
-						</div>
+					<CardHeader className="flex items-center justify-between gap-2 py-2 h-fit">
+						<CardTitle className="w-full h-full leading-none font-medium flex items-center gap-1">
+							Audience
+							<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
+								<Info className="size-4 text-muted-foreground cursor-help shrink-0" />
+							</SimpleTooltip>
+						</CardTitle>
+						<TabsList className="bg-transparent rounded-none gap-3">
+							<TabsTab value="follower" className={getTabClassName("follower")}>
+								Follower
+							</TabsTab>
+							<TabsTab value="viewer" className={getTabClassName("viewer")}>
+								Viewer
+							</TabsTab>
+						</TabsList>
 					</CardHeader>
 					<CardContent>
 						<TabsPanel value="follower">
@@ -183,15 +175,13 @@ export function AudienceCard({
 
 	return (
 		<Card className="h-72 flex flex-col gap-0 rounded-none">
-			<CardHeader className="p-4 pb-2">
-				<div className="flex items-center justify-between gap-2">
-					<div className="flex items-center gap-2 min-w-0">
-						<CardTitle className="truncate">Audience</CardTitle>
-						<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
-							<Info className="size-4 text-muted-foreground cursor-help shrink-0" />
-						</SimpleTooltip>
-					</div>
-				</div>
+			<CardHeader className="py-2 h-fit">
+				<CardTitle className="w-full h-full leading-none font-medium flex items-center gap-1">
+					Audience
+					<SimpleTooltip content="Menampilkan distribusi audience berdasarkan tipe follower atau sumber viewer">
+						<Info className="size-4 text-muted-foreground cursor-help shrink-0" />
+					</SimpleTooltip>
+				</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<div className="flex flex-col items-center justify-center">

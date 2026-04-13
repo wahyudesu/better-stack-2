@@ -42,7 +42,11 @@ export function DemographicsCard({
 		}
 	};
 
-	const handleBarClick = (item: { name: string; value: number; key?: string }) => {
+	const handleBarClick = (item: {
+		name: string;
+		value: number;
+		key?: string;
+	}) => {
 		setSelectedKey(item.key ?? item.name);
 		setSelectedItem(
 			JSON.stringify(
@@ -88,26 +92,18 @@ export function DemographicsCard({
 	return (
 		<Tabs value={geoView} onValueChange={handleValueChange} className="gap-4">
 			<Card className="h-72 flex flex-col dark:bg-card/50 py-2 gap-0">
-				<CardHeader className="pb-2">
-					<div className="flex items-center justify-between gap-2">
-						<div className="flex items-center gap-2 min-w-0">
-							<CardTitle className="truncate">Demographics</CardTitle>
-							<SimpleTooltip content="Menampilkan distribusi pengguna berdasarkan negara atau daerah">
-								<Info className="size-4 text-muted-foreground cursor-help shrink-0" />
-							</SimpleTooltip>
-						</div>
-						<TabsList
-							variant="line"
-							className="bg-transparent rounded-none gap-3"
-						>
-							<TabsTab value="country" className={getTabClassName("country")}>
-								Negara
-							</TabsTab>
-							<TabsTab value="region" className={getTabClassName("region")}>
-								Daerah
-							</TabsTab>
-						</TabsList>
-					</div>
+				<CardHeader className="flex items-center justify-between gap-2 py-2 h-fit">
+					<CardTitle className="w-full h-full leading-none font-medium flex items-center gap-1">
+						Demographics
+					</CardTitle>
+					<TabsList className="bg-transparent rounded-none gap-3">
+						<TabsTab value="country" className={getTabClassName("country")}>
+							Negara
+						</TabsTab>
+						<TabsTab value="region" className={getTabClassName("region")}>
+							Daerah
+						</TabsTab>
+					</TabsList>
 				</CardHeader>
 
 				<CardContent className="flex-1 overflow-hidden relative">

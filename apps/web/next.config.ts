@@ -5,6 +5,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
 	typedRoutes: true,
 	reactCompiler: true,
+	turbopack: {
+		root: "/home/wahyudesu/Workspace/startup/better-stack-2",
+	},
 	images: {
 		remotePatterns: [
 			{

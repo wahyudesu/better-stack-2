@@ -66,6 +66,15 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 		return `${formatDate(startDate)} - ${formatDate(now)}`;
 	}, [days]);
 
+	// Seeded random for consistent SSR/CSR values
+	const seededRandom = useMemo(() => {
+		let seed = days;
+		return () => {
+			const x = Math.sin(seed++) * 10000;
+			return x - Math.floor(x);
+		};
+	}, [days]);
+
 	const chartData = useMemo(() => {
 		const data: Array<{ month: string; viewers: number }> = [];
 		const now = new Date();
@@ -76,14 +85,14 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 
 			const baseValue = 15000;
 			const trend = Math.sin(i / 5) * 4000;
-			const viewers = Math.floor(baseValue + trend + Math.random() * 3000);
+			const viewers = Math.floor(baseValue + trend + seededRandom() * 3000);
 
 			const dayLabel = date.toLocaleDateString("en-US", { weekday: "short" });
 			data.push({ month: dayLabel, viewers });
 		}
 
 		return data;
-	}, [days]);
+	}, [days, seededRandom]);
 
 	const totalViewers = useMemo(
 		() => chartData.reduce((sum, d) => sum + d.viewers, 0),
@@ -91,14 +100,15 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 	);
 
 	const displayValue = hoveredValue ?? totalViewers;
-	const labelText = hoveredValue !== null ? "viewers" : `viewers (${dateRange})`;
+	const labelText =
+		hoveredValue !== null ? "viewers" : `viewers (${dateRange})`;
 
 	const maxViewers = Math.max(...chartData.map((d) => d.viewers));
 
 	return (
-		<Card className="h-full flex flex-col pb-0">
-			<CardHeader>
-				<CardTitle>
+		<Card className="h-36 flex flex-col pb-0">
+			<CardHeader className="flex items-center justify-between gap-2 py-2 h-fit">
+				<CardTitle className="w-full h-full leading-none font-medium">
 					{formatMetricValue(displayValue)} {labelText}
 				</CardTitle>
 				<CardAction>
@@ -110,8 +120,7 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 					</Link>
 				</CardAction>
 			</CardHeader>
-
-			<CardContent className="pb-0 flex-1 flex items-center">
+			<CardContent className="pb-0 flex-1 flex items-center px-4 sm:px-6">
 				<ChartContainer config={chartConfig} className="h-16 sm:h-20 w-full">
 					<BarChart
 						accessibilityLayer

@@ -1,11 +1,18 @@
 import {
-	Instagram,
+	Bluesky,
 	Facebook,
+	Google,
+	Instagram,
 	LinkedIn,
-	TwitterX,
-	TikTok,
-	YouTube,
 	Pinterest,
+	Reddit,
+	Snapchat,
+	Telegram,
+	Threads,
+	TikTok,
+	TwitterX,
+	WhatsApp,
+	YouTube,
 } from "@/components/icons/platform-icons";
 
 export type Platform =
@@ -26,7 +33,10 @@ export type Platform =
 
 // Platform color configurations
 const platformColors: Record<Platform, { bg: string; color: string }> = {
-	instagram: { bg: "bg-gradient-to-br from-purple-500 to-pink-500", color: "#E1306C" },
+	instagram: {
+		bg: "bg-gradient-to-br from-purple-500 to-pink-500",
+		color: "#E1306C",
+	},
 	tiktok: { bg: "bg-black dark:bg-white", color: "#000000" },
 	twitter: { bg: "bg-black dark:bg-white", color: "#000000" },
 	youtube: { bg: "bg-red-600", color: "#FF0000" },
@@ -43,7 +53,10 @@ const platformColors: Record<Platform, { bg: string; color: string }> = {
 };
 
 // Icon components mapping
-const iconComponents: Record<Platform, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+const iconComponents: Record<
+	Platform,
+	React.ComponentType<React.SVGProps<SVGSVGElement>>
+> = {
 	instagram: Instagram,
 	tiktok: TikTok,
 	twitter: TwitterX,
@@ -51,14 +64,13 @@ const iconComponents: Record<Platform, React.ComponentType<React.SVGProps<SVGSVG
 	facebook: Facebook,
 	linkedin: LinkedIn,
 	pinterest: Pinterest,
-	// Fallbacks for platforms not yet implemented
-	threads: Instagram,
-	whatsapp: Facebook,
-	reddit: Facebook,
-	bluesky: Facebook,
-	google: Facebook,
-	telegram: Facebook,
-	snapchat: Facebook,
+	threads: Threads,
+	whatsapp: WhatsApp,
+	reddit: Reddit,
+	bluesky: Bluesky,
+	google: Google,
+	telegram: Telegram,
+	snapchat: Snapchat,
 };
 
 interface PlatformIconProps {
@@ -75,13 +87,7 @@ export function PlatformIcon({
 	const platformKey = platform as Platform;
 	const IconComponent = iconComponents[platformKey] || Instagram;
 
-	return (
-		<IconComponent
-			className={className}
-			height={size}
-			width={size}
-		/>
-	);
+	return <IconComponent className={className} height={size} width={size} />;
 }
 
 export const allPlatforms: Platform[] = [

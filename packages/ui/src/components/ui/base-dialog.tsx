@@ -17,7 +17,7 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "@better-stack-2/ui/components/ui/dialog";
+} from "@better-stack-2/ui/components/dialog";
 import { cn } from "@better-stack-2/ui/lib/utils";
 
 export type DialogSize = "sm" | "md" | "lg" | "xl";

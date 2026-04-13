@@ -214,7 +214,6 @@ export function CreateContentDialog({
 									>
 										<Checkbox
 											checked={isSelected}
-											onChange={() => handleTogglePlatform(platform.value)}
 											className="pointer-events-none"
 										/>
 										<PlatformIcon platform={platform.value} size={16} />

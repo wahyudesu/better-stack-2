@@ -11,7 +11,7 @@ import {
 	DropdownMenuRadioGroup,
 	DropdownMenuRadioItem,
 	DropdownMenuTrigger,
-} from "@better-stack-2/ui/components/ui/dropdown-menu";
+} from "@better-stack-2/ui/components/dropdown-menu";
 import { cn } from "@better-stack-2/ui/lib/utils";
 
 // ============================================

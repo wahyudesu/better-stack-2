@@ -7,8 +7,8 @@ import { AudienceCard } from "@/components/dashboard/audience-card";
 import { DemographicsCard } from "@/components/dashboard/demographics-card";
 import { FilterBar } from "@/components/dashboard/filter-bar";
 import {
-	type ChartDataPoint,
 	AreaChartCard,
+	type ChartDataPoint,
 } from "@/components/dashboard/line-chart-card";
 import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
 import { SentimentCard } from "@/components/dashboard/sentiment-card";

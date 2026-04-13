@@ -1,5 +1,5 @@
 import { Skeleton } from "@better-stack-2/ui/components/skeleton";
-import { Card } from "@better-stack-2/ui/components/ui/card";
+import { Card } from "@better-stack-2/ui/components/card";
 
 export function InboxSkeleton() {
 	return (

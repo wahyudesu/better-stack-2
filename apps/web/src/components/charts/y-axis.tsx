@@ -52,7 +52,7 @@ function YAxisLabel({
 			}}
 		>
 			<motion.span
-				animate={{ opacity }}
+				animate={{ opacity: opacity }}
 				className={cn(
 					"whitespace-nowrap text-chart-label text-xs",
 					isRight ? "text-right" : "text-left",

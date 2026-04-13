@@ -27,8 +27,8 @@ import type {
 } from "recharts/types/component/DefaultTooltipContent"
 import type { ContentType as TooltipContentType } from "recharts/types/component/Tooltip"
 import { twJoin, twMerge } from "tailwind-merge"
-import { useIsMobile } from "@better-stack-2/hooks/use-mobile"
-import { cx } from "@better-stack-2/lib/primitive"
+import { useIsMobile } from "@better-stack-2/ui/hooks/use-mobile"
+import { cx } from "@better-stack-2/ui/lib/primitive"
 
 // #region Chart Types
 type ChartType = "default" | "stacked" | "percent"

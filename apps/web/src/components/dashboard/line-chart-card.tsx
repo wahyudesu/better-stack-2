@@ -162,29 +162,25 @@ export function AreaChartCard({
 										onClick={(e) => handleStatClick(stat.metricKey, e)}
 										className={cn(
 											"flex flex-col items-start text-left",
-											"flex-shrink-0 w-36 sm:flex-1 sm:w-auto",
-											"p-3 sm:px-6 sm:py-3",
+											"shrink-0 w-36 sm:flex-1 sm:w-auto",
+											"p-3 sm:px-6 sm:py-4",
 											"space-y-1.5 sm:space-y-2",
 											"transition-all duration-200",
-											"hover:bg-muted/50",
+											"border-b bg-muted/50",
 											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 											"cursor-pointer group/stat",
-											isActive && "bg-muted/30 sm:bg-transparent",
+											isActive && "bg-muted/30 sm:bg-transparent border-b-0",
 										)}
 									>
 										<span
 											className={cn(
 												"text-xs font-medium transition-colors",
-												isActive
-													? "text-foreground"
-													: "text-muted-foreground",
+												isActive ? "text-foreground" : "text-muted-foreground",
 											)}
 										>
 											{stat.label}
 										</span>
-										<span
-											className="text-lg sm:text-2xl font-bold text-foreground tabular-nums leading-tight"
-										>
+										<span className="text-lg sm:text-2xl font-bold text-foreground tabular-nums leading-tight">
 											{stat.value}
 										</span>
 										<Badge
@@ -201,7 +197,7 @@ export function AreaChartCard({
 							})}
 						</div>
 						{/* Fade indicator for mobile scroll */}
-						<div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background via-background/80 to-transparent sm:hidden pointer-events-none" />
+						<div className="absolute right-0 top-0 bottom-0 w-12 bg-linear-to-l from-background via-background/80 to-transparent sm:hidden pointer-events-none" />
 					</div>
 				)}
 
@@ -237,11 +233,7 @@ export function AreaChartCard({
 						/>
 					)}
 					<XAxis numTicks={6} />
-					<YAxis
-						numTicks={5}
-						position="left"
-						formatValue={formatMetricValue}
-					/>
+					<YAxis numTicks={5} position="left" formatValue={formatMetricValue} />
 					<ChartMarkers items={markers} />
 					<ChartTooltip
 						rows={(point) =>

@@ -1,17 +1,18 @@
 # better-stack-2
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Hono, and more.
+This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript monorepo stack.
 
 ## Features
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Hono** - Lightweight, performant server framework
-- **Node.js** - Runtime environment
-- **PWA** - Progressive Web App support
-- **Tauri** - Build native desktop applications
+- **TypeScript** - Type safety across web, landing, and shared packages
+- **Next.js 16** - App Router frontend (`apps/web`) + marketing site (`apps/landing`)
+- **Convex** - Real-time backend with type-safe queries and mutations
+- **Clerk** - Authentication and user management
+- **Tailwind CSS v4** - Utility-first CSS with oklch color system
+- **Shared UI package** - `@base-ui/react` primitives in `packages/ui`
+- **@visx + Recharts** - Custom and standard chart visualizations
+- **Tauri** - Native desktop app packaging
+- **Cloudflare Workers** - Edge deployment via OpenNext
 
 ## Getting Started
 
@@ -27,62 +28,60 @@ Then, run the development server:
 pnpm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the web application.
 
 ## UI Customization
 
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
+React web apps in this stack share UI primitives through `packages/ui`.
 
 - Change design tokens and global styles in `packages/ui/src/styles/globals.css`
 - Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
 
-### Add more shared components
+### Add app-specific components
 
-Run this from the project root to add more primitives to the shared UI package:
+Run shadcn CLI from the app directory to add components locally:
 
 ```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
+cd apps/web
+npx shadcn@latest add button card dialog
 ```
 
-Import shared components like this:
+## Deployment
 
-```tsx
-import { Button } from "@better-stack-2/ui/components/button";
+**Web app** (Cloudflare Workers via OpenNext):
+```bash
+cd apps/web && pnpm run build:cf && pnpm run deploy:cf
 ```
 
-### Add app-specific blocks
+**Landing page** (Cloudflare Pages via OpenNext):
+```bash
+cd apps/landing && pnpm run deploy
+```
 
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
-
-## Deployment (Cloudflare via Alchemy)
-
-- Dev: cd apps/web && pnpm run alchemy dev
-- Deploy: cd apps/web && pnpm run deploy
-- Destroy: cd apps/web && pnpm run destroy
-
-For more details, see the guide on [Deploying to Cloudflare with Alchemy](https://www.better-t-stack.dev/docs/guides/cloudflare-alchemy).
+**Desktop app**:
+```bash
+cd apps/web && pnpm run desktop:build
+```
 
 ## Project Structure
 
 ```
 better-stack-2/
 ├── apps/
-│   ├── web/         # Frontend application (Next.js)
-│   └── server/      # Backend API (Hono)
+│   ├── web/         # Main dashboard app (Next.js 16, App Router)
+│   └── landing/    # Marketing site (Next.js 16)
 ├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
+│   └── ui/          # Shared @base-ui/react components and Tailwind styles
+└── convex/          # Convex backend schema and functions
 ```
 
 ## Available Scripts
 
-- `pnpm run dev`: Start all applications in development mode
-- `pnpm run build`: Build all applications
-- `pnpm run dev:web`: Start only the web application
-- `pnpm run dev:server`: Start only the server
-- `pnpm run check-types`: Check TypeScript types across all apps
-- `cd apps/web && pnpm run generate-pwa-assets`: Generate PWA assets
-- `cd apps/web && pnpm run desktop:dev`: Start Tauri desktop app in development
-- `cd apps/web && pnpm run desktop:build`: Build Tauri desktop app
-- Note: Desktop builds package static web assets. Next.js needs a static/export build configuration before desktop packaging will work.
+- `pnpm run dev` - Start all apps (web on :3001, landing on :3002)
+- `pnpm run dev:web` - Start only the web app
+- `pnpm run dev:landing` - Start only the landing page
+- `pnpm run build` - Build all apps
+- `pnpm run build:cf` - Build web app for Cloudflare Workers
+- `pnpm run check` - Run Biome linting and type checking
+- `cd apps/web && pnpm run desktop:dev` - Start Tauri desktop app in development
+- `cd apps/web && pnpm run desktop:build` - Build Tauri desktop app

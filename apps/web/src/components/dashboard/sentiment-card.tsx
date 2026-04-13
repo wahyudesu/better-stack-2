@@ -2,10 +2,14 @@
 
 import { ChevronRight, Info } from "lucide-react";
 import Link from "next/link";
-import { Ring } from "@/components/charts/ring";
-import { RingCenter } from "@/components/charts/ring-center";
-import { RingChart } from "@/components/charts/ring-chart";
-import { Button } from "@/components/ui/button";
+import {
+	Label,
+	PolarGrid,
+	PolarRadiusAxis,
+	RadialBar,
+	RadialBarChart,
+} from "recharts";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	Card,
 	CardAction,
@@ -13,18 +17,23 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { SimpleTooltip } from "@/components/ui/tooltip";
-import { statusBadgeStyles } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
-const ringData = [
-	{
+const sentimentScore = 98;
+
+const chartData = [{ sentiment: sentimentScore, fill: "var(--color-safari)" }];
+
+const chartConfig = {
+	sentiment: {
 		label: "Sentiment",
-		value: 78,
-		maxValue: 100,
-		color: statusBadgeStyles.published.text,
 	},
-];
+	safari: {
+		label: "Safari",
+		color: "hsl(var(--chart-2))",
+	},
+} satisfies ChartConfig;
 
 // Get health status based on sentiment score
 function getHealthStatus(score: number): {
@@ -35,7 +44,7 @@ function getHealthStatus(score: number): {
 	if (score >= 80) {
 		return {
 			label: "Excellent",
-			color: "text-green-600 dark:text-green-500",
+			color: "",
 			description:
 				"Great work. Most of your visitors had an excellent experience.",
 		};
@@ -61,76 +70,87 @@ function getHealthStatus(score: number): {
 	};
 }
 
-// Ring Chart with center value
-function SentimentRingChart({ score }: { score: number }) {
-	return (
-		<RingChart
-			data={ringData}
-			size={70}
-			strokeWidth={8}
-			ringGap={8}
-			baseInnerRadius={30}
-		>
-			<Ring index={0} showGlow={false} />
-			<RingCenter
-				defaultLabel=""
-				suffix=""
-				className="text-xs sm:text-sm tabular-nums"
-				valueClassName="font-semibold text-foreground"
-				labelClassName="hidden"
-			/>
-		</RingChart>
-	);
-}
-
 export function SentimentCard() {
-	const sentimentScore = ringData[0].value; // 78
 	const healthStatus = getHealthStatus(sentimentScore);
 
 	return (
-		<Card className="h-full flex flex-col gap-0 pb-0 touch-[action:manipulation]">
-			<CardHeader className="pb-3 sm:pb-4">
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
-					<div className="flex items-center gap-2 min-w-0">
-						<CardTitle className="text-base sm:text-lg text-wrap:balance">
-							Sentiment Score
-						</CardTitle>
-						<SimpleTooltip content="Analisis sentimen berdasarkan engagement dan komentar dari postingan">
-							<Info
-								className="size-3.5 sm:size-4 text-muted-foreground cursor-help shrink-0"
-								aria-label="Sentiment info"
-							/>
-						</SimpleTooltip>
-					</div>
+		<Card className="h-36 flex flex-col dark:bg-card/50 py-2 gap-0">
+			<CardHeader className="flex items-center justify-between gap-2 py-2 h-fit">
+				<CardTitle className="w-full h-full leading-none font-medium flex items-center gap-1">
+					Sentiment Score
+				</CardTitle>
+				<CardAction>
 					<Link
 						href="/analytics"
-						className="flex items-center gap-1.5 self-start sm:self-auto shrink-0"
+						className={buttonVariants({ variant: "secondary", size: "xs" })}
 					>
-						<Button variant="secondary" size="xs">
-							<span className="truncate">Sentiment Analysis</span>
-							<ChevronRight className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
-						</Button>
+						Sentiment Analytics <ChevronRight className="size-3.5 sm:size-4" />
 					</Link>
-				</div>
+				</CardAction>
 			</CardHeader>
-			<CardContent className="flex-1 flex items-center px-4 sm:px-6">
-				<div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 w-full">
-					{/* Ring chart */}
+
+			<CardContent className="flex-1 flex items-start pt-2 pb-0 px-4">
+				<div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-4 w-full">
+					{/* Radial chart */}
 					<div className="shrink-0">
-						<SentimentRingChart score={sentimentScore} />
+						<ChartContainer config={chartConfig} className="size-[68px]">
+							<RadialBarChart
+								data={chartData}
+								startAngle={90}
+								endAngle={443}
+								innerRadius={25}
+								outerRadius={35}
+							>
+								<PolarGrid
+									gridType="circle"
+									radialLines={false}
+									stroke="none"
+									polarRadius={[34, 26]}
+								/>
+								<RadialBar
+									dataKey="sentiment"
+									style={{ fill: "#22c55e" }}
+									cornerRadius={4}
+								/>
+								<PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+									<Label
+										content={({ viewBox }) => {
+											if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+												return (
+													<text
+														x={viewBox.cx}
+														y={viewBox.cy}
+														textAnchor="middle"
+														dominantBaseline="middle"
+													>
+														<tspan
+															x={viewBox.cx}
+															y={viewBox.cy}
+															className="fill-foreground text-lg"
+														>
+															{chartData[0].sentiment}
+														</tspan>
+													</text>
+												);
+											}
+										}}
+									/>
+								</PolarRadiusAxis>
+							</RadialBarChart>
+						</ChartContainer>
 					</div>
 
 					{/* Text */}
-					<div className="flex flex-col flex-1 min-w-0 gap-1 sm:gap-1.5 py-1">
+					<div className="flex flex-col flex-1 min-w-0 gap-0.5 sm:gap-1">
 						<p
 							className={cn(
-								"text-lg sm:text-xl lg:text-2xl font-bold",
+								"text-base sm:text-lg leading-none",
 								healthStatus.color,
 							)}
 						>
 							{healthStatus.label}
 						</p>
-						<p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+						<p className="text-m text-muted-foreground line-clamp-2 leading-snug">
 							{healthStatus.description}
 						</p>
 					</div>

@@ -99,4 +99,4 @@ export const THEME_OPTIONS = [
  * Used in AudienceCard, DemographicsCard, and similar components.
  */
 export const TAB_TRIGGER_CLASSNAME =
-	"text-muted-foreground hover:text-foreground h-full px-3 py-2 text-sm cursor-pointer transition-colors";
+	"text-muted-foreground hover:text-foreground h-8 px-3 text-sm cursor-pointer transition-colors";

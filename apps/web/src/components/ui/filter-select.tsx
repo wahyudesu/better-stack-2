@@ -61,7 +61,6 @@ export function FilterSelect<T extends string = string>({
 			onValueChange={(v) => onChange((v ?? options[0]?.value ?? "") as T)}
 		>
 			<SelectTrigger
-				variant={variant}
 				size={size}
 				className={cn(
 					// Override rounded-4xl to rounded-lg like FilterDropdown

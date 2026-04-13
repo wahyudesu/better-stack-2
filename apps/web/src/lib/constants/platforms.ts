@@ -34,13 +34,48 @@ export type SocialMediaPlatform =
  * Uses react-social-icons network names.
  */
 export const PLATFORMS = [
-	{ name: "Instagram", network: "instagram", color: "#E1306C", url: "https://instagram.com" },
-	{ name: "Facebook", network: "facebook", color: "#1877F2", url: "https://facebook.com" },
-	{ name: "Twitter/X", network: "x", color: "#000000", url: "https://x.com" },
-	{ name: "TikTok", network: "tiktok", color: "#000000", url: "https://tiktok.com" },
-	{ name: "LinkedIn", network: "linkedin", color: "#0077B5", url: "https://linkedin.com" },
-	{ name: "YouTube", network: "youtube", color: "#FF0000", url: "https://youtube.com" },
-	{ name: "Pinterest", network: "pinterest", color: "#E60023", url: "https://pinterest.com" },
+	{
+		name: "Instagram",
+		network: "instagram",
+		color: "#E1306C",
+		url: "https://instagram.com",
+	},
+	{
+		name: "Facebook",
+		network: "facebook",
+		color: "#1877F2",
+		url: "https://facebook.com",
+	},
+	{
+		name: "Twitter/X",
+		network: "twitter",
+		color: "#000000",
+		url: "https://x.com",
+	},
+	{
+		name: "TikTok",
+		network: "tiktok",
+		color: "#000000",
+		url: "https://tiktok.com",
+	},
+	{
+		name: "LinkedIn",
+		network: "linkedin",
+		color: "#0077B5",
+		url: "https://linkedin.com",
+	},
+	{
+		name: "YouTube",
+		network: "youtube",
+		color: "#FF0000",
+		url: "https://youtube.com",
+	},
+	{
+		name: "Pinterest",
+		network: "pinterest",
+		color: "#E60023",
+		url: "https://pinterest.com",
+	},
 ] as const;
 
 /**

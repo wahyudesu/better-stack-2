@@ -55,7 +55,7 @@ function XAxisLabel({
 			}}
 		>
 			<motion.span
-				animate={{ opacity }}
+				animate={{ opacity: opacity }}
 				className={cn("whitespace-nowrap text-chart-label text-xs")}
 				initial={{ opacity: 1 }}
 				transition={{ duration: 0.4, ease: "easeInOut" }}

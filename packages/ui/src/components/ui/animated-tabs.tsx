@@ -1,7 +1,7 @@
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
-import { Button } from "@better-stack-2/ui/components/ui/button";
+import { Button } from "@better-stack-2/ui/components/button";
 import { cn } from "@better-stack-2/ui/lib/utils";
 
 export interface Tab {

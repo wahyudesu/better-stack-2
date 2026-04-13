@@ -6,6 +6,13 @@ import {
 	TikTok,
 	YouTube,
 	Pinterest,
+	WhatsApp,
+	Reddit,
+	Bluesky,
+	Telegram,
+	Snapchat,
+	Google,
+	Threads,
 } from "@better-stack-2/ui/components/icons/platform-icons";
 
 export type Platform =
@@ -51,14 +58,13 @@ const iconComponents: Record<Platform, React.ComponentType<React.SVGProps<SVGSVG
 	facebook: Facebook,
 	linkedin: LinkedIn,
 	pinterest: Pinterest,
-	// Fallbacks for platforms not yet implemented
-	threads: Instagram,
-	whatsapp: Facebook,
-	reddit: Facebook,
-	bluesky: Facebook,
-	google: Facebook,
-	telegram: Facebook,
-	snapchat: Facebook,
+	threads: Threads,
+	whatsapp: WhatsApp,
+	reddit: Reddit,
+	bluesky: Bluesky,
+	google: Google,
+	telegram: Telegram,
+	snapchat: Snapchat,
 };
 
 interface PlatformIconProps {

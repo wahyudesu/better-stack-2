@@ -171,8 +171,12 @@ function generateDetailedData(timeRange: string, platform: string) {
 
 	const markers = Array.from({ length: Math.floor(days / 7) }, (_, i) => ({
 		date: new Date(Date.now() - (days - (i + 1) * 7) * 24 * 60 * 60 * 1000),
-		network: ["instagram", "facebook", "x", "tiktok", "linkedin", "youtube"][i % 6],
-		color: ["#E1306C", "#1877F2", "#000000", "#000000", "#0077B5", "#FF0000"][i % 6],
+		network: ["instagram", "facebook", "x", "tiktok", "linkedin", "youtube"][
+			i % 6
+		],
+		color: ["#E1306C", "#1877F2", "#000000", "#000000", "#0077B5", "#FF0000"][
+			i % 6
+		],
 		title: [
 			"Product Launch",
 			"Campaign Start",

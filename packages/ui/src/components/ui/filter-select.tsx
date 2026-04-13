@@ -9,7 +9,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@better-stack-2/ui/components/ui/select";
+} from "@better-stack-2/ui/components/select";
 import { cn } from "@better-stack-2/ui/lib/utils";
 
 // ============================================

@@ -29,21 +29,21 @@ import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
-	PlatformFilterDropdown,
-	type PlatformFilterValue,
-} from "@/components/ui/platform-filter";
+	DepthActionMenu,
+	DepthButtonMenu,
+	type DepthMenuOption,
+} from "@/components/ui/depth-button-menu";
 import {
 	DepthButton,
 	DepthButtonGroup,
 	GroupedDepthButton,
 } from "@/components/ui/depth-buttons";
+import { Input } from "@/components/ui/input";
 import {
-	DepthButtonMenu,
-	DepthActionMenu,
-	type DepthMenuOption,
-} from "@/components/ui/depth-button-menu";
+	PlatformFilterDropdown,
+	type PlatformFilterValue,
+} from "@/components/ui/platform-filter";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { InboxAutomation } from "./InboxAutomation";
@@ -456,17 +456,22 @@ export function InboxContent() {
 				<>
 					{/* Filters */}
 					<div className="flex items-center gap-2 mb-4">
-						<PlatformFilterDropdown
-							value={platform}
-							onChange={setPlatform}
-						/>
+						<PlatformFilterDropdown value={platform} onChange={setPlatform} />
 
 						<DepthButtonMenu
 							value={typeFilter}
 							onChange={(v) => setTypeFilter(v as TypeFilter)}
 							options={[
-								{ value: "message", label: "Messages", icon: <MessageSquare className="h-4 w-4" /> },
-								{ value: "comment", label: "Comments", icon: <MessageSquare className="h-4 w-4" /> },
+								{
+									value: "message",
+									label: "Messages",
+									icon: <MessageSquare className="h-4 w-4" />,
+								},
+								{
+									value: "comment",
+									label: "Comments",
+									icon: <MessageSquare className="h-4 w-4" />,
+								},
 							]}
 							placeholder="Type"
 							size="default"
@@ -501,7 +506,9 @@ export function InboxContent() {
 										<GroupedDepthButton
 											position="last"
 											size="sm"
-											variant={messageFilter === "favorites" ? "blue" : "outline"}
+											variant={
+												messageFilter === "favorites" ? "blue" : "outline"
+											}
 											onClick={() => setMessageFilter("favorites")}
 										>
 											Favorites
@@ -664,78 +671,84 @@ export function InboxContent() {
 															{selectedConversation.sender}
 														</h3>
 														{/* Customer Label - Only for messages */}
-															{/* Customer Label - Only for messages */}
-															{selectedConversation.type === "message" && (
-																<DepthButtonMenu
-																	value={
-																		selectedConversation.customerLabel &&
-																		selectedConversation.customerLabel !== "none"
-																			? selectedConversation.customerLabel
-																			: undefined
-																	}
-																	onChange={(label) =>
-																		setSelectedConversation({
-																			...selectedConversation,
-																			customerLabel: label as CustomerLabel,
-																		})
-																	}
-																	options={[
-																		{
-																			value: "vip",
-																			label: "VIP",
-																			icon: (
-																				<Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-																			),
-																			description: "Very important",
-																		},
-																		{
-																			value: "lead",
-																			label: "Lead",
-																			icon: <MessageSquare className="h-3 w-3 text-blue-600" />,
-																			description: "Potential customer",
-																		},
-																		{
-																			value: "customer",
-																			label: "Customer",
-																			icon: <Check className="h-3 w-3 text-green-600" />,
-																			description: "Active customer",
-																		},
-																		{
-																			value: "partner",
-																			label: "Partner",
-																			icon: <Tag className="h-3 w-3 text-purple-600" />,
-																			description: "Business partner",
-																		},
-																	]}
-																	placeholder="Add Label"
-																	size="sm"
-																	panelClassName="w-44"
-																/>
-															)}
+														{/* Customer Label - Only for messages */}
+														{selectedConversation.type === "message" && (
+															<DepthButtonMenu
+																value={
+																	selectedConversation.customerLabel &&
+																	selectedConversation.customerLabel !== "none"
+																		? selectedConversation.customerLabel
+																		: undefined
+																}
+																onChange={(label) =>
+																	setSelectedConversation({
+																		...selectedConversation,
+																		customerLabel: label as CustomerLabel,
+																	})
+																}
+																options={[
+																	{
+																		value: "vip",
+																		label: "VIP",
+																		icon: (
+																			<Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+																		),
+																		description: "Very important",
+																	},
+																	{
+																		value: "lead",
+																		label: "Lead",
+																		icon: (
+																			<MessageSquare className="h-3 w-3 text-blue-600" />
+																		),
+																		description: "Potential customer",
+																	},
+																	{
+																		value: "customer",
+																		label: "Customer",
+																		icon: (
+																			<Check className="h-3 w-3 text-green-600" />
+																		),
+																		description: "Active customer",
+																	},
+																	{
+																		value: "partner",
+																		label: "Partner",
+																		icon: (
+																			<Tag className="h-3 w-3 text-purple-600" />
+																		),
+																		description: "Business partner",
+																	},
+																]}
+																placeholder="Add Label"
+																size="sm"
+																panelClassName="w-44"
+															/>
+														)}
 														<div className="flex items-center gap-1.5">
-														{(() => {
-															const config =
-																platformConfig[selectedConversation.platform];
-															const Icon = config.icon;
-															return (
-																<>
-																	<Icon
-																		className={cn("h-3 w-3", config.color)}
-																	/>
-																	<span className="text-xs text-muted-foreground">
-																		{config.name}
-																	</span>
-																</>
-															);
-														})()}
+															{(() => {
+																const config =
+																	platformConfig[selectedConversation.platform];
+																const Icon = config.icon;
+																return (
+																	<>
+																		<Icon
+																			className={cn("h-3 w-3", config.color)}
+																		/>
+																		<span className="text-xs text-muted-foreground">
+																			{config.name}
+																		</span>
+																	</>
+																);
+															})()}
 														</div>
 													</div>
+												</div>
+												<Button variant="ghost" size="icon">
+													<MoreVertical className="h-5 w-5" />
+												</Button>
 											</div>
-											<Button variant="ghost" size="icon">
-												<MoreVertical className="h-5 w-5" />
-											</Button>
 										</div>
-									</div>
 
 										{selectedConversation.mediaPost && (
 											<div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">

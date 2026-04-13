@@ -10,9 +10,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@better-stack-2/components/ui/card";
-import { ChartConfig, ChartContainer } from "@better-stack-2/components/ui/chart";
-import { Badge } from "@better-stack-2/components/ui/badge";
+} from "@better-stack-2/ui/components/card";
+import { ChartConfig, ChartContainer } from "@better-stack-2/ui/components/chart";
+import { Badge } from "@better-stack-2/ui/components/badge";
 import { cn } from "@better-stack-2/ui/lib/utils";
 import { JetBrains_Mono } from "next/font/google";
 import { useMotionValueEvent, useSpring } from "framer-motion";

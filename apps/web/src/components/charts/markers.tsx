@@ -4,6 +4,24 @@ import { useState } from "react";
 import { SocialIcon } from "react-social-icons";
 import { useChart } from "./chart-context";
 
+// Network name mapping: our platform name -> react-social-icons network name
+const networkMap: Record<string, string> = {
+	instagram: "instagram",
+	facebook: "facebook",
+	twitter: "x",
+	tiktok: "tiktok",
+	youtube: "youtube",
+	linkedin: "linkedin",
+	pinterest: "pinterest",
+	whatsapp: "whatsapp",
+	reddit: "reddit",
+	bluesky: "bluesky",
+	threads: "threads",
+	telegram: "telegram",
+	snapchat: "snapchat",
+	google: "google",
+};
+
 export interface ChartMarkerItem {
 	date: Date;
 	network: string;
@@ -69,6 +87,7 @@ export function ChartMarkers({
 				const isHovered = hoveredIndex === marker.originalIndex;
 				const hasAction = marker.href || marker.onClick;
 				const yOffset = -innerHeight - size - 8;
+				const socialNetwork = networkMap[marker.network] || marker.network;
 
 				return (
 					<g
@@ -82,7 +101,7 @@ export function ChartMarkers({
 									point: data[marker.closestIndex],
 									x,
 									yPositions: {},
-									});
+								});
 							}
 						}}
 						onMouseLeave={() => {
@@ -118,12 +137,7 @@ export function ChartMarkers({
 						/>
 
 						{/* Social icon via foreignObject */}
-						<foreignObject
-							x={-size / 2}
-							y={yOffset}
-							width={size}
-							height={size}
-						>
+						<foreignObject x={-size / 2} y={yOffset} width={size} height={size}>
 							<div
 								className="flex items-center justify-center w-full h-full"
 								style={{
@@ -132,7 +146,7 @@ export function ChartMarkers({
 								}}
 							>
 								<SocialIcon
-									network={marker.network}
+									network={socialNetwork}
 									bgColor={marker.color}
 									style={{ width: size, height: size }}
 								/>

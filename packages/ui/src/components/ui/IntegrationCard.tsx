@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@better-stack-2/ui/components/ui/button";
+import { Button } from "@better-stack-2/ui/components/button";
 import { type Platform, PlatformIcon } from "@better-stack-2/ui/components/ui/PlatformIcon";
 import { cn } from "@better-stack-2/ui/lib/utils";
 

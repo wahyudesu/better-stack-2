@@ -15,8 +15,8 @@ export {
 export type { FilterBarProps } from "./filter-bar";
 export { FilterBar } from "./filter-bar";
 export type {
-	ChartDataPoint,
 	AreaChartCardProps,
+	ChartDataPoint,
 	StatItem,
 } from "./line-chart-card";
 export { AreaChartCard as LineChartCard } from "./line-chart-card";

@@ -92,7 +92,13 @@ const menuItems: Array<{
 		key: "3",
 	},
 	{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "⌃4", key: "4" },
-	{ href: "/tools", icon: SquareStack, label: "Tools", shortcut: "⌃5", key: "5" },
+	{
+		href: "/tools",
+		icon: SquareStack,
+		label: "Tools",
+		shortcut: "⌃5",
+		key: "5",
+	},
 	{
 		href: "/settings",
 		icon: Settings,

@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@import "@better-stack-2/ui/globals.css";
+
 /**
  * Custom animations and keyframes.
  * Extends @better-stack-2/ui/globals.css

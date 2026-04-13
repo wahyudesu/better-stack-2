@@ -1,9 +1,7 @@
 "use client";
 
 import {
-	CalendarDays,
 	Calendar as CalendarIcon,
-	CalendarRange,
 	ChevronLeft,
 	ChevronRight,
 	KanbanSquare,
@@ -13,6 +11,7 @@ import {
 } from "lucide-react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Button } from "@/components/ui/button";
+import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 
@@ -55,21 +54,8 @@ export function PostControls({
 		},
 		{
 			id: "cards",
-			label: "Posts",
+			label: "List",
 			icon: <Newspaper className="h-3.5 w-3.5" />,
-		},
-	];
-
-	const calendarViewTabs = [
-		{
-			id: "month",
-			label: "Month",
-			icon: <CalendarDays className="h-3.5 w-3.5" />,
-		},
-		{
-			id: "week",
-			label: "Week",
-			icon: <CalendarRange className="h-3.5 w-3.5" />,
 		},
 	];
 
@@ -84,28 +70,52 @@ export function PostControls({
 	];
 
 	return (
-		<div className="flex items-center justify-between gap-4 flex-wrap">
-			<div className="flex items-center gap-3">
+		<div className="flex items-center gap-4 flex-wrap">
+			{/* Left: Calendar Navigation */}
+			{viewMode === "calendar" ? (
+				<div className="flex items-center gap-2">
+					<div className="flex items-center gap-1.5">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-8 w-8"
+							onClick={onPrevMonth}
+						>
+							<ChevronLeft className="h-4 w-4" />
+						</Button>
+						<span className="min-w-[140px] text-center text-sm font-semibold">
+							{monthName}
+						</span>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-8 w-8"
+							onClick={onNextMonth}
+						>
+							<ChevronRight className="h-4 w-4" />
+						</Button>
+					</div>
+
+					{/* Month/Week Dropdown for Calendar */}
+					{onCalendarViewChange && (
+						<DepthButtonMenu
+							value={calendarView}
+							onChange={(val) => onCalendarViewChange(val as CalendarView)}
+							options={[
+								{ value: "month", label: "Month" },
+								{ value: "week", label: "Week" },
+							]}
+							placeholder="Select..."
+						/>
+					)}
+				</div>
+			) : (
+				<div />
+			)}
+
+			{/* Right: View Toggle & Filters - always pushed to right */}
+			<div className="flex items-center gap-3 ml-auto">
 				{/* View Mode Toggle */}
-				<AnimatedTabs
-					tabs={viewModeTabs}
-					activeTab={viewMode}
-					onChange={(val) => onViewModeChange(val as ViewMode)}
-					variant="segment"
-					iconOnly
-				/>
-
-				{/* Month/Week Toggle for Calendar */}
-				{viewMode === "calendar" && onCalendarViewChange && (
-					<AnimatedTabs
-						tabs={calendarViewTabs}
-						activeTab={calendarView}
-						onChange={(val) => onCalendarViewChange(val as CalendarView)}
-						variant="segment"
-						iconOnly
-					/>
-				)}
-
 				{/* Grid/Kanban/List Toggle for Cards View */}
 				{viewMode === "cards" && onCardsViewChange && (
 					<AnimatedTabs
@@ -116,7 +126,14 @@ export function PostControls({
 						iconOnly
 					/>
 				)}
-
+				<div className="flex items-center gap-2">
+					<AnimatedTabs
+						tabs={viewModeTabs}
+						activeTab={viewMode}
+						onChange={(val) => onViewModeChange(val as ViewMode)}
+						variant="segment"
+					/>
+				</div>
 				{/* Platform Filter */}
 				{onPlatformChange && (
 					<PlatformFilterDropdown
@@ -125,30 +142,6 @@ export function PostControls({
 					/>
 				)}
 			</div>
-
-			{viewMode === "calendar" && (
-				<div className="flex items-center gap-1.5">
-					<Button
-						variant="ghost"
-						size="icon"
-						className="h-8 w-8"
-						onClick={onPrevMonth}
-					>
-						<ChevronLeft className="h-4 w-4" />
-					</Button>
-					<span className="min-w-[140px] text-center text-sm font-semibold">
-						{monthName}
-					</span>
-					<Button
-						variant="ghost"
-						size="icon"
-						className="h-8 w-8"
-						onClick={onNextMonth}
-					>
-						<ChevronRight className="h-4 w-4" />
-					</Button>
-				</div>
-			)}
 		</div>
 	);
 }
