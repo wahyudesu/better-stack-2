@@ -1,6 +1,5 @@
 "use client";
 
-import { Calendar as CalendarIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	KanbanView,
@@ -9,15 +8,7 @@ import {
 	PostControls,
 } from "@/components/features/calendar";
 import { CalendarGrid } from "@/components/features/calendar/CalendarGrid";
-import { Badge } from "@/components/ui/badge";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { type Platform, PlatformIcon } from "@/components/ui/PlatformIcon";
+import type { Platform } from "@/components/ui/PlatformIcon";
 import {
 	type CalendarEvent,
 	type Platform as CalendarPlatform,
@@ -25,7 +16,6 @@ import {
 } from "@/data/mock";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import { cn } from "@/lib/utils";
 
 type ViewMode = "calendar" | "cards";
 type CalendarView = "month" | "week";
@@ -58,15 +48,8 @@ export default function PostsPage() {
 		setCurrentDate(new Date());
 	}, []);
 
-	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-		null,
-	);
 	const [events, setEvents] = useState(calendarEvents);
 	const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
-	const [selectedDateForCreate, setSelectedDateForCreate] = useState<
-		string | null
-	>(null);
-	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 	const [selectedPlatform, setSelectedPlatform] = useState<Platform | "all">(
 		"all" as const,
 	);
@@ -160,12 +143,12 @@ export default function PostsPage() {
 	);
 
 	const handleDateClick = useCallback((dateStr: string) => {
-		setSelectedDateForCreate(dateStr);
-		setIsCreateDialogOpen(true);
+		// Navigate to create page with date
+		window.location.href = `/posts/create?date=${dateStr}`;
 	}, []);
 
 	const handleEventClick = useCallback((event: CalendarEvent) => {
-		setSelectedEvent(event);
+		// TODO: open popover instead of dialog
 	}, []);
 
 	const today = currentDate;
@@ -248,7 +231,6 @@ export default function PostsPage() {
 				<PostCardsView
 					events={filteredEvents}
 					onEventClick={handleEventClick}
-					onCreateClick={() => setIsCreateDialogOpen(true)}
 				/>
 			)}
 
@@ -256,7 +238,6 @@ export default function PostsPage() {
 				<KanbanView
 					events={filteredEvents}
 					onEventClick={handleEventClick}
-					onCreateClick={() => setIsCreateDialogOpen(true)}
 					onEventsChange={setEvents}
 				/>
 			)}
@@ -264,94 +245,6 @@ export default function PostsPage() {
 			{viewMode === "cards" && cardsView === "list" && (
 				<ListView events={filteredEvents} onEventClick={handleEventClick} />
 			)}
-
-			{/* Event Detail Dialog */}
-			<Dialog
-				open={!!selectedEvent}
-				onOpenChange={() => setSelectedEvent(null)}
-			>
-				<DialogContent className="sm:max-w-md">
-					{selectedEvent && (
-						<>
-							<DialogHeader>
-								<div className="flex items-center gap-2">
-									<span className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/50">
-										<PlatformIcon
-											platform={selectedEvent.platform as Platform}
-											size={20}
-										/>
-									</span>
-									<div className="flex-1">
-										<DialogTitle className="text-base">
-											{selectedEvent.title}
-										</DialogTitle>
-										<p className="text-xs text-muted-foreground mt-0.5">
-											{selectedEvent.platform} • {selectedEvent.type}
-										</p>
-									</div>
-								</div>
-								<DialogDescription className="sr-only">
-									Event details
-								</DialogDescription>
-							</DialogHeader>
-							<div className="space-y-4">
-								<div className="flex items-center gap-2 flex-wrap">
-									<Badge
-										variant="secondary"
-										className={cn(
-											"text-xs capitalize",
-											selectedEvent.status === "published" &&
-												"bg-success/10 text-success",
-											selectedEvent.status === "scheduled" &&
-												"bg-primary/10 text-primary",
-											selectedEvent.status === "draft" &&
-												"bg-muted text-muted-foreground",
-										)}
-									>
-										{selectedEvent.status}
-									</Badge>
-								</div>
-								{selectedEvent.description && (
-									<p className="text-sm text-muted-foreground">
-										{selectedEvent.description}
-									</p>
-								)}
-								<div className="flex items-center gap-4 text-sm text-muted-foreground">
-									<span className="flex items-center gap-1.5">
-										<CalendarIcon className="h-4 w-4" />
-										{selectedEvent.date}
-									</span>
-									{selectedEvent.time && (
-										<span className="flex items-center gap-1.5">
-											<span className="h-1 w-1 rounded-full bg-border" />
-											{selectedEvent.time}
-										</span>
-									)}
-								</div>
-							</div>
-						</>
-					)}
-				</DialogContent>
-			</Dialog>
-
-			{/* Create Content Dialog */}
-			<Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-				<DialogContent className="sm:max-w-md">
-					<DialogHeader>
-						<DialogTitle>Schedule Content</DialogTitle>
-						<DialogDescription>
-							Create new content for{" "}
-							{selectedDateForCreate || "the selected date"}
-						</DialogDescription>
-					</DialogHeader>
-					<div className="py-4">
-						<p className="text-sm text-muted-foreground">
-							Create content dialog would appear here. This is a placeholder for
-							the content creation form.
-						</p>
-					</div>
-				</DialogContent>
-			</Dialog>
 		</div>
 	);
 }

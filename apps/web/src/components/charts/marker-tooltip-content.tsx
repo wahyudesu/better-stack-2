@@ -2,7 +2,8 @@
 
 import { ExternalLink } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { SocialIcon } from "react-social-icons";
+import { SocialIcon } from "react-social-icons/component";
+import "react-social-icons/bsky.app";
 import type { ChartMarkerItem } from "./markers";
 
 // Network name mapping: our platform name -> react-social-icons network name
@@ -16,7 +17,7 @@ const networkMap: Record<string, string> = {
 	pinterest: "pinterest",
 	whatsapp: "whatsapp",
 	reddit: "reddit",
-	bluesky: "bluesky",
+	bluesky: "bsky.app",
 	threads: "threads",
 	telegram: "telegram",
 	snapchat: "snapchat",
@@ -32,25 +33,38 @@ export function MarkerTooltipContent({ markers }: MarkerTooltipContentProps) {
 		return null;
 	}
 
+	// return (
+	// 	<AnimatePresence mode="sync">
+	// 		<motion.div
+	// 			initial={{ opacity: 0, y: 10 }}
+	// 			animate={{ opacity: 1, y: 0 }}
+	// 			exit={{ opacity: 0, y: 10 }}
+	// 			transition={{ duration: 0.2 }}
+	// 			className="mt-3 pt-3 border-t border-border/50"
+	// 		>
+	// 			<p className="text-xs font-medium text-muted-foreground mb-2 px-1">
+	// 				{markers.length > 1 ? `${markers.length} posts` : "Post"}
+	// 			</p>
+	// 			<div className="space-y-1.5">
+	// 				{markers.map((marker, index) => (
+	// 					<MarkerItem key={`${marker.title}-${index}`} marker={marker} />
+	// 				))}
+	// 			</div>
+	// 		</motion.div>
+	// 	</AnimatePresence>
+	// );
+
 	return (
-		<AnimatePresence mode="sync">
-			<motion.div
-				initial={{ opacity: 0, y: 10 }}
-				animate={{ opacity: 1, y: 0 }}
-				exit={{ opacity: 0, y: 10 }}
-				transition={{ duration: 0.2 }}
-				className="mt-3 pt-3 border-t border-border/50"
-			>
-				<p className="text-xs font-medium text-muted-foreground mb-2 px-1">
-					{markers.length > 1 ? `${markers.length} posts` : "Post"}
-				</p>
-				<div className="space-y-1.5">
-					{markers.map((marker, index) => (
-						<MarkerItem key={`${marker.title}-${index}`} marker={marker} />
-					))}
-				</div>
-			</motion.div>
-		</AnimatePresence>
+		<div className="mt-3 pt-3 border-t border-border/50">
+			<p className="text-xs font-medium text-muted-foreground mb-2 px-1">
+				{markers.length > 1 ? `${markers.length} posts` : "Post"}
+			</p>
+			<div className="space-y-1.5">
+				{markers.map((marker, index) => (
+					<MarkerItem key={`${marker.title}-${index}`} marker={marker} />
+				))}
+			</div>
+		</div>
 	);
 }
 
@@ -86,7 +100,8 @@ function MarkerItem({ marker }: MarkerItemProps) {
 						}
 					}
 				}}
-				className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer group border border-transparent hover:border-border/50"
+				className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer group border border-transparent"
+				// className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer group border border-transparent hover:border-border/50"
 			>
 				<SocialIcon
 					network={socialNetwork}
@@ -95,7 +110,7 @@ function MarkerItem({ marker }: MarkerItemProps) {
 				/>
 
 				<div className="flex-1 min-w-0">
-					<div className="flex items-center gap-1.5 text-sm font-medium group-hover:text-primary transition-colors">
+					<div className="flex items-center gap-1.5 text-sm font-medium">
 						<span className="truncate">{marker.title}</span>
 						<ExternalLink className="size-3.5 flex-shrink-0 opacity-50" />
 					</div>
@@ -115,7 +130,8 @@ function MarkerItem({ marker }: MarkerItemProps) {
 			<button
 				type="button"
 				onClick={marker.onClick}
-				className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer w-full border border-transparent hover:border-border/50"
+				className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer w-full border border-transparent"
+				// className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer w-full border border-transparent hover:border-border/50"
 			>
 				<SocialIcon
 					network={socialNetwork}

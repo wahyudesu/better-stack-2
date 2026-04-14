@@ -1,6 +1,5 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { useState } from "react";
 import { ContentCard } from "@/components/features/calendar/ContentCard";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +16,6 @@ import { cn } from "@/lib/utils";
 interface KanbanViewProps {
 	events: CalendarEvent[];
 	onEventClick: (event: CalendarEvent) => void;
-	onCreateClick: () => void;
 	onEventsChange?: (events: CalendarEvent[]) => void;
 }
 
@@ -87,7 +85,6 @@ interface PostColumnProps {
 	events: CalendarEvent[];
 	isOverlay?: boolean;
 	onEventClick: (event: CalendarEvent) => void;
-	onCreateClick?: () => void;
 }
 
 function PostColumn({
@@ -95,7 +92,6 @@ function PostColumn({
 	events,
 	isOverlay,
 	onEventClick,
-	onCreateClick,
 }: PostColumnProps) {
 	const config = COLUMN_CONFIG[value];
 
@@ -128,17 +124,6 @@ function PostColumn({
 								cardBorderClass={config.cardBorderClass}
 							/>
 						))}
-						{value === "draft" && onCreateClick && (
-							<button
-								onClick={onCreateClick}
-								className="w-full p-4 border-2 border-dashed border/50 rounded-lg flex items-center justify-center text-muted-foreground hover:border-primary/50 hover:bg-muted/30 transition-all"
-							>
-								<div className="text-center">
-									<Plus className="h-5 w-5 mx-auto mb-1 opacity-50" />
-									<span className="text-xs font-medium">Create New</span>
-								</div>
-							</button>
-						)}
 					</KanbanColumnContent>
 				</CardContent>
 			</Card>
@@ -149,7 +134,6 @@ function PostColumn({
 export function KanbanView({
 	events,
 	onEventClick,
-	onCreateClick,
 	onEventsChange,
 }: KanbanViewProps) {
 	// Group events by status
@@ -194,7 +178,6 @@ export function KanbanView({
 					value="draft"
 					events={columns.draft}
 					onEventClick={onEventClick}
-					onCreateClick={onCreateClick}
 				/>
 				<PostColumn
 					value="scheduled"
@@ -217,7 +200,6 @@ export function KanbanView({
 								events={events}
 								isOverlay
 								onEventClick={onEventClick}
-								onCreateClick={onCreateClick}
 							/>
 						);
 					}

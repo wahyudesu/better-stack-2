@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { SocialIcon } from "react-social-icons";
+import { SocialIcon } from "react-social-icons/component";
+import "react-social-icons/bsky.app";
 import { useChart } from "./chart-context";
 
 // Network name mapping: our platform name -> react-social-icons network name
@@ -15,7 +16,7 @@ const networkMap: Record<string, string> = {
 	pinterest: "pinterest",
 	whatsapp: "whatsapp",
 	reddit: "reddit",
-	bluesky: "bluesky",
+	bluesky: "bsky.app",
 	threads: "threads",
 	telegram: "telegram",
 	snapchat: "snapchat",
@@ -138,13 +139,7 @@ export function ChartMarkers({
 
 						{/* Social icon via foreignObject */}
 						<foreignObject x={-size / 2} y={yOffset} width={size} height={size}>
-							<div
-								className="flex items-center justify-center w-full h-full"
-								style={{
-									transform: isHovered ? "scale(1.15)" : "scale(1)",
-									transition: "transform 0.2s",
-								}}
-							>
+							<div className="flex items-center justify-center w-full h-full">
 								<SocialIcon
 									network={socialNetwork}
 									bgColor={marker.color}

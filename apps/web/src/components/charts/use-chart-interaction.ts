@@ -2,6 +2,7 @@
 
 import { localPoint } from "@visx/event";
 import type { scaleLinear, scaleTime } from "@visx/scale";
+import type { MutableRefObject } from "react";
 import { useCallback, useRef, useState } from "react";
 import type { LineConfig, Margin, TooltipData } from "./chart-context";
 
@@ -46,6 +47,8 @@ interface ChartInteractionResult {
 		onTouchEnd?: () => void;
 	};
 	interactionStyle: React.CSSProperties;
+	isPointerOverTooltipRef: MutableRefObject<boolean>;
+	setIsPointerOverTooltip: (value: boolean) => void;
 }
 
 export function useChartInteraction({
@@ -63,6 +66,7 @@ export function useChartInteraction({
 
 	const isDraggingRef = useRef(false);
 	const dragStartXRef = useRef<number>(0);
+	const isPointerOverTooltipRef = useRef(false);
 
 	const resolveTooltipFromX = useCallback(
 		(pixelX: number): TooltipData | null => {
@@ -189,7 +193,10 @@ export function useChartInteraction({
 		if (isDraggingRef.current) {
 			isDraggingRef.current = false;
 		}
-		setSelection(null);
+		// Don't clear selection if pointer is over tooltip content
+		if (!isPointerOverTooltipRef.current) {
+			setSelection(null);
+		}
 	}, []);
 
 	const handleMouseDown = useCallback(
@@ -315,5 +322,9 @@ export function useChartInteraction({
 		clearSelection,
 		interactionHandlers,
 		interactionStyle,
+		isPointerOverTooltipRef,
+		setIsPointerOverTooltip: (value: boolean) => {
+			isPointerOverTooltipRef.current = value;
+		},
 	};
 }

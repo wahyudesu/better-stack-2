@@ -1,19 +1,18 @@
-import {
-	Bluesky,
-	Facebook,
-	Google,
-	Instagram,
-	LinkedIn,
-	Pinterest,
-	Reddit,
-	Snapchat,
-	Telegram,
-	Threads,
-	TikTok,
-	TwitterX,
-	WhatsApp,
-	YouTube,
-} from "@/components/icons/platform-icons";
+import { SocialIcon } from "react-social-icons/component";
+import "react-social-icons/instagram";
+import "react-social-icons/tiktok";
+import "react-social-icons/x";
+import "react-social-icons/youtube";
+import "react-social-icons/facebook";
+import "react-social-icons/linkedin";
+import "react-social-icons/pinterest";
+import "react-social-icons/threads";
+import "react-social-icons/whatsapp";
+import "react-social-icons/reddit";
+import "react-social-icons/google";
+import "react-social-icons/telegram";
+import "react-social-icons/snapchat";
+import "react-social-icons/bsky.app";
 
 export type Platform =
 	| "instagram"
@@ -52,25 +51,10 @@ const platformColors: Record<Platform, { bg: string; color: string }> = {
 	snapchat: { bg: "bg-yellow-400", color: "#FFFC00" },
 };
 
-// Icon components mapping
-const iconComponents: Record<
-	Platform,
-	React.ComponentType<React.SVGProps<SVGSVGElement>>
-> = {
-	instagram: Instagram,
-	tiktok: TikTok,
-	twitter: TwitterX,
-	youtube: YouTube,
-	facebook: Facebook,
-	linkedin: LinkedIn,
-	pinterest: Pinterest,
-	threads: Threads,
-	whatsapp: WhatsApp,
-	reddit: Reddit,
-	bluesky: Bluesky,
-	google: Google,
-	telegram: Telegram,
-	snapchat: Snapchat,
+// Network name mapping: our platform name -> react-social-icons network name
+const networkMap: Record<string, string> = {
+	bluesky: "bsky.app",
+	twitter: "x",
 };
 
 interface PlatformIconProps {
@@ -84,10 +68,15 @@ export function PlatformIcon({
 	size = 20,
 	className,
 }: PlatformIconProps) {
-	const platformKey = platform as Platform;
-	const IconComponent = iconComponents[platformKey] || Instagram;
+	const network = networkMap[platform] || platform;
 
-	return <IconComponent className={className} height={size} width={size} />;
+	return (
+		<SocialIcon
+			network={network}
+			style={{ height: size, width: size }}
+			className={className}
+		/>
+	);
 }
 
 export const allPlatforms: Platform[] = [

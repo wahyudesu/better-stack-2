@@ -12,11 +12,8 @@ import {
 	BillingTab,
 	ConnectionsTab,
 	PreferencesTab,
-	SecurityTab,
 	SettingsLayout,
-	settingsTabs,
 	type TabId,
-	TeamTab,
 } from "@/components/features/settings";
 
 export default function SettingsPage() {
@@ -26,10 +23,8 @@ export default function SettingsPage() {
 		<SettingsLayout activeTab={activeTab} onTabChange={setActiveTab}>
 			{activeTab === "account" && <AccountTab />}
 			{activeTab === "connections" && <ConnectionsTab />}
-			{activeTab === "team" && <TeamTab />}
 			{activeTab === "billing" && <BillingTab />}
 			{activeTab === "preferences" && <PreferencesTab />}
-			{activeTab === "security" && <SecurityTab />}
 		</SettingsLayout>
 	);
 }

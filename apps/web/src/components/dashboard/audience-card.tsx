@@ -17,18 +17,14 @@ import { TAB_TRIGGER_CLASSNAME } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 const followerData = [
-	{ label: "Verified", value: 65 },
-	{ label: "Regular", value: 22 },
-	{ label: "New", value: 8 },
-	{ label: "Inactive", value: 5 },
+	{ label: "Followers", value: 68 },
+	{ label: "Non-Followers", value: 32 },
 ];
 
 const viewerData = [
-	{ label: "FYP", value: 58 },
-	{ label: "Following", value: 18 },
-	{ label: "Hashtag", value: 14 },
-	{ label: "Sound", value: 7 },
-	{ label: "External", value: 3 },
+	{ label: "Share", value: 35 },
+	{ label: "Likes", value: 42 },
+	{ label: "Comment", value: 23 },
 ];
 
 const pieColors = [

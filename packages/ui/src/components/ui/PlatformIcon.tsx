@@ -1,19 +1,18 @@
-import {
-	Instagram,
-	Facebook,
-	LinkedIn,
-	TwitterX,
-	TikTok,
-	YouTube,
-	Pinterest,
-	WhatsApp,
-	Reddit,
-	Bluesky,
-	Telegram,
-	Snapchat,
-	Google,
-	Threads,
-} from "@better-stack-2/ui/components/icons/platform-icons";
+import { SocialIcon } from "react-social-icons/component";
+import "react-social-icons/instagram";
+import "react-social-icons/tiktok";
+import "react-social-icons/x";
+import "react-social-icons/youtube";
+import "react-social-icons/facebook";
+import "react-social-icons/linkedin";
+import "react-social-icons/pinterest";
+import "react-social-icons/threads";
+import "react-social-icons/whatsapp";
+import "react-social-icons/reddit";
+import "react-social-icons/google";
+import "react-social-icons/telegram";
+import "react-social-icons/snapchat";
+import "react-social-icons/bsky.app";
 
 export type Platform =
 	| "instagram"
@@ -33,7 +32,10 @@ export type Platform =
 
 // Platform color configurations
 const platformColors: Record<Platform, { bg: string; color: string }> = {
-	instagram: { bg: "bg-gradient-to-br from-purple-500 to-pink-500", color: "#E1306C" },
+	instagram: {
+		bg: "bg-gradient-to-br from-purple-500 to-pink-500",
+		color: "#E1306C",
+	},
 	tiktok: { bg: "bg-black dark:bg-white", color: "#000000" },
 	twitter: { bg: "bg-black dark:bg-white", color: "#000000" },
 	youtube: { bg: "bg-red-600", color: "#FF0000" },
@@ -49,22 +51,10 @@ const platformColors: Record<Platform, { bg: string; color: string }> = {
 	snapchat: { bg: "bg-yellow-400", color: "#FFFC00" },
 };
 
-// Icon components mapping
-const iconComponents: Record<Platform, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-	instagram: Instagram,
-	tiktok: TikTok,
-	twitter: TwitterX,
-	youtube: YouTube,
-	facebook: Facebook,
-	linkedin: LinkedIn,
-	pinterest: Pinterest,
-	threads: Threads,
-	whatsapp: WhatsApp,
-	reddit: Reddit,
-	bluesky: Bluesky,
-	google: Google,
-	telegram: Telegram,
-	snapchat: Snapchat,
+// Network name mapping: our platform name -> react-social-icons network name
+const networkMap: Record<string, string> = {
+	bluesky: "bsky.app",
+	twitter: "x",
 };
 
 interface PlatformIconProps {
@@ -78,14 +68,13 @@ export function PlatformIcon({
 	size = 20,
 	className,
 }: PlatformIconProps) {
-	const platformKey = platform as Platform;
-	const IconComponent = iconComponents[platformKey] || Instagram;
+	const network = networkMap[platform] || platform;
 
 	return (
-		<IconComponent
+		<SocialIcon
+			network={network}
+			style={{ height: size, width: size }}
 			className={className}
-			height={size}
-			width={size}
 		/>
 	);
 }

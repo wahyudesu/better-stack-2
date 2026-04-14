@@ -153,6 +153,9 @@ export interface ContentPost {
 	/** Hashtags for the post */
 	hashtags?: string[];
 
+	/** Tags for categorization/filtering */
+	tags?: string[];
+
 	/** Call-to-action text */
 	cta?: string;
 

@@ -12,6 +12,7 @@ import {
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Button } from "@/components/ui/button";
 import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
+import { DepthButton } from "@/components/ui/depth-buttons";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 
@@ -141,6 +142,29 @@ export function PostControls({
 						onChange={(value) => onPlatformChange(value)}
 					/>
 				)}
+				<DepthButton
+					size="sm"
+					variant="blue"
+					className="gap-1.5"
+					onClick={() => {
+						window.location.href = "/posts/create";
+					}}
+				>
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M12 5v14M5 12h14" />
+					</svg>
+					New Post
+				</DepthButton>
 			</div>
 		</div>
 	);

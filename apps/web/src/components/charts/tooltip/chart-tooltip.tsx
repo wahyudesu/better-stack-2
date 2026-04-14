@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useSpring } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { chartCssVars, useChart } from "../chart-context";
 import { DateTicker } from "./date-ticker";
@@ -8,9 +8,6 @@ import { TooltipBox } from "./tooltip-box";
 import { TooltipContent, type TooltipRow } from "./tooltip-content";
 import { TooltipDot } from "./tooltip-dot";
 import { TooltipIndicator } from "./tooltip-indicator";
-
-// Spring config for crosshair
-const crosshairSpringConfig = { stiffness: 300, damping: 30 };
 
 export interface ChartTooltipProps {
 	/** Whether to show the date pill at bottom. Default: true */
@@ -75,13 +72,6 @@ export function ChartTooltip({
 		? (tooltipData?.yPositions[firstLineDataKey] ?? 0)
 		: 0;
 	const yWithMargin = firstLineY + margin.top;
-
-	// Animated crosshair position
-	const animatedX = useSpring(xWithMargin, crosshairSpringConfig);
-
-	useEffect(() => {
-		animatedX.set(xWithMargin);
-	}, [xWithMargin, animatedX]);
 
 	// Generate rows from lines
 	const tooltipRows = useMemo(() => {
@@ -204,7 +194,7 @@ export function ChartTooltip({
 				<motion.div
 					className="pointer-events-none absolute z-50"
 					style={{
-						left: animatedX,
+						left: xWithMargin,
 						transform: "translateX(-50%)",
 						bottom: 4,
 					}}

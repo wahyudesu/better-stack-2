@@ -1,11 +1,7 @@
 "use client";
 
-import { motion, useSpring } from "motion/react";
-import { useEffect } from "react";
+import { motion } from "motion/react";
 import { chartCssVars } from "../chart-context";
-
-// Faster spring for crosshair - responsive to mouse movement
-const crosshairSpringConfig = { stiffness: 300, damping: 30 };
 
 export type IndicatorWidth =
 	| number // Pixel width
@@ -78,17 +74,12 @@ export function TooltipIndicator({
 			? span * columnWidth
 			: resolveWidth(width);
 
-	const animatedX = useSpring(x - pixelWidth / 2, crosshairSpringConfig);
-
-	useEffect(() => {
-		animatedX.set(x - pixelWidth / 2);
-	}, [x, animatedX, pixelWidth]);
-
 	if (!visible) {
 		return null;
 	}
 
 	const edgeOpacity = fadeEdges ? 0 : 1;
+	const indicatorX = x - pixelWidth / 2;
 
 	return (
 		<g>
@@ -111,7 +102,7 @@ export function TooltipIndicator({
 				fill={`url(#${gradientId})`}
 				height={height}
 				width={pixelWidth}
-				x={animatedX}
+				x={indicatorX}
 				y={0}
 			/>
 		</g>

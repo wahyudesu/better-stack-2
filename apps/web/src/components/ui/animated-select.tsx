@@ -430,6 +430,7 @@ export function SegmentedControl({
 						{isSelected && (
 							<motion.div
 								layoutId="segmented-highlight"
+								initial={false}
 								className="absolute inset-0 rounded-md bg-background shadow-sm"
 								transition={{ type: "spring", stiffness: 400, damping: 30 }}
 							/>

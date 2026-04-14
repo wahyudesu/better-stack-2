@@ -193,7 +193,8 @@ export function useChartInteraction({
 		if (isDraggingRef.current) {
 			isDraggingRef.current = false;
 		}
-		setSelection(null);
+		// Don't clear selection on mouseLeave - let it persist
+		// Selection will be cleared by handleMouseUp, handleTouchEnd, clearSelection, or new drag
 	}, []);
 
 	const handleMouseDown = useCallback(

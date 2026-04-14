@@ -100,8 +100,7 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 	);
 
 	const displayValue = hoveredValue ?? totalViewers;
-	const labelText =
-		hoveredValue !== null ? "viewers" : `viewers (${dateRange})`;
+	const labelText = hoveredValue !== null ? "viewers" : "viewers this month";
 
 	const maxViewers = Math.max(...chartData.map((d) => d.viewers));
 
@@ -121,7 +120,7 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 				</CardAction>
 			</CardHeader>
 			<CardContent className="pb-0 flex-1 flex items-center px-4 sm:px-6">
-				<ChartContainer config={chartConfig} className="h-16 sm:h-20 w-full">
+				<ChartContainer config={chartConfig} className="h-20 sm:h-24 w-full">
 					<BarChart
 						accessibilityLayer
 						data={chartData}

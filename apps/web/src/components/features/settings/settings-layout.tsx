@@ -10,9 +10,7 @@ import {
 	type LucideIcon,
 	Puzzle,
 	Settings,
-	Shield,
 	User,
-	Users,
 } from "lucide-react";
 import { Suspense, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -42,13 +40,6 @@ export const settingsTabs: SettingsTab[] = [
 		description: "Manage your social media connections",
 	},
 	{
-		id: "team",
-		label: "Team",
-		icon: Users,
-		title: "Team Members",
-		description: "Manage your team and permissions",
-	},
-	{
 		id: "billing",
 		label: "Billing",
 		icon: CreditCard,
@@ -61,13 +52,6 @@ export const settingsTabs: SettingsTab[] = [
 		icon: Settings,
 		title: "Preferences",
 		description: "Customize your app experience",
-	},
-	{
-		id: "security",
-		label: "Security",
-		icon: Shield,
-		title: "Security",
-		description: "Manage your security settings",
 	},
 ] as const;
 

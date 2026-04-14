@@ -1,7 +1,7 @@
 "use client";
 
 import { User } from "lucide-react";
-import { LogoMwhehCompact } from "@/components/logo-mwheh";
+import { LogoZenpostCompact } from "@/components/logo-mwheh";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +17,8 @@ export default function Header() {
 		<header className="z-30 mx-auto flex w-full max-w-[1024px] items-center justify-between px-5 py-6">
 			{/* Logo only - no dropdown */}
 			<div className="flex items-center gap-2">
-				<LogoMwhehCompact className="size-8" />
-				<span className="text-lg font-bold">Mwheh</span>
+				<LogoZenpostCompact className="size-8" />
+				<span className="text-lg font-bold">Zenpost</span>
 			</div>
 
 			{/* User menu */}

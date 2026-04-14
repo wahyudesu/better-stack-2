@@ -1,4 +1,4 @@
-export function LogoMwheh({ className = "" }: { className?: string }) {
+export function LogoZenpost({ className = "" }: { className?: string }) {
 	return (
 		<svg
 			viewBox="0 0 100 100"
@@ -11,33 +11,22 @@ export function LogoMwheh({ className = "" }: { className?: string }) {
 				d="M50 10C30 10 15 25 15 50C15 75 30 90 50 90C70 90 85 75 85 50C85 25 70 10 50 10Z"
 				fill="url(#gradient1)"
 			/>
-			{/* "m" letter - stylized */}
+			{/* "z" letter - stylized */}
 			<path
-				d="M28 35V65M28 35L40 50L52 35M52 35V65"
+				d="M25 35H75L25 65H75"
 				stroke="white"
-				strokeWidth="5"
+				strokeWidth="6"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			{/* "w" letter - stylized */}
+			{/* "p" letter - stylized */}
 			<path
-				d="M58 35L66 50L74 35M74 35L82 50L90 35"
+				d="M60 35V65M60 35C72 35 80 42 80 52C80 62 72 70 60 70"
 				stroke="white"
-				strokeWidth="5"
+				strokeWidth="6"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			{/* "h" letter - small, playful */}
-			<path
-				d="M95 55V65M95 55C95 55 98 52 100 52"
-				stroke="white"
-				strokeWidth="4"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			{/* Eyes for personality */}
-			<circle cx="35" cy="42" r="3" fill="white" />
-			<circle cx="45" cy="42" r="3" fill="white" />
 			{/* Gradient definition */}
 			<defs>
 				<linearGradient
@@ -57,7 +46,7 @@ export function LogoMwheh({ className = "" }: { className?: string }) {
 }
 
 // Compact version for small sizes
-export function LogoMwhehCompact({ className = "" }: { className?: string }) {
+export function LogoZenpostCompact({ className = "" }: { className?: string }) {
 	return (
 		<svg
 			viewBox="0 0 40 40"
@@ -66,25 +55,22 @@ export function LogoMwhehCompact({ className = "" }: { className?: string }) {
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<rect width="40" height="40" rx="10" fill="url(#grad2)" />
-			{/* M */}
+			{/* Z */}
 			<path
-				d="M10 14V26M10 14L16 20L22 14M22 14V26"
+				d="M10 14H30L10 26H30"
 				stroke="white"
-				strokeWidth="2.5"
+				strokeWidth="3"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			{/* W */}
+			{/* P */}
 			<path
-				d="M25 14L29 20L33 14"
+				d="M25 14V26M25 14C30 14 33 18 33 21C33 24 30 26 25 26"
 				stroke="white"
-				strokeWidth="2.5"
+				strokeWidth="3"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			{/* Eyes */}
-			<circle cx="13" cy="17" r="1.5" fill="white" />
-			<circle cx="19" cy="17" r="1.5" fill="white" />
 			<defs>
 				<linearGradient
 					id="grad2"
