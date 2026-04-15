@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
 			},
 		],
 	},
+	skipTrailingSlashRedirect: true,
 };
 
 export default nextConfig;

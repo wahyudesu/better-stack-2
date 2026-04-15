@@ -6,6 +6,7 @@ import { useScroll } from "@/hooks/use-scroll";
 import { Button } from "@/components/ui/button";
 import { DesktopNav } from "@/components/desktop-nav";
 import { MobileNav } from "@/components/mobile-nav";
+import posthog from "posthog-js";
 
 export function Header() {
 	const scrolled = useScroll(10);
@@ -28,8 +29,8 @@ export function Header() {
 					<DesktopNav />
 				</div>
 				<div className="hidden items-center gap-2 md:flex">
-					<Button variant="outline">Sign In</Button>
-					<Button>Get Started</Button>
+					<Button variant="outline" onClick={() => posthog.capture("header_cta_clicked", { cta: "sign_in" })}>Sign In</Button>
+					<Button onClick={() => posthog.capture("header_cta_clicked", { cta: "get_started" })}>Get Started</Button>
 				</div>
 				<MobileNav />
 			</nav>

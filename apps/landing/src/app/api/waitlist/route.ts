@@ -1,11 +1,16 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 interface WaitlistBody {
   email?: string;
 }
 
 export async function POST(req: NextRequest) {
+  const distinctId = req.headers.get("X-POSTHOG-DISTINCT-ID") ?? "anonymous";
+  const sessionId = req.headers.get("X-POSTHOG-SESSION-ID") ?? undefined;
+  const posthog = getPostHogClient();
+
   try {
     const body: WaitlistBody = await req.json();
     const email = body.email;
@@ -52,6 +57,15 @@ export async function POST(req: NextRequest) {
         Array.isArray((err as { errors: unknown }).errors) &&
         ((err as { errors: { code?: string }[] }).errors)[0]?.code === "user_exists"
       ) {
+        posthog.capture({
+          distinctId,
+          event: "waitlist_signup_error",
+          properties: {
+            error: "email_already_registered",
+            email,
+            ...(sessionId ? { $session_id: sessionId } : {}),
+          },
+        });
         return NextResponse.json(
           { success: false, error: "Email already registered" },
           { status: 409 }
@@ -59,6 +73,20 @@ export async function POST(req: NextRequest) {
       }
       throw err;
     }
+
+    posthog.identify({
+      distinctId,
+      properties: { email },
+    });
+    posthog.capture({
+      distinctId,
+      event: "waitlist_signup_success",
+      properties: {
+        email,
+        userId: user.id,
+        ...(sessionId ? { $session_id: sessionId } : {}),
+      },
+    });
 
     return NextResponse.json(
       {
@@ -69,6 +97,13 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    posthog.capture({
+      distinctId,
+      event: "waitlist_signup_error",
+      properties: {
+        error: "internal_server_error",
+      },
+    });
     console.error("Waitlist error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },

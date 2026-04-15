@@ -24,6 +24,8 @@
 		"geist": "^1.7.0",
 		"lucide-react": "catalog:",
 		"next": "16.1.5",
+		"posthog-js": "^1.369.0",
+		"posthog-node": "^5.29.2",
 		"react": "19.1.5",
 		"react-dom": "19.1.5",
 		"shadcn": "^4.2.0",

@@ -61,7 +61,7 @@ export const productLinks: LinkItemType[] = [
 export const companyLinks: LinkItemType[] = [
 	{
 		label: "About Us",
-		href: "#",
+		href: "/about",
 		description: "Learn more about our story and team",
 		icon: (
 			<UsersIcon
@@ -91,7 +91,7 @@ export const companyLinks: LinkItemType[] = [
 export const companyLinks2: LinkItemType[] = [
 	{
 		label: "Terms of Service",
-		href: "#",
+		href: "/terms",
 		icon: (
 			<FileTextIcon
 			/>
@@ -99,7 +99,7 @@ export const companyLinks2: LinkItemType[] = [
 	},
 	{
 		label: "Privacy Policy",
-		href: "#",
+		href: "/privacy",
 		icon: (
 			<ShieldIcon
 			/>
@@ -115,7 +115,7 @@ export const companyLinks2: LinkItemType[] = [
 	},
 	{
 		label: "Blog",
-		href: "#",
+		href: "/blog",
 		icon: (
 			<LeafIcon
 			/>

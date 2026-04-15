@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Input } from "@/components/ui/input";
 import { DepthButton } from "@/components/ui/depth-buttons";
+import posthog from "posthog-js";
 
 interface WaitlistResponse {
   success: boolean;
@@ -42,13 +43,22 @@ export function WaitlistForm() {
       return;
     }
 
+    posthog.capture("waitlist_signup_submitted", {
+      email: email.trim(),
+      distinct_id: posthog.get_distinct_id(),
+    });
+
     setStatus("loading");
     setMessage("");
 
     try {
       const res = await fetch("/api/waitlist", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-POSTHOG-DISTINCT-ID": posthog.get_distinct_id(),
+          "X-POSTHOG-SESSION-ID": posthog.get_session_id() ?? "",
+        },
         body: JSON.stringify({ email: email.trim() }),
       });
 
@@ -58,10 +68,13 @@ export function WaitlistForm() {
         throw new Error(data.error || "Something went wrong");
       }
 
+      posthog.identify(email.trim(), { email: email.trim() });
+
       setStatus("success");
       setMessage(data.message || "You're on the waitlist!");
       setEmail("");
     } catch (err) {
+      posthog.captureException(err);
       setStatus("error");
       setMessage(err instanceof Error ? err.message : "Something went wrong");
     }
