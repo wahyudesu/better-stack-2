@@ -168,12 +168,11 @@ export function ContentCard({
 
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
+			<PopoverTrigger>
 				<div>{cardContent}</div>
 			</PopoverTrigger>
 			<PopoverContent
 				side="right"
-				align="top"
 				className="w-80 p-0 overflow-hidden"
 				sideOffset={8}
 			>
