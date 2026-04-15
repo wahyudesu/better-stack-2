@@ -1,7 +1,7 @@
 import { clerkMiddleware } from '@clerk/nextjs/server'
 
 // Landing page - semua route public, Clerk hanya untuk display state jika needed
-export default clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (_auth, req) => {
   // Tidak ada route yang di-protect - semua public
 })
 
