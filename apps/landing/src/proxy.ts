@@ -1,14 +1,8 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware } from '@clerk/nextjs/server'
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/api/waitlist',
-])
-
+// Landing page - semua route public, Clerk hanya untuk display state jika needed
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect()
-  }
+  // Tidak ada route yang di-protect - semua public
 })
 
 export const config = {
