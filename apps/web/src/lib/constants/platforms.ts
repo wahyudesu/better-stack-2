@@ -1,24 +1,14 @@
 /**
  * Unified platform configuration.
- * Merges platform definitions from dashboard.ts and ai-post.ts
  */
 
-import type {
-	ContentType,
-	Platform,
-	PlatformConfig,
-	ScriptGoal,
-	Tone,
-	ToneOption,
-} from "@/lib/types/ai-post";
+import type { GeneratedContentType as ContentType, GeneratedGoal as ScriptGoal, GeneratedTone as Tone } from "@/lib/types/ai";
+import type { ProfilePlatform } from "@/lib/types/core/platform";
 
 // ============================================================
-// SOCIAL MEDIA PLATFORMS (from dashboard.ts)
+// SOCIAL MEDIA PLATFORMS
 // ============================================================
 
-/**
- * Social media platforms supported by the application.
- */
 export type SocialMediaPlatform =
 	| "all"
 	| "facebook"
@@ -92,12 +82,11 @@ export const SOCIAL_MEDIA_OPTIONS = [
 ] as const;
 
 // ============================================================
-// PLATFORM MULTIPLIERS (from dashboard.ts)
+// PLATFORM MULTIPLIERS
 // ============================================================
 
 /**
  * Platform multiplier for metric calculations.
- * Used to weight metrics based on platform characteristics.
  */
 export interface PlatformMultiplier {
 	engagements: number;
@@ -111,7 +100,6 @@ export interface PlatformMultiplier {
 
 /**
  * Platform multipliers for metric calculations.
- * Values represent relative weight of each metric per platform.
  */
 export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 	all: {
@@ -189,12 +177,19 @@ export const PLATFORM_MULTIPLIERS: Record<string, PlatformMultiplier> = {
 } as const;
 
 // ============================================================
-// AI POST PLATFORMS (from ai-post.ts)
+// AI POST PLATFORMS
 // ============================================================
 
-/**
- * Platform configurations for AI post generation.
- */
+export interface PlatformConfig {
+	id: string;
+	name: string;
+	icon: string;
+	color: string;
+	description: string;
+	maxChars: number;
+	supports: ContentType[];
+}
+
 export const platforms: PlatformConfig[] = [
 	{
 		id: "threads",
@@ -243,118 +238,99 @@ export const platforms: PlatformConfig[] = [
 	},
 ];
 
-/**
- * Content type options for AI post generation.
- */
-export const contentTypes: {
-	value: ContentType;
-	label: string;
-	icon: string;
-	description: string;
-}[] = [
+export const contentTypes = [
 	{
-		value: "single",
+		value: "single" as ContentType,
 		label: "Single Post",
 		icon: "📝",
 		description: "One standalone post",
 	},
 	{
-		value: "thread",
+		value: "thread" as ContentType,
 		label: "Thread Series",
 		icon: "🧵",
 		description: "Multi-part thread",
 	},
 	{
-		value: "carousel",
+		value: "carousel" as ContentType,
 		label: "Carousel",
 		icon: "🎠",
 		description: "Multi-slide content",
 	},
 	{
-		value: "video",
+		value: "video" as ContentType,
 		label: "Video Script",
 		icon: "🎬",
 		description: "Script for short-form video",
 	},
 ];
 
-/**
- * Tone options for AI post generation.
- */
-export const tones: ToneOption[] = [
+export const tones = [
 	{
-		value: "professional",
+		value: "professional" as Tone,
 		label: "Pro",
 		color: "bg-blue-500",
 		shortDesc: "Expert",
 	},
 	{
-		value: "casual",
+		value: "casual" as Tone,
 		label: "Casual",
 		color: "bg-green-500",
 		shortDesc: "Relaxed",
 	},
 	{
-		value: "inspirational",
+		value: "inspirational" as Tone,
 		label: "Inspire",
 		color: "bg-purple-500",
 		shortDesc: "Motivating",
 	},
 	{
-		value: "educational",
+		value: "educational" as Tone,
 		label: "Edu",
 		color: "bg-orange-500",
 		shortDesc: "Teaching",
 	},
 	{
-		value: "friendly",
+		value: "friendly" as Tone,
 		label: "Friendly",
 		color: "bg-pink-500",
 		shortDesc: "Warm",
 	},
 	{
-		value: "storytelling",
+		value: "storytelling" as Tone,
 		label: "Story",
 		color: "bg-indigo-500",
 		shortDesc: "Narrative",
 	},
 ];
 
-/**
- * Goal options for AI post generation.
- */
-export const goals: {
-	value: ScriptGoal;
-	label: string;
-	icon: string;
-	description: string;
-}[] = [
+export const goals = [
 	{
-		value: "engagement",
+		value: "engagement" as ScriptGoal,
 		label: "Engagement",
 		icon: "💬",
 		description: "Get likes, comments, shares",
 	},
 	{
-		value: "sales",
+		value: "sales" as ScriptGoal,
 		label: "Sales",
 		icon: "🛒",
 		description: "Drive purchases",
 	},
 	{
-		value: "branding",
+		value: "branding" as ScriptGoal,
 		label: "Branding",
 		icon: "🎯",
 		description: "Build brand",
 	},
 	{
-		value: "education",
+		value: "education" as ScriptGoal,
 		label: "Educate",
 		icon: "📚",
 		description: "Share knowledge",
 	},
 	{
-		value: "entertainment",
+		value: "entertainment" as ScriptGoal,
 		label: "Fun",
 		icon: "🎭",
 		description: "Entertain",
@@ -365,13 +341,13 @@ export const goals: {
 // AI POST GENERATION
 // ============================================================
 
-export const generatePost = async (
+export async function generatePost(
 	topic: string,
-	platform: Platform,
+	platform: string,
 	contentType: ContentType,
 	tone: Tone,
 	goal: ScriptGoal,
-): Promise<{ content: string; hashtags: string[]; cta: string }> => {
+): Promise<{ content: string; hashtags: string[]; cta: string }> {
 	await new Promise((resolve) => setTimeout(resolve, 1500));
 
 	const generateHashtags = (topic: string): string[] => {
@@ -512,9 +488,5 @@ ${tone === "professional" ? "Key points:" : "Here's the thing:"}
 ${generateCTA(goal)}`;
 	}
 
-	return {
-		content,
-		hashtags: generateHashtags(topic),
-		cta: generateCTA(goal),
-	};
-};
+	return { content, hashtags: generateHashtags(topic), cta: generateCTA(goal) };
+}

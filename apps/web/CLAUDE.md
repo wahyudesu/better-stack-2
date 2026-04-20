@@ -51,6 +51,8 @@ Key directories:
 - **UI Primitives**: @base-ui/react (NOT Radix) - different API patterns
 - **Styling**: Tailwind CSS + Biome for linting/formatting
 - **Animations**: Motion (Framer Motion v12) - use `<motion>` components for transitions
+- **Desktop**: Tauri for desktop app (`pnpm run desktop:dev` / `desktop:build`)
+- **Motion packages**: Two packages exist - `framer-motion` and `motion` (both v12), use `<motion>` from framer-motion
 
 ## Component Patterns
 
@@ -85,6 +87,8 @@ Key directories:
 ```bash
 pnpm run build:cf      # Build for Cloudflare
 pnpm run deploy:cf     # Deploy to Cloudflare Workers
+pnpm run dev:bare       # Dev without Cloudflare tunneling (port 3001)
+pnpm run preview        # Preview Cloudflare build locally
 ```
 
 Note: Uses `@opennextjs/cloudflare` adapter. Set `OPENNEXT_DISABLE_MONOREPO=1` for workspace.
@@ -106,6 +110,7 @@ pnpm run desktop:build # Build desktop app
 - **Barrel imports**: Dashboard barrel causes tree-shaking issues - import directly
 - **Hugeicons**: Heavy library - defer with `lazy()` if only used for icons
 - **Dialog**: DialogContent requires `DialogContentProps` interface export for type compatibility
+- **React Compiler**: `babel-plugin-react-compiler` active - hooks must follow Rules of React where applicable
 
 ## Data Structure: Social Media, Posts & Analytics
 

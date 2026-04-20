@@ -147,7 +147,7 @@ export default function PostsPage() {
 		window.location.href = `/posts/create?date=${dateStr}`;
 	}, []);
 
-	const handleEventClick = useCallback((event: CalendarEvent) => {
+	const handleEventClick = useCallback((_event: CalendarEvent) => {
 		// TODO: open popover instead of dialog
 	}, []);
 

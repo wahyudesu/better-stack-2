@@ -1,9 +1,9 @@
 "use client";
 
 import { Eye, EyeOff, Tag, X } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { ContentEditor } from "@/components/features/create-post/content-editor";
-import { PlatformBadges } from "@/components/features/create-post/platform-badges";
 import { ProfileSelector } from "@/components/features/create-post/profile-selector";
 import { PublishOptions } from "@/components/features/create-post/publish-options";
 import { ScheduledDateTime } from "@/components/features/create-post/scheduled-datetime";
@@ -219,15 +219,17 @@ export default function CreatePostPage() {
 																{m.type === "video" ? (
 																	<video
 																		src={m.url}
-																		className="w-full h-full object-cover"
+																		fill
+																		className="object-cover"
 																	>
 																		<track kind="captions" />
 																	</video>
 																) : (
-																	<img
+																	<Image
 																		src={m.url}
-																		alt={m.alt}
-																		className="w-full h-full object-cover"
+																		alt={m.alt ?? ""}
+																		fill
+																		className="object-cover"
 																	/>
 																)}
 															</div>

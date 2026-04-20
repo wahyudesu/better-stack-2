@@ -24,7 +24,6 @@ import { Input } from "@/components/ui/input";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import { PlatformAvatarGroup } from "@/components/ui/platform-avatar-group";
 import {
-	PLATFORM_MULTI_OPTIONS,
 	PlatformFilterMulti,
 	type PlatformMultiValue,
 } from "@/components/ui/platform-filter";
@@ -187,7 +186,10 @@ export function InboxAutomation() {
 		setRules(rules.filter((r) => r.id !== id));
 	};
 
-	const updateForm = (field: keyof AutomationRuleForm, value: any) => {
+	const updateForm = (
+		field: keyof AutomationRuleForm,
+		value: string | number | boolean,
+	) => {
 		setForm((prev) => ({ ...prev, [field]: value }));
 	};
 
@@ -347,7 +349,10 @@ export function InboxAutomation() {
 									max={3600}
 									value={form.delaySeconds}
 									onChange={(e) =>
-										updateForm("delaySeconds", parseInt(e.target.value) || 0)
+										updateForm(
+											"delaySeconds",
+											parseInt(e.target.value, 10) || 0,
+										)
 									}
 									className="w-24 font-medium"
 								/>

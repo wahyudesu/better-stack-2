@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronRightIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { ChartMarker } from "@/components/charts/line-chart";
 import { AudienceCard } from "@/components/dashboard/audience-card";
@@ -13,14 +12,6 @@ import {
 import { RecentPostsCard } from "@/components/dashboard/recent-posts-card";
 import { SentimentCard } from "@/components/dashboard/sentiment-card";
 import { ViewerCard } from "@/components/dashboard/viewer-card";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import {
 	COUNTRY_DATA,
 	DAYS_MAP,

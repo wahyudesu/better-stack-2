@@ -72,39 +72,37 @@ export function ContentCard({
 			}}
 		>
 			{variant === "calendar" ? (
-				<>
-					<div className="flex flex-col h-full">
-						<div className="flex items-start min-w-0 mb-auto">
-							<span className="line-clamp-2 leading-tight flex-1 text-xs">
-								{event.description || event.title}
-							</span>
-						</div>
-						<div className="flex items-center justify-between mt-auto pt-1 gap-1.5">
-							<Badge
-								variant="secondary"
-								className="capitalize pointer-events-none h-5 rounded-sm px-1.5 text-[10px] font-medium"
-								style={{
-									backgroundColor: badgeStyle.bg,
-									color: badgeStyle.text,
-								}}
-							>
-								{event.status}
-							</Badge>
-							<AvatarGroup className="shrink-0">
-								{platforms.slice(0, 3).map((platform) => (
-									<Avatar key={platform} size="sm" className="size-5">
-										<AvatarFallback className="bg-card">
-											<PlatformIcon platform={platform as Platform} size={12} />
-										</AvatarFallback>
-									</Avatar>
-								))}
-							</AvatarGroup>
-							{event.time && (
-								<span className="text-[10px] opacity-70">{event.time}</span>
-							)}
-						</div>
+				<div className="flex flex-col h-full">
+					<div className="flex items-start min-w-0 mb-auto">
+						<span className="line-clamp-2 leading-tight flex-1 text-xs">
+							{event.description || event.title}
+						</span>
 					</div>
-				</>
+					<div className="flex items-center justify-between mt-auto pt-1 gap-1.5">
+						<Badge
+							variant="secondary"
+							className="capitalize pointer-events-none h-5 rounded-sm px-1.5 text-[10px] font-medium"
+							style={{
+								backgroundColor: badgeStyle.bg,
+								color: badgeStyle.text,
+							}}
+						>
+							{event.status}
+						</Badge>
+						<AvatarGroup className="shrink-0">
+							{platforms.slice(0, 3).map((platform) => (
+								<Avatar key={platform} size="sm" className="size-5">
+									<AvatarFallback className="bg-card">
+										<PlatformIcon platform={platform as Platform} size={12} />
+									</AvatarFallback>
+								</Avatar>
+							))}
+						</AvatarGroup>
+						{event.time && (
+							<span className="text-[10px] opacity-70">{event.time}</span>
+						)}
+					</div>
+				</div>
 			) : (
 				<>
 					<div className="flex gap-3 mb-2">

@@ -175,6 +175,7 @@ export default function SettingsPage() {
 				<nav className="w-[160px] shrink-0 space-y-0.5">
 					{tabs.map((tab) => (
 						<button
+							type="button"
 							key={tab.id}
 							onClick={() => setActiveTab(tab.id)}
 							className={cn(

@@ -12,7 +12,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import { cn, selectHandler } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const tools = [
 	{
@@ -177,6 +177,7 @@ export default function ToolsPage() {
 			<div className="flex gap-2">
 				{tools.map((tool) => (
 					<button
+						type="button"
 						key={tool.id}
 						onClick={() => setActiveTool(tool.id)}
 						className={cn(

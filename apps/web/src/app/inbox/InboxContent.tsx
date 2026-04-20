@@ -27,18 +27,8 @@ import { useMemo, useState } from "react";
 import { useAuthGate } from "@/components/auth";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-	DepthActionMenu,
-	DepthButtonMenu,
-	type DepthMenuOption,
-} from "@/components/ui/depth-button-menu";
-import {
-	DepthButton,
-	DepthButtonGroup,
-	GroupedDepthButton,
-} from "@/components/ui/depth-buttons";
 import { Input } from "@/components/ui/input";
 import {
 	PlatformFilterDropdown,
@@ -363,7 +353,7 @@ export function InboxContent() {
 	const handleSendMessageInternal = () => {
 		if (!messageInput.trim() || !selectedConversation) return;
 
-		const newMessage: ChatMessage = {
+		const _newMessage: ChatMessage = {
 			id: `m${Date.now()}`,
 			content: messageInput,
 			timestamp: "Just now",
@@ -371,6 +361,8 @@ export function InboxContent() {
 		};
 
 		// In a real app, you'd update the backend
+		// Currently unused - stub for future implementation
+		void _newMessage;
 		setMessageInput("");
 	};
 
@@ -407,9 +399,9 @@ export function InboxContent() {
 			result = [...result].sort((a, b) => {
 				// Simple time comparison - newest first
 				const getTimeValue = (time: string) => {
-					if (time.includes("m ago")) return parseInt(time) * 60;
-					if (time.includes("h ago")) return parseInt(time) * 3600;
-					if (time.includes("d ago")) return parseInt(time) * 86400;
+					if (time.includes("m ago")) return parseInt(time, 10) * 60;
+					if (time.includes("h ago")) return parseInt(time, 10) * 3600;
+					if (time.includes("d ago")) return parseInt(time, 10) * 86400;
 					return 0;
 				};
 				return (
@@ -554,6 +546,7 @@ export function InboxContent() {
 
 											return (
 												<button
+													type="button"
 													key={conv.id}
 													onClick={() => handleSelectConversation(conv)}
 													className={cn(

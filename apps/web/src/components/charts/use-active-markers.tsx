@@ -9,7 +9,7 @@ import type { ChartMarkerItem } from "./markers";
  * Returns markers that are close to the hovered data point
  */
 export function useActiveMarkers(markers: ChartMarkerItem[]) {
-	const { tooltipData, xAccessor, data } = useChart();
+	const { tooltipData, xAccessor } = useChart();
 
 	return useMemo(() => {
 		// If not hovering, return empty array

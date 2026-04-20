@@ -20,7 +20,7 @@ interface AuthGateContextValue {
 	 * Wraps a callback to only execute if user is authenticated.
 	 * Shows Clerk's sign in modal if not authenticated.
 	 */
-	gatedCallback: <T extends (...args: any[]) => any>(
+	gatedCallback: <T extends (...args: unknown[]) => unknown>(
 		callback: T,
 		options?: AuthGateOptions,
 	) => T;
@@ -50,15 +50,15 @@ interface AuthGateProviderProps {
 }
 
 // State to trigger Clerk's modal
-let signInTrigger: (() => void) | null = null;
-let signUpTrigger: (() => void) | null = null;
+let _signInTrigger: (() => void) | null = null;
+let _signUpTrigger: (() => void) | null = null;
 
 export function setSignInTrigger(fn: () => void) {
-	signInTrigger = fn;
+	_signInTrigger = fn;
 }
 
 export function setSignUpTrigger(fn: () => void) {
-	signUpTrigger = fn;
+	_signUpTrigger = fn;
 }
 
 export function AuthGateProvider({
@@ -82,7 +82,7 @@ export function AuthGateProvider({
 	}, []);
 
 	const requireAuth = useCallback(
-		(options?: AuthGateOptions) => {
+		(_options?: AuthGateOptions) => {
 			if (isSignedIn) return true;
 
 			// Show Clerk's sign in modal
@@ -93,9 +93,9 @@ export function AuthGateProvider({
 	);
 
 	const gatedCallback = useCallback(
-		<T extends (...args: any[]) => any>(
+		<T extends (...args: unknown[]) => unknown>(
 			callback: T,
-			options?: AuthGateOptions,
+			_options?: AuthGateOptions,
 		): T => {
 			return ((...args: Parameters<T>) => {
 				if (isSignedIn) {
@@ -128,6 +128,7 @@ export function AuthGateProvider({
 			{dialogState.mode === "sign_in" ? (
 				<SignInButton mode="modal" forceRedirectUrl="/">
 					<button
+						type="button"
 						ref={(el) => {
 							if (el && dialogState.open && dialogState.mode === "sign_in") {
 								el.click();
@@ -140,6 +141,7 @@ export function AuthGateProvider({
 			) : (
 				<SignUpButton mode="modal" forceRedirectUrl="/">
 					<button
+						type="button"
 						ref={(el) => {
 							if (el && dialogState.open && dialogState.mode === "sign_up") {
 								el.click();

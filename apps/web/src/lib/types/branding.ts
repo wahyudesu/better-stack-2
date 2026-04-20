@@ -1,3 +1,7 @@
+/**
+ * Branding input types.
+ */
+
 export interface BrandingInput {
 	// Section 1: Identitas Dasar
 	nama: string;

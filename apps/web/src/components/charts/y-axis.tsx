@@ -71,7 +71,7 @@ export function YAxis({
 	position = "right",
 	formatValue: customFormatValue,
 }: YAxisProps) {
-	const { yScale, margin, tooltipData, containerRef, innerHeight } = useChart();
+	const { yScale, margin, tooltipData, containerRef } = useChart();
 	const [mounted, setMounted] = useState(false);
 
 	// Only render on client side after mount

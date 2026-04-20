@@ -20,17 +20,17 @@ import {
 	tones,
 } from "@/lib/constants/ai-post";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import type {
-	ContentType,
-	GeneratedPost,
-	Platform,
-	ScriptGoal,
-	Tone,
-} from "@/lib/types/ai-post";
+import {
+	type GeneratedPost,
+	type GeneratedContentType as ContentType,
+	type GeneratedTone as Tone,
+	type GeneratedGoal as ScriptGoal,
+	type AIPlatform,
+} from "@/lib/types";
 import {
 	type ComposerTemplate,
 	getTemplateManager,
-} from "@/lib/types/template";
+} from "@/lib/types/content/template";
 import {
 	AttachmentIcon,
 	FolderIcon,

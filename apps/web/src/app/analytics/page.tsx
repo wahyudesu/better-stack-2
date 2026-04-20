@@ -4,15 +4,12 @@ import {
 	ArrowLeft,
 	Calendar,
 	ChevronDown,
-	Download,
 	Info,
 	Share2,
-	TrendingDown,
 	TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -29,7 +26,6 @@ import {
 import { SimpleTooltip } from "@/components/ui/tooltip";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { formatMetricValue } from "@/lib/metrics";
-import { cn, selectHandler } from "@/lib/utils";
 
 // Seeded random for consistent SSR/CSR values
 function seededRandom(seed: number): number {
@@ -39,7 +35,6 @@ function seededRandom(seed: number): number {
 
 import { Bar } from "@/components/charts/bar";
 import { BarChart } from "@/components/charts/bar-chart";
-import { BarYAxis } from "@/components/charts/bar-y-axis";
 import {
 	ChartTooltip,
 	Line,
@@ -64,7 +59,6 @@ import {
 	genderData,
 	platformData,
 	STAT_DEFINITIONS,
-	type StatDefinition,
 	socialMediaOptions,
 	timeOptions,
 	topPosts,
@@ -216,9 +210,13 @@ export default function AnalyticsPage() {
 	const [selectedPlatform, setSelectedPlatform] = useState("all");
 	const [selectedTime, setSelectedTime] = useState("30d");
 	const [activeMetric, setActiveMetric] = useState("engagements");
-	const [compareMetric, setCompareMetric] = useState<string | null>(null);
+	const [compareMetric, _setCompareMetric] = useState<string | null>(null);
 
-	const { chartData, markers, days } = useMemo(
+	const {
+		chartData,
+		markers,
+		days: _unusedDays,
+	} = useMemo(
 		() => generateDetailedData(selectedTime, selectedPlatform),
 		[selectedTime, selectedPlatform],
 	);

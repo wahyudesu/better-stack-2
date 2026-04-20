@@ -41,6 +41,7 @@ export default function ToolsPage() {
 			<div className="flex gap-2 mb-6">
 				{tools.map((tool) => (
 					<button
+						type="button"
 						key={tool.id}
 						onClick={() => setActiveTool(tool.id)}
 						className={cn(
