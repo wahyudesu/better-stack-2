@@ -1,22 +1,6 @@
 "use client";
 
 import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@better-stack-2/ui/components/collapsible";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@better-stack-2/ui/components/select";
-import {
-	ToggleGroup,
-	ToggleGroupItem,
-} from "@better-stack-2/ui/components/toggle-group";
-import {
 	Bookmark,
 	Check,
 	ChevronDown,
@@ -28,9 +12,22 @@ import { useState } from "react";
 import { toast as sooner } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
 	contentPurposes,
 	frameworks,
@@ -65,7 +62,7 @@ export function ContentScriptEngine() {
 	const [expandedOutputId, setExpandedOutputId] = useState<string | null>(null);
 
 	// Template state
-	const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+	const [_isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
 	const [showAllTemplates, setShowAllTemplates] = useState(false);
 	const templateManager = getToolTemplateManager();
 	const visibleTemplates = showAllTemplates
@@ -108,12 +105,12 @@ export function ContentScriptEngine() {
 		setTimeout(() => setCopiedId(null), 2000);
 	};
 
-	const toggleExpand = (id: string) => {
+	const _toggleExpand = (id: string) => {
 		setExpandedOutputId(expandedOutputId === id ? null : id);
 	};
 
 	// Template handlers
-	const getCurrentConfig = () => ({
+	const _getCurrentConfig = () => ({
 		purpose,
 		platform,
 		persona,
@@ -124,13 +121,13 @@ export function ContentScriptEngine() {
 	});
 
 	const handleLoadTemplate = (template: ContentScriptTemplate) => {
-		setPurpose(template.purpose);
-		setPlatform(template.platform);
-		setPersona(template.persona);
-		setFramework(template.framework);
-		setTone(template.tone);
-		setFormat(template.format);
-		if (template.topic) setTopic(template.topic);
+		setPurpose(template.config.purpose);
+		setPlatform(template.config.platform);
+		setPersona(template.config.persona);
+		setFramework(template.config.framework);
+		setTone(template.config.tone);
+		setFormat(template.config.format);
+		if (template.config.topic) setTopic(template.config.topic);
 		sooner.success(`Template "${template.name}" loaded!`);
 	};
 

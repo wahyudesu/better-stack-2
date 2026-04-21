@@ -1,30 +1,46 @@
 import type { paths } from './types'
-import { createPostsRoutes, type PostsRoutes } from './routes/posts'
-import { createAccountsRoutes, type AccountsRoutes } from './routes/accounts'
-import { createAnalyticsRoutes, type AnalyticsRoutes } from './routes/analytics'
-import { createToolsRoutes, type ToolsRoutes } from './routes/tools'
-import { createInboxRoutes, type InboxRoutes } from './routes/inbox'
-import { createProfilesRoutes, type ProfilesRoutes } from './routes/profiles'
-import { createUsersRoutes, type UsersRoutes } from './routes/users'
-import { createQueueRoutes, type QueueRoutes } from './routes/queue'
-import { createWebhooksRoutes, type WebhooksRoutes } from './routes/webhooks'
-import { createMediaRoutes, type MediaRoutes } from './routes/media'
-import { createUsageRoutes, type UsageRoutes } from './routes/usage'
-import { createConnectRoutes, type ConnectRoutes } from './routes/connect'
-import { createAccountGroupsRoutes, type AccountGroupsRoutes } from './routes/accountGroups'
-import { createApiKeysRoutes, type ApiKeysRoutes } from './routes/apiKeys'
-import { createInvitesRoutes, type InvitesRoutes } from './routes/invites'
-import { createDiscordRoutes, type DiscordRoutes } from './routes/discord'
-import { createLogsRoutes, type LogsRoutes } from './routes/logs'
-import { createWhatsAppRoutes, type WhatsAppRoutes } from './routes/whatsapp'
-import { createWhatsAppFlowsRoutes, type WhatsAppFlowsRoutes } from './routes/whatsappFlows'
-import { createContactsRoutes, type ContactsRoutes } from './routes/contacts'
-import { createCustomFieldsRoutes, type CustomFieldsRoutes } from './routes/customFields'
-import { createBroadcastsRoutes, type BroadcastsRoutes } from './routes/broadcasts'
-import { createSequencesRoutes, type SequencesRoutes } from './routes/sequences'
-import { createCommentAutomationsRoutes, type CommentAutomationsRoutes } from './routes/commentAutomations'
-import { createAdsRoutes, type AdsRoutes } from './routes/ads'
-import { createAdAudiencesRoutes, type AdAudiencesRoutes } from './routes/adAudiences'
+
+// Core: profiles, accounts, connect, apiKeys, logs
+import { createProfilesRoutes, type ProfilesRoutes } from './routes/core/profiles'
+import { createAccountsRoutes, type AccountsRoutes } from './routes/core/accounts'
+import { createConnectRoutes, type ConnectRoutes } from './routes/core/connect'
+import { createApiKeysRoutes, type ApiKeysRoutes } from './routes/core/apiKeys'
+import { createLogsRoutes, type LogsRoutes } from './routes/core/logs'
+
+// Content & Scheduling: posts, queue, media, tools
+import { createPostsRoutes, type PostsRoutes } from './routes/content/posts'
+import { createQueueRoutes, type QueueRoutes } from './routes/content/queue'
+import { createMediaRoutes, type MediaRoutes } from './routes/content/media'
+import { createToolsRoutes, type ToolsRoutes } from './routes/content/tools'
+
+// Inbox: messages, comments, reviews, broadcasts, contacts, customFields, sequences, commentAutomations
+import { createInboxRoutes, type InboxRoutes } from './routes/inbox/inbox'
+import { createBroadcastsRoutes, type BroadcastsRoutes } from './routes/inbox/broadcasts'
+import { createContactsRoutes, type ContactsRoutes } from './routes/inbox/contacts'
+import { createCustomFieldsRoutes, type CustomFieldsRoutes } from './routes/inbox/customFields'
+import { createSequencesRoutes, type SequencesRoutes } from './routes/inbox/sequences'
+import { createCommentAutomationsRoutes, type CommentAutomationsRoutes } from './routes/inbox/commentAutomations'
+
+// Analytics
+import { createAnalyticsRoutes, type AnalyticsRoutes } from './routes/analytics/analytics'
+
+// Webhooks
+import { createWebhooksRoutes, type WebhooksRoutes } from './routes/webhooks/webhooks'
+
+// Advertising
+import { createAdsRoutes, type AdsRoutes } from './routes/advertising/ads'
+import { createAdAudiencesRoutes, type AdAudiencesRoutes } from './routes/advertising/adAudiences'
+
+// Platform APIs
+import { createWhatsAppRoutes, type WhatsAppRoutes } from './routes/platform/whatsapp'
+import { createWhatsAppFlowsRoutes, type WhatsAppFlowsRoutes } from './routes/platform/whatsappFlows'
+import { createDiscordRoutes, type DiscordRoutes } from './routes/platform/discord'
+
+// Settings & Admin
+import { createAccountGroupsRoutes, type AccountGroupsRoutes } from './routes/admin/accountGroups'
+import { createUsersRoutes, type UsersRoutes } from './routes/admin/users'
+import { createInvitesRoutes, type InvitesRoutes } from './routes/admin/invites'
+import { createUsageRoutes, type UsageRoutes } from './routes/admin/usage'
 
 export interface ZernioClientConfig {
   apiKey: string

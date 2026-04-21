@@ -3,9 +3,8 @@
  * Combines posts with analytics for display.
  */
 
-import type { TopPerformingPost } from "./analytics";
-import type { ProfilePlatform } from "./core/platform";
-import type { ContentPost, PostAnalytics } from "./social";
+import type { ProfilePlatform } from "../core/platform";
+import type { ContentPost, PostAnalytics } from "../social";
 
 // ============================================================
 // CALENDAR VIEW

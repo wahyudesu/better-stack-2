@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { Check, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AddButton } from "./add-button";

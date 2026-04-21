@@ -11,19 +11,12 @@ import { Textarea } from "@better-stack-2/ui/components/textarea";
 import { Check, Copy, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast as sooner } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import type {
-	BrandingInput,
-	NicheValue,
-	ToneValue,
-} from "@/lib/types/branding";
+import type { BrandingInput, ToneValue } from "@/lib/types/branding";
 import { nicheOptions, toneOptions } from "@/lib/types/branding";
-import { cn } from "@/lib/utils";
 
 const emptyState: BrandingInput = {
 	nama: "",

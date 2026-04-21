@@ -29,6 +29,11 @@ import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
+import {
+	DepthButtonGroup,
+	GroupedDepthButton,
+} from "@/components/ui/depth-buttons";
 import { Input } from "@/components/ui/input";
 import {
 	PlatformFilterDropdown,

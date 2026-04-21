@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Image as ImageIcon, MoreHorizontal } from "lucide-react";
+import { ArrowRight, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import {
 	Card,
@@ -12,7 +12,6 @@ import {
 import { PlatformIcon } from "@/components/ui/PlatformIcon";
 import { samplePosts } from "@/lib/data/social-data";
 import type { ContentPost } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 export interface RecentPostsCardProps {
 	posts?: ContentPost[];

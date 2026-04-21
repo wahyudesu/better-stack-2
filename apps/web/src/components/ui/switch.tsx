@@ -25,7 +25,7 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
 			}
 		}, [checked]);
 
-		const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const _handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 			const newChecked = e.target.checked;
 			setIsChecked(newChecked);
 			onCheckedChange?.(newChecked);

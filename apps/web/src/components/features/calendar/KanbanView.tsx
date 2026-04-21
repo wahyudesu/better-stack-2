@@ -90,7 +90,7 @@ interface PostColumnProps {
 function PostColumn({
 	value,
 	events,
-	isOverlay,
+	isOverlay: _isOverlay,
 	onEventClick,
 }: PostColumnProps) {
 	const config = COLUMN_CONFIG[value];

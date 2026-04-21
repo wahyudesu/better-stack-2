@@ -12,7 +12,7 @@ import type { ProfilePlatform } from "./core/platform";
 
 export type UserRole = "owner" | "admin" | "member" | "viewer";
 
-export type UserStatus = "active" | "invited" | "disabled";
+export type UserStatus = "active" | "invited" | "pending" | "disabled";
 
 export interface User {
 	id: string;

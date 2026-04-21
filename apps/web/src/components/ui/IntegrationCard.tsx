@@ -25,7 +25,7 @@ export function IntegrationCard({
 	connected,
 	handle,
 	followers,
-	posts,
+	posts: _posts,
 	color,
 	onToggle,
 	onInvite,

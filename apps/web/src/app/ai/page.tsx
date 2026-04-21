@@ -20,17 +20,15 @@ import {
 	tones,
 } from "@/lib/constants/ai-post";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import {
-	type GeneratedPost,
-	type GeneratedContentType as ContentType,
-	type GeneratedTone as Tone,
-	type GeneratedGoal as ScriptGoal,
-	type AIPlatform,
+import type {
+	ComposerTemplate,
+	GeneratedContentType as ContentType,
+	GeneratedPost,
+	ProfilePlatform,
+	GeneratedGoal as ScriptGoal,
+	GeneratedTone as Tone,
 } from "@/lib/types";
-import {
-	type ComposerTemplate,
-	getTemplateManager,
-} from "@/lib/types/content/template";
+import { getTemplateManager } from "@/lib/types/content/template";
 import {
 	AttachmentIcon,
 	FolderIcon,
@@ -100,7 +98,8 @@ export default function AIChatPage() {
 	const { gatedCallback } = useAuthGate();
 
 	const [topic, setTopic] = useState("");
-	const [selectedPlatform, setSelectedPlatform] = useState<Platform>("threads");
+	const [selectedPlatform, setSelectedPlatform] =
+		useState<ProfilePlatform>("instagram");
 	const [contentType, setContentType] = useState<ContentType>("single");
 	const [selectedGoal, setSelectedGoal] = useState<ScriptGoal>("engagement");
 	const [selectedTone, setSelectedTone] = useState<Tone>("casual");
@@ -222,7 +221,8 @@ export default function AIChatPage() {
 	};
 
 	const handleLoadTemplate = (template: ComposerTemplate) => {
-		if (template.platform) setSelectedPlatform(template.platform as Platform);
+		if (template.platform)
+			setSelectedPlatform(template.platform as ProfilePlatform);
 		if (template.contentType)
 			setContentType(template.contentType as ContentType);
 		if (template.goal) setSelectedGoal(template.goal as ScriptGoal);
@@ -347,7 +347,7 @@ export default function AIChatPage() {
 					icon: <span>{p.icon}</span>,
 				}))}
 				selectedPlatform={selectedPlatform}
-				onPlatformSelect={(id) => setSelectedPlatform(id as Platform)}
+				onPlatformSelect={(id) => setSelectedPlatform(id as ProfilePlatform)}
 				attachedFiles={attachedFiles}
 				onRemoveFile={handleRemoveFile}
 				contextOptions={

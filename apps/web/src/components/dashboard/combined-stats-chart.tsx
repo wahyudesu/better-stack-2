@@ -27,7 +27,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-	FilterSelect,
 	PlatformFilter,
 	type PlatformFilterValue,
 } from "@/components/ui/filter-select";
@@ -65,7 +64,7 @@ function getDirection(value: string): "up" | "down" | "neutral" {
 	const trimmed = value.trim();
 	const numValue = parseFloat(trimmed.replace(/[+%]/g, ""));
 
-	if (isNaN(numValue) || numValue === 0) return "neutral";
+	if (Number.isNaN(numValue) || numValue === 0) return "neutral";
 	return numValue > 0 ? "up" : "down";
 }
 
@@ -139,7 +138,9 @@ export function CombinedStatsChart({
 												className="size-4 text-primary"
 												fill="currentColor"
 												viewBox="0 0 20 20"
+												aria-hidden="true"
 											>
+												<title>Selected</title>
 												<path
 													fillRule="evenodd"
 													d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -194,7 +195,9 @@ export function CombinedStatsChart({
 														className="size-4 text-primary"
 														fill="currentColor"
 														viewBox="0 0 20 20"
+														aria-hidden="true"
 													>
+														<title>Selected</title>
 														<path
 															fillRule="evenodd"
 															d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"

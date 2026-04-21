@@ -51,7 +51,7 @@ export function ViewerCard({ timeRange = "30d" }: ViewerCardProps) {
 	const days = daysMap[timeRange] ?? 30;
 
 	// Calculate date range for display
-	const dateRange = useMemo(() => {
+	const _dateRange = useMemo(() => {
 		const now = new Date();
 		const startDate = new Date(now);
 		startDate.setDate(startDate.getDate() - days + 1);

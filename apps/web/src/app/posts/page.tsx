@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-	KanbanView,
-	ListView,
 	PostCardsView,
 	PostControls,
 } from "@/components/features/calendar";
@@ -19,7 +17,7 @@ import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 
 type ViewMode = "calendar" | "cards";
 type CalendarView = "month" | "week";
-type CardsView = "grid" | "kanban" | "list";
+type PostStatus = "draft" | "pending" | "published" | "failed";
 
 // Calculate week range - defined outside component to avoid unnecessary re-renders
 function getWeekRange(date: Date) {
@@ -36,7 +34,7 @@ export default function PostsPage() {
 	// View mode states
 	const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 	const [calendarView, setCalendarView] = useState<CalendarView>("month");
-	const [cardsView, setCardsView] = useState<CardsView>("grid");
+	const [postStatus, setPostStatus] = useState<PostStatus>("draft");
 
 	// Use a fixed date for initial render to prevent hydration mismatch
 	const [currentDate, setCurrentDate] = useState<Date>(
@@ -85,16 +83,23 @@ export default function PostsPage() {
 	const handleNext = calendarView === "week" ? nextWeek : nextMonth;
 	const displayName = calendarView === "week" ? weekName : monthName;
 
-	// Filter events by platform
-	const filteredEvents = useMemo(
-		() =>
+	// Filter events by platform and status
+	const filteredEvents = useMemo(() => {
+		let result =
 			selectedPlatform === "all"
 				? events
 				: events.filter(
 						(e) => e.platform === (selectedPlatform as CalendarPlatform),
-					),
-		[events, selectedPlatform],
-	);
+					);
+
+		if (postStatus === "pending") {
+			result = result.filter((e) => e.status === "scheduled");
+		} else {
+			result = result.filter((e) => e.status === postStatus);
+		}
+
+		return result;
+	}, [events, selectedPlatform, postStatus]);
 
 	const eventsByDate = useMemo(() => {
 		const map: Record<string, CalendarEvent[]> = {};
@@ -204,8 +209,8 @@ export default function PostsPage() {
 				onNextMonth={handleNext}
 				calendarView={calendarView}
 				onCalendarViewChange={setCalendarView}
-				cardsView={cardsView}
-				onCardsViewChange={setCardsView}
+				postStatus={postStatus}
+				onPostStatusChange={setPostStatus}
 				selectedPlatform={selectedPlatform}
 				onPlatformChange={(value) => setSelectedPlatform(value)}
 			/>
@@ -227,23 +232,11 @@ export default function PostsPage() {
 				/>
 			)}
 
-			{viewMode === "cards" && cardsView === "grid" && (
+			{viewMode === "cards" && (
 				<PostCardsView
 					events={filteredEvents}
 					onEventClick={handleEventClick}
 				/>
-			)}
-
-			{viewMode === "cards" && cardsView === "kanban" && (
-				<KanbanView
-					events={filteredEvents}
-					onEventClick={handleEventClick}
-					onEventsChange={setEvents}
-				/>
-			)}
-
-			{viewMode === "cards" && cardsView === "list" && (
-				<ListView events={filteredEvents} onEventClick={handleEventClick} />
 			)}
 		</div>
 	);

@@ -31,6 +31,7 @@ interface SortButtonProps {
 function SortButton({ field, label, sortField, onSort }: SortButtonProps) {
 	return (
 		<button
+			type="button"
 			className="flex items-center gap-1 transition-colors"
 			onClick={() => onSort(field)}
 		>

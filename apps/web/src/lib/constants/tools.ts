@@ -210,7 +210,7 @@ export function generateSystemPrompt(
 ): string {
 	const purposeInfo = contentPurposes.find((p) => p.value === purpose);
 	const platformInfo = platforms.find((p) => p.value === platform);
-	const personaInfo = personas.find((p) => p.value === persona);
+	const _personaInfo = personas.find((p) => p.value === persona);
 	const frameworkInfo = frameworks.find((f) => f.value === framework);
 	const toneInfo = tones.find((t) => t.value === tone);
 

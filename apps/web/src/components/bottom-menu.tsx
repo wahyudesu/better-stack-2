@@ -25,57 +25,8 @@ const SPRING_TRANSITION = {
 // Tooltip show delay in milliseconds
 const TOOLTIP_SHOW_DELAY_MS = 400;
 
-// Key-to-item map for O(1) keyboard lookup (Ctrl+1 through Ctrl+6)
-const KEY_TO_ITEM_MAP = new Map(
-	[
-		{
-			href: "/posts",
-			icon: Newspaper,
-			label: "Posts",
-			shortcut: "⌃1",
-			key: "1",
-		},
-		{
-			href: "/dashboard",
-			icon: BarChart3,
-			label: "Dashboard",
-			shortcut: "⌃2",
-			key: "2",
-		},
-		{
-			href: "/inbox",
-			icon: MessageSquare,
-			label: "Inbox",
-			shortcut: "⌃3",
-			key: "3",
-		},
-		{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "⌃4", key: "4" },
-		{
-			href: "/tools",
-			icon: SquareStack,
-			label: "Tools",
-			shortcut: "⌃5",
-			key: "5",
-		},
-		{
-			href: "/settings",
-			icon: Settings,
-			label: "Settings",
-			shortcut: "⌃6",
-			key: "6",
-		},
-	]
-		.filter((item) => item.key)
-		.map((item) => [item.key!, item]),
-);
-
-const menuItems: Array<{
-	href: string;
-	icon: React.ComponentType<{ className?: string }>;
-	label: string;
-	shortcut?: string;
-	key?: string;
-}> = [
+// Menu items definition
+const MENU_ITEMS = [
 	{ href: "/posts", icon: Newspaper, label: "Posts", shortcut: "⌃1", key: "1" },
 	{
 		href: "/dashboard",
@@ -106,7 +57,23 @@ const menuItems: Array<{
 		shortcut: "⌃6",
 		key: "6",
 	},
-];
+] as const;
+
+// Key-to-item map for O(1) keyboard lookup (Ctrl+1 through Ctrl+6)
+const KEY_TO_ITEM_MAP = new Map<string, (typeof MENU_ITEMS)[number]>();
+for (const item of MENU_ITEMS) {
+	if (item.key != null) {
+		KEY_TO_ITEM_MAP.set(item.key, item);
+	}
+}
+
+const menuItems: ReadonlyArray<{
+	href: string;
+	icon: React.ComponentType<{ className?: string }>;
+	label: string;
+	shortcut?: string;
+	key?: string;
+}> = [...MENU_ITEMS];
 
 // Helper to check if keyboard input should be ignored
 const shouldIgnoreKeyboard = (target: HTMLElement): boolean => {
@@ -194,7 +161,7 @@ export default function BottomMenu() {
 
 			if (matchingItem && pathnameRef.current !== matchingItem.href) {
 				e.preventDefault();
-				routerRef.current.push(matchingItem.href as any);
+				routerRef.current.push(matchingItem.href);
 			}
 		};
 
@@ -221,7 +188,7 @@ export default function BottomMenu() {
 		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
 			<div
 				ref={containerRef}
-				className="relative border rounded-3xl p-1.5 overflow-visible"
+				className="relative border rounded-3xl p-1 overflow-visible"
 				style={{
 					backgroundColor: "#0a0a0a",
 					borderColor: "#262626",
@@ -239,7 +206,7 @@ export default function BottomMenu() {
 								}}
 								href={item.href as any}
 								className={cn(
-									"relative flex items-center justify-center p-2.5 rounded-2xl transition-all duration-200",
+									"relative flex items-center justify-center p-2 rounded-2xl transition-all duration-200",
 									isActive
 										? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
 										: "text-neutral-400 hover:text-white hover:bg-neutral-800/80",

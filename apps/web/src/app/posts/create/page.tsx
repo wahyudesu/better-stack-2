@@ -217,20 +217,11 @@ export default function CreatePostPage() {
 																className="w-20 h-20 bg-muted rounded-md overflow-hidden"
 															>
 																{m.type === "video" ? (
-																	<video
-																		src={m.url}
-																		fill
-																		className="object-cover"
-																	>
+																	<video className="absolute inset-0 w-full h-full object-cover">
 																		<track kind="captions" />
 																	</video>
 																) : (
-																	<Image
-																		src={m.url}
-																		alt={m.alt ?? ""}
-																		fill
-																		className="object-cover"
-																	/>
+																	<Image src={m.url} alt={m.alt ?? ""} />
 																)}
 															</div>
 														))}

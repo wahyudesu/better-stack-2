@@ -3,7 +3,7 @@
 import { ParentSize } from "@visx/responsive";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { motion } from "motion/react";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 export interface SimpleBarChartProps {
 	data: Array<{ name: string; value: number }>;
@@ -63,7 +63,7 @@ export function SimpleBarChart({
 
 				return (
 					<svg width={containerWidth} height={height}>
-						{data.map((d, i) => {
+						{data.map((d, _i) => {
 							const barX = (xScale(d.name) ?? 0) * scaleX;
 							const barWidthScaled = barWidth * scaleX;
 							const barY = yScale(d.value) ?? 0;

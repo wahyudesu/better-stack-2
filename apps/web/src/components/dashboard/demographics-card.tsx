@@ -1,11 +1,9 @@
 "use client";
 
-import { Info } from "lucide-react";
 import React from "react";
 import { BarList } from "@/components/charts/bar-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
-import { SimpleTooltip } from "@/components/ui/tooltip";
 import { TAB_TRIGGER_CLASSNAME } from "@/lib/constants/ui";
 import type { DemographicDataItem } from "@/lib/data/demographics";
 import { cn } from "@/lib/utils";

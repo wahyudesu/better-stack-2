@@ -13,7 +13,7 @@ export function BillingTab() {
 		<div className="flex flex-col gap-6">
 			{/* Current Plan */}
 			<Card>
-				<CardContent className="p-4 flex flex-col gap-4">
+				<CardContent className="flex flex-col gap-4">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<div className="p-2 bg-primary/10 rounded-lg">
@@ -69,7 +69,7 @@ export function BillingTab() {
 
 			{/* Payment Method */}
 			<Card>
-				<CardContent className="p-4 space-y-3">
+				<CardContent className="space-y-3">
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="font-display font-semibold text-sm">
@@ -100,7 +100,7 @@ export function BillingTab() {
 
 			{/* Billing History */}
 			<Card>
-				<CardContent className="p-4 space-y-3">
+				<CardContent className="space-y-3">
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="font-display font-semibold text-sm">

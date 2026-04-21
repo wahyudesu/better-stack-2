@@ -23,7 +23,7 @@ export function AnimatedTabs({
 	tabs,
 	activeTab,
 	onChange,
-	variant = "segment",
+	variant: _variant = "segment",
 	iconOnly = false,
 	className,
 }: AnimatedTabsProps) {
@@ -33,6 +33,7 @@ export function AnimatedTabs({
 				"inline-flex items-center gap-1 rounded-lg bg-muted p-1",
 				className,
 			)}
+			suppressHydrationWarning
 		>
 			{tabs.map((tab) => (
 				<Button
@@ -49,6 +50,7 @@ export function AnimatedTabs({
 						iconOnly && "w-7 px-0",
 					)}
 					data-state={activeTab === tab.id ? "active" : "inactive"}
+					suppressHydrationWarning
 				>
 					{tab.icon && <Slot className="h-3.5 w-3.5">{tab.icon}</Slot>}
 					{!iconOnly && <span>{tab.label}</span>}

@@ -3,6 +3,11 @@
  * This is the main data structure for the app.
  */
 
+export type { PostMedia } from "./content/media";
+export type { ProfilePlatform } from "./core/platform";
+export type { PostStatus } from "./content/post-status";
+export type { ProfileStatus } from "./core/platform";
+
 import type { PostMedia } from "./content/media";
 import type { PostStatus } from "./content/post-status";
 import type { ProfilePlatform } from "./core/platform";
@@ -25,6 +30,7 @@ export interface ContentPost {
 	cta?: string;
 	notes?: string;
 	platformPostIds?: Partial<Record<ProfilePlatform, string>>;
+	postUrl?: string;
 }
 
 // ============================================================
@@ -45,4 +51,18 @@ export interface PostAnalytics {
 	saves?: number;
 	engagementRate?: number;
 	extraMetrics?: Record<string, number | string>;
+}
+
+export interface SocialMediaProfile {
+	id: string;
+	platform: ProfilePlatform;
+	name: string;
+	username: string;
+	avatarUrl?: string;
+	status: "active" | "disconnected" | "error" | "pending";
+	connectedAt: Date;
+	lastSyncAt?: Date;
+	platformUserId?: string;
+	errorMessage?: string;
+	followerCount?: number;
 }

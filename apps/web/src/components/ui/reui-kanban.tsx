@@ -387,6 +387,7 @@ function KanbanColumn({
 	...props
 }: KanbanColumnProps) {
 	const isOverlay = useContext(IsOverlayContext);
+	const kanbanContext = useContext(KanbanContext);
 
 	const {
 		setNodeRef,
@@ -424,7 +425,7 @@ function KanbanColumn({
 		);
 	}
 
-	const { activeId, isColumn } = useContext(KanbanContext);
+	const { activeId, isColumn } = kanbanContext;
 	const isColumnDragging = activeId ? isColumn(activeId) : false;
 
 	const style: CSSProperties = {
@@ -470,6 +471,7 @@ function KanbanItem({
 	...props
 }: KanbanItemProps) {
 	const isOverlay = useContext(IsOverlayContext);
+	const kanbanContext = useContext(KanbanContext);
 
 	const {
 		setNodeRef,
@@ -502,7 +504,7 @@ function KanbanItem({
 		);
 	}
 
-	const { activeId, isColumn } = useContext(KanbanContext);
+	const { activeId, isColumn } = kanbanContext;
 	const isItemDragging = activeId ? !isColumn(activeId) : false;
 
 	const style: CSSProperties = {

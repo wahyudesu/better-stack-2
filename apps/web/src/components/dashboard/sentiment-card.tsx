@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Info } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import {
 	Label,
@@ -9,7 +9,7 @@ import {
 	RadialBar,
 	RadialBarChart,
 } from "recharts";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
 	Card,
 	CardAction,
@@ -18,7 +18,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
-import { SimpleTooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const sentimentScore = 98;

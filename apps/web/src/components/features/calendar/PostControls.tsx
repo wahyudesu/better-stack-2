@@ -4,9 +4,6 @@ import {
 	Calendar as CalendarIcon,
 	ChevronLeft,
 	ChevronRight,
-	KanbanSquare,
-	LayoutGrid,
-	List,
 	Newspaper,
 } from "lucide-react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
@@ -18,7 +15,7 @@ import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 
 type ViewMode = "calendar" | "cards";
 type CalendarView = "month" | "week";
-type CardsView = "grid" | "kanban" | "list";
+type PostStatus = "draft" | "pending" | "published" | "failed";
 
 interface PostControlsProps {
 	viewMode: ViewMode;
@@ -28,8 +25,8 @@ interface PostControlsProps {
 	onNextMonth: () => void;
 	calendarView?: CalendarView;
 	onCalendarViewChange?: (view: CalendarView) => void;
-	cardsView?: CardsView;
-	onCardsViewChange?: (view: CardsView) => void;
+	postStatus: PostStatus;
+	onPostStatusChange: (status: PostStatus) => void;
 	selectedPlatform?: Platform | "all";
 	onPlatformChange?: (platform: Platform | "all") => void;
 }
@@ -42,8 +39,8 @@ export function PostControls({
 	onNextMonth,
 	calendarView = "month",
 	onCalendarViewChange,
-	cardsView = "grid",
-	onCardsViewChange,
+	postStatus,
+	onPostStatusChange,
 	selectedPlatform = "all",
 	onPlatformChange,
 }: PostControlsProps) {
@@ -55,24 +52,31 @@ export function PostControls({
 		},
 		{
 			id: "cards",
-			label: "List",
+			label: "Posts",
 			icon: <Newspaper className="h-3.5 w-3.5" />,
 		},
 	];
 
-	const cardsViewTabs = [
-		{ id: "grid", label: "Grid", icon: <LayoutGrid className="h-3.5 w-3.5" /> },
-		{
-			id: "kanban",
-			label: "Kanban",
-			icon: <KanbanSquare className="h-3.5 w-3.5" />,
-		},
-		{ id: "list", label: "List", icon: <List className="h-3.5 w-3.5" /> },
+	const statusTabs = [
+		{ id: "draft", label: "Draft" },
+		{ id: "pending", label: "Pending" },
+		{ id: "published", label: "Published" },
+		{ id: "failed", label: "Failed" },
 	];
 
 	return (
 		<div className="flex items-center gap-4 flex-wrap">
-			{/* Left: Calendar Navigation */}
+			{/* Left: View Mode Toggle */}
+			<div className="flex items-center gap-2">
+				<AnimatedTabs
+					tabs={viewModeTabs}
+					activeTab={viewMode}
+					onChange={(val) => onViewModeChange(val as ViewMode)}
+					variant="segment"
+				/>
+			</div>
+
+			{/* Center: Calendar Navigation (calendar mode) or Status Tabs (cards mode) */}
 			{viewMode === "calendar" ? (
 				<div className="flex items-center gap-2">
 					<div className="flex items-center gap-1.5">
@@ -111,30 +115,19 @@ export function PostControls({
 					)}
 				</div>
 			) : (
-				<div />
-			)}
-
-			{/* Right: View Toggle & Filters - always pushed to right */}
-			<div className="flex items-center gap-3 ml-auto">
-				{/* View Mode Toggle */}
-				{/* Grid/Kanban/List Toggle for Cards View */}
-				{viewMode === "cards" && onCardsViewChange && (
+				<div className="flex-1 flex justify-between items-center">
+					{/* Status Tabs for Cards View */}
 					<AnimatedTabs
-						tabs={cardsViewTabs}
-						activeTab={cardsView}
-						onChange={(val) => onCardsViewChange(val as CardsView)}
-						variant="segment"
-						iconOnly
-					/>
-				)}
-				<div className="flex items-center gap-2">
-					<AnimatedTabs
-						tabs={viewModeTabs}
-						activeTab={viewMode}
-						onChange={(val) => onViewModeChange(val as ViewMode)}
+						tabs={statusTabs}
+						activeTab={postStatus}
+						onChange={(val) => onPostStatusChange(val as PostStatus)}
 						variant="segment"
 					/>
 				</div>
+			)}
+
+			{/* Right: Platform Filter + New Post */}
+			<div className="flex items-center gap-3 ml-auto">
 				{/* Platform Filter */}
 				{onPlatformChange && (
 					<PlatformFilterDropdown

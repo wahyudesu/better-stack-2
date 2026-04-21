@@ -1,36 +1,43 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface UsageStats {
-	planName: string
+export interface UsageStats {
+	planName: string;
 	limits: {
-		uploads: number
-		profiles: number
-	}
+		uploads: number;
+		profiles: number;
+	};
 	usage: {
-		uploads: number
-		profiles: number
-	}
+		uploads: number;
+		profiles: number;
+	};
 }
 
 interface AuthState {
-	apiKey: string | null
-	usageStats: UsageStats | null
-	isValidating: boolean
-	error: string | null
-	hasHydrated: boolean
-	setApiKey: (key: string | null) => void
-	setUsageStats: (stats: UsageStats | null) => void
-	setIsValidating: (validating: boolean) => void
-	setError: (error: string | null) => void
-	setHasHydrated: (hydrated: boolean) => void
-	logout: () => void
+	apiKey: string | null;
+	usageStats: UsageStats | null;
+	isValidating: boolean;
+	error: string | null;
+	hasHydrated: boolean;
+	setApiKey: (key: string | null) => void;
+	setUsageStats: (stats: UsageStats | null) => void;
+	setIsValidating: (validating: boolean) => void;
+	setError: (error: string | null) => void;
+	setHasHydrated: (hydrated: boolean) => void;
+	logout: () => void;
 }
+
+const getInitialApiKey = () => {
+	if (typeof window === "undefined") return null;
+	// If user previously set a key in localStorage, it takes precedence
+	// Otherwise fall back to env var
+	return (process.env.NEXT_PUBLIC_ZERNIO_API_KEY as string) || null;
+};
 
 export const useAuthStore = create<AuthState>()(
 	persist(
 		(set) => ({
-			apiKey: null,
+			apiKey: getInitialApiKey(),
 			usageStats: null,
 			isValidating: false,
 			error: null,
@@ -42,20 +49,26 @@ export const useAuthStore = create<AuthState>()(
 			setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
 			logout: () =>
 				set({
-					apiKey: null,
+					apiKey: getInitialApiKey(), // reset to env default on logout
 					usageStats: null,
 					error: null,
 				}),
 		}),
 		{
-			name: 'betterstack-auth',
+			name: "betterstack-auth",
 			partialize: (state) => ({
-				apiKey: state.apiKey,
+				// Only persist apiKey if it's non-null (user-set key)
+				// This prevents localStorage null from overwriting env default
+				apiKey: state.apiKey ?? undefined,
 				usageStats: state.usageStats,
 			}),
 			onRehydrateStorage: () => (state) => {
-				state?.setHasHydrated(true)
+				// After rehydration, if apiKey is null/undefined, set to env default
+				if (!state?.apiKey) {
+					state?.setApiKey(getInitialApiKey());
+				}
+				state?.setHasHydrated(true);
 			},
-		}
-	)
-)
+		},
+	),
+);

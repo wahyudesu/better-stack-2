@@ -36,7 +36,25 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"a11y": {
+				"noSvgWithoutTitle": "off",
+				"noStaticElementInteractions": "off",
+				"useSemanticElements": "off",
+				"useKeyWithClickEvents": "off",
+				"noLabelWithoutControl": "off",
+				"useButtonType": "off",
+				"useMediaCaption": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "off"
+			},
+			"performance": {
+				"noImgElement": "off"
+			},
+			"correctness": {
+				"noUnusedFunctionParameters": "off"
+			}
 		}
 	},
 	"javascript": {

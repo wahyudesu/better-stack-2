@@ -1,11 +1,10 @@
+import 'dotenv/config'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { Scalar } from '@scalar/hono-api-reference'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse } from 'yaml'
-import { ZernioClient } from './client'
-
 // Cloudflare Worker environment bindings
 export interface Env {
   ZERNIO_API_KEY: string
@@ -48,19 +47,70 @@ app.get('/openapi.json', (c) => {
 app.get('/docs', Scalar({ url: '/openapi.json' }))
 
 /**
- * Proxy all /api/* requests to Zernio API
- * This allows the Worker to act as a middleware/proxy
+ * Extract API key from Authorization header
+ * Format: "Bearer sk_xxx"
  */
-app.all('/api/*', async (c) => {
-  const apiKey = c.env.ZERNIO_API_KEY
+function extractApiKey(c: any): string | null {
+  const auth = c.req.header('Authorization')
+  if (!auth) return null
+  if (auth.startsWith('Bearer ')) {
+    return auth.slice(7)
+  }
+  return auth
+}
+
+/**
+ * Usage endpoint for validating API key
+ * Called by frontend /api/validate-key route
+ * NOTE: This must be defined BEFORE the /v1/* wildcard route
+ */
+app.get('/v1/usage-stats', async (c) => {
+  const apiKey = extractApiKey(c)
+  const key = apiKey || process.env.ZERNIO_API_KEY
+  const baseUrl = process.env.API_BASE_URL || 'https://zernio.com/api'
+
+  if (!key) {
+    return c.json({ error: 'API key required' }, 401)
+  }
+
+  try {
+    const targetUrl = new URL('v1/usage-stats', baseUrl.endsWith('/') ? baseUrl : baseUrl + '/')
+    const response = await fetch(targetUrl.toString(), {
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const data = await response.json()
+    return new Response(JSON.stringify(data), {
+      status: response.status,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  } catch (error) {
+    return c.json({
+      error: 'Failed to fetch usage',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    }, 500)
+  }
+})
+
+/**
+ * Proxy /v1/* requests to Zernio API
+ * Uses user's API key from Authorization header if provided,
+ * otherwise falls back to server's ZERNIO_API_KEY
+ */
+app.all('/v1/*', async (c) => {
+  const userApiKey = extractApiKey(c)
+  const apiKey = userApiKey || c.env.ZERNIO_API_KEY
   const baseUrl = c.env.API_BASE_URL || 'https://zernio.com/api'
 
   if (!apiKey) {
-    return c.json({ error: 'ZERNIO_API_KEY not configured' }, 500)
+    return c.json({ error: 'API key required. Set ZERNIO_API_KEY or provide Authorization header.' }, 401)
   }
 
-  // Get the path after /api
-  const path = c.req.path.replace(/^\/api/, '')
+  // Get the path after /v1
+  const path = c.req.path.replace(/^\/v1/, '')
   const method = c.req.method
 
   // Build query parameters
@@ -70,13 +120,15 @@ app.all('/api/*', async (c) => {
   }
 
   try {
-    // Build target URL
-    const targetUrl = new URL(path, baseUrl)
+    // Build target URL - ensure path is properly joined with baseUrl
+    const cleanPath = path.replace(/^\//, '')
+    const base = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'
+    const targetUrl = new URL(`v1/${cleanPath}`, base)
     if (queryParams.toString()) {
       targetUrl.search = queryParams.toString()
     }
 
-    // Make the request
+    // Make the request with user's API key
     const response = await fetch(targetUrl.toString(), {
       method,
       headers: {
@@ -105,49 +157,6 @@ app.all('/api/*', async (c) => {
   }
 })
 
-// Example: Direct usage of ZernioClient
-app.get('/example/posts', async (c) => {
-  const apiKey = c.env.ZERNIO_API_KEY
-
-  if (!apiKey) {
-    return c.json({ error: 'ZERNIO_API_KEY not configured' }, 500)
-  }
-
-  const client = new ZernioClient({ apiKey })
-
-  try {
-    const posts = await client.posts.list({ limit: 10 })
-    return c.json(posts)
-  } catch (error) {
-    return c.json({
-      error: 'Failed to fetch posts',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    }, 500)
-  }
-})
-
-// Example: Create a post
-app.post('/example/posts', async (c) => {
-  const apiKey = c.env.ZERNIO_API_KEY
-
-  if (!apiKey) {
-    return c.json({ error: 'ZERNIO_API_KEY not configured' }, 500)
-  }
-
-  const body = await c.req.json()
-  const client = new ZernioClient({ apiKey })
-
-  try {
-    const post = await client.posts.create(body)
-    return c.json(post)
-  } catch (error) {
-    return c.json({
-      error: 'Failed to create post',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    }, 500)
-  }
-})
-
 // Export for Cloudflare Workers
 export default app
 
@@ -157,7 +166,7 @@ export type AppType = typeof app
 // Start Node.js server for development
 if (process.env.NODE_ENV !== 'production') {
   import('@hono/node-server').then(({ serve }) => {
-    console.log('Starting dev server on http://localhost:3000')
-    serve({ fetch: app.fetch, port: 3000 })
+    console.log('Starting dev server on http://localhost:8787')
+    serve({ fetch: app.fetch, port: 8787 })
   })
 }

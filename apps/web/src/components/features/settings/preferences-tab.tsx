@@ -43,7 +43,7 @@ export function PreferencesTab() {
 		<div className="space-y-4">
 			{/* General Settings */}
 			<Card>
-				<CardContent className="p-5 space-y-4">
+				<CardContent className="space-y-4">
 					<div className="flex items-center gap-2">
 						<Settings className="h-4 w-4" />
 						<p className="text-sm font-semibold">General</p>
@@ -71,7 +71,7 @@ export function PreferencesTab() {
 
 			{/* Appearance Settings */}
 			<Card>
-				<CardContent className="p-5 space-y-4">
+				<CardContent className="space-y-4">
 					<div className="flex items-center gap-2">
 						<Palette className="h-4 w-4" />
 						<p className="text-sm font-semibold">Appearance</p>
@@ -83,6 +83,7 @@ export function PreferencesTab() {
 						<div className="grid grid-cols-3 gap-3">
 							{THEME_OPTIONS.map((option) => (
 								<button
+									type="button"
 									key={option.value}
 									onClick={() => setTheme(option.value)}
 									className={cn(
@@ -113,6 +114,7 @@ export function PreferencesTab() {
 						<div className="flex flex-wrap gap-2">
 							{ACCENT_COLORS.map((color) => (
 								<button
+									type="button"
 									key={color.value}
 									onClick={() => setSelectedColor(color.value)}
 									className={cn(

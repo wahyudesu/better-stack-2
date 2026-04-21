@@ -1,5 +1,6 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
 import { SocialIcon } from "react-social-icons/component";
 import "react-social-icons/bsky.app";
 import type { ChartMarkerItem } from "./markers";

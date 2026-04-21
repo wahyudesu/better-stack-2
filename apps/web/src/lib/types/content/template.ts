@@ -3,7 +3,7 @@
  * Merges ComposerTemplate and ContentScriptTemplate into one.
  */
 
-import type { ProfilePlatform } from "./core/platform";
+import type { ProfilePlatform } from "../core/platform";
 
 // ============================================================
 // TEMPLATE CORE

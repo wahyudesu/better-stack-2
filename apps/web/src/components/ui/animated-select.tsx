@@ -470,7 +470,7 @@ export function CompactFilterBar({
 	return (
 		<div className={cn("flex items-center gap-2 overflow-x-auto", className)}>
 			{filters.map((filter) => {
-				const selectedOption = filter.options.find(
+				const _selectedOption = filter.options.find(
 					(opt) => opt.value === filter.value,
 				);
 				return (

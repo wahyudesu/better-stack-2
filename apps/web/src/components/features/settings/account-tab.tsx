@@ -4,16 +4,22 @@
 
 "use client";
 
-import { Sparkles, Zap } from "lucide-react";
+import {
+	AlertCircle,
+	CheckCircle2,
+	KeyRound,
+	Loader2,
+	Sparkles,
+	Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores";
+import type { UsageStats } from "@/stores/auth-store";
 
 // Mock user data (replace with actual auth when ClerkProvider is set up)
 const mockUser = {
@@ -29,13 +35,26 @@ const mockUser = {
 };
 
 export function AccountTab() {
+	const {
+		apiKey,
+		setApiKey,
+		setUsageStats,
+		setIsValidating,
+		isValidating,
+		error,
+		setError,
+		hasHydrated,
+	} = useAuthStore();
+	const [apiKeyInput, setApiKeyInput] = useState("");
+	const [showKey, setShowKey] = useState(false);
+
 	const [fullName, setFullName] = useState(() => {
 		if (mockUser.firstName && mockUser.lastName) {
 			return `${mockUser.firstName} ${mockUser.lastName}`;
 		}
 		return mockUser.firstName || mockUser.email.split("@")[0] || "";
 	});
-	const [jobTitle, setJobTitle] = useState("User");
+	const [jobTitle, _setJobTitle] = useState("User");
 	const [originalFullName] = useState(() => {
 		if (mockUser.firstName && mockUser.lastName) {
 			return `${mockUser.firstName} ${mockUser.lastName}`;
@@ -43,9 +62,10 @@ export function AccountTab() {
 		return mockUser.firstName || mockUser.email.split("@")[0] || "";
 	});
 	const [originalJobTitle] = useState("User");
-	const [avatarUrl, setAvatarUrl] = useState(mockUser.imageUrl || "");
+	const [_avatarUrl, _setAvatarUrl] = useState(mockUser.imageUrl || "");
 	const [email] = useState(mockUser.email || "");
 	const [userId] = useState(mockUser.id || "");
+	const [showPasswordForm, setShowPasswordForm] = useState(false);
 
 	const hasChanges =
 		fullName !== originalFullName || jobTitle !== originalJobTitle;
@@ -77,7 +97,7 @@ export function AccountTab() {
 	return (
 		<div className="flex flex-col gap-6">
 			<Card>
-				<CardContent className="p-6 flex flex-col gap-6">
+				<CardContent className="flex flex-col gap-6">
 					<div>
 						<p className="font-display font-semibold text-base">Profile</p>
 						<p className="text-sm text-muted-foreground">
@@ -88,6 +108,7 @@ export function AccountTab() {
 					{/* Clickable Avatar */}
 					<div className="flex items-center gap-4">
 						<button
+							type="button"
 							onClick={handleAvatarClick}
 							className="relative group cursor-pointer"
 						>
@@ -162,10 +183,71 @@ export function AccountTab() {
 						<p className="text-xs text-muted-foreground">
 							Your unique account identifier
 						</p>
-					</div>
 
-					{/* Save Button - Only show when there are changes */}
-					{hasChanges && (
+						{/* Password Change */}
+						<div className="border-t pt-4">
+							<div className="flex items-center justify-between">
+								<div>
+									<p className="text-sm font-medium">Password</p>
+									<p className="text-xs text-muted-foreground">
+										Update your account password
+									</p>
+								</div>
+								{!showPasswordForm && (
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setShowPasswordForm(true)}
+									>
+										Change Password
+									</Button>
+								)}
+							</div>
+
+							{showPasswordForm && (
+								<div className="mt-4 space-y-4">
+									<div className="space-y-2">
+										<Label className="text-sm">Current password</Label>
+										<Input
+											type="password"
+											placeholder="Enter current password"
+											className="h-10"
+										/>
+									</div>
+									<div className="space-y-2">
+										<Label className="text-sm">New password</Label>
+										<Input
+											type="password"
+											placeholder="Enter new password"
+											className="h-10"
+										/>
+										<p className="text-xs text-muted-foreground">
+											At least 8 characters
+										</p>
+									</div>
+									<div className="space-y-2">
+										<Label className="text-sm">Confirm new password</Label>
+										<Input
+											type="password"
+											placeholder="Re-enter new password"
+											className="h-10"
+										/>
+									</div>
+									<div className="flex gap-2 justify-end">
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => setShowPasswordForm(false)}
+										>
+											Cancel
+										</Button>
+										<Button size="sm">Change Password</Button>
+									</div>
+								</div>
+							)}
+						</div>
+					</div>
+					{hasChanges && !showPasswordForm && (
 						<div className="flex justify-end pt-2">
 							<Button onClick={handleSave}>Save Changes</Button>
 						</div>
@@ -174,101 +256,162 @@ export function AccountTab() {
 			</Card>
 
 			<Card>
-				<CardContent className="p-4 flex flex-col gap-4">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							<Zap className="size-4 text-amber-500" />
-							<div>
-								<p className="font-display font-semibold text-sm">Plan Usage</p>
-								<p className="text-xs text-muted-foreground">
-									Pro Plan • Resets monthly
-								</p>
-							</div>
-						</div>
-						<Button variant="outline" size="sm">
-							Upgrade
-						</Button>
+				<CardContent className="space-y-3">
+					<div className="flex items-center gap-2">
+						<KeyRound className="size-4 text-primary" />
+						<p className="text-sm font-semibold">Zernio API Key</p>
 					</div>
 
-					<div className="flex flex-col gap-3">
-						<div className="flex flex-col gap-1.5">
-							<div className="flex items-center justify-between text-xs">
-								<span className="text-muted-foreground">AI Generations</span>
-								<span className="font-medium">847 / 1,000</span>
-							</div>
-							<Progress value={84.7} className="h-2" />
-						</div>
-
-						<div className="flex flex-col gap-1.5">
-							<div className="flex items-center justify-between text-xs">
-								<span className="text-muted-foreground">Scheduled Posts</span>
-								<span className="font-medium">23 / 50</span>
-							</div>
-							<Progress value={46} className="h-2" />
-						</div>
-
-						<div className="flex flex-col gap-1.5">
-							<div className="flex items-center justify-between text-xs">
-								<span className="text-muted-foreground">
-									Connected Accounts
+					{apiKey && hasHydrated ? (
+						<div className="space-y-3">
+							<div className="flex items-center gap-2 p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+								<CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
+								<span className="text-sm text-emerald-600 dark:text-emerald-400">
+									Connected
 								</span>
-								<span className="font-medium">5 / 10</span>
+								<span className="text-sm text-muted-foreground font-mono ml-auto">
+									{showKey
+										? apiKey
+										: `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`}
+								</span>
 							</div>
-							<Progress value={50} className="h-2" />
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setShowKey(!showKey)}
+								>
+									{showKey ? "Hide" : "Show"} Key
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => {
+										navigator.clipboard.writeText(apiKey);
+									}}
+								>
+									Copy
+								</Button>
+								<Button
+									variant="destructive"
+									size="sm"
+									onClick={() => {
+										setApiKey(null);
+										setUsageStats(null);
+										setError(null);
+									}}
+								>
+									<Trash2 className="size-4 mr-1" />
+									Disconnect
+								</Button>
+							</div>
 						</div>
+					) : (
+						<div className="space-y-3">
+							<p className="text-xs text-muted-foreground">
+								Connect your Zernio account to access AI features and social
+								media integrations.
+							</p>
+							<div className="space-y-2">
+								<Label htmlFor="api-key">API Key</Label>
+								<Input
+									id="api-key"
+									type="password"
+									placeholder="sk_xxx"
+									value={apiKeyInput}
+									onChange={(e) => {
+										setApiKeyInput(e.target.value);
+										setError(null);
+									}}
+									disabled={isValidating}
+								/>
+							</div>
 
-						<div className="flex flex-col gap-1.5">
-							<div className="flex items-center justify-between text-xs">
-								<span className="text-muted-foreground">Storage Used</span>
-								<span className="font-medium">2.3 GB / 5 GB</span>
-							</div>
-							<Progress value={46} className="h-2" />
-						</div>
+							{error && (
+								<div className="flex items-center gap-2 text-sm text-destructive">
+									<AlertCircle className="h-4 w-4" />
+									{error}
+								</div>
+							)}
 
-						<div className="flex flex-col gap-1.5">
-							<div className="flex items-center justify-between text-xs">
-								<span className="text-muted-foreground">Team Members</span>
-								<span className="font-medium">3 / 5</span>
-							</div>
-							<Progress value={60} className="h-2" />
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+							<Button
+								onClick={async () => {
+									if (!apiKeyInput.trim()) {
+										setError("API key is required");
+										return;
+									}
 
-			<Card>
-				<CardContent className="p-4 space-y-3">
-					<div>
-						<p className="font-display font-semibold text-sm">Notifications</p>
-						<p className="text-xs text-muted-foreground">
-							Configure how you receive notifications.
-						</p>
-					</div>
-					<div className="space-y-2">
-						<div className="flex items-center justify-between py-1">
-							<div>
-								<p className="text-sm font-medium">Email Notifications</p>
-								<p className="text-xs text-muted-foreground">
-									Receive daily digest of activity
-								</p>
-							</div>
-							<Switch />
+									if (!apiKeyInput.startsWith("sk_")) {
+										setError("Invalid API key format");
+										return;
+									}
+
+									setIsValidating(true);
+									setError(null);
+
+									try {
+										const response = await fetch("/api/validate-key", {
+											method: "POST",
+											headers: { "Content-Type": "application/json" },
+											body: JSON.stringify({ apiKey: apiKeyInput.trim() }),
+										});
+
+										if (!response.ok) {
+											const data = (await response
+												.json()
+												.catch(() => ({}))) as {
+												error?: string;
+											};
+											throw new Error(data?.error || "Invalid API key");
+										}
+
+										const data = (await response.json()) as {
+											data?: UsageStats;
+										};
+										setApiKey(apiKeyInput.trim());
+										setUsageStats(data?.data ?? null);
+										setApiKeyInput("");
+									} catch (err) {
+										setError(
+											err instanceof Error
+												? err.message
+												: "Failed to validate API key",
+										);
+									} finally {
+										setIsValidating(false);
+									}
+								}}
+								disabled={isValidating || !apiKeyInput.trim()}
+								size="sm"
+							>
+								{isValidating ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Validating...
+									</>
+								) : (
+									"Connect"
+								)}
+							</Button>
+
+							<p className="text-xs text-muted-foreground">
+								Don&apos;t have an API key?{" "}
+								<a
+									href="https://zernio.com/api-keys"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="underline underline-offset-4 hover:text-primary"
+								>
+									Get one here
+								</a>
+							</p>
 						</div>
-						<div className="flex items-center justify-between py-1">
-							<div>
-								<p className="text-sm font-medium">Push Notifications</p>
-								<p className="text-xs text-muted-foreground">
-									Browser push notifications
-								</p>
-							</div>
-							<Switch defaultChecked />
-						</div>
-					</div>
+					)}
 				</CardContent>
 			</Card>
 
 			<Card className="border-destructive/30">
-				<CardContent className="p-4">
+				<CardContent className="">
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="font-display font-semibold text-sm text-destructive">
@@ -289,55 +432,6 @@ export function AccountTab() {
 					<p className="text-xs text-muted-foreground mt-2">
 						Contact support to delete your account
 					</p>
-				</CardContent>
-			</Card>
-
-			{/* Account Info Card */}
-			<Card>
-				<CardContent className="p-4 space-y-3">
-					<div>
-						<p className="font-display font-semibold text-sm">
-							Account Information
-						</p>
-						<p className="text-xs text-muted-foreground">
-							Your account details
-						</p>
-					</div>
-					<div className="flex flex-col gap-2 text-sm">
-						<div className="flex justify-between">
-							<span className="text-muted-foreground">Account Created</span>
-							<span className="font-medium">
-								{mockUser.createdAt
-									? new Date(mockUser.createdAt).toLocaleDateString()
-									: "N/A"}
-							</span>
-						</div>
-						<div className="flex justify-between">
-							<span className="text-muted-foreground">Last Sign In</span>
-							<span className="font-medium">
-								{mockUser.lastSignInAt
-									? new Date(mockUser.lastSignInAt).toLocaleDateString()
-									: "N/A"}
-							</span>
-						</div>
-						<div className="flex justify-between">
-							<span className="text-muted-foreground">Email Verified</span>
-							<span
-								className={cn(
-									"font-medium",
-									mockUser.emailVerified ? "text-success" : "text-warning",
-								)}
-							>
-								{mockUser.emailVerified ? "✓ Verified" : "Pending"}
-							</span>
-						</div>
-						<div className="flex justify-between">
-							<span className="text-muted-foreground">2FA Enabled</span>
-							<span className="font-medium">
-								{mockUser.twoFactorEnabled ? "Yes" : "No"}
-							</span>
-						</div>
-					</div>
 				</CardContent>
 			</Card>
 		</div>

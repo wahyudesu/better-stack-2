@@ -2,8 +2,11 @@
  * Unified platform configuration.
  */
 
-import type { GeneratedContentType as ContentType, GeneratedGoal as ScriptGoal, GeneratedTone as Tone } from "@/lib/types/ai";
-import type { ProfilePlatform } from "@/lib/types/core/platform";
+import type {
+	GeneratedContentType as ContentType,
+	GeneratedGoal as ScriptGoal,
+	GeneratedTone as Tone,
+} from "@/lib/types/ai";
 
 // ============================================================
 // SOCIAL MEDIA PLATFORMS

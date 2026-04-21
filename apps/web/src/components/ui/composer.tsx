@@ -16,7 +16,7 @@ import {
 	type SlashCommandMatch,
 	type Tool,
 } from "@/components/ui/slash-command-dropdown";
-import { cn, selectHandler } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
 	ArrowUp02Icon,
 	FloppyDiskIcon,

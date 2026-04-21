@@ -42,6 +42,7 @@ export interface DemographicDataItem {
 	country?: string;
 	countryCode?: string; // ISO 3166-1 alpha-2
 	region?: string;
+	label?: string;
 	users: number;
 }
 

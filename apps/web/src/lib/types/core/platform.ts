@@ -49,6 +49,8 @@ export type ProfilePlatform = Extract<
 	| "pinterest"
 >;
 
+export type ProfileStatus = "active" | "disconnected" | "error" | "pending";
+
 /**
  * Platforms that support stories/ephemeral content.
  */

@@ -1,5 +1,6 @@
 import { Puzzle, Settings, Shield, User } from "lucide-react";
 import { useState } from "react";
+import { SecurityTab } from "@/components/features/settings/security-tab";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -122,41 +123,6 @@ function IntegrationsTab() {
 					</CardContent>
 				</Card>
 			))}
-		</div>
-	);
-}
-
-function SecurityTab() {
-	return (
-		<div className="space-y-5">
-			<Card className="border-border/50">
-				<CardContent className="p-5 space-y-3">
-					<p className="text-sm font-semibold">Password</p>
-					<div className="space-y-3">
-						<div className="space-y-2">
-							<Label>Current password</Label>
-							<Input type="password" />
-						</div>
-						<div className="space-y-2">
-							<Label>New password</Label>
-							<Input type="password" />
-						</div>
-					</div>
-					<div className="flex justify-end">
-						<Button size="sm">Update</Button>
-					</div>
-				</CardContent>
-			</Card>
-
-			<Card className="border-border/50">
-				<CardContent className="p-5 space-y-3">
-					<p className="text-sm font-semibold">Two-factor authentication</p>
-					<div className="flex items-center gap-3">
-						<Switch />
-						<span className="text-sm text-muted-foreground">Disabled</span>
-					</div>
-				</CardContent>
-			</Card>
 		</div>
 	);
 }

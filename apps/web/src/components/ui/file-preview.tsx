@@ -1,6 +1,6 @@
 "use client";
 
-import type { FC, ReactNode } from "react";
+import type { FC } from "react";
 import { cn } from "@/lib/utils";
 import { Cancel01Icon, HugeiconsIcon } from "@/lib/utils/tool-icons";
 

@@ -129,33 +129,27 @@ export function DepthButtonMenu({
 			<DropdownMenuTrigger className={triggerStyles}>
 				<span className="flex items-center gap-1.5 truncate">
 					{isCheckbox ? (
-						<>
-							{selectedOptions.length > 0 ? (
-								<span className="flex items-center gap-1.5">
-									<span className="flex items-center justify-center size-5 rounded-md bg-primary text-primary-foreground text-xs font-semibold">
-										{selectedOptions.length}
-									</span>
-									<span className="truncate">
-										{selectedOptions.length === 1
-											? selectedOptions[0]?.label
-											: `${selectedOptions.length} selected`}
-									</span>
+						selectedOptions.length > 0 ? (
+							<span className="flex items-center gap-1.5">
+								<span className="flex items-center justify-center size-5 rounded-md bg-primary text-primary-foreground text-xs font-semibold">
+									{selectedOptions.length}
 								</span>
-							) : (
-								<span className="text-muted-foreground">{placeholder}</span>
-							)}
-						</>
+								<span className="truncate">
+									{selectedOptions.length === 1
+										? selectedOptions[0]?.label
+										: `${selectedOptions.length} selected`}
+								</span>
+							</span>
+						) : (
+							<span className="text-muted-foreground">{placeholder}</span>
+						)
+					) : selectedOptions[0] ? (
+						<span className="flex items-center gap-1.5">
+							{selectedOptions[0]?.icon}
+							<span>{selectedOptions[0]?.label}</span>
+						</span>
 					) : (
-						<>
-							{selectedOptions[0] ? (
-								<span className="flex items-center gap-1.5">
-									{selectedOptions[0]?.icon}
-									<span>{selectedOptions[0]?.label}</span>
-								</span>
-							) : (
-								<span className="text-muted-foreground">{placeholder}</span>
-							)}
-						</>
+						<span className="text-muted-foreground">{placeholder}</span>
 					)}
 				</span>
 				<ChevronDownIcon
@@ -171,27 +165,25 @@ export function DepthButtonMenu({
 			>
 				{isCheckbox ? (
 					// Checkbox mode (multiple select)
-					<>
-						{options.map((option) => (
-							<DropdownMenuCheckboxItem
-								key={option.value}
-								checked={selectedValues.includes(option.value)}
-								onCheckedChange={(checked) =>
-									handleCheckboxChange(option.value, checked === true)
-								}
-							>
-								<span className="flex items-center gap-2 flex-1">
-									{option.icon}
-									<span className="flex-1 font-medium">{option.label}</span>
+					options.map((option) => (
+						<DropdownMenuCheckboxItem
+							key={option.value}
+							checked={selectedValues.includes(option.value)}
+							onCheckedChange={(checked) =>
+								handleCheckboxChange(option.value, checked === true)
+							}
+						>
+							<span className="flex items-center gap-2 flex-1">
+								{option.icon}
+								<span className="flex-1 font-medium">{option.label}</span>
+							</span>
+							{option.description && (
+								<span className="text-xs text-muted-foreground">
+									{option.description}
 								</span>
-								{option.description && (
-									<span className="text-xs text-muted-foreground">
-										{option.description}
-									</span>
-								)}
-							</DropdownMenuCheckboxItem>
-						))}
-					</>
+							)}
+						</DropdownMenuCheckboxItem>
+					))
 				) : (
 					// Radio mode (single select)
 					<DropdownMenuRadioGroup
@@ -311,33 +303,27 @@ export function DepthActionMenu({
 			<DropdownMenuTrigger className={triggerStyles}>
 				<span className="flex items-center gap-1.5 truncate">
 					{isCheckbox ? (
-						<>
-							{selectedOptions.length > 0 ? (
-								<span className="flex items-center gap-1.5">
-									<span className="flex items-center justify-center size-5 rounded-md bg-primary text-primary-foreground text-xs font-semibold">
-										{selectedOptions.length}
-									</span>
-									<span className="truncate">
-										{selectedOptions.length === 1
-											? selectedOptions[0]?.label
-											: `${selectedOptions.length} selected`}
-									</span>
+						selectedOptions.length > 0 ? (
+							<span className="flex items-center gap-1.5">
+								<span className="flex items-center justify-center size-5 rounded-md bg-primary text-primary-foreground text-xs font-semibold">
+									{selectedOptions.length}
 								</span>
-							) : (
-								<span className="text-muted-foreground">{placeholder}</span>
-							)}
-						</>
+								<span className="truncate">
+									{selectedOptions.length === 1
+										? selectedOptions[0]?.label
+										: `${selectedOptions.length} selected`}
+								</span>
+							</span>
+						) : (
+							<span className="text-muted-foreground">{placeholder}</span>
+						)
+					) : selectedOptions[0] ? (
+						<span className="flex items-center gap-1.5">
+							{selectedOptions[0]?.icon}
+							<span>{selectedOptions[0]?.label}</span>
+						</span>
 					) : (
-						<>
-							{selectedOptions[0] ? (
-								<span className="flex items-center gap-1.5">
-									{selectedOptions[0]?.icon}
-									<span>{selectedOptions[0]?.label}</span>
-								</span>
-							) : (
-								<span className="text-muted-foreground">{placeholder}</span>
-							)}
-						</>
+						<span className="text-muted-foreground">{placeholder}</span>
 					)}
 				</span>
 				<ChevronDownIcon
@@ -352,27 +338,25 @@ export function DepthActionMenu({
 				align={align}
 			>
 				{isCheckbox ? (
-					<>
-						{options.map((option) => (
-							<DropdownMenuCheckboxItem
-								key={option.value}
-								checked={selectedValues.includes(option.value)}
-								onCheckedChange={(checked) =>
-									handleCheckboxChange(option.value, checked === true)
-								}
-							>
-								<span className="flex items-center gap-2 flex-1">
-									{option.icon}
-									<span className="flex-1">{option.label}</span>
+					options.map((option) => (
+						<DropdownMenuCheckboxItem
+							key={option.value}
+							checked={selectedValues.includes(option.value)}
+							onCheckedChange={(checked) =>
+								handleCheckboxChange(option.value, checked === true)
+							}
+						>
+							<span className="flex items-center gap-2 flex-1">
+								{option.icon}
+								<span className="flex-1">{option.label}</span>
+							</span>
+							{option.description && (
+								<span className="text-xs text-muted-foreground">
+									{option.description}
 								</span>
-								{option.description && (
-									<span className="text-xs text-muted-foreground">
-										{option.description}
-									</span>
-								)}
-							</DropdownMenuCheckboxItem>
-						))}
-					</>
+							)}
+						</DropdownMenuCheckboxItem>
+					))
 				) : (
 					<DropdownMenuRadioGroup
 						value={value ?? ""}

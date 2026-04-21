@@ -1,25 +1,22 @@
-import { useQuery } from '@tanstack/react-query'
-import { useZernio } from './use-zernio'
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/client";
 
 export const usageKeys = {
-	all: ['usage'] as const,
-	stats: ['usage', 'stats'] as const,
-}
+	all: ["usage"] as const,
+	stats: ["usage", "stats"] as const,
+};
 
 /**
  * Hook to fetch usage stats (limits and current usage)
  */
 export function useUsageStats() {
-	const zernio = useZernio()
-
 	return useQuery({
 		queryKey: usageKeys.stats,
 		queryFn: async () => {
-			if (!zernio) throw new Error('Not authenticated')
-			const { data, error } = await zernio.usage.getUsageStats()
-			if (error) throw error
-			return data
+			const { data, error } = await api.getUsageStats();
+			if (error) throw error;
+			return data;
 		},
-		enabled: !!zernio,
-	})
+		enabled: true,
+	});
 }

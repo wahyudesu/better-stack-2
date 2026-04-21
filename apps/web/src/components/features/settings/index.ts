@@ -13,3 +13,5 @@ export {
 	settingsTabs,
 } from "./settings-layout";
 export type { FirstDayOfWeek, TabId, TimeFormat } from "./types";
+export { UserTab } from "./user-tab";
+export { WebhooksTab } from "./webhooks-tab";

@@ -11,8 +11,10 @@ import {
 	Puzzle,
 	Settings,
 	User,
+	Users,
+	Webhook,
 } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 import type { TabId } from "./types";
 
@@ -53,6 +55,20 @@ export const settingsTabs: SettingsTab[] = [
 		title: "Preferences",
 		description: "Customize your app experience",
 	},
+	{
+		id: "user",
+		label: "User",
+		icon: Users,
+		title: "User",
+		description: "Manage team members and access",
+	},
+	{
+		id: "webhooks",
+		label: "Webhooks",
+		icon: Webhook,
+		title: "Webhooks",
+		description: "Configure webhook integrations",
+	},
 ] as const;
 
 export interface SettingsLayoutProps {
@@ -83,6 +99,7 @@ export function SettingsLayout({
 				<nav className="w-[130px] shrink-0 space-y-0.5">
 					{settingsTabs.map((tab) => (
 						<button
+							type="button"
 							key={tab.id}
 							onClick={() => onTabChange(tab.id)}
 							className={cn(

@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { PostMedia } from "@/lib/types/social";

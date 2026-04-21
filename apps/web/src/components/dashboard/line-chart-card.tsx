@@ -62,7 +62,7 @@ export interface AreaChartCardProps {
 function getDirection(value: string): "up" | "down" | "neutral" {
 	const trimmed = value.trim();
 	const numValue = parseFloat(trimmed.replace(/[+%]/g, ""));
-	if (isNaN(numValue) || numValue === 0) return "neutral";
+	if (Number.isNaN(numValue) || numValue === 0) return "neutral";
 	return numValue > 0 ? "up" : "down";
 }
 

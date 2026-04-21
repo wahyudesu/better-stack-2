@@ -2,8 +2,8 @@
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
-import type { ComposerTemplate, TemplateManager } from "@/lib/types/template";
-import { cn } from "@/lib/utils";
+import type { ComposerTemplate } from "@/lib/types/index";
+import type { ContentTemplate, TemplateManager } from "@/lib/types/content/template";
 import {
 	Add01Icon,
 	Cancel01Icon,
@@ -33,7 +33,7 @@ export function TemplateManagerDialog({
 	onLoadTemplate,
 	currentConfig,
 }: TemplateManagerDialogProps) {
-	const [templates, setTemplates] = useState<ComposerTemplate[]>([]);
+	const [templates, setTemplates] = useState<ContentTemplate[]>([]);
 	const [newTemplateName, setNewTemplateName] = useState("");
 	const [isCreating, setIsCreating] = useState(false);
 
@@ -46,9 +46,20 @@ export function TemplateManagerDialog({
 	const handleSaveTemplate = () => {
 		if (!newTemplateName.trim()) return;
 
+		// Convert flat config to nested config structure
 		templateManager.saveTemplate({
 			name: newTemplateName.trim(),
-			...currentConfig,
+			isPreset: false,
+			createdBy: "",
+			config: {
+				platform: (currentConfig?.platform as any) || "instagram",
+				format: (currentConfig?.contentType as any) || "single",
+				purpose: (currentConfig?.goal as any) || "edukasi",
+				tone: currentConfig?.tone || "casual",
+				persona: "expert-mentor",
+				framework: "aida",
+			},
+			content: currentConfig?.message,
 		});
 
 		setNewTemplateName("");
@@ -61,19 +72,29 @@ export function TemplateManagerDialog({
 		setTemplates(templates.filter((t) => t.id !== id));
 	};
 
-	const handleLoadTemplate = (template: ComposerTemplate) => {
-		onLoadTemplate(template);
+	const handleLoadTemplate = (template: ContentTemplate) => {
+		// Convert ContentTemplate to ComposerTemplate (flat structure)
+		const flatTemplate: ComposerTemplate = {
+			id: template.id,
+			name: template.name,
+			createdAt: template.createdAt.getTime(),
+			platform: template.config.platform,
+			contentType: template.config.format,
+			goal: template.config.purpose,
+			tone: template.config.tone,
+			message: template.content,
+		};
+		onLoadTemplate(flatTemplate);
 		onClose();
 	};
 
-	const handleDuplicateTemplate = (template: ComposerTemplate) => {
+	const handleDuplicateTemplate = (template: ContentTemplate) => {
 		templateManager.saveTemplate({
 			name: `${template.name} (Copy)`,
-			platform: template.platform,
-			contentType: template.contentType,
-			goal: template.goal,
-			tone: template.tone,
-			message: template.message,
+			isPreset: false,
+			createdBy: "",
+			config: { ...template.config },
+			content: template.content,
 		});
 		setTemplates([...templateManager.templates]);
 	};
@@ -166,7 +187,6 @@ export function TemplateManagerDialog({
 												setNewTemplateName("");
 											}
 										}}
-										autoFocus
 									/>
 									<button
 										type="button"
@@ -215,31 +235,31 @@ export function TemplateManagerDialog({
 										</div>
 										{/* Template Details */}
 										<div className="flex flex-wrap gap-1.5 mt-2">
-											{template.platform && (
+											{template.config.platform && (
 												<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-													{template.platform}
+													{template.config.platform}
 												</span>
 											)}
-											{template.contentType && (
+											{template.config.format && (
 												<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-													{template.contentType}
+													{template.config.format}
 												</span>
 											)}
-											{template.goal && (
+											{template.config.purpose && (
 												<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
-													{template.goal}
+													{template.config.purpose}
 												</span>
 											)}
-											{template.tone && (
+											{template.config.tone && (
 												<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">
-													{template.tone}
+													{template.config.tone}
 												</span>
 											)}
 										</div>
-										{template.message && (
+										{template.content && (
 											<div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
-												"{template.message.slice(0, 60)}
-												{template.message.length > 60 ? "..." : ""}"
+												"{template.content.slice(0, 60)}
+												{template.content.length > 60 ? "..." : ""}"
 											</div>
 										)}
 									</button>

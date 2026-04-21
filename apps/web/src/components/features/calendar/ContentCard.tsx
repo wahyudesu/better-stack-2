@@ -1,4 +1,5 @@
 import {
+	ExternalLink,
 	Heart,
 	MessageCircle,
 	MousePointerClick,
@@ -66,6 +67,7 @@ export function ContentCard({
 			draggable={draggable}
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
+			onClick={() => onClick?.()}
 			style={{
 				backgroundColor:
 					variant === "calendar" ? platformBgColor : badgeStyle.bg,
@@ -177,7 +179,7 @@ export function ContentCard({
 				{/* Header */}
 				<div className="flex items-center justify-between px-3 py-2.5 border-b border-border/50">
 					<span className="text-xs text-muted-foreground">
-						Apr 13, 6:09 PM • Custom
+						{event.date} • {event.platform}
 					</span>
 				</div>
 
@@ -200,7 +202,10 @@ export function ContentCard({
 						<p className="text-sm text-muted-foreground line-clamp-4">
 							{event.description || event.title}
 						</p>
-						<button className="text-xs text-primary mt-1 hover:underline">
+						<button
+							type="button"
+							className="text-xs text-primary mt-1 hover:underline"
+						>
 							see more
 						</button>
 					</div>
@@ -225,28 +230,22 @@ export function ContentCard({
 				{/* Interaction Bar */}
 				<div className="flex items-center justify-between px-3 py-2.5 border-t border-border/50 bg-muted/30">
 					<div className="flex items-center gap-4">
-						<div className="flex items-center gap-1.5">
-							<Heart className="size-3.5 text-muted-foreground" />
-							<span className="text-xs font-medium">7</span>
-						</div>
-						<div className="flex items-center gap-1.5">
-							<MessageCircle className="size-3.5 text-muted-foreground" />
-							<span className="text-xs font-medium">0</span>
-						</div>
-						<div className="flex items-center gap-1.5">
-							<TrendingUp className="size-3.5 text-muted-foreground" />
-							<span className="text-xs font-medium">45%</span>
-						</div>
-						<div className="flex items-center gap-1.5">
-							<MousePointerClick className="size-3.5 text-muted-foreground" />
-							<span className="text-xs text-muted-foreground">2</span>
-						</div>
+						<Heart className="size-3.5 text-muted-foreground" />
+						<MessageCircle className="size-3.5 text-muted-foreground" />
+						<TrendingUp className="size-3.5 text-muted-foreground" />
+						<MousePointerClick className="size-3.5 text-muted-foreground" />
 					</div>
 				</div>
 
 				{/* Actions */}
 				<div className="flex items-center justify-end px-3 py-2.5 border-t border-border/50">
-					<Button variant="default" size="sm" className="text-xs h-8">
+					<Button
+						variant="default"
+						size="sm"
+						className="text-xs h-8"
+						onClick={() => event.postUrl && window.open(event.postUrl, "_blank")}
+					>
+						<ExternalLink className="size-3.5 mr-1.5" />
 						View Post
 					</Button>
 				</div>

@@ -17,7 +17,6 @@ import { FilePreview, type UploadedFile } from "@/components/ui/file-preview";
 import { PlatformIcon } from "@/components/ui/PlatformIcon";
 import { Tabs, TabsContent, TabsList, TabsTab } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { PLATFORMS } from "@/lib/constants/platforms";
 import type { ProfilePlatform } from "@/lib/types/social";
 import { cn } from "@/lib/utils";
 

@@ -10,7 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { type CalendarEvent, calendarEvents, type Platform } from "@/data/mock";
+import { type CalendarEvent, calendarEvents } from "@/data/mock";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 

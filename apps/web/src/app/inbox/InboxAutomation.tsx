@@ -188,7 +188,7 @@ export function InboxAutomation() {
 
 	const updateForm = (
 		field: keyof AutomationRuleForm,
-		value: string | number | boolean,
+		value: string | number | boolean | PlatformMultiValue[],
 	) => {
 		setForm((prev) => ({ ...prev, [field]: value }));
 	};
@@ -229,10 +229,14 @@ export function InboxAutomation() {
 					<div className="space-y-4">
 						{/* Name */}
 						<div>
-							<label className="text-sm font-medium mb-2 block">
+							<label
+								htmlFor="automation-name"
+								className="text-sm font-medium mb-2 block"
+							>
 								Rule Name
 							</label>
 							<Input
+								id="automation-name"
 								placeholder="e.g., Welcome DM, Thank you comment..."
 								value={form.name}
 								onChange={(e) => updateForm("name", e.target.value)}
@@ -242,14 +246,17 @@ export function InboxAutomation() {
 
 						{/* Type */}
 						<div>
-							<label className="text-sm font-medium mb-2 block">
+							<label
+								htmlFor="automation-type"
+								className="text-sm font-medium mb-2 block"
+							>
 								Automation Type
 							</label>
 							<Select
 								value={form.type}
 								onValueChange={(v) => updateForm("type", v as AutomationType)}
 							>
-								<SelectTrigger className="font-medium">
+								<SelectTrigger id="automation-type" className="font-medium">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
@@ -271,12 +278,17 @@ export function InboxAutomation() {
 
 						{/* Trigger */}
 						<div>
-							<label className="text-sm font-medium mb-2 block">Trigger</label>
+							<label
+								htmlFor="automation-trigger"
+								className="text-sm font-medium mb-2 block"
+							>
+								Trigger
+							</label>
 							<Select
 								value={form.trigger}
 								onValueChange={(v) => updateForm("trigger", v as TriggerType)}
 							>
-								<SelectTrigger className="font-medium">
+								<SelectTrigger id="automation-trigger" className="font-medium">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
@@ -299,11 +311,15 @@ export function InboxAutomation() {
 						{/* Keywords (only show when trigger is keyword) */}
 						{form.trigger === "keyword" && (
 							<div>
-								<label className="text-sm font-medium mb-2 block">
+								<label
+									htmlFor="automation-keywords"
+									className="text-sm font-medium mb-2 block"
+								>
 									<Hash className="h-4 w-4 inline mr-1" />
 									Keywords
 								</label>
 								<Input
+									id="automation-keywords"
 									placeholder="love, amazing, awesome, great"
 									value={form.keywords}
 									onChange={(e) => updateForm("keywords", e.target.value)}
@@ -324,10 +340,14 @@ export function InboxAutomation() {
 
 						{/* Response */}
 						<div>
-							<label className="text-sm font-medium mb-2 block">
+							<label
+								htmlFor="automation-response"
+								className="text-sm font-medium mb-2 block"
+							>
 								Response Message
 							</label>
 							<Textarea
+								id="automation-response"
 								placeholder="Type your automated response here..."
 								value={form.response}
 								onChange={(e) => updateForm("response", e.target.value)}
@@ -338,12 +358,16 @@ export function InboxAutomation() {
 
 						{/* Delay */}
 						<div>
-							<label className="text-sm font-medium mb-2 block">
+							<label
+								htmlFor="automation-delay"
+								className="text-sm font-medium mb-2 block"
+							>
 								<Clock className="h-4 w-4 inline mr-1" />
 								Delay before sending
 							</label>
 							<div className="flex items-center gap-3">
 								<Input
+									id="automation-delay"
 									type="number"
 									min={0}
 									max={3600}

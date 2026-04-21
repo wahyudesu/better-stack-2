@@ -14,6 +14,8 @@ import {
 	PreferencesTab,
 	SettingsLayout,
 	type TabId,
+	UserTab,
+	WebhooksTab,
 } from "@/components/features/settings";
 
 export default function SettingsPage() {
@@ -25,6 +27,8 @@ export default function SettingsPage() {
 			{activeTab === "connections" && <ConnectionsTab />}
 			{activeTab === "billing" && <BillingTab />}
 			{activeTab === "preferences" && <PreferencesTab />}
+			{activeTab === "user" && <UserTab />}
+			{activeTab === "webhooks" && <WebhooksTab />}
 		</SettingsLayout>
 	);
 }
