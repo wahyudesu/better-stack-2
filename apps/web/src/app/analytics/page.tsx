@@ -337,7 +337,7 @@ export default function AnalyticsPage() {
 							<p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
 							<p className="text-xl font-bold">
 								{formatMetricValue(
-									totals[stat.key as keyof typeof totals] as number,
+									(totals[stat.key as keyof typeof totals] ?? 0) as number,
 								)}
 							</p>
 							<div className="flex items-center gap-0.5 text-xs text-success mt-1">

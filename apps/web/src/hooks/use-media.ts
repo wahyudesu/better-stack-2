@@ -39,12 +39,12 @@ export function useMediaUpload() {
 			// Get presigned URL
 			const { data: presignedData, error: presignError } =
 				await api.getPresignedUrl({
-					filename: filename || file.name,
+					filename: filename || ("name" in file ? file.name : "upload"),
 					contentType:
 						mimeType || (file as File).type || "application/octet-stream",
 				});
 
-			if (presignError) throw new Error(presignedError);
+			if (presignError) throw new Error(presignError);
 			if (!presignedData?.uploadUrl)
 				throw new Error("Failed to get upload URL");
 
@@ -102,10 +102,10 @@ export function useMediaUploadDirect() {
 			);
 
 			if (!response.ok) {
-				const error = await response
+				const err = await response
 					.json()
-					.catch(() => ({ error: response.statusText }));
-				throw new Error(error.error || "Upload failed");
+					.catch(() => ({ error: response.statusText })) as { error?: string };
+				throw new Error(err.error || "Upload failed");
 			}
 
 			return response.json();

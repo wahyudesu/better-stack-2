@@ -1,16 +1,23 @@
 https://promptwatch.com
 https://www.lightdash.com
 https://visitors.now/home
+https://datafa.st/
 
 # navbar
+feature
+pricing
+blogs
+login
+register
 
 # hero
 headings
+subheadings
 trial and demo
 
-multiple tabs and screenshot
+image: post, analytics, sentiment analysis
 
-brands
+brand
 
 # feature
 simple advantages feature
@@ -25,6 +32,13 @@ more feature
 
 # pricing
 
-# benefit journey that customer get
+# FAQ
+
+# testimonials
+threads, twitter, instagram, 
+
+# cta
 
 # footer
+link:login, pricing, support:mail, affiliate, contact
+legal:term of services, privacy policies

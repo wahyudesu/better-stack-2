@@ -13,9 +13,9 @@ import { DepthButton } from "@/components/ui/depth-buttons";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 
-type ViewMode = "calendar" | "cards";
-type CalendarView = "month" | "week";
-type PostStatus = "draft" | "pending" | "published" | "failed";
+export type ViewMode = "calendar" | "cards";
+export type CalendarView = "month" | "week";
+export type PostStatus = "draft" | "pending" | "published" | "failed";
 
 interface PostControlsProps {
 	viewMode: ViewMode;

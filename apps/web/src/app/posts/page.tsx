@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PostCardsView, PostControls } from "@/components/features/calendar";
+import type { ViewMode, CalendarView, PostStatus } from "@/components/features/calendar/PostControls";
 import { CalendarGrid } from "@/components/features/calendar/CalendarGrid";
 import {
 	AlertDialog,

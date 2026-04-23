@@ -17,9 +17,9 @@ export function useQueueSlots(profileId?: string) {
 	const targetProfileId = profileId || currentProfileId;
 
 	return useQuery({
-		queryKey: queueSlotKeys.list(targetProfileId),
+		queryKey: queueSlotKeys.list(targetProfileId!),
 		queryFn: async () => {
-			const { data, error } = await api.listQueueSlots(targetProfileId);
+			const { data, error } = await api.listQueueSlots(targetProfileId!);
 			if (error) throw error;
 			return data;
 		},
@@ -35,9 +35,9 @@ export function useNextQueueSlot(profileId?: string) {
 	const targetProfileId = profileId || currentProfileId;
 
 	return useQuery({
-		queryKey: queueSlotKeys.next(targetProfileId),
+		queryKey: queueSlotKeys.next(targetProfileId!),
 		queryFn: async () => {
-			const { data, error } = await api.nextQueueSlot(targetProfileId);
+			const { data, error } = await api.nextQueueSlot(targetProfileId!);
 			if (error) throw error;
 			return data;
 		},
@@ -57,12 +57,12 @@ export function useQueuePreview(
 
 	return useQuery({
 		queryKey: [
-			...queueSlotKeys.list(targetProfileId),
+			...queueSlotKeys.list(targetProfileId!),
 			"preview",
 			params,
 		] as const,
 		queryFn: async () => {
-			const { data, error } = await api.previewQueue(targetProfileId, params);
+			const { data, error } = await api.previewQueue(targetProfileId!, params);
 			if (error) throw error;
 			return data;
 		},

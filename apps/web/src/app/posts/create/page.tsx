@@ -1,10 +1,9 @@
 "use client";
 
 import { Eye, EyeOff, Loader2, Tag, X } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import { AccountSelector } from "@/components/features/create-post/account-selector";
 import { ContentEditor } from "@/components/features/create-post/content-editor";
-import { ProfileSelector } from "@/components/features/create-post/profile-selector";
 import { PublishOptions } from "@/components/features/create-post/publish-options";
 import { ScheduledDateTime } from "@/components/features/create-post/scheduled-datetime";
 import { SocialPreview } from "@/components/features/create-post/social-preview";
@@ -67,10 +66,6 @@ export default function CreatePostPage() {
 	const selectedAccounts = profiles.filter((a) =>
 		selectedAccountIds.includes(a.id),
 	);
-
-	const platforms = [
-		...new Set(selectedAccounts.map((a) => a.platform)),
-	] as ProfilePlatform[];
 
 	const getSubmitLabel = () => {
 		switch (publishMode) {
@@ -196,7 +191,7 @@ export default function CreatePostPage() {
 						<Card className="p-4 border-primary/20 bg-primary/5">
 							<div className="space-y-3">
 								<span className="text-sm font-semibold">Select Accounts</span>
-								<ProfileSelector
+								<AccountSelector
 									accounts={profiles}
 									selectedIds={selectedAccountIds}
 									onChange={setSelectedAccountIds}

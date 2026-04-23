@@ -2,7 +2,7 @@ import { useAuthStore } from "@/stores";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
 	data: T | null;
 	error: string | null;
 }
@@ -47,7 +47,18 @@ async function fetchApi<T>(
 
 // Generic HTTP methods
 const http = {
-	get: <T>(path: string) => fetchApi<T>(path),
+	get: <T>(path: string, opts?: { query?: Record<string, string | number | boolean | undefined> }) => {
+		let finalPath = path;
+		if (opts?.query) {
+			const searchParams = new URLSearchParams();
+			for (const [key, value] of Object.entries(opts.query)) {
+				if (value !== undefined) searchParams.set(key, String(value));
+			}
+			const qs = searchParams.toString();
+			if (qs) finalPath = `${path}?${qs}`;
+		}
+		return fetchApi<T>(finalPath);
+	},
 	post: <T>(path: string, body: unknown) =>
 		fetchApi<T>(path, { method: "POST", body: JSON.stringify(body) }),
 	patch: <T>(path: string, body: unknown) =>
@@ -155,6 +166,19 @@ export interface UsageStats {
 		uploads: number;
 		profiles: number;
 	};
+}
+
+export interface CommentAutomation {
+	_id: string;
+	name: string;
+	accountId: string;
+	accountUsername?: string;
+	keywords?: string[];
+	autoReply?: string;
+	assignTo?: string;
+	isActive: boolean;
+	createdAt: string;
+	updatedAt?: string;
 }
 
 export interface CreatePostBody {
@@ -452,6 +476,45 @@ export const api = {
 	},
 	replyToReview: (reviewId: string, body: { text: string }) =>
 		http.post<any>(`/v1/inbox/reviews/${reviewId}/reply`, body),
+
+	// Comment Automations
+	listCommentAutomations: (params?: {
+		accountId?: string;
+		page?: number;
+		limit?: number;
+	}) => {
+		const searchParams = new URLSearchParams();
+		if (params?.accountId) searchParams.set("accountId", params.accountId);
+		if (params?.page) searchParams.set("page", String(params.page));
+		if (params?.limit) searchParams.set("limit", String(params.limit));
+		const query = searchParams.toString();
+		return http.get<{ automations: CommentAutomation[] }>(
+			`/v1/comment-automations${query ? `?${query}` : ""}`,
+		);
+	},
+	createCommentAutomation: (body: {
+		name: string;
+		accountId: string;
+		keywords?: string[];
+		autoReply?: string;
+		assignTo?: string;
+	}) => http.post<CommentAutomation>("/v1/comment-automations", body),
+	updateCommentAutomation: (
+		automationId: string,
+		body: {
+			name?: string;
+			keywords?: string[];
+			autoReply?: string;
+			assignTo?: string;
+			isActive?: boolean;
+		},
+	) =>
+		http.patch<CommentAutomation>(
+			`/v1/comment-automations/${automationId}`,
+			body,
+		),
+	deleteCommentAutomation: (automationId: string) =>
+		http.delete(`/v1/comment-automations/${automationId}`),
 
 	// Sequences
 	listSequences: (params?: {

@@ -1,19 +1,26 @@
 # navbar
+feature
+pricing
+/blogs
 
 # hero
 headings
+subheadings
 cta: waitlist
 
-multiple tabs and screenshot
+image: post, analytics
+
+logo brand
 
 # feature
-3 div feature
+3 strength app
 
 # feature
-
-more feature
+4 features and videos 
 
 # comparison
+hootsuite, buffer, repliz
+<!--sederhanakan dah-->
 
 # benefit journey that customer get
 
@@ -21,4 +28,8 @@ more feature
 
 # cta
 
+# faq
+
 # footer
+link:login, pricing, support:mail, affiliate, contact
+legal:term of services, privacy policies

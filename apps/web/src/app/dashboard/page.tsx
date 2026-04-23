@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import type { ChartMarker } from "@/components/charts/line-chart";
 import { AudienceCard } from "@/components/dashboard/audience-card";
 import { DemographicsCard } from "@/components/dashboard/demographics-card";
@@ -109,6 +109,7 @@ function generateData(
   socialMedia: SocialMediaPlatform,
   type: ReportType,
   timeRange: TimeRange,
+  dayOfMonthOverride?: number,
 ): {
   stats: Array<{
     label: string;
@@ -122,8 +123,7 @@ function generateData(
   regionData: DemographicDataItem[];
 } {
   // Create seed — includes day-of-month for daily variation
-  const today = new Date();
-  const dayOfMonth = today.getDate();
+  const dayOfMonth = dayOfMonthOverride ?? 1;
   const seedString = `${socialMedia}-${type}-${timeRange}-${dayOfMonth}`;
   let seed = 0;
   for (let i = 0; i < seedString.length; i++) {
@@ -401,16 +401,31 @@ export default function DashboardPage() {
 	const [demoView, setDemoView] = useState<DemoView>("follower");
 	const { metric: selectedMetric, setMetric: setSelectedMetric } =
 		useMetricPreference();
+	// Client-side day-of-month for dynamic seed variation
+	const [dayOfMonth, setDayOfMonth] = useState(1);
+
+	// Set actual day-of-month on client mount only
+	useEffect(() => {
+		setDayOfMonth(new Date().getDate());
+	}, []);
 
 	// Generate default data (not affected by filters)
-	const defaultData = useMemo(() => generateData("all", "overview", "7d"), []);
+	const defaultData = useMemo(
+		() => generateData("all", "overview", "7d", dayOfMonth),
+		[dayOfMonth],
+	);
 
 	// Generate filtered data only for line chart
 	const { chartData: filteredChartData, markers: filteredMarkers } =
 		useMemo(() => {
-			const result = generateData(selectedSocial, selectedType, selectedTime);
+			const result = generateData(
+				selectedSocial,
+				selectedType,
+				selectedTime,
+				dayOfMonth,
+			);
 			return { chartData: result.chartData, markers: result.markers };
-		}, [selectedSocial, selectedType, selectedTime]);
+		}, [selectedSocial, selectedType, selectedTime, dayOfMonth]);
 
 	return (
 		<div className={`${pageContainerClassName}`} style={pageMaxWidth}>
