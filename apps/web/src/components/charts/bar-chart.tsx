@@ -282,7 +282,8 @@ function ChartInner({
 
 	// Create a fake time scale for compatibility with ChartContext
 	const fakeTimeScale = useMemo(() => {
-		const now = Date.now();
+		// Use stable reference date for prerender compatibility
+		const now = new Date(2024, 5, 15).getTime(); // June 15, 2024 as stable reference
 		const start = now - data.length * 24 * 60 * 60 * 1000;
 		const scale = {
 			...categoryScale,

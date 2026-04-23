@@ -2,41 +2,44 @@
 
 import { PlatformIcon } from "@/components/ui/PlatformIcon";
 import { SocialMediaSelector } from "@/components/ui/social-media-selector";
-import { sampleProfiles } from "@/lib/data/social-data";
+import type { SocialMediaProfile } from "@/lib/types/social";
 
 interface ProfileSelectorProps {
+	accounts: SocialMediaProfile[];
 	selectedIds: string[];
 	onChange: (ids: string[]) => void;
 }
 
 export function ProfileSelector({
+	accounts,
 	selectedIds,
 	onChange,
 }: ProfileSelectorProps) {
-	const activeProfiles = sampleProfiles.filter((p) => p.status === "active");
+	const activeAccounts = accounts.filter((a) => a.status === "active");
 
 	return (
 		<div className="space-y-3">
 			<p className="text-xs text-muted-foreground">
-				Select one or more profiles to post to their connected accounts
+				Select one or more accounts to post to their connected platforms
 			</p>
 			<SocialMediaSelector
-				profiles={activeProfiles}
+				profiles={activeAccounts}
 				selected={selectedIds}
 				onChange={onChange}
+				max={10}
 				maxVisible={5}
-				label="Profiles"
+				label="Accounts"
 			/>
 			<div className="flex flex-wrap gap-2">
-				{activeProfiles
-					.filter((p) => selectedIds.includes(p.id))
-					.map((profile) => (
+				{activeAccounts
+					.filter((a) => selectedIds.includes(a.id))
+					.map((account) => (
 						<div
-							key={profile.id}
+							key={account.id}
 							className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs"
 						>
-							<PlatformIcon platform={profile.platform} size={14} />
-							<span>{profile.name}</span>
+							<PlatformIcon platform={account.platform} size={14} />
+							<span>{account.name}</span>
 						</div>
 					))}
 			</div>

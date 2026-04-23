@@ -31,7 +31,6 @@ export function SecurityTab() {
 		setError,
 	} = useAuthStore();
 	const [apiKeyInput, setApiKeyInput] = useState("");
-	const [showKey, setShowKey] = useState(false);
 
 	const maskedKey = apiKey
 		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
@@ -130,17 +129,10 @@ export function SecurityTab() {
 									Connected
 								</span>
 								<span className="text-sm text-muted-foreground font-mono ml-auto">
-									{showKey ? apiKey : maskedKey}
+									{maskedKey}
 								</span>
 							</div>
 							<div className="flex gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setShowKey(!showKey)}
-								>
-									{showKey ? "Hide" : "Show"} Key
-								</Button>
 								<Button
 									variant="outline"
 									size="sm"

@@ -58,11 +58,12 @@ import {
 	contentTypeData,
 	genderData,
 	platformData,
-	STAT_DEFINITIONS,
+	recentPosts,
 	socialMediaOptions,
 	timeOptions,
 	topPosts,
 } from "@/lib/data/analytics-data";
+import { STAT_DEFINITIONS } from "@/lib/types/analytics";
 
 // Colors for pie chart
 const pieColors = [
@@ -137,10 +138,8 @@ function generateDetailedData(timeRange: string, platform: string) {
 	const platformMult = platform === "all" ? 1 : 0.7 + random() * 0.6;
 
 	const chartData = Array.from({ length: days }, (_, i) => {
-		const date = new Date();
-		date.setDate(date.getDate() - (days - 1 - i));
 		return {
-			date,
+			day: i,
 			engagements: Math.floor(
 				(12000 + Math.sin(i / 4) * 4000 + ((i * 200) % 6000)) * platformMult,
 			),
@@ -163,23 +162,28 @@ function generateDetailedData(timeRange: string, platform: string) {
 		};
 	});
 
-	const markers = Array.from({ length: Math.floor(days / 7) }, (_, i) => ({
-		date: new Date(Date.now() - (days - (i + 1) * 7) * 24 * 60 * 60 * 1000),
-		network: ["instagram", "facebook", "x", "tiktok", "linkedin", "youtube"][
-			i % 6
-		],
-		color: ["#E1306C", "#1877F2", "#000000", "#000000", "#0077B5", "#FF0000"][
-			i % 6
-		],
-		title: [
-			"Product Launch",
-			"Campaign Start",
-			"Viral Content",
-			"Announcement",
-			"Tips",
-			"New Feature",
-		][i % 6],
-	}));
+	const markers = Array.from({ length: Math.floor(days / 7) }, (_, i) => {
+		// Use stable reference date for prerender compatibility
+		const baseDate = new Date(2024, 0, 1); // Jan 1, 2024 as stable reference
+		baseDate.setDate(baseDate.getDate() + (days - (i + 1) * 7));
+		return {
+			date: baseDate,
+			network: ["instagram", "facebook", "x", "tiktok", "linkedin", "youtube"][
+				i % 6
+			],
+			color: ["#E1306C", "#1877F2", "#000000", "#000000", "#0077B5", "#FF0000"][
+				i % 6
+			],
+			title: [
+				"Product Launch",
+				"Campaign Start",
+				"Viral Content",
+				"Announcement",
+				"Tips",
+				"New Feature",
+			][i % 6],
+		};
+	});
 
 	return { chartData, markers, days };
 }
@@ -578,9 +582,10 @@ export default function AnalyticsPage() {
 								</p>
 								<div className="flex flex-col items-center">
 									<PieChartWithLegend
-										data={
-											ageData as unknown as { label: string; value: number }[]
-										}
+										data={ageData.map((item) => ({
+											label: item.dimension,
+											value: item.value,
+										}))}
 										size={140}
 									/>
 								</div>
@@ -591,12 +596,10 @@ export default function AnalyticsPage() {
 								</p>
 								<div className="flex flex-col items-center">
 									<PieChartWithLegend
-										data={
-											genderData as unknown as {
-												label: string;
-												value: number;
-											}[]
-										}
+										data={genderData.map((item) => ({
+											label: item.dimension,
+											value: item.value,
+										}))}
 										size={140}
 									/>
 								</div>
@@ -605,11 +608,11 @@ export default function AnalyticsPage() {
 					</div>
 				</div>
 
-				{/* Top Performing Posts */}
+				{/* Recent Posts */}
 				<div className="border rounded-lg p-4">
-					<h3 className="font-semibold mb-4">Top Performing Posts</h3>
+					<h3 className="font-semibold mb-4">Recent Posts</h3>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						{topPosts.map((post) => (
+						{recentPosts.map((post) => (
 							<div key={post.id} className="border rounded-lg p-4">
 								<div className="flex items-start justify-between mb-2">
 									<div className="flex items-center gap-2">
@@ -618,9 +621,13 @@ export default function AnalyticsPage() {
 											{post.platform === "instagram" && "📷"}
 											{post.platform === "twitter" && "𝕏"}
 											{post.platform === "linkedin" && "in"}
+											{post.platform === "youtube" && "▶️"}
+											{post.platform === "facebook" && "👥"}
 										</div>
 										<div>
-											<p className="font-medium text-sm">{post.platform}</p>
+											<p className="font-medium text-sm capitalize">
+												{post.platform}
+											</p>
 											<p className="text-xs text-muted-foreground">
 												{post.date.toLocaleDateString()}
 											</p>

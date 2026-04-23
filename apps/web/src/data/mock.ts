@@ -458,7 +458,8 @@ function postToCalendarEvent(post: ContentPost): CalendarEvent {
 		status: post.status,
 		color: PLATFORM_COLORS[primaryPlatform],
 		thumbnail: post.media[0]?.url,
-		mediaType: (post.media[0]?.type === "image" || post.media[0]?.type === "video"
+		mediaType: (post.media[0]?.type === "image" ||
+		post.media[0]?.type === "video"
 			? post.media[0]?.type
 			: undefined) as "image" | "video" | undefined,
 	};

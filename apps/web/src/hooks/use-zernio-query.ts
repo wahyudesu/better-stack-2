@@ -24,7 +24,7 @@ async function fetchZernio<T>(
 		},
 	});
 
-	const data = await response.json() as { error?: string };
+	const data = (await response.json()) as { error?: string };
 
 	if (!response.ok) {
 		throw new Error(data?.error || `Request failed: ${response.status}`);

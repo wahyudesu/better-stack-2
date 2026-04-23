@@ -46,6 +46,118 @@ export interface DemographicDataItem {
 	users: number;
 }
 
+/**
+ * API response type for demographics.
+ * API: GET /v1/analytics/instagram/demographics
+ * Response: { demographics: { age/gender: [{ dimension, value }] } }
+ */
+export interface DemographicApiItem {
+	dimension: string;
+	value: number;
+}
+
+// ============================================================
+// API RESPONSE TYPES (mirror server response)
+// ============================================================
+
+/**
+ * API response: GET /v1/analytics/daily-metrics
+ * Response: { dailyData: [{ date, metrics: {...} }], platformBreakdown: [...] }
+ */
+export interface DailyMetricsApiResponse {
+	dailyData: Array<{
+		date: string;
+		postCount: number;
+		platforms: string[];
+		metrics: {
+			impressions: number;
+			reach: number;
+			likes: number;
+			comments: number;
+			shares: number;
+			saves: number;
+			clicks: number;
+			views: number;
+		};
+	}>;
+	platformBreakdown: Array<{
+		platform: string;
+		postCount: number;
+		metrics: {
+			impressions: number;
+			reach: number;
+			likes: number;
+			comments: number;
+			shares: number;
+			saves: number;
+			clicks: number;
+			views: number;
+		};
+	}>;
+}
+
+/**
+ * API response: GET /v1/analytics/best-time
+ * Response: { slots: [{ day_of_week, hour, avg_engagement, post_count }] }
+ */
+export interface BestTimeSlot {
+	day_of_week: string;
+	hour: number;
+	avg_engagement: number;
+	post_count: number;
+}
+
+export interface BestTimeApiResponse {
+	slots: BestTimeSlot[];
+}
+
+/**
+ * API response: GET /v1/analytics (single post analytics)
+ * Response: { postId, analytics: {...}, platformAnalytics: [...] }
+ */
+export interface PostAnalyticsApiResponse {
+	postId: string;
+	latePostId: string | null;
+	status: string;
+	content: string;
+	scheduledFor: string;
+	publishedAt: string;
+	analytics: {
+		impressions: number;
+		reach: number;
+		likes: number;
+		comments: number;
+		shares: number;
+		saves: number;
+		clicks: number;
+		views: number;
+		engagementRate: number;
+	};
+	platformAnalytics: Array<{
+		platform: string;
+		status: string;
+		platformPostId: string;
+		accountId: string;
+		accountUsername: string;
+		analytics: {
+			impressions: number;
+			reach: number;
+			likes: number;
+			comments: number;
+			shares: number;
+			saves: number;
+			clicks: number;
+			views: number;
+			engagementRate: number;
+		};
+		syncStatus: string;
+		platformPostUrl: string;
+		errorMessage: string | null;
+	}>;
+	platform: string;
+	platformPostUrl: string;
+}
+
 // ============================================================
 // ANALYTICS TIME SERIES
 // ============================================================
@@ -122,6 +234,22 @@ export interface TopPerformingPost {
 	analyticsId?: string;
 }
 
+/**
+ * Recent post item for analytics grid.
+ * Matches API response shape from GET /v1/posts
+ */
+export interface RecentPostItem {
+	id: string;
+	platform: ProfilePlatform;
+	content: string;
+	date: Date;
+	likes: number;
+	comments: number;
+	shares: number;
+	views: number;
+	engagementRate: number;
+}
+
 // ============================================================
 // STAT CARDS (overview page)
 // ============================================================
@@ -135,12 +263,12 @@ export interface StatCard {
 }
 
 export const STAT_DEFINITIONS = [
-	{ key: "engagements", label: "Total Engagements", change: "+18.2%" },
-	{ key: "impressions", label: "Impressions", change: "+24.5%" },
-	{ key: "followerGrowth", label: "New Followers", change: "+12.8%" },
-	{ key: "clicks", label: "Link Clicks", change: "+8.4%" },
-	{ key: "shares", label: "Shares", change: "+15.3%" },
-	{ key: "saves", label: "Saves", change: "+22.1%" },
+	{ key: "impressions", label: "Impressions", change: "+0%" },
+	{ key: "engagements", label: "Engagements", change: "+0%" },
+	{ key: "likes", label: "Likes", change: "+0%" },
+	{ key: "replies", label: "Replies", change: "+0%" },
+	{ key: "shares", label: "Shares", change: "+0%" },
+	{ key: "saves", label: "Saves", change: "+0%" },
 ] as const;
 
 export type StatKey = (typeof STAT_DEFINITIONS)[number]["key"];
@@ -150,16 +278,35 @@ export type StatKey = (typeof STAT_DEFINITIONS)[number]["key"];
 // ============================================================
 
 /**
- * Calculate engagement rate from metrics.
+ * Calculate total engagements from metrics.
+ * Engagements = likes + comments + shares
  */
-export function calculateEngagementRate(
+export function calculateEngagements(
 	likes: number,
 	comments: number,
 	shares: number,
-	views: number,
 ): number {
-	if (views === 0) return 0;
-	return ((likes + comments + shares) / views) * 100;
+	return likes + comments + shares;
+}
+
+/**
+ * Calculate percent change between current and previous period.
+ * Returns positive for increase, negative for decrease.
+ */
+export function calculatePercentChange(
+	current: number,
+	previous: number,
+): number {
+	if (previous === 0) return current > 0 ? 100 : 0;
+	return ((current - previous) / previous) * 100;
+}
+
+/**
+ * Format percent change for display.
+ */
+export function formatPercentChange(percentChange: number): string {
+	const sign = percentChange >= 0 ? "+" : "";
+	return `${sign}${percentChange.toFixed(1)}%`;
 }
 
 /**

@@ -4,9 +4,8 @@
  */
 
 export type { PostMedia } from "./content/media";
-export type { ProfilePlatform } from "./core/platform";
 export type { PostStatus } from "./content/post-status";
-export type { ProfileStatus } from "./core/platform";
+export type { ProfilePlatform, ProfileStatus } from "./core/platform";
 
 import type { PostMedia } from "./content/media";
 import type { PostStatus } from "./content/post-status";
@@ -65,4 +64,5 @@ export interface SocialMediaProfile {
 	platformUserId?: string;
 	errorMessage?: string;
 	followerCount?: number;
+	profileId?: string;
 }

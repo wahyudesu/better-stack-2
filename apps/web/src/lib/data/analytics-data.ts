@@ -10,7 +10,7 @@ import type {
 	PlatformAnalytics,
 	TopPerformingPost,
 } from "@/lib/types";
-import { STAT_DEFINITIONS } from "@/lib/types/analytics";
+import type { DemographicApiItem, RecentPostItem } from "@/lib/types/analytics";
 
 // ============================================================
 // PLATFORM ANALYTICS
@@ -77,18 +77,24 @@ export const contentTypeData: readonly ContentTypeAnalytics[] = [
 // DEMOGRAPHICS
 // ============================================================
 
-export const ageData: readonly DemographicDataItem[] = [
-	{ label: "18-24", users: 28 },
-	{ label: "25-34", users: 35 },
-	{ label: "35-44", users: 22 },
-	{ label: "45-54", users: 10 },
-	{ label: "55+", users: 5 },
+// ============================================================
+// DEMOGRAPHICS
+// API: GET /v1/analytics/instagram/demographics
+// Response: { demographics: { age/gender: [{ dimension, value }] } }
+// ============================================================
+
+export const ageData: readonly { dimension: string; value: number }[] = [
+	{ dimension: "18-24", value: 28 },
+	{ dimension: "25-34", value: 35 },
+	{ dimension: "35-44", value: 22 },
+	{ dimension: "45-54", value: 10 },
+	{ dimension: "55+", value: 5 },
 ];
 
-export const genderData: readonly DemographicDataItem[] = [
-	{ label: "Male", users: 45 },
-	{ label: "Female", users: 52 },
-	{ label: "Other", users: 3 },
+export const genderData: readonly { dimension: string; value: number }[] = [
+	{ dimension: "Male", value: 45 },
+	{ dimension: "Female", value: 52 },
+	{ dimension: "Other", value: 3 },
 ];
 
 export const countryData: readonly DemographicDataItem[] = [
@@ -143,7 +149,7 @@ export const topPosts: readonly TopPerformingPost[] = [
 	{
 		id: "post-3",
 		platform: "twitter",
-		content: "Excited to announce our new product launch! 🚀",
+		content: "Exciting news to share with our community!",
 		likes: 8900,
 		comments: 234,
 		shares: 1200,
@@ -161,6 +167,106 @@ export const topPosts: readonly TopPerformingPost[] = [
 		views: 45000,
 		engagementRate: 5.0,
 		date: new Date("2026-03-10"),
+	},
+] as const;
+
+/**
+ * Recent posts - dummy data matching API response shape.
+ * Used for UI development before analytics integration.
+ * API: GET /v1/posts?status=published&sortBy=publishedAt&limit=10
+ */
+export const recentPosts: readonly RecentPostItem[] = [
+	{
+		id: "65f1c0a9e2b5af0012ab34cd",
+		platform: "instagram",
+		content:
+			"Check out our new product launch! Something we've been working on for months",
+		date: new Date("2026-04-22"),
+		likes: 3420,
+		comments: 128,
+		shares: 45,
+		views: 28900,
+		engagementRate: 12.1,
+	},
+	{
+		id: "65f1c0a9e2b5af0012ab34ce",
+		platform: "twitter",
+		content: "Excited to announce our new feature! 🚀 Here's how it works...",
+		date: new Date("2026-04-21"),
+		likes: 1890,
+		comments: 89,
+		shares: 234,
+		views: 15600,
+		engagementRate: 14.2,
+	},
+	{
+		id: "65f1c0a9e2b5af0012ab34cf",
+		platform: "tiktok",
+		content:
+			"Day in the life of a startup founder! #startuplife #behindthescenes",
+		date: new Date("2026-04-20"),
+		likes: 45200,
+		comments: 1890,
+		shares: 3200,
+		views: 520000,
+		engagementRate: 9.6,
+	},
+	{
+		id: "65f1c0a9e2b5af0012ab34d0",
+		platform: "linkedin",
+		content:
+			"We're hiring! Join our growing team and build the future of social media management",
+		date: new Date("2026-04-19"),
+		likes: 2100,
+		comments: 89,
+		shares: 156,
+		views: 45000,
+		engagementRate: 5.0,
+	},
+	{
+		id: "65f1c0a9e2b5af0012ab34d1",
+		platform: "youtube",
+		content: "How we scaled to 1M users in 6 months - Full breakdown",
+		date: new Date("2026-04-18"),
+		likes: 8900,
+		comments: 456,
+		shares: 1200,
+		views: 125000,
+		engagementRate: 8.3,
+	},
+	{
+		id: "65f1c0a9e2b5af0012ab34d2",
+		platform: "instagram",
+		content: "Behind the scenes at our office! Team work makes the dream work",
+		date: new Date("2026-04-17"),
+		likes: 12300,
+		comments: 456,
+		shares: 234,
+		views: 89000,
+		engagementRate: 14.4,
+	},
+	{
+		id: "65f1c0a9e2b5af0012ab34d3",
+		platform: "facebook",
+		content:
+			"Join us for a live Q&A session this Friday at 3PM! Drop your questions below 👇",
+		date: new Date("2026-04-16"),
+		likes: 980,
+		comments: 234,
+		shares: 89,
+		views: 12300,
+		engagementRate: 6.8,
+	},
+	{
+		id: "65f1c0a9e2b5af0012ab34d4",
+		platform: "twitter",
+		content: "5 tips for building a successful startup in 2026 🧵",
+		date: new Date("2026-04-15"),
+		likes: 4560,
+		comments: 178,
+		shares: 890,
+		views: 67800,
+		engagementRate: 8.9,
 	},
 ] as const;
 
@@ -192,7 +298,8 @@ export const timeOptions = [
 export type PlatformDataItem = (typeof platformAnalyticsData)[number];
 export type ContentTypeDataItem = (typeof contentTypeData)[number];
 export type TopPostItem = (typeof topPosts)[number];
+export type AgeDataItem = (typeof ageData)[number];
+export type GenderDataItem = (typeof genderData)[number];
 
 // Backward compatibility aliases
 export const platformData = platformAnalyticsData;
-export { STAT_DEFINITIONS };

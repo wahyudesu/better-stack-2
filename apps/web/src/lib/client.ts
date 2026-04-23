@@ -27,7 +27,7 @@ async function fetchApi<T>(
 			},
 		});
 
-		const data = await response.json() as { error?: string };
+		const data = (await response.json()) as { error?: string };
 
 		if (!response.ok) {
 			return {
@@ -78,15 +78,24 @@ export interface SocialAccount {
 
 export interface Post {
 	_id: string;
+	title?: string;
 	text: string;
+	content?: string;
 	profileId: string;
 	socialAccountIds: string[];
 	scheduledAt?: string;
 	publishedAt?: string;
 	media?: Array<{ url: string; type?: string; altText?: string }>;
+	mediaItems?: Array<{ url: string; type?: string }>;
 	thread?: Array<{ text: string; media?: Array<{ url: string }> }>;
 	status: "draft" | "scheduled" | "published" | "failed" | "cancelled";
 	platformPostIds?: Record<string, string>;
+	platforms?: Array<{
+		platform: string;
+		status: string;
+		platformPostId?: string;
+		platformPostUrl?: string;
+	}>;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -96,6 +105,34 @@ export interface QueueItem {
 	post: Post;
 	scheduledAt: string;
 	status: "pending" | "processing" | "completed" | "failed";
+}
+
+export interface QueueSlot {
+	_id: string;
+	profileId: string;
+	dayOfWeek: number;
+	time: string;
+	repeatEnabled: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface MediaItem {
+	_id: string;
+	url: string;
+	type: "image" | "video";
+	filename?: string;
+	mimeType?: string;
+	size?: number;
+	width?: number;
+	height?: number;
+	createdAt: string;
+}
+
+export interface PresignedUrl {
+	uploadUrl: string;
+	fileUrl: string;
+	fields?: Record<string, string>;
 }
 
 export interface PostAnalytics {
@@ -172,11 +209,19 @@ export const api = {
 		page?: number;
 		limit?: number;
 		profileId?: string;
+		status?: "draft" | "scheduled" | "published" | "failed" | "cancelled";
+		sortBy?:
+			| "scheduled-desc"
+			| "scheduled-asc"
+			| "created-desc"
+			| "created-asc";
 	}) => {
 		const searchParams = new URLSearchParams();
 		if (params?.page) searchParams.set("page", String(params.page));
 		if (params?.limit) searchParams.set("limit", String(params.limit));
 		if (params?.profileId) searchParams.set("profileId", params.profileId);
+		if (params?.status) searchParams.set("status", params.status);
+		if (params?.sortBy) searchParams.set("sortBy", params.sortBy);
 		const query = searchParams.toString();
 		return http.get<{ posts: Post[] }>(`/v1/posts${query ? `?${query}` : ""}`);
 	},
@@ -185,6 +230,7 @@ export const api = {
 	updatePost: (postId: string, body: Partial<Post>) =>
 		http.patch<Post>(`/v1/posts/${postId}`, body),
 	deletePost: (postId: string) => http.delete(`/v1/posts/${postId}`),
+	queuePost: (body: CreatePostBody) => http.post<Post>("/v1/queue", body),
 	bulkUploadPost: (body: { csvUrl: string; profileId?: string }) =>
 		http.post<any>("/v1/posts/bulk-upload", body),
 	editPost: (
@@ -455,4 +501,99 @@ export const api = {
 	}) => http.post<any>("/v1/broadcasts", body),
 	sendBroadcast: (broadcastId: string, accountId: string) =>
 		http.post<any>(`/v1/broadcasts/${broadcastId}/send`, { accountId }),
+
+	// Queue Slots
+	listQueueSlots: (
+		profileId: string,
+		params?: { startDate?: string; endDate?: string },
+	) => {
+		const searchParams = new URLSearchParams({ profileId });
+		if (params?.startDate) searchParams.set("startDate", params.startDate);
+		if (params?.endDate) searchParams.set("endDate", params.endDate);
+		return http.get<{ slots: QueueSlot[] }>(`/v1/queue/slots?${searchParams}`);
+	},
+	getQueueSlot: (slotId: string) =>
+		http.get<QueueSlot>(`/v1/queue/slots/${slotId}`),
+	createQueueSlot: (body: {
+		profileId: string;
+		dayOfWeek?: number;
+		time?: string;
+		repeatEnabled?: boolean;
+	}) => http.post<QueueSlot>("/v1/queue/slots", body),
+	updateQueueSlot: (
+		slotId: string,
+		body: { dayOfWeek?: number; time?: string; repeatEnabled?: boolean },
+	) => http.patch<QueueSlot>(`/v1/queue/slots/${slotId}`, body),
+	deleteQueueSlot: (slotId: string) => http.delete(`/v1/queue/slots/${slotId}`),
+	previewQueue: (
+		profileId: string,
+		params?: { startDate?: string; endDate?: string },
+	) => {
+		const searchParams = new URLSearchParams({ profileId });
+		if (params?.startDate) searchParams.set("startDate", params.startDate);
+		if (params?.endDate) searchParams.set("endDate", params.endDate);
+		return http.get<any>(`/v1/queue/preview?${searchParams}`);
+	},
+	nextQueueSlot: (profileId: string) =>
+		http.get<{ slot: QueueSlot }>(`/v1/queue/next-slot?profileId=${profileId}`),
+
+	// Media
+	getPresignedUrl: (body: { filename: string; contentType: string }) =>
+		http.post<PresignedUrl>("/v1/media/presign", body),
+	getMedia: (mediaId: string) => http.get<MediaItem>(`/v1/media/${mediaId}`),
+
+	// Tools - YouTube
+	youtubeDownload: (params: {
+		url: string;
+		action?: "download" | "formats";
+		format?: "video" | "audio";
+		quality?: "hd" | "sd";
+		formatId?: string;
+	}) => http.get<any>(`/v1/tools/youtube/download`, { query: params }),
+	youtubeTranscript: (params: { url: string; lang?: string }) =>
+		http.get<any>(`/v1/tools/youtube/transcript`, { query: params }),
+
+	// Tools - Instagram
+	instagramDownload: (params: { url: string }) =>
+		http.get<any>(`/v1/tools/instagram/download`, { query: params }),
+	instagramHashtagChecker: (hashtags: string[]) =>
+		http.post<any>("/v1/tools/instagram/hashtag-checker", { hashtags }),
+
+	// Tools - TikTok
+	tiktokDownload: (params: {
+		url: string;
+		action?: "download" | "formats";
+		formatId?: string;
+	}) => http.get<any>(`/v1/tools/tiktok/download`, { query: params }),
+
+	// Tools - Twitter/X
+	twitterDownload: (params: {
+		url: string;
+		action?: "download" | "formats";
+		formatId?: string;
+	}) => http.get<any>(`/v1/tools/twitter/download`, { query: params }),
+
+	// Tools - Facebook
+	facebookDownload: (params: { url: string }) =>
+		http.get<any>(`/v1/tools/facebook/download`, { query: params }),
+
+	// Tools - LinkedIn
+	linkedinDownload: (params: { url: string }) =>
+		http.get<any>(`/v1/tools/linkedin/download`, { query: params }),
+
+	// Tools - Bluesky
+	blueskyDownload: (params: { url: string }) =>
+		http.get<any>(`/v1/tools/bluesky/download`, { query: params }),
+
+	// Tools - Validation
+	validatePostLength: (text: string) =>
+		http.post<any>("/v1/tools/validate/post-length", { text }),
+	validatePost: (data: {
+		content?: string;
+		platforms: Array<{ platform: string; customContent?: string }>;
+	}) => http.post<any>("/v1/tools/validate/post", data),
+	validateMedia: (data: { url: string; type?: string }) =>
+		http.post<any>("/v1/tools/validate/media", data),
+	validateSubreddit: (data: { subreddit: string }) =>
+		http.post<any>("/v1/tools/validate/subreddit", data),
 };

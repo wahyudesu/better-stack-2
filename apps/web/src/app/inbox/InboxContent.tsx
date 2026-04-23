@@ -6,9 +6,11 @@ import {
 	AvatarImage,
 } from "@better-stack-2/ui/components/avatar";
 import { ScrollArea } from "@better-stack-2/ui/components/scroll-area";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	ArrowLeft,
 	Bot,
+	Briefcase,
 	Check,
 	Instagram,
 	MessageSquare,
@@ -21,9 +23,10 @@ import {
 	Star,
 	Tag,
 	Twitter,
+	Users,
 	Youtube,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAuthGate } from "@/components/auth";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Badge } from "@/components/ui/badge";
@@ -39,10 +42,72 @@ import {
 	PlatformFilterDropdown,
 	type PlatformFilterValue,
 } from "@/components/ui/platform-filter";
+import {
+	getMockMessages,
+	mockBroadcasts,
+	mockComments,
+	mockContacts,
+	mockConversations,
+	mockReviews,
+	shouldUseMockData,
+} from "@/data/inbox-mock";
+import { api } from "@/lib/client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { InboxAutomation } from "./InboxAutomation";
 
+// Server response shapes from Zernio API
+// https://zernio.com/docs - Inbox Conversations endpoint
+export interface ServerConversation {
+	id: string;
+	platform: string;
+	accountId: string;
+	accountUsername: string;
+	participantId: string;
+	participantName: string;
+	participantPicture: string | null;
+	participantVerifiedType: "blue" | "government" | "business" | "none" | null;
+	lastMessage: string;
+	updatedTime: string;
+	status: "active" | "archived";
+	unreadCount: number | null;
+	url: string | null;
+	instagramProfile?: {
+		isFollower: boolean | null;
+		isFollowing: boolean | null;
+		followerCount: number | null;
+		isVerified: boolean | null;
+		fetchedAt: string | null;
+	};
+}
+
+export interface ServerMessage {
+	id: string;
+	conversationId: string;
+	accountId: string;
+	platform: string;
+	message: string;
+	senderId: string;
+	senderName: string | null;
+	senderVerifiedType: "blue" | "government" | "business" | "none" | null;
+	direction: "incoming" | "outgoing";
+	createdAt: string;
+	attachments: Array<{
+		id: string;
+		type: "image" | "video" | "audio" | "file" | "sticker" | "share";
+		url: string;
+		filename: string | null;
+		previewUrl: string | null;
+	}>;
+	subject?: string | null;
+	storyReply?: boolean | null;
+	isStoryMention?: boolean | null;
+	isEdited?: boolean;
+	editedAt?: string | null;
+	deliveryStatus?: "sent" | "delivered" | "read" | "failed" | "deleted" | null;
+}
+
+// Customer label for conversation (stored locally, not from Zernio)
 type CustomerLabel = "vip" | "lead" | "customer" | "partner" | "none";
 
 const labelConfig: Record<
@@ -82,11 +147,26 @@ interface ChatMessage {
 	content: string;
 	timestamp: string;
 	isFromMe: boolean;
+	mediaUrl?: string;
 }
 
 interface Conversation {
 	id: string;
-	platform: "instagram" | "tiktok" | "twitter" | "youtube";
+	platform:
+		| "instagram"
+		| "tiktok"
+		| "twitter"
+		| "youtube"
+		| "facebook"
+		| "linkedin"
+		| "threads"
+		| "reddit"
+		| "bluesky"
+		| "telegram"
+		| "google"
+		| "snapchat"
+		| "discord"
+		| "whatsapp";
 	type: "message" | "comment";
 	sender: string;
 	avatar: string;
@@ -101,7 +181,10 @@ interface Conversation {
 	customerLabel?: CustomerLabel;
 }
 
-const platformConfig = {
+const platformConfig: Record<
+	string,
+	{ icon: React.ElementType; color: string; bg: string; name: string }
+> = {
 	instagram: {
 		icon: Instagram,
 		color: "text-pink-500",
@@ -126,201 +209,123 @@ const platformConfig = {
 		bg: "bg-red-500/10",
 		name: "YouTube",
 	},
+	facebook: {
+		icon: Users,
+		color: "text-blue-600",
+		bg: "bg-blue-500/10",
+		name: "Facebook",
+	},
+	linkedin: {
+		icon: Users,
+		color: "text-blue-700",
+		bg: "bg-blue-600/10",
+		name: "LinkedIn",
+	},
+	threads: {
+		icon: MessageSquare,
+		color: "text-gray-900 dark:text-gray-100",
+		bg: "bg-gray-500/10",
+		name: "Threads",
+	},
+	reddit: {
+		icon: MessageSquare,
+		color: "text-orange-500",
+		bg: "bg-orange-500/10",
+		name: "Reddit",
+	},
+	bluesky: {
+		icon: MessageSquare,
+		color: "text-blue-500",
+		bg: "bg-blue-400/10",
+		name: "Bluesky",
+	},
+	telegram: {
+		icon: MessageSquare,
+		color: "text-blue-400",
+		bg: "bg-blue-400/10",
+		name: "Telegram",
+	},
+	google: {
+		icon: MessageSquare,
+		color: "text-green-500",
+		bg: "bg-green-500/10",
+		name: "Google",
+	},
+	snapchat: {
+		icon: MessageSquare,
+		color: "text-yellow-400",
+		bg: "bg-yellow-400/10",
+		name: "Snapchat",
+	},
+	discord: {
+		icon: Users,
+		color: "text-indigo-500",
+		bg: "bg-indigo-500/10",
+		name: "Discord",
+	},
+	whatsapp: {
+		icon: MessageSquare,
+		color: "text-green-500",
+		bg: "bg-green-500/10",
+		name: "WhatsApp",
+	},
 };
 
-const mockConversations: Conversation[] = [
-	{
-		id: "1",
-		platform: "instagram",
-		type: "comment",
-		sender: "sarah_design",
-		avatar: "https://i.pravatar.cc/150?u=sarah",
-		isOnline: true,
-		isRead: false,
-		isStarred: false,
-		lastMessage: "That sounds great! When can we start?",
-		lastMessageTime: "5m ago",
-		unreadCount: 2,
-		mediaPost: "Product Launch Reel",
-		messages: [
-			{
-				id: "m1",
-				content: "Hi! I love your content. Can we collaborate on a project?",
-				timestamp: "10:30 AM",
-				isFromMe: false,
-			},
-			{
-				id: "m2",
-				content:
-					"Hey Sarah! Thanks for reaching out. I'd love to hear more about your idea!",
-				timestamp: "10:32 AM",
-				isFromMe: true,
-			},
-			{
-				id: "m3",
-				content:
-					"Basically I'm a fashion designer and I think your aesthetic would be perfect for my new collection launch",
-				timestamp: "10:33 AM",
-				isFromMe: false,
-			},
-			{
-				id: "m4",
-				content:
-					"That sounds amazing! Let's schedule a call to discuss details.",
-				timestamp: "10:35 AM",
-				isFromMe: true,
-			},
-			{
-				id: "m5",
-				content: "That sounds great! When can we start?",
-				timestamp: "10:36 AM",
-				isFromMe: false,
-			},
-		],
-	},
-	{
-		id: "2",
-		platform: "tiktok",
-		type: "comment",
-		sender: "mike_creator",
-		avatar: "https://i.pravatar.cc/150?u=mike",
-		isOnline: false,
-		isRead: false,
-		isStarred: true,
-		lastMessage: "This is exactly what I was looking for! 🔥",
-		lastMessageTime: "12m ago",
-		unreadCount: 1,
-		mediaPost: "Behind the scenes of our new campaign",
-		messages: [
-			{
-				id: "m1",
-				content: "This is exactly what I was looking for! 🔥",
-				timestamp: "9:15 AM",
-				isFromMe: false,
-			},
-		],
-	},
-	{
-		id: "3",
-		platform: "twitter",
-		type: "message",
-		sender: "tech_enthusiast",
-		avatar: "https://i.pravatar.cc/150?u=tech",
-		isOnline: true,
-		isRead: true,
-		isStarred: false,
-		lastMessage:
-			"Great thread! Would love to see more content about this topic.",
-		lastMessageTime: "1h ago",
-		unreadCount: 0,
-		customerLabel: "lead",
-		messages: [
-			{
-				id: "m1",
-				content:
-					"Great thread! Would love to see more content about this topic.",
-				timestamp: "8:00 AM",
-				isFromMe: false,
-			},
-			{
-				id: "m2",
-				content: "Thanks! I'll definitely make a part 2 soon 👍",
-				timestamp: "8:05 AM",
-				isFromMe: true,
-			},
-		],
-	},
-	{
-		id: "4",
-		platform: "youtube",
-		type: "comment",
-		sender: "video_fan",
-		avatar: "https://i.pravatar.cc/150?u=video",
-		isOnline: false,
-		isRead: true,
-		isStarred: false,
-		lastMessage: "The editing quality is amazing! What software do you use?",
-		lastMessageTime: "2h ago",
-		unreadCount: 0,
-		mediaPost: "How We Built Our Brand in 6 Months",
-		messages: [
-			{
-				id: "m1",
-				content: "The editing quality is amazing! What software do you use?",
-				timestamp: "Yesterday",
-				isFromMe: false,
-			},
-			{
-				id: "m2",
-				content: "I use Premiere Pro and After Effects mainly!",
-				timestamp: "Yesterday",
-				isFromMe: true,
-			},
-		],
-	},
-	{
-		id: "5",
-		platform: "instagram",
-		type: "message",
-		sender: "brand_official",
-		avatar: "https://i.pravatar.cc/150?u=brand",
-		isOnline: false,
-		isRead: false,
-		isStarred: true,
-		lastMessage: "We'd like to discuss a potential partnership. DM us back!",
-		lastMessageTime: "3h ago",
-		unreadCount: 3,
-		customerLabel: "partner",
-		messages: [
-			{
-				id: "m1",
-				content:
-					"Hey! We've been following your content and love what you're doing.",
-				timestamp: "2 days ago",
-				isFromMe: false,
-			},
-			{
-				id: "m2",
-				content: "We'd like to discuss a potential partnership. DM us back!",
-				timestamp: "3h ago",
-				isFromMe: false,
-			},
-		],
-	},
-	{
-		id: "6",
-		platform: "tiktok",
-		type: "comment",
-		sender: "dance_lover",
-		avatar: "https://i.pravatar.cc/150?u=dance",
-		isOnline: true,
-		isRead: true,
-		isStarred: false,
-		lastMessage: "Teach me this dance pleeease! 🙏",
-		lastMessageTime: "5h ago",
-		unreadCount: 0,
-		mediaPost: "Trending Challenge Video",
-		messages: [
-			{
-				id: "m1",
-				content: "Teach me this dance pleeease! 🙏",
-				timestamp: "5h ago",
-				isFromMe: false,
-			},
-			{
-				id: "m2",
-				content: "Haha I'll make a tutorial soon! 😄",
-				timestamp: "4h ago",
-				isFromMe: true,
-			},
-		],
-	},
-];
+function getPlatformConfig(platform: string) {
+	return (
+		platformConfig[platform] ?? {
+			icon: MessageSquare,
+			color: "text-muted-foreground",
+			bg: "bg-muted",
+			name: platform,
+		}
+	);
+}
+
+// Map Zernio API conversation to client Conversation type
+function mapServerConversation(src: ServerConversation): Conversation {
+	const platform = src.platform as Conversation["platform"];
+	return {
+		id: src.id,
+		platform,
+		type: "message", // Zernio doesn't have type field for conversations
+		sender: src.participantName || "Unknown",
+		avatar:
+			src.participantPicture ||
+			`https://i.pravatar.cc/150?u=${src.participantId}`,
+		isOnline: false, // Zernio doesn't provide online status
+		isRead: src.status === "archived" || (src.unreadCount ?? 0) === 0,
+		isStarred: false, // Zernio doesn't have starred field for conversations
+		lastMessage: src.lastMessage || "",
+		lastMessageTime: formatRelativeTime(src.updatedTime),
+		unreadCount: src.unreadCount ?? 0,
+		messages: [],
+		mediaPost: undefined, // Zernio doesn't include media post caption in list response
+		customerLabel: undefined, // Customer labels stored locally
+	};
+}
+
+// Format relative time string
+function formatRelativeTime(dateStr: string): string {
+	const date = new Date(dateStr);
+	const now = new Date();
+	const diffMs = now.getTime() - date.getTime();
+	const diffMins = Math.floor(diffMs / 60000);
+	const diffHours = Math.floor(diffMs / 3600000);
+	const diffDays = Math.floor(diffMs / 86400000);
+
+	if (diffMins < 1) return "Just now";
+	if (diffMins < 60) return `${diffMins}m ago`;
+	if (diffHours < 24) return `${diffHours}h ago`;
+	if (diffDays < 7) return `${diffDays}d ago`;
+	return date.toLocaleDateString();
+}
 
 export function InboxContent() {
 	const { gatedCallback } = useAuthGate();
+	const queryClient = useQueryClient();
 
-	const [activeTab, setActiveTab] = useState("inbox");
+	const [activeTab, setActiveTab] = useState("messages");
 	const [platform, setPlatform] = useState<Platform>("all");
 	const [typeFilter, setTypeFilter] = useState<TypeFilter>("message");
 	const [messageFilter, setMessageFilter] = useState<MessageFilter>("all");
@@ -330,11 +335,129 @@ export function InboxContent() {
 	const [messageInput, setMessageInput] = useState("");
 	const [sortBy, setSortBy] = useState<SortBy>("newest");
 
+	// Fetch conversations (use mock data when API unavailable)
+	const { data: conversationsData, isLoading: conversationsLoading } = useQuery(
+		{
+			queryKey: ["inbox", "conversations", { platform }],
+			queryFn: async () => {
+				const res = await api.listConversations({
+					platform: platform === "all" ? undefined : platform,
+					limit: 50,
+				});
+				// Fallback to mock data when API unavailable
+				if (res.error && shouldUseMockData(res.error)) {
+					return mockConversations;
+				}
+				if (res.error) throw new Error(res.error);
+				return (res.data?.conversations ?? []) as ServerConversation[];
+			},
+		},
+	);
+
+	// Map server conversations to client type
+	const serverConversations = useMemo(
+		() => (conversationsData ?? []).map(mapServerConversation),
+		[conversationsData],
+	);
+
+	// Fetch messages for selected conversation (use mock data when API unavailable)
+	const { data: messagesData, isLoading: messagesLoading } = useQuery({
+		queryKey: ["inbox", "messages", selectedConversation?.id],
+		queryFn: async () => {
+			if (!selectedConversation) return [];
+			const res = await api.listMessages(selectedConversation.id, {
+				limit: 50,
+			});
+			// Fallback to mock data when API unavailable
+			if (res.error && shouldUseMockData(res.error)) {
+				return getMockMessages(selectedConversation.id);
+			}
+			if (res.error) throw new Error(res.error);
+			return (res.data?.messages ?? []) as ServerMessage[];
+		},
+		enabled: !!selectedConversation,
+	});
+
+	// Send message mutation
+	const sendMessageMutation = useMutation({
+		mutationFn: async ({
+			text,
+			mediaUrl,
+		}: {
+			text: string;
+			mediaUrl?: string;
+		}) => {
+			if (!selectedConversation) return;
+			const res = await api.sendMessage(selectedConversation.id, {
+				text,
+				mediaUrl,
+			});
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "messages", selectedConversation?.id],
+			});
+			queryClient.invalidateQueries({ queryKey: ["inbox", "conversations"] });
+			setMessageInput("");
+		},
+	});
+
+	// Mark as read mutation
+	const markAsReadMutation = useMutation({
+		mutationFn: async (conversationId: string) => {
+			const res = await api.markAsRead(conversationId);
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "conversations"] });
+		},
+	});
+
+	// Select conversation and mark as read
+	const handleSelectConversation = useCallback(
+		(conv: Conversation) => {
+			setSelectedConversation(conv);
+			if (!conv.isRead) {
+				markAsReadMutation.mutate(conv.id);
+			}
+		},
+		[markAsReadMutation],
+	);
+
+	// Send message handler
+	const handleSendMessageInternal = useCallback(() => {
+		if (!messageInput.trim()) return;
+		sendMessageMutation.mutate({ text: messageInput });
+	}, [messageInput, sendMessageMutation]);
+
 	const tabs = [
 		{
-			id: "inbox",
-			label: "Inbox",
+			id: "messages",
+			label: "Messages",
 			icon: <MessageSquare className="h-5 w-5" />,
+		},
+		{
+			id: "comments",
+			label: "Comments",
+			icon: <Star className="h-5 w-5" />,
+		},
+		{
+			id: "reviews",
+			label: "Reviews",
+			icon: <Star className="h-5 w-5" />,
+		},
+		{
+			id: "campaigns",
+			label: "Campaigns",
+			icon: <Briefcase className="h-5 w-5" />,
+		},
+		{
+			id: "contacts",
+			label: "Contacts",
+			icon: <Users className="h-5 w-5" />,
 		},
 		{
 			id: "automation",
@@ -343,42 +466,9 @@ export function InboxContent() {
 		},
 	];
 
-	// Gated function to select a conversation (requires auth)
-	const handleSelectConversation = gatedCallback(
-		(conv: Conversation) => {
-			setSelectedConversation(conv);
-		},
-		{
-			title: "View Messages",
-			description: "Sign in to view and respond to messages.",
-		},
-	);
-
-	// Gated function to send a message (requires auth)
-	const handleSendMessageInternal = () => {
-		if (!messageInput.trim() || !selectedConversation) return;
-
-		const _newMessage: ChatMessage = {
-			id: `m${Date.now()}`,
-			content: messageInput,
-			timestamp: "Just now",
-			isFromMe: true,
-		};
-
-		// In a real app, you'd update the backend
-		// Currently unused - stub for future implementation
-		void _newMessage;
-		setMessageInput("");
-	};
-
-	const handleSendMessage = gatedCallback(handleSendMessageInternal, {
-		title: "Send Message",
-		description: "Sign in to send messages to your customers.",
-	});
-
 	// Filter conversations
 	const filteredConversations = useMemo(() => {
-		let result = mockConversations.filter((conv) => {
+		let result = serverConversations.filter((conv) => {
 			const matchesPlatform = platform === "all" || conv.platform === platform;
 			const matchesType = conv.type === typeFilter;
 			const matchesSearch =
@@ -402,28 +492,28 @@ export function InboxContent() {
 		// Sort based on sortBy
 		if (sortBy === "newest") {
 			result = [...result].sort((a, b) => {
-				// Simple time comparison - newest first
-				const getTimeValue = (time: string) => {
-					if (time.includes("m ago")) return parseInt(time, 10) * 60;
-					if (time.includes("h ago")) return parseInt(time, 10) * 3600;
-					if (time.includes("d ago")) return parseInt(time, 10) * 86400;
-					return 0;
-				};
-				return (
-					getTimeValue(a.lastMessageTime) - getTimeValue(b.lastMessageTime)
-				);
+				const aTime = new Date(a.lastMessageTime).getTime();
+				const bTime = new Date(b.lastMessageTime).getTime();
+				return bTime - aTime;
 			});
 		} else if (sortBy === "name") {
 			result = [...result].sort((a, b) => a.sender.localeCompare(b.sender));
 		}
 
 		return result;
-	}, [platform, typeFilter, searchQuery, sortBy, messageFilter]);
+	}, [
+		serverConversations,
+		platform,
+		typeFilter,
+		searchQuery,
+		sortBy,
+		messageFilter,
+	]);
 
 	const handleKeyPress = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
-			handleSendMessage();
+			handleSendMessageInternal();
 		}
 	};
 
@@ -449,7 +539,7 @@ export function InboxContent() {
 			/>
 
 			{/* Content */}
-			{activeTab === "inbox" && (
+			{(activeTab === "messages" || activeTab === "inbox") && (
 				<>
 					{/* Filters */}
 					<div className="flex items-center gap-2 mb-4">
@@ -537,7 +627,13 @@ export function InboxContent() {
 							{/* Conversation List */}
 							<ScrollArea className="flex-1">
 								<div className="p-2 space-y-1">
-									{filteredConversations.length === 0 ? (
+									{conversationsLoading ? (
+										<div className="text-center py-8">
+											<p className="text-sm text-muted-foreground">
+												Loading conversations...
+											</p>
+										</div>
+									) : filteredConversations.length === 0 ? (
 										<div className="text-center py-8">
 											<p className="text-sm text-muted-foreground">
 												No conversations found
@@ -545,7 +641,7 @@ export function InboxContent() {
 										</div>
 									) : (
 										filteredConversations.map((conv) => {
-											const config = platformConfig[conv.platform];
+											const config = getPlatformConfig(conv.platform);
 											const Icon = config.icon;
 											const isSelected = selectedConversation?.id === conv.id;
 
@@ -759,38 +855,47 @@ export function InboxContent() {
 									{/* Messages */}
 									<ScrollArea className="flex-1 p-4">
 										<div className="space-y-4">
-											{selectedConversation.messages.map((msg) => (
-												<div
-													key={msg.id}
-													className={cn(
-														"flex",
-														msg.isFromMe ? "justify-end" : "justify-start",
-													)}
-												>
-													<div
-														className={cn(
-															"max-w-[70%] rounded-2xl px-4 py-2.5",
-															msg.isFromMe
-																? "bg-primary text-primary-foreground rounded-br-sm"
-																: "bg-muted rounded-bl-sm",
-														)}
-													>
-														<p className="text-sm whitespace-pre-wrap">
-															{msg.content}
-														</p>
-														<p
+											{messagesLoading ? (
+												<div className="text-center py-8 text-muted-foreground text-sm">
+													Loading messages...
+												</div>
+											) : (
+												(messagesData ?? []).map((msg) => {
+													const isFromMe = msg.direction === "outgoing";
+													return (
+														<div
+															key={msg.id}
 															className={cn(
-																"text-[10px] mt-1",
-																msg.isFromMe
-																	? "text-primary-foreground/70"
-																	: "text-muted-foreground",
+																"flex",
+																isFromMe ? "justify-end" : "justify-start",
 															)}
 														>
-															{msg.timestamp}
-														</p>
-													</div>
-												</div>
-											))}
+															<div
+																className={cn(
+																	"max-w-[70%] rounded-2xl px-4 py-2.5",
+																	isFromMe
+																		? "bg-primary text-primary-foreground rounded-br-sm"
+																		: "bg-muted rounded-bl-sm",
+																)}
+															>
+																<p className="text-sm whitespace-pre-wrap">
+																	{msg.message}
+																</p>
+																<p
+																	className={cn(
+																		"text-[10px] mt-1",
+																		isFromMe
+																			? "text-primary-foreground/70"
+																			: "text-muted-foreground",
+																	)}
+																>
+																	{formatRelativeTime(msg.createdAt)}
+																</p>
+															</div>
+														</div>
+													);
+												})
+											)}
 										</div>
 									</ScrollArea>
 
@@ -823,7 +928,7 @@ export function InboxContent() {
 												</div>
 											</div>
 											<Button
-												onClick={handleSendMessage}
+												onClick={handleSendMessageInternal}
 												disabled={!messageInput.trim()}
 												size="icon"
 												className="h-11 w-11 shrink-0"
@@ -867,38 +972,62 @@ export function InboxContent() {
 								{/* Mobile Messages */}
 								<ScrollArea className="flex-1 p-4">
 									<div className="space-y-4">
-										{selectedConversation.messages.map((msg) => (
-											<div
-												key={msg.id}
-												className={cn(
-													"flex",
-													msg.isFromMe ? "justify-end" : "justify-start",
-												)}
-											>
-												<div
-													className={cn(
-														"max-w-[70%] rounded-2xl px-4 py-2.5",
-														msg.isFromMe
-															? "bg-primary text-primary-foreground rounded-br-sm"
-															: "bg-muted rounded-bl-sm",
-													)}
-												>
-													<p className="text-sm whitespace-pre-wrap">
-														{msg.content}
-													</p>
-													<p
+										{messagesLoading ? (
+											<div className="text-center py-8 text-muted-foreground text-sm">
+												Loading messages...
+											</div>
+										) : (
+											(messagesData ?? []).map((msg) => {
+												const isFromMe = msg.direction === "outgoing";
+												const hasImageAttachment = msg.attachments?.some(
+													(a) => a.type === "image",
+												);
+												const imageAttachment = msg.attachments?.find(
+													(a) => a.type === "image",
+												);
+												return (
+													<div
+														key={msg.id}
 														className={cn(
-															"text-[10px] mt-1",
-															msg.isFromMe
-																? "text-primary-foreground/70"
-																: "text-muted-foreground",
+															"flex",
+															isFromMe ? "justify-end" : "justify-start",
 														)}
 													>
-														{msg.timestamp}
-													</p>
-												</div>
-											</div>
-										))}
+														<div
+															className={cn(
+																"max-w-[70%] rounded-2xl px-4 py-2.5",
+																isFromMe
+																	? "bg-primary text-primary-foreground rounded-br-sm"
+																	: "bg-muted rounded-bl-sm",
+															)}
+														>
+															{hasImageAttachment &&
+																imageAttachment?.previewUrl && (
+																	<img
+																		src={imageAttachment.previewUrl}
+																		alt="Attachment"
+																		className="rounded-lg mb-2 max-w-full h-auto"
+																	/>
+																)}
+															<p className="text-sm whitespace-pre-wrap">
+																{msg.message}
+															</p>
+															<p
+																className={cn(
+																	"text-[10px] mt-1",
+																	isFromMe
+																		? "text-primary-foreground/70"
+																		: "text-muted-foreground",
+																)}
+															>
+																{formatRelativeTime(msg.createdAt)}
+																{msg.isEdited && " • Edited"}
+															</p>
+														</div>
+													</div>
+												);
+											})
+										)}
 									</div>
 								</ScrollArea>
 
@@ -913,7 +1042,7 @@ export function InboxContent() {
 											className="flex-1"
 										/>
 										<Button
-											onClick={handleSendMessage}
+											onClick={handleSendMessageInternal}
 											disabled={!messageInput.trim()}
 											size="icon"
 										>
@@ -928,6 +1057,519 @@ export function InboxContent() {
 			)}
 
 			{activeTab === "automation" && <InboxAutomation />}
+
+			{activeTab === "comments" && <CommentsTab comments={mockComments} />}
+
+			{activeTab === "reviews" && <ReviewsTab reviews={mockReviews} />}
+
+			{activeTab === "campaigns" && (
+				<CampaignsTab broadcasts={mockBroadcasts} />
+			)}
+
+			{activeTab === "contacts" && <ContactsTab contacts={mockContacts} />}
+		</div>
+	);
+}
+
+// ============================================================
+// COMMENTS TAB
+// ============================================================
+
+interface CommentsTabProps {
+	comments: Array<{
+		id: string;
+		platform: string;
+		accountUsername: string;
+		content: string;
+		picture: string | null;
+		permalink: string | null;
+		createdTime: string;
+		commentCount: number;
+		likeCount: number;
+	}>;
+}
+
+function CommentsTab({ comments }: CommentsTabProps) {
+	const [platformFilter, setPlatformFilter] = useState<Platform>("all");
+
+	const filteredComments = comments.filter(
+		(c) => platformFilter === "all" || c.platform === platformFilter,
+	);
+
+	const platforms = ["all", ...new Set(comments.map((c) => c.platform))];
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center gap-2">
+				<PlatformFilterDropdown
+					value={platformFilter}
+					onChange={setPlatformFilter}
+				/>
+			</div>
+
+			{filteredComments.length === 0 ? (
+				<Card className="border-border/50 p-8 text-center">
+					<MessageSquare className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+					<p className="text-muted-foreground">No comments found</p>
+				</Card>
+			) : (
+				<div className="space-y-3">
+					{filteredComments.map((post) => {
+						const config = getPlatformConfig(post.platform);
+						const Icon = config.icon;
+						return (
+							<Card
+								key={post.id}
+								className="border-border/50 p-4 hover:bg-muted/30 transition-colors"
+							>
+								<div className="flex items-start gap-3">
+									{post.picture && (
+										<img
+											src={post.picture}
+											alt="Post"
+											className="w-16 h-16 rounded-lg object-cover shrink-0"
+										/>
+									)}
+									<div className="flex-1 min-w-0">
+										<div className="flex items-center gap-2 mb-1">
+											<div className={cn("flex items-center", config.color)}>
+												<Icon className="h-3 w-3" />
+											</div>
+											<span className="text-xs text-muted-foreground">
+												@{post.accountUsername}
+											</span>
+											<span className="text-xs text-muted-foreground">
+												{formatRelativeTime(post.createdTime)}
+											</span>
+										</div>
+										<p className="text-sm mb-2 line-clamp-2">{post.content}</p>
+										<div className="flex items-center gap-4 text-xs text-muted-foreground">
+											<span className="flex items-center gap-1">
+												<MessageSquare className="h-3.5 w-3.5" />
+												{post.commentCount}
+											</span>
+											<span className="flex items-center gap-1">
+												<Star className="h-3.5 w-3.5" />
+												{post.likeCount}
+											</span>
+										</div>
+									</div>
+								</div>
+							</Card>
+						);
+					})}
+				</div>
+			)}
+		</div>
+	);
+}
+
+// ============================================================
+// REVIEWS TAB
+// ============================================================
+
+interface ReviewsTabProps {
+	reviews: Array<{
+		id: string;
+		platform: string;
+		accountUsername: string;
+		reviewer: { name: string; profileImage: string | null };
+		rating: number;
+		text: string;
+		created: string;
+		hasReply: boolean;
+		reply?: { text: string };
+	}>;
+}
+
+function ReviewsTab({ reviews }: ReviewsTabProps) {
+	const [platformFilter, setPlatformFilter] = useState<Platform>("all");
+	const [filter, setFilter] = useState<"all" | "replied" | "not_replied">("all");
+
+	const filteredReviews = reviews.filter((r) => {
+		if (platformFilter !== "all" && r.platform !== platformFilter) return false;
+		if (filter === "replied" && !r.hasReply) return false;
+		if (filter === "not_replied" && r.hasReply) return false;
+		return true;
+	});
+
+	const platforms = ["all", ...new Set(reviews.map((r) => r.platform))];
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center gap-2">
+				<PlatformFilterDropdown
+					value={platformFilter}
+					onChange={setPlatformFilter}
+				/>
+				<DepthButtonGroup>
+					<GroupedDepthButton
+						position="first"
+						size="sm"
+						variant={filter === "all" ? "blue" : "outline"}
+						onClick={() => setFilter("all")}
+					>
+						All
+					</GroupedDepthButton>
+					<GroupedDepthButton
+						position="middle"
+						size="sm"
+						variant={filter === "not_replied" ? "blue" : "outline"}
+						onClick={() => setFilter("not_replied")}
+					>
+						Not Replied
+					</GroupedDepthButton>
+					<GroupedDepthButton
+						position="last"
+						size="sm"
+						variant={filter === "replied" ? "blue" : "outline"}
+						onClick={() => setFilter("replied")}
+					>
+						Replied
+					</GroupedDepthButton>
+				</DepthButtonGroup>
+			</div>
+
+			{filteredReviews.length === 0 ? (
+				<Card className="border-border/50 p-8 text-center">
+					<Star className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+					<p className="text-muted-foreground">No reviews found</p>
+				</Card>
+			) : (
+				<div className="space-y-3">
+					{filteredReviews.map((review) => {
+						const config = getPlatformConfig(review.platform);
+						const Icon = config.icon;
+						return (
+							<Card
+								key={review.id}
+								className="border-border/50 p-4 hover:bg-muted/30 transition-colors"
+							>
+								<div className="flex items-start gap-3">
+									<Avatar className="h-10 w-10">
+										<AvatarImage
+											src={
+												review.reviewer.profileImage ||
+												`https://i.pravatar.cc/150?u=${review.reviewer.name}`
+											}
+										/>
+										<AvatarFallback>
+											{review.reviewer.name[0].toUpperCase()}
+										</AvatarFallback>
+									</Avatar>
+									<div className="flex-1 min-w-0">
+										<div className="flex items-center gap-2 mb-1">
+											<span className="font-semibold text-sm">
+												{review.reviewer.name}
+											</span>
+											<div className="flex items-center">
+												{[1, 2, 3, 4, 5].map((star) => (
+													<Star
+														key={star}
+														className={cn(
+															"h-3.5 w-3.5",
+															star <= review.rating
+																? "fill-yellow-400 text-yellow-400"
+																: "text-muted-foreground/30",
+														)}
+													/>
+												))}
+											</div>
+											<div className={cn("flex items-center", config.color)}>
+												<Icon className="h-3 w-3" />
+											</div>
+											<span className="text-xs text-muted-foreground">
+												{formatRelativeTime(review.created)}
+											</span>
+										</div>
+										<p className="text-sm text-muted-foreground mb-2">
+											{review.text}
+										</p>
+										{review.hasReply && review.reply?.text && (
+											<div className="bg-primary/5 border border-primary/10 rounded-lg p-3 text-sm">
+												<span className="text-xs font-medium text-primary">
+													Reply:
+												</span>{" "}
+												{review.reply.text}
+											</div>
+										)}
+										{!review.hasReply && (
+											<Badge variant="outline" className="mt-2 text-xs">
+												Not Replied
+											</Badge>
+										)}
+									</div>
+								</div>
+							</Card>
+						);
+					})}
+				</div>
+			)}
+		</div>
+	);
+}
+
+// ============================================================
+// CAMPAIGNS TAB
+// ============================================================
+
+interface CampaignsTabProps {
+	broadcasts: Array<{
+		id: string;
+		name: string;
+		platform: string;
+		accountName: string;
+		status: "draft" | "scheduled" | "sending" | "completed" | "failed" | "cancelled";
+		messagePreview: string;
+		scheduledAt: string | null;
+		recipientCount: number;
+		deliveredCount: number;
+		readCount: number;
+		failedCount: number;
+	}>;
+}
+
+function CampaignsTab({ broadcasts }: CampaignsTabProps) {
+	const [platformFilter, setPlatformFilter] = useState<Platform>("all");
+
+	const filteredBroadcasts = broadcasts.filter(
+		(b) => platformFilter === "all" || b.platform === platformFilter,
+	);
+
+	const platforms = ["all", ...new Set(broadcasts.map((b) => b.platform))];
+
+	const getStatusBadge = (status: CampaignsTabProps["broadcasts"][number]["status"]) => {
+		const config = {
+			draft: { label: "Draft", bg: "bg-muted", text: "text-muted-foreground" },
+			scheduled: { label: "Scheduled", bg: "bg-blue-500/10", text: "text-blue-600" },
+			sending: { label: "Sending", bg: "bg-yellow-500/10", text: "text-yellow-600" },
+			completed: { label: "Completed", bg: "bg-green-500/10", text: "text-green-600" },
+			failed: { label: "Failed", bg: "bg-red-500/10", text: "text-red-600" },
+			cancelled: { label: "Cancelled", bg: "bg-muted", text: "text-muted-foreground" },
+		};
+		const c = config[status];
+		return (
+			<Badge variant="outline" className={cn("text-xs", c.bg, c.text)}>
+				{c.label}
+			</Badge>
+		);
+	};
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center gap-2">
+				<PlatformFilterDropdown
+					value={platformFilter}
+					onChange={setPlatformFilter}
+				/>
+			</div>
+
+			{filteredBroadcasts.length === 0 ? (
+				<Card className="border-border/50 p-8 text-center">
+					<Briefcase className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+					<p className="text-muted-foreground">No campaigns found</p>
+				</Card>
+			) : (
+				<div className="space-y-3">
+					{filteredBroadcasts.map((broadcast) => {
+						const config = getPlatformConfig(broadcast.platform);
+						const Icon = config.icon;
+						const deliveryRate =
+							broadcast.recipientCount > 0
+								? Math.round((broadcast.deliveredCount / broadcast.recipientCount) * 100)
+								: 0;
+						return (
+							<Card
+								key={broadcast.id}
+								className="border-border/50 p-4 hover:bg-muted/30 transition-colors"
+							>
+								<div className="flex items-start justify-between mb-3">
+									<div>
+										<div className="flex items-center gap-2 mb-1">
+											<h3 className="font-semibold text-sm">
+												{broadcast.name}
+											</h3>
+											{getStatusBadge(broadcast.status)}
+										</div>
+										<div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+											<div className={cn("flex items-center", config.color)}>
+												<Icon className="h-3 w-3" />
+											</div>
+											<span>{broadcast.accountName}</span>
+										</div>
+									</div>
+									{broadcast.scheduledAt && (
+										<span className="text-xs text-muted-foreground">
+											{formatRelativeTime(broadcast.scheduledAt)}
+										</span>
+									)}
+								</div>
+
+								<p className="text-sm text-muted-foreground bg-muted/50 rounded-lg px-3 py-2 mb-3 truncate">
+									{broadcast.messagePreview}
+								</p>
+
+								<div className="grid grid-cols-4 gap-2">
+									<div className="bg-muted/50 rounded-lg p-2 text-center">
+										<p className="text-lg font-bold">{broadcast.recipientCount}</p>
+										<p className="text-[10px] text-muted-foreground">Recipients</p>
+									</div>
+									<div className="bg-muted/50 rounded-lg p-2 text-center">
+										<p className="text-lg font-bold">{broadcast.deliveredCount}</p>
+										<p className="text-[10px] text-muted-foreground">Delivered</p>
+									</div>
+									<div className="bg-muted/50 rounded-lg p-2 text-center">
+										<p className="text-lg font-bold">{deliveryRate}%</p>
+										<p className="text-[10px] text-muted-foreground">Rate</p>
+									</div>
+									<div className="bg-muted/50 rounded-lg p-2 text-center">
+										<p className="text-lg font-bold text-red-500">
+											{broadcast.failedCount}
+										</p>
+										<p className="text-[10px] text-muted-foreground">Failed</p>
+									</div>
+								</div>
+							</Card>
+						);
+					})}
+				</div>
+			)}
+		</div>
+	);
+}
+
+// ============================================================
+// CONTACTS TAB
+// ============================================================
+
+interface ContactsTabProps {
+	contacts: Array<{
+		id: string;
+		name: string;
+		email: string;
+		company: string;
+		avatarUrl: string;
+		tags: string[];
+		notes: string;
+		platform: string;
+		isSubscribed: boolean;
+		lastMessageSentAt: string | null;
+		messagesSentCount: number;
+	}>;
+}
+
+function ContactsTab({ contacts }: ContactsTabProps) {
+	const [searchQuery, setSearchQuery] = useState("");
+	const [tagFilter, setTagFilter] = useState<string | null>(null);
+
+	const allTags = useMemo(() => {
+		const tags = new Set<string>();
+		contacts.forEach((c) => c.tags.forEach((t) => tags.add(t)));
+		return Array.from(tags).sort();
+	}, [contacts]);
+
+	const filteredContacts = contacts.filter((c) => {
+		const matchesSearch =
+			searchQuery === "" ||
+			c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			c.email.toLowerCase().includes(searchQuery.toLowerCase());
+		const matchesTag = !tagFilter || c.tags.includes(tagFilter);
+		return matchesSearch && matchesTag;
+	});
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center gap-2 flex-wrap">
+				<div className="relative flex-1 min-w-[200px]">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+					<Input
+						placeholder="Search contacts..."
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className="pl-10 h-9"
+					/>
+				</div>
+				<DepthButtonGroup>
+					<GroupedDepthButton
+						position="first"
+						size="sm"
+						variant={!tagFilter ? "blue" : "outline"}
+						onClick={() => setTagFilter(null)}
+					>
+						All
+					</GroupedDepthButton>
+					{allTags.slice(0, 3).map((tag, idx) => (
+						<GroupedDepthButton
+							key={tag}
+							position={idx === Math.min(2, allTags.length - 1) ? "last" : "middle"}
+							size="sm"
+							variant={tagFilter === tag ? "blue" : "outline"}
+							onClick={() => setTagFilter(tag)}
+						>
+							{tag}
+						</GroupedDepthButton>
+					))}
+				</DepthButtonGroup>
+			</div>
+
+			{filteredContacts.length === 0 ? (
+				<Card className="border-border/50 p-8 text-center">
+					<Users className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+					<p className="text-muted-foreground">No contacts found</p>
+				</Card>
+			) : (
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+					{filteredContacts.map((contact) => {
+						const config = getPlatformConfig(contact.platform);
+						const Icon = config.icon;
+						return (
+							<Card
+								key={contact.id}
+								className="border-border/50 p-4 hover:bg-muted/30 transition-colors"
+							>
+								<div className="flex items-start gap-3">
+									<Avatar className="h-12 w-12">
+										<AvatarImage src={contact.avatarUrl} />
+										<AvatarFallback>
+											{contact.name[0].toUpperCase()}
+										</AvatarFallback>
+									</Avatar>
+									<div className="flex-1 min-w-0">
+										<div className="flex items-center gap-2 mb-1">
+											<span className="font-semibold text-sm">{contact.name}</span>
+											<div className={cn("flex items-center", config.color)}>
+												<Icon className="h-3 w-3" />
+											</div>
+										</div>
+										<p className="text-xs text-muted-foreground">{contact.email}</p>
+										{contact.company && (
+											<p className="text-xs text-muted-foreground">
+												{contact.company}
+											</p>
+										)}
+										<div className="flex items-center gap-1 mt-2 flex-wrap">
+											{contact.tags.map((tag) => (
+												<Badge
+													key={tag}
+													variant="outline"
+													className="text-[10px] px-1.5 py-0 h-4"
+												>
+													{tag}
+												</Badge>
+											))}
+										</div>
+									</div>
+								</div>
+								{contact.notes && (
+									<p className="text-xs text-muted-foreground mt-2 line-clamp-2 bg-muted/50 rounded px-2 py-1">
+										{contact.notes}
+									</p>
+								)}
+							</Card>
+						);
+					})}
+				</div>
+			)}
 		</div>
 	);
 }

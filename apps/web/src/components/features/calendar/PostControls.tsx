@@ -66,20 +66,9 @@ export function PostControls({
 
 	return (
 		<div className="flex items-center gap-4 flex-wrap">
-			{/* Left: View Mode Toggle */}
-			<div className="flex items-center gap-2">
-				<AnimatedTabs
-					tabs={viewModeTabs}
-					activeTab={viewMode}
-					onChange={(val) => onViewModeChange(val as ViewMode)}
-					variant="segment"
-				/>
-			</div>
-
-			{/* Center: Calendar Navigation (calendar mode) or Status Tabs (cards mode) */}
-			{viewMode === "calendar" ? (
-				<div className="flex items-center gap-2">
-					<div className="flex items-center gap-1.5">
+			<div className="flex items-center gap-2 flex-1">
+				{viewMode === "calendar" ? (
+					<div className="flex items-center gap-2">
 						<Button
 							variant="ghost"
 							size="icon"
@@ -99,65 +88,40 @@ export function PostControls({
 						>
 							<ChevronRight className="h-4 w-4" />
 						</Button>
+						{onCalendarViewChange && (
+							<DepthButtonMenu
+								value={calendarView}
+								onChange={(val) => onCalendarViewChange(val as CalendarView)}
+								options={[
+									{ value: "month", label: "Month" },
+									{ value: "week", label: "Week" },
+								]}
+								placeholder="Select..."
+							/>
+						)}
 					</div>
-
-					{/* Month/Week Dropdown for Calendar */}
-					{onCalendarViewChange && (
-						<DepthButtonMenu
-							value={calendarView}
-							onChange={(val) => onCalendarViewChange(val as CalendarView)}
-							options={[
-								{ value: "month", label: "Month" },
-								{ value: "week", label: "Week" },
-							]}
-							placeholder="Select..."
-						/>
-					)}
-				</div>
-			) : (
-				<div className="flex-1 flex justify-between items-center">
-					{/* Status Tabs for Cards View */}
+				) : (
 					<AnimatedTabs
 						tabs={statusTabs}
 						activeTab={postStatus}
 						onChange={(val) => onPostStatusChange(val as PostStatus)}
 						variant="segment"
 					/>
-				</div>
-			)}
-
-			{/* Right: Platform Filter + New Post */}
-			<div className="flex items-center gap-3 ml-auto">
-				{/* Platform Filter */}
+				)}
+			</div>
+			<div className="flex items-center gap-3">
 				{onPlatformChange && (
 					<PlatformFilterDropdown
 						value={selectedPlatform}
 						onChange={(value) => onPlatformChange(value)}
 					/>
 				)}
-				<DepthButton
-					size="sm"
-					variant="blue"
-					className="gap-1.5"
-					onClick={() => {
-						window.location.href = "/posts/create";
-					}}
-				>
-					<svg
-						width="14"
-						height="14"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						aria-hidden="true"
-					>
-						<path d="M12 5v14M5 12h14" />
-					</svg>
-					New Post
-				</DepthButton>
+				<AnimatedTabs
+					tabs={viewModeTabs}
+					activeTab={viewMode}
+					onChange={(val) => onViewModeChange(val as ViewMode)}
+					variant="segment"
+				/>
 			</div>
 		</div>
 	);

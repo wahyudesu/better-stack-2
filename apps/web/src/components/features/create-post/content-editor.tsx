@@ -11,6 +11,7 @@ interface ContentEditorProps {
 	onChange: (value: string) => void;
 	media: PostMedia[];
 	onMediaChange: (media: PostMedia[]) => void;
+	maxChars?: number;
 }
 
 export function ContentEditor({
@@ -18,6 +19,7 @@ export function ContentEditor({
 	onChange,
 	media,
 	onMediaChange,
+	maxChars = 2200,
 }: ContentEditorProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,7 +47,7 @@ export function ContentEditor({
 			<div className="flex items-center justify-between">
 				<span className="text-sm font-medium">content</span>
 				<span className="text-xs text-muted-foreground">
-					{value.length} chars
+					{value.length}/{maxChars}
 				</span>
 			</div>
 			<Textarea

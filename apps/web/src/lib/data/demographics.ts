@@ -3,13 +3,8 @@
  * @deprecated Import from @/lib/data/analytics-data instead.
  */
 
-import {
-	ageData,
-	countryData,
-	genderData,
-	regionData,
-	STAT_DEFINITIONS,
-} from "./analytics-data";
+import { STAT_DEFINITIONS } from "@/lib/types/analytics";
+import { ageData, countryData, genderData, regionData } from "./analytics-data";
 
 export const COUNTRY_DATA = countryData;
 export const REGION_DATA = regionData;

@@ -1,28 +1,31 @@
 "use client";
 
-import { Eye, EyeOff, Tag, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, Tag, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ContentEditor } from "@/components/features/create-post/content-editor";
 import { ProfileSelector } from "@/components/features/create-post/profile-selector";
 import { PublishOptions } from "@/components/features/create-post/publish-options";
 import { ScheduledDateTime } from "@/components/features/create-post/scheduled-datetime";
+import { SocialPreview } from "@/components/features/create-post/social-preview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { sampleProfiles } from "@/lib/data/social-data";
+import type { ApiResponse, Post, SocialAccount } from "@/lib/client";
+import { api } from "@/lib/client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import type {
-	ContentPost,
 	PostMedia,
 	ProfilePlatform,
+	SocialMediaProfile,
 } from "@/lib/types/social";
 
-type PublishMode = "draft" | "schedule" | "now";
+type PublishMode = "now" | "schedule" | "queue" | "draft";
 
 export default function CreatePostPage() {
 	const [content, setContent] = useState("");
 	const [media, setMedia] = useState<PostMedia[]>([]);
-	const [selectedProfileIds, setSelectedProfileIds] = useState<string[]>([]);
+	const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
+	const [accounts, setAccounts] = useState<SocialAccount[]>([]);
 	const [publishMode, setPublishMode] = useState<PublishMode>("now");
 	const [scheduledDate, setScheduledDate] = useState("");
 	const [scheduledTime, setScheduledTime] = useState("");
@@ -30,42 +33,111 @@ export default function CreatePostPage() {
 	const [showPreview, setShowPreview] = useState(false);
 	const [tags, setTags] = useState<string[]>([]);
 	const [tagInput, setTagInput] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [activePlatform, setActivePlatform] =
+		useState<ProfilePlatform>("instagram");
+	const [maxChars, setMaxChars] = useState(2200);
 
-	const selectedProfiles = sampleProfiles.filter((p) =>
-		selectedProfileIds.includes(p.id),
+	// Transform API accounts to SocialMediaProfile format
+	const profiles: SocialMediaProfile[] = accounts.map((a) => ({
+		id: a._id,
+		platform: a.platform as ProfilePlatform,
+		name: a.displayName || a.username,
+		username: a.username,
+		avatarUrl: a.profilePicture,
+		status: a.isActive ? "active" : "disconnected",
+		connectedAt: new Date(a.createdAt),
+		profileId: a.profileId,
+	}));
+
+	// Fetch accounts on mount
+	useEffect(() => {
+		const loadAccounts = async () => {
+			const result = await api.getAccounts();
+			if (result.data?.accounts) {
+				setAccounts(
+					result.data.accounts.filter((a: SocialAccount) => a.isActive),
+				);
+			}
+		};
+		loadAccounts();
+	}, []);
+
+	const selectedAccounts = profiles.filter((a) =>
+		selectedAccountIds.includes(a.id),
 	);
 
 	const platforms = [
-		...new Set(selectedProfiles.map((p) => p.platform)),
+		...new Set(selectedAccounts.map((a) => a.platform)),
 	] as ProfilePlatform[];
 
-	const handleSubmit = () => {
-		const post: ContentPost = {
-			id: `post-${Date.now()}`,
-			title: content.slice(0, 50) || "Untitled",
-			content,
-			media,
-			platforms,
-			profileIds: selectedProfileIds,
-			tags,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			status:
-				publishMode === "now"
-					? "publishing"
-					: publishMode === "schedule"
-						? "scheduled"
-						: "draft",
-			scheduledAt:
-				publishMode === "schedule" && scheduledDate && scheduledTime
-					? new Date(`${scheduledDate}T${scheduledTime}`)
-					: undefined,
-		};
-		console.log("Post created:", post);
-		alert("Post created! Check console for payload.");
+	const getSubmitLabel = () => {
+		switch (publishMode) {
+			case "now":
+				return "Publish now";
+			case "schedule":
+				return "Schedule Post";
+			case "queue":
+				return "Add to Queue";
+			case "draft":
+				return "Save Draft";
+		}
 	};
 
-	const isValid = content.trim().length > 0 && selectedProfileIds.length > 0;
+	const handleSubmit = async () => {
+		if (!content.trim() || selectedAccountIds.length === 0) return;
+
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			// Build media array for API
+			const mediaPayload = media
+				.filter((m) => m.url && !m.url.startsWith("blob:"))
+				.map((m) => ({
+					url: m.url,
+					type: m.type,
+					altText: m.alt,
+				}));
+
+			// Get profileId from first selected account
+			const profileId = selectedAccounts[0]?.profileId || "";
+
+			const postData = {
+				profileId,
+				text: content,
+				socialAccountIds: selectedAccountIds,
+				scheduledAt:
+					publishMode === "schedule" && scheduledDate && scheduledTime
+						? new Date(`${scheduledDate}T${scheduledTime}`).toISOString()
+						: undefined,
+				media: mediaPayload.length > 0 ? mediaPayload : undefined,
+			};
+
+			let result: ApiResponse<Post>;
+			if (publishMode === "queue") {
+				// Queue uses separate endpoint
+				result = await api.queuePost(postData);
+			} else {
+				result = await api.createPost(postData);
+			}
+
+			if (result.error) {
+				setError(result.error);
+				return;
+			}
+
+			// Success - redirect to posts page
+			window.location.href = "/posts";
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Failed to create post");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const isValid = content.trim().length > 0 && selectedAccountIds.length > 0;
 
 	const handleAddTag = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && tagInput.trim()) {
@@ -84,43 +156,50 @@ export default function CreatePostPage() {
 
 	return (
 		<div className={pageContainerClassName} style={pageMaxWidth}>
-			<div className="flex items-center justify-between mb-4">
-				<div>
-					<h1 className="text-2xl font-bold tracking-tight">Create Post</h1>
+			<div className="mb-4">
+				<h1 className="text-2xl font-bold tracking-tight">Create Post</h1>
+				<div className="flex items-center justify-between">
 					<p className="text-sm text-muted-foreground">
 						create & publish content
 					</p>
+					<Button
+						variant={showPreview ? "default" : "outline"}
+						size="sm"
+						onClick={() => setShowPreview(!showPreview)}
+						className="gap-2"
+					>
+						{showPreview ? (
+							<>
+								<EyeOff className="h-4 w-4" />
+								Hide Preview
+							</>
+						) : (
+							<>
+								<Eye className="h-4 w-4" />
+								Show Preview
+							</>
+						)}
+					</Button>
 				</div>
-				<Button
-					variant={showPreview ? "default" : "outline"}
-					size="sm"
-					onClick={() => setShowPreview(!showPreview)}
-					className="gap-2"
-				>
-					{showPreview ? (
-						<>
-							<EyeOff className="h-4 w-4" />
-							Hide Preview
-						</>
-					) : (
-						<>
-							<Eye className="h-4 w-4" />
-							Show Preview
-						</>
-					)}
-				</Button>
 			</div>
 
+			{error && (
+				<div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+					{error}
+				</div>
+			)}
+
 			<div className={`grid gap-6 ${showPreview ? "lg:grid-cols-5" : ""}`}>
-				<div className={showPreview ? "lg:col-span-3" : "max-w-3xl"}>
+				<div className={showPreview ? "lg:col-span-3" : "w-full"}>
 					<div className="space-y-4">
 						{/* Profile Selection */}
 						<Card className="p-4 border-primary/20 bg-primary/5">
 							<div className="space-y-3">
-								<span className="text-sm font-semibold">Select Profiles</span>
+								<span className="text-sm font-semibold">Select Accounts</span>
 								<ProfileSelector
-									selectedIds={selectedProfileIds}
-									onChange={setSelectedProfileIds}
+									accounts={profiles}
+									selectedIds={selectedAccountIds}
+									onChange={setSelectedAccountIds}
 								/>
 							</div>
 						</Card>
@@ -132,6 +211,7 @@ export default function CreatePostPage() {
 								onChange={setContent}
 								media={media}
 								onMediaChange={setMedia}
+								maxChars={maxChars}
 							/>
 						</Card>
 
@@ -187,14 +267,23 @@ export default function CreatePostPage() {
 							</div>
 						</Card>
 
-						{/* Submit */}
-						<div className="flex justify-end">
-							<Button onClick={handleSubmit} disabled={!isValid}>
-								{publishMode === "now"
-									? "Publish"
-									: publishMode === "schedule"
-										? "Schedule Post"
-										: "Save Draft"}
+						{/* Actions */}
+						<div className="flex items-center justify-end gap-2">
+							<Button
+								variant="outline"
+								onClick={() => (window.location.href = "/posts")}
+							>
+								Cancel
+							</Button>
+							<Button onClick={handleSubmit} disabled={!isValid || isLoading}>
+								{isLoading ? (
+									<>
+										<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+										Creating...
+									</>
+								) : (
+									getSubmitLabel()
+								)}
 							</Button>
 						</div>
 					</div>
@@ -206,57 +295,15 @@ export default function CreatePostPage() {
 							<Card className="p-4">
 								<div className="space-y-3">
 									<span className="text-sm font-medium">Preview</span>
-									<div className="border rounded-lg p-4 bg-background min-h-50">
-										{content ? (
-											<div className="space-y-3">
-												{media.length > 0 && (
-													<div className="flex gap-2 flex-wrap">
-														{media.map((m, i) => (
-															<div
-																key={i}
-																className="w-20 h-20 bg-muted rounded-md overflow-hidden"
-															>
-																{m.type === "video" ? (
-																	<video className="absolute inset-0 w-full h-full object-cover">
-																		<track kind="captions" />
-																	</video>
-																) : (
-																	<Image src={m.url} alt={m.alt ?? ""} />
-																)}
-															</div>
-														))}
-													</div>
-												)}
-												<p className="text-sm whitespace-pre-wrap">{content}</p>
-											</div>
-										) : (
-											<p className="text-sm text-muted-foreground text-center py-8">
-												Start typing to see preview...
-											</p>
-										)}
-									</div>
-									{selectedProfiles.length > 0 && (
-										<div className="flex items-center gap-2 text-xs text-muted-foreground">
-											<span>Posting as:</span>
-											{selectedProfiles.map((p) => (
-												<span key={p.id} className="font-medium">
-													{p.name}
-												</span>
-											))}
-										</div>
-									)}
-									{tags.length > 0 && (
-										<div className="flex items-center gap-2 flex-wrap">
-											{tags.map((tag) => (
-												<span
-													key={tag}
-													className="px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs"
-												>
-													#{tag}
-												</span>
-											))}
-										</div>
-									)}
+									<SocialPreview
+										content={content}
+										media={media}
+										accounts={selectedAccounts}
+										tags={tags}
+										activePlatform={activePlatform}
+										onPlatformChange={setActivePlatform}
+										onMaxCharsChange={setMaxChars}
+									/>
 								</div>
 							</Card>
 						</div>

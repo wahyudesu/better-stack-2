@@ -1,5 +1,4 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import { ui } from "@clerk/ui";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 
@@ -20,7 +19,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<ClerkProvider ui={ui}>
+		<ClerkProvider>
 			<html lang="en" suppressHydrationWarning className={GeistSans.variable}>
 				<body className="antialiased">
 					<Providers>

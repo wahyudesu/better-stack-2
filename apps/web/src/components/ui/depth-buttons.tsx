@@ -93,10 +93,10 @@ const groupButtonStyles = cva(baseStyles, {
 			blue: "bg-blue-600 dark:bg-blue-800 border-blue-800 dark:border-blue-950 border-1 [box-shadow:0_3px_0_0_var(--depth-shadow-blue)]",
 		},
 		position: {
-			first: "rounded-r-none border-r-0 -mr-px z-10",
-			middle: "rounded-none border-r-0 -mr-px",
-			last: "rounded-l-none",
-			single: "",
+			first: "rounded-lg rounded-r-none border-r-0 z-10",
+			middle: "rounded-none border-r-0",
+			last: "rounded-lg rounded-l-none",
+			single: "rounded-lg",
 		},
 	},
 	defaultVariants: {

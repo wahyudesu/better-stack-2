@@ -2,8 +2,11 @@
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
+import type {
+	ContentTemplate,
+	TemplateManager,
+} from "@/lib/types/content/template";
 import type { ComposerTemplate } from "@/lib/types/index";
-import type { ContentTemplate, TemplateManager } from "@/lib/types/content/template";
 import {
 	Add01Icon,
 	Cancel01Icon,

@@ -171,7 +171,6 @@ export function CalendarGrid({
 												draggable
 												onDragStart={handleWeekDragStart(ev)}
 												onDragEnd={onDragEnd}
-												onClick={handleWeekEventClick(ev)}
 												onKeyDown={(e) => {
 													if (e.key === "Enter" || e.key === " ") {
 														e.preventDefault();
@@ -181,13 +180,14 @@ export function CalendarGrid({
 												}}
 												role="button"
 												tabIndex={0}
-												className="flex flex-col cursor-pointer rounded-lg px-2.5 py-2 text-xs font-medium transition-all hover:bg-card border border-transparent hover:border-border min-h-[56px]"
+												className="flex flex-col cursor-pointer rounded-lg px-2.5 py-2 text-xs font-medium transition-all hover:bg-primary/5 border border-transparent min-h-[56px]"
 												style={{
 													borderColor: `hsl(${ev.color})`,
+													color: `hsl(${ev.color})`,
 												}}
 											>
 												<div className="flex items-start min-w-0 mb-auto">
-													<span className="line-clamp-2 leading-tight flex-1">
+													<span className="line-clamp-2 leading-tight flex-1 text-inherit">
 														{ev.description}
 													</span>
 												</div>
@@ -288,7 +288,6 @@ export function CalendarGrid({
 											draggable
 											onDragStart={handleMonthDragStart(ev)}
 											onDragEnd={onDragEnd}
-											onClick={handleMonthEventClick(ev)}
 											onKeyDown={(e) => {
 												if (e.key === "Enter" || e.key === " ") {
 													e.preventDefault();
@@ -298,13 +297,13 @@ export function CalendarGrid({
 											}}
 											role="button"
 											tabIndex={0}
-											className="flex flex-col cursor-pointer rounded-lg px-2.5 py-2 text-xs font-medium transition-all hover:bg-card border border-transparent hover:border-border min-h-[56px]"
+											className="flex flex-col cursor-pointer rounded-lg px-2.5 py-2 text-xs font-medium transition-all hover:bg-primary/5 border border-transparent min-h-[56px]"
 											style={{
 												borderColor: `hsl(${ev.color})`,
 											}}
 										>
 											<div className="flex items-start min-w-0 mb-auto">
-												<span className="line-clamp-2 leading-tight flex-1">
+												<span className="line-clamp-2 leading-tight flex-1 text-inherit">
 													{ev.description}
 												</span>
 											</div>
@@ -422,7 +421,9 @@ function ContentItemPopover({ event, children }: ContentItemPopoverProps) {
 						variant="default"
 						size="sm"
 						className="text-xs h-8"
-						onClick={() => event.postUrl && window.open(event.postUrl, "_blank")}
+						onClick={() =>
+							event.postUrl && window.open(event.postUrl, "_blank")
+						}
 					>
 						<ExternalLink className="size-3.5 mr-1.5" />
 						View Post

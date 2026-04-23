@@ -1,23 +1,94 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-	PostCardsView,
-	PostControls,
-} from "@/components/features/calendar";
+import { toast } from "sonner";
+import { PostCardsView, PostControls } from "@/components/features/calendar";
 import { CalendarGrid } from "@/components/features/calendar/CalendarGrid";
-import type { Platform } from "@/components/ui/PlatformIcon";
 import {
-	type CalendarEvent,
-	type Platform as CalendarPlatform,
-	calendarEvents,
-} from "@/data/mock";
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { DepthButton } from "@/components/ui/depth-buttons";
+import type { Platform } from "@/components/ui/PlatformIcon";
+import type { CalendarPlatform } from "@/data/mock";
+import { useDeletePost, usePosts, useUnpublishPost } from "@/hooks/use-posts";
+import { useCurrentProfileId, useProfiles } from "@/hooks/use-profiles";
+import type { Post } from "@/lib/client";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 
-type ViewMode = "calendar" | "cards";
-type CalendarView = "month" | "week";
-type PostStatus = "draft" | "pending" | "published" | "failed";
+// CalendarEvent interface
+interface CalendarEvent {
+	id: string;
+	title: string;
+	date: string;
+	platform: CalendarPlatform;
+	platforms?: CalendarPlatform[];
+	type: "post" | "story" | "reel" | "video" | "tweet" | "live";
+	time?: string;
+	description?: string;
+	status:
+		| "scheduled"
+		| "published"
+		| "draft"
+		| "review"
+		| "publishing"
+		| "failed"
+		| "cancelled";
+	color: string;
+	thumbnail?: string;
+	mediaType?: "image" | "video";
+	postUrl?: string;
+}
+
+// Platform colors
+const PLATFORM_COLORS: Record<string, string> = {
+	instagram: "328 70% 55%",
+	tiktok: "349 70% 56%",
+	twitter: "203 89% 53%",
+	youtube: "0 72% 51%",
+	linkedin: "217 91% 60%",
+	facebook: "220 44% 41%",
+	pinterest: "340 82% 52%",
+};
+
+/**
+ * Convert server Post to CalendarEvent format
+ */
+function postToCalendarEvent(post: Post): CalendarEvent {
+	const targetDate = post.scheduledAt
+		? new Date(post.scheduledAt)
+		: post.publishedAt
+			? new Date(post.publishedAt)
+			: new Date(post.createdAt);
+
+	const date = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
+	const time = `${String(targetDate.getHours()).padStart(2, "0")}:${String(targetDate.getMinutes()).padStart(2, "0")}`;
+
+	// Determine primary platform from socialAccountIds
+	const primaryPlatform = post.socialAccountIds[0] || "instagram";
+
+	return {
+		id: post._id,
+		title: post.text.slice(0, 50) + (post.text.length > 50 ? "..." : ""),
+		date,
+		platform: primaryPlatform as CalendarPlatform,
+		platforms: post.socialAccountIds as CalendarPlatform[],
+		type: "post",
+		time,
+		description: post.text,
+		status: post.status,
+		color: PLATFORM_COLORS[primaryPlatform] || "328 70% 55%",
+		thumbnail: post.media?.[0]?.url,
+		mediaType: post.media?.[0]?.type === "video" ? "video" : "image",
+	};
+}
 
 // Calculate week range - defined outside component to avoid unnecessary re-renders
 function getWeekRange(date: Date) {
@@ -46,7 +117,27 @@ export default function PostsPage() {
 		setCurrentDate(new Date());
 	}, []);
 
-	const [events, setEvents] = useState(calendarEvents);
+	// Ensure profiles are loaded first
+	const { data: profilesData } = useProfiles();
+	const profileId = useCurrentProfileId();
+
+	// Fetch posts from server
+	const { data: postsData, isLoading } = usePosts(profileId);
+	const serverEvents = useMemo(() => {
+		if (!postsData?.posts) return [];
+		return postsData.posts.map(postToCalendarEvent);
+	}, [postsData]);
+
+	// Use server events, fallback to empty array
+	const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+	// Update events when server data loads
+	useEffect(() => {
+		if (serverEvents.length > 0) {
+			setEvents(serverEvents);
+		}
+	}, [serverEvents]);
+
 	const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
 	const [selectedPlatform, setSelectedPlatform] = useState<Platform | "all">(
 		"all" as const,
@@ -148,13 +239,68 @@ export default function PostsPage() {
 	);
 
 	const handleDateClick = useCallback((dateStr: string) => {
-		// Navigate to create page with date
 		window.location.href = `/posts/create?date=${dateStr}`;
 	}, []);
 
-	const handleEventClick = useCallback((_event: CalendarEvent) => {
-		// TODO: open popover instead of dialog
+	const handleEventClick = useCallback((event: CalendarEvent) => {
+		// TODO: open popover with post details + delete/unpublish actions
 	}, []);
+
+	// Delete/Unpublish modal state
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [unpublishModalOpen, setUnpublishModalOpen] = useState(false);
+	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+		null,
+	);
+
+	const { mutate: deletePost } = useDeletePost();
+	const { mutate: unpublishPost } = useUnpublishPost();
+
+	const _handleDeleteClick = useCallback((event: CalendarEvent) => {
+		setSelectedEvent(event);
+		setDeleteModalOpen(true);
+	}, []);
+
+	const _handleUnpublishClick = useCallback((event: CalendarEvent) => {
+		setSelectedEvent(event);
+		setUnpublishModalOpen(true);
+	}, []);
+
+	const confirmDelete = useCallback(() => {
+		if (!selectedEvent) return;
+		deletePost(selectedEvent.id, {
+			onSuccess: () => {
+				toast.success("Post deleted");
+				setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
+				setDeleteModalOpen(false);
+				setSelectedEvent(null);
+			},
+			onError: (err) => {
+				toast.error(`Failed to delete: ${err.message}`);
+			},
+		});
+	}, [selectedEvent, deletePost]);
+
+	const confirmUnpublish = useCallback(() => {
+		if (!selectedEvent) return;
+		unpublishPost(selectedEvent.id, {
+			onSuccess: () => {
+				toast.success("Post unpublished");
+				setEvents((prev) =>
+					prev.map((e) =>
+						e.id === selectedEvent.id
+							? { ...e, status: "cancelled" as const }
+							: e,
+					),
+				);
+				setUnpublishModalOpen(false);
+				setSelectedEvent(null);
+			},
+			onError: (err) => {
+				toast.error(`Failed to unpublish: ${err.message}`);
+			},
+		});
+	}, [selectedEvent, unpublishPost]);
 
 	const today = currentDate;
 	const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -193,11 +339,36 @@ export default function PostsPage() {
 	return (
 		<div className={pageContainerClassName} style={pageMaxWidth}>
 			{/* Header */}
-			<div className="mb-6">
-				<h1 className="text-2xl font-bold tracking-tight">Posts</h1>
-				<p className="text-sm text-muted-foreground">
-					Manage & schedule your content
-				</p>
+			<div className="flex flex-row items-end justify-between">
+				<div className="">
+					<h1 className="text-2xl font-bold tracking-tight">Posts</h1>
+					<p className="text-sm text-muted-foreground">
+						{isLoading ? "Loading..." : "Manage & schedule your content"}
+					</p>
+				</div>
+				<DepthButton
+					size="sm"
+					variant="blue"
+					className="gap-1.5"
+					onClick={() => {
+						window.location.href = "/posts/create";
+					}}
+				>
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M12 5v14M5 12h14" />
+					</svg>
+					New Post
+				</DepthButton>
 			</div>
 
 			{/* Controls */}
@@ -236,8 +407,54 @@ export default function PostsPage() {
 				<PostCardsView
 					events={filteredEvents}
 					onEventClick={handleEventClick}
+					onDelete={_handleDeleteClick}
+					onUnpublish={_handleUnpublishClick}
 				/>
 			)}
+
+			{/* Delete Confirmation Modal */}
+			<AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete Post</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to delete this post? This action cannot be
+							undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={confirmDelete}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+						>
+							Delete
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			{/* Unpublish Confirmation Modal */}
+			<AlertDialog
+				open={unpublishModalOpen}
+				onOpenChange={setUnpublishModalOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Unpublish Post</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to unpublish this post? It will be removed
+							from your social accounts.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={confirmUnpublish}>
+							Unpublish
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

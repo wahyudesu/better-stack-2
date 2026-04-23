@@ -30,7 +30,7 @@ import "react-social-icons/telegram";
 import "react-social-icons/snapchat";
 import "react-social-icons/discord";
 import "react-social-icons/bsky.app";
-import { AlertCircle, Info, Loader2, X } from "lucide-react";
+import { AlertCircle, Loader2, LogOut, Settings2 } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -48,6 +48,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import type { SocialAccount } from "@/lib/client";
 
 interface Connection {
@@ -57,10 +58,12 @@ interface Connection {
 	connected: boolean;
 	handle: string | null;
 	followers: string | null;
-	posts: number | null;
 	status?: "healthy" | "warning" | "error";
 	tokenStatus?: "valid" | "expired" | "invalid";
 	expiresAt?: string;
+	accountId?: string;
+	profilePicture?: string;
+	isOrganization?: boolean;
 	permissions?: {
 		canPost: boolean;
 		analytics: boolean;
@@ -70,25 +73,57 @@ interface Connection {
 	};
 }
 
-const platformConfig: Record<string, { name: string; network: string }> = {
-	instagram: { name: "Instagram", network: "instagram" },
-	tiktok: { name: "TikTok", network: "tiktok" },
-	twitter: { name: "X (Twitter)", network: "x" },
-	youtube: { name: "YouTube", network: "youtube" },
-	facebook: { name: "Facebook", network: "facebook" },
-	linkedin: { name: "LinkedIn", network: "linkedin" },
-	pinterest: { name: "Pinterest", network: "pinterest" },
-	threads: { name: "Threads", network: "threads" },
-	whatsapp: { name: "WhatsApp", network: "whatsapp" },
-	reddit: { name: "Reddit", network: "reddit" },
-	googlebusiness: { name: "Google Business", network: "google" },
-	telegram: { name: "Telegram", network: "telegram" },
-	snapchat: { name: "Snapchat", network: "snapchat" },
-	discord: { name: "Discord", network: "discord" },
-	bluesky: { name: "Bluesky", network: "bluesky" },
+// Platform categories
+const platformCategories = {
+	social: {
+		name: "Social",
+		platforms: [
+			{ id: "instagram", name: "Instagram", network: "instagram" },
+			{ id: "tiktok", name: "TikTok", network: "tiktok" },
+			{ id: "facebook", name: "Facebook", network: "facebook" },
+			{ id: "youtube", name: "YouTube", network: "youtube" },
+			{ id: "linkedin", name: "LinkedIn", network: "linkedin" },
+			{ id: "twitter", name: "X (Twitter)", network: "x" },
+			{ id: "threads", name: "Threads", network: "threads" },
+			{ id: "bluesky", name: "Bluesky", network: "bsky.app" },
+			{ id: "pinterest", name: "Pinterest", network: "pinterest" },
+			{ id: "reddit", name: "Reddit", network: "reddit" },
+			{ id: "googlebusiness", name: "Google Business", network: "google" },
+			{ id: "snapchat", name: "Snapchat", network: "snapchat" },
+		],
+	},
+	communication: {
+		name: "Communication",
+		platforms: [
+			{ id: "telegram", name: "Telegram", network: "telegram" },
+			{ id: "discord", name: "Discord", network: "discord" },
+			{ id: "whatsapp", name: "WhatsApp", network: "whatsapp" },
+		],
+	},
+	ads: {
+		name: "Ads",
+		platforms: [
+			{ id: "meta-ads", name: "Meta Ads", network: "facebook" },
+			{ id: "linkedin-ads", name: "LinkedIn Ads", network: "linkedin" },
+			{ id: "pinterest-ads", name: "Pinterest Ads", network: "pinterest" },
+			{ id: "tiktok-ads", name: "TikTok Ads", network: "tiktok" },
+			{ id: "google-ads", name: "Google Ads", network: "google" },
+			{ id: "x-ads", name: "X Ads", network: "x" },
+		],
+	},
 };
 
-const availablePlatforms = Object.keys(platformConfig);
+const allPlatformConfigs = [
+	...platformCategories.social.platforms,
+	...platformCategories.communication.platforms,
+	...platformCategories.ads.platforms,
+];
+
+const getPlatformConfig = (platform: string) => {
+	return allPlatformConfigs.find(
+		(p) => p.id === platform || p.network === platform,
+	);
+};
 
 export function ConnectionsTab() {
 	const profileId = useCurrentProfileId();
@@ -107,48 +142,63 @@ export function ConnectionsTab() {
 		open: boolean;
 		id: string;
 		name: string;
+		accountId?: string;
 	}>({ open: false, id: "", name: "" });
 	const [connectingPlatform, setConnectingPlatform] = useState<string | null>(
 		null,
 	);
+	const [linkedinOrganization, setLinkedinOrganization] = useState<
+		Record<string, boolean>
+	>({});
 
 	// Convert Zernio accounts to Connection format
+	const healthList = Array.isArray(healthData) ? healthData : [];
 	const connectedAccounts: Connection[] =
 		accountsData?.accounts?.map((account: SocialAccount) => {
-			const health = healthData?.find((h: any) => h.accountId === account._id);
+			const health = healthList.find((h: any) => h.accountId === account._id);
 			return {
 				id: account.platform,
-				name: platformConfig[account.platform]?.name || account.platform,
-				network: platformConfig[account.platform]?.network || account.platform,
+				name: getPlatformConfig(account.platform)?.name || account.platform,
+				network:
+					getPlatformConfig(account.platform)?.network || account.platform,
 				connected: true,
-				handle: account.username || null,
-				followers: null, // Zernio doesn't return followers in accounts list
-				posts: null,
+				handle: account.username || account.displayName || null,
+				followers: null,
 				status: health?.isHealthy !== false ? "healthy" : "error",
 				tokenStatus: "valid",
+				accountId: account._id,
+				profilePicture: account.profilePicture,
+				isOrganization: linkedinOrganization[account._id] ?? false,
 			};
 		}) || [];
 
-	// Available platforms not yet connected
+	// Available platforms not yet connected (grouped by category)
 	const connectedPlatforms = new Set(connectedAccounts.map((c) => c.id));
-	const availableConnections: Connection[] = availablePlatforms
-		.filter((p) => !connectedPlatforms.has(p))
-		.map((platform) => ({
-			id: platform,
-			name: platformConfig[platform]?.name || platform,
-			network: platformConfig[platform]?.network || platform,
-			connected: false,
-			handle: null,
-			followers: null,
-			posts: null,
-		}));
+
+	const getAvailableConnections = () => {
+		const result: Record<string, Connection[]> = {};
+		for (const [categoryKey, category] of Object.entries(platformCategories)) {
+			result[categoryKey] = category.platforms
+				.filter((p) => !connectedPlatforms.has(p.id))
+				.map((platform) => ({
+					id: platform.id,
+					name: platform.name,
+					network: platform.network,
+					connected: false,
+					handle: null,
+					followers: null,
+				}));
+		}
+		return result;
+	};
+
+	const availableConnections = getAvailableConnections();
 
 	const handleConnect = async (platform: string) => {
 		setConnectingPlatform(platform);
 		try {
 			const result = await connectAccount.mutateAsync({ platform });
 			if (result?.url) {
-				// Redirect to OAuth URL
 				window.location.href = result.url;
 			}
 		} catch (error) {
@@ -159,13 +209,17 @@ export function ConnectionsTab() {
 	};
 
 	const handleDisconnect = async () => {
-		if (!dialog.id) return;
+		if (!dialog.accountId) return;
 		try {
-			await deleteAccount.mutateAsync(dialog.id);
+			await deleteAccount.mutateAsync(dialog.accountId);
 		} catch (error) {
 			console.error("Failed to disconnect:", error);
 		}
-		setDialog({ open: false, id: "", name: "" });
+		setDialog({ open: false, id: "", name: "", accountId: undefined });
+	};
+
+	const toggleLinkedinOrganization = (accountId: string, value: boolean) => {
+		setLinkedinOrganization((prev) => ({ ...prev, [accountId]: value }));
 	};
 
 	// Not authenticated
@@ -238,22 +292,29 @@ export function ConnectionsTab() {
 					<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{connectedAccounts.map((c) => (
 							<div
-								key={c.id}
+								key={c.accountId}
 								className="group relative flex flex-col gap-2 rounded-xl border bg-white p-4 shadow-sm"
 							>
 								<div className="flex items-center gap-3">
 									<div className="relative shrink-0">
 										<div className="w-8 h-8 rounded-full bg-muted overflow-hidden">
-											<img
-												src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${c.id}`}
-												alt={c.handle ?? c.name}
-												className="w-full h-full object-cover"
-											/>
+											{c.profilePicture ? (
+												<img
+													src={c.profilePicture}
+													alt={c.handle ?? c.name}
+													className="w-full h-full object-cover"
+												/>
+											) : (
+												<SocialIcon
+													network={c.network}
+													style={{ height: 32, width: 32 }}
+												/>
+											)}
 										</div>
-										<div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-white shadow-sm">
+										<div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-white shadow-sm p-0.5">
 											<SocialIcon
 												network={c.network}
-												style={{ height: 14, width: 14 }}
+												style={{ height: 12, width: 12 }}
 											/>
 										</div>
 									</div>
@@ -261,10 +322,13 @@ export function ConnectionsTab() {
 										<p className="text-sm font-semibold truncate">
 											{c.handle || c.name}
 										</p>
+										<p className="text-xs text-muted-foreground truncate">
+											{c.network}
+										</p>
 									</div>
 									<Popover>
-										<PopoverTrigger className="rounded-full p-1 hover:bg-muted transition-colors opacity-0 group-hover:opacity-100 cursor-pointer">
-											<Info className="size-3.5 text-muted-foreground" />
+										<PopoverTrigger className="rounded-full p-1.5 hover:bg-muted transition-colors cursor-pointer">
+											<Settings2 className="size-4 text-muted-foreground" />
 										</PopoverTrigger>
 										<PopoverContent
 											sideOffset={8}
@@ -277,7 +341,7 @@ export function ConnectionsTab() {
 														style={{ height: 16, width: 16 }}
 													/>
 													<span className="text-xs font-semibold">
-														Account Health
+														Account Settings
 													</span>
 												</div>
 												<p className="text-xs text-muted-foreground mt-0.5">
@@ -308,28 +372,41 @@ export function ConnectionsTab() {
 														</span>
 													</div>
 												</div>
+												{c.id === "linkedin" && c.accountId && (
+													<div className="flex items-center justify-between pt-2 border-t">
+														<span className="text-xs text-muted-foreground">
+															Post as Organization
+														</span>
+														<Switch
+															checked={c.isOrganization}
+															onCheckedChange={(v) =>
+																toggleLinkedinOrganization(
+																	c.accountId!,
+																	v ?? false,
+																)
+															}
+														/>
+													</div>
+												)}
 											</div>
 										</PopoverContent>
 									</Popover>
 								</div>
-								<div className="flex items-center justify-between">
-									<div className="text-left">
-										<p className="text-sm font-semibold">
-											{c.followers || "—"}
-										</p>
-										<p className="text-xs text-muted-foreground">
-											{c.posts ? `${c.posts} posts` : "No posts yet"}
-										</p>
-									</div>
+								<div className="flex items-center justify-end">
 									<Button
 										variant="ghost"
 										size="sm"
 										onClick={() =>
-											setDialog({ open: true, id: c.id, name: c.name })
+											setDialog({
+												open: true,
+												id: c.id,
+												name: c.name,
+												accountId: c.accountId,
+											})
 										}
-										className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+										className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive transition-colors"
 									>
-										<X className="size-3 mr-1" />
+										<LogOut className="size-3.5 mr-1" />
 										Disconnect
 									</Button>
 								</div>
@@ -339,50 +416,60 @@ export function ConnectionsTab() {
 				)}
 			</div>
 
-			{/* Available Platforms */}
-			<div className="space-y-3">
-				<div className="flex items-center gap-2">
-					<p className="font-display font-semibold text-sm">Available</p>
-					<span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-						{availableConnections.length}
-					</span>
-				</div>
-				<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-					{availableConnections.map((c) => (
-						<div
-							key={c.id}
-							className="flex flex-col items-center gap-2 rounded-xl border bg-white p-4 shadow-sm text-center"
-						>
-							<SocialIcon
-								network={c.network}
-								style={{ height: 28, width: 28 }}
-							/>
-							<p className="text-sm font-semibold">{c.name}</p>
-							<div className="flex flex-col gap-1 w-full">
-								<Button
-									variant="default"
-									size="sm"
-									onClick={() => handleConnect(c.id)}
-									disabled={connectingPlatform !== null || !profileId}
-									className="w-full rounded-lg"
-								>
-									{connectingPlatform === c.id ? (
-										<Loader2 className="size-4 animate-spin" />
-									) : (
-										"Connect"
-									)}
-								</Button>
-							</div>
+			{/* Available Platforms by Category */}
+			{Object.entries(platformCategories).map(([categoryKey, category]) => {
+				const platforms = availableConnections[categoryKey] || [];
+				if (platforms.length === 0) return null;
+
+				return (
+					<div key={categoryKey} className="space-y-3">
+						<div className="flex items-center gap-2">
+							<p className="font-display font-semibold text-sm">
+								{category.name}
+							</p>
+							<span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+								{platforms.length}
+							</span>
 						</div>
-					))}
-				</div>
-			</div>
+						<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							{platforms.map((c) => (
+								<div
+									key={c.id}
+									className="flex flex-col items-center gap-2 rounded-xl border bg-white p-4 shadow-sm text-center"
+								>
+									<SocialIcon
+										network={c.network}
+										style={{ height: 28, width: 28 }}
+									/>
+									<p className="text-sm font-semibold">{c.name}</p>
+									<div className="flex flex-col gap-1 w-full">
+										<Button
+											variant="default"
+											size="sm"
+											onClick={() => handleConnect(c.id)}
+											disabled={connectingPlatform !== null || !profileId}
+											className="w-full rounded-lg"
+										>
+											{connectingPlatform === c.id ? (
+												<Loader2 className="size-4 animate-spin" />
+											) : (
+												"Connect"
+											)}
+										</Button>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				);
+			})}
 
 			{/* Disconnect Dialog */}
 			<AlertDialog
 				open={dialog.open}
 				onOpenChange={(open) =>
-					!open && setDialog({ open: false, id: "", name: "" })
+					!open &&
+					setDialog({ open: false, id: "", name: "", accountId: undefined })
 				}
 			>
 				<AlertDialogContent>

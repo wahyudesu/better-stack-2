@@ -1,9 +1,11 @@
 import {
+	Ban,
 	ExternalLink,
 	Heart,
 	MessageCircle,
 	MousePointerClick,
 	Play,
+	Trash2,
 	TrendingUp,
 	Video,
 } from "lucide-react";
@@ -34,6 +36,8 @@ interface ContentCardProps {
 	onDragEnd?: (e: React.DragEvent) => void;
 	showDateTime?: boolean;
 	cardBorderClass?: string;
+	onDelete?: (event: CalendarEvent) => void;
+	onUnpublish?: (event: CalendarEvent) => void;
 }
 
 export function ContentCard({
@@ -47,6 +51,8 @@ export function ContentCard({
 	onDragEnd,
 	showDateTime = true,
 	cardBorderClass,
+	onDelete,
+	onUnpublish,
 }: ContentCardProps) {
 	const badgeStyle = statusBadgeStyles[event.status] || statusBadgeStyles.draft;
 	const isSm = size === "sm";
@@ -238,12 +244,38 @@ export function ContentCard({
 				</div>
 
 				{/* Actions */}
-				<div className="flex items-center justify-end px-3 py-2.5 border-t border-border/50">
+				<div className="flex items-center justify-between px-3 py-2.5 border-t border-border/50 gap-2">
+					<div className="flex gap-1">
+						{onDelete && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-xs h-8 text-destructive hover:text-destructive"
+								onClick={() => onDelete(event)}
+							>
+								<Trash2 className="size-3.5 mr-1" />
+								Delete
+							</Button>
+						)}
+						{onUnpublish && event.status === "published" && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-xs h-8"
+								onClick={() => onUnpublish(event)}
+							>
+								<Ban className="size-3.5 mr-1" />
+								Unpublish
+							</Button>
+						)}
+					</div>
 					<Button
 						variant="default"
 						size="sm"
 						className="text-xs h-8"
-						onClick={() => event.postUrl && window.open(event.postUrl, "_blank")}
+						onClick={() =>
+							event.postUrl && window.open(event.postUrl, "_blank")
+						}
 					>
 						<ExternalLink className="size-3.5 mr-1.5" />
 						View Post

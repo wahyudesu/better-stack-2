@@ -33,7 +33,12 @@ export type {
 	TimeSeriesDataPoint,
 	TopPerformingPost,
 } from "./analytics";
-export { calculateEngagementRate, formatMetric } from "./analytics";
+export {
+	calculateEngagements,
+	calculatePercentChange,
+	formatMetric,
+	formatPercentChange,
+} from "./analytics";
 // Content types
 export * from "./content";
 // Core types
@@ -61,13 +66,14 @@ export type {
 	ToneValue,
 } from "./branding";
 export { nicheOptions, toneOptions } from "./branding";
+export type { PostMedia } from "./content/media";
 // Media helpers
 export {
 	isAudio,
 	isImage,
 	isVideo,
 } from "./content/media";
-export type { PostMedia } from "./content/media";
+export type { PostStatus } from "./content/post-status";
 // Re-export status helpers
 export {
 	canCancelPost,
@@ -75,7 +81,6 @@ export {
 	isActivePost,
 	POST_STATUS_INFO,
 } from "./content/post-status";
-export type { PostStatus } from "./content/post-status";
 // Template types
 export type {
 	ContentTemplate,

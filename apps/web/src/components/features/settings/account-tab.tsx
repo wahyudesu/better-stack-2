@@ -9,7 +9,6 @@ import {
 	CheckCircle2,
 	KeyRound,
 	Loader2,
-	Sparkles,
 	Trash2,
 } from "lucide-react";
 import { useState } from "react";
@@ -46,7 +45,6 @@ export function AccountTab() {
 		hasHydrated,
 	} = useAuthStore();
 	const [apiKeyInput, setApiKeyInput] = useState("");
-	const [showKey, setShowKey] = useState(false);
 
 	const [fullName, setFullName] = useState(() => {
 		if (mockUser.firstName && mockUser.lastName) {
@@ -54,7 +52,7 @@ export function AccountTab() {
 		}
 		return mockUser.firstName || mockUser.email.split("@")[0] || "";
 	});
-	const [jobTitle, _setJobTitle] = useState("User");
+	const [jobTitle] = useState("User");
 	const [originalFullName] = useState(() => {
 		if (mockUser.firstName && mockUser.lastName) {
 			return `${mockUser.firstName} ${mockUser.lastName}`;
@@ -62,9 +60,7 @@ export function AccountTab() {
 		return mockUser.firstName || mockUser.email.split("@")[0] || "";
 	});
 	const [originalJobTitle] = useState("User");
-	const [_avatarUrl, _setAvatarUrl] = useState(mockUser.imageUrl || "");
 	const [email] = useState(mockUser.email || "");
-	const [userId] = useState(mockUser.id || "");
 	const [showPasswordForm, setShowPasswordForm] = useState(false);
 
 	const hasChanges =
@@ -93,6 +89,10 @@ export function AccountTab() {
 		}
 		return "U";
 	};
+
+	const maskedKey = apiKey
+		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
+		: "";
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -160,92 +160,67 @@ export function AccountTab() {
 						</p>
 					</div>
 
-					{/* Account Info */}
-					<div className="space-y-2">
-						<Label className="text-sm">Account ID</Label>
-						<div className="flex items-center gap-2">
-							<Input
-								value={userId}
-								readOnly
-								className="h-10 bg-muted/50 font-mono text-xs"
-							/>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="shrink-0"
-								onClick={() => {
-									navigator.clipboard.writeText(userId);
-								}}
-							>
-								<Sparkles className="size-4" />
-							</Button>
-						</div>
-						<p className="text-xs text-muted-foreground">
-							Your unique account identifier
-						</p>
-
-						{/* Password Change */}
-						<div className="border-t pt-4">
-							<div className="flex items-center justify-between">
-								<div>
-									<p className="text-sm font-medium">Password</p>
-									<p className="text-xs text-muted-foreground">
-										Update your account password
-									</p>
-								</div>
-								{!showPasswordForm && (
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => setShowPasswordForm(true)}
-									>
-										Change Password
-									</Button>
-								)}
+					{/* Password Change */}
+					<div className="border-t pt-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<p className="text-sm font-medium">Password</p>
+								<p className="text-xs text-muted-foreground">
+									Update your account password
+								</p>
 							</div>
-
-							{showPasswordForm && (
-								<div className="mt-4 space-y-4">
-									<div className="space-y-2">
-										<Label className="text-sm">Current password</Label>
-										<Input
-											type="password"
-											placeholder="Enter current password"
-											className="h-10"
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label className="text-sm">New password</Label>
-										<Input
-											type="password"
-											placeholder="Enter new password"
-											className="h-10"
-										/>
-										<p className="text-xs text-muted-foreground">
-											At least 8 characters
-										</p>
-									</div>
-									<div className="space-y-2">
-										<Label className="text-sm">Confirm new password</Label>
-										<Input
-											type="password"
-											placeholder="Re-enter new password"
-											className="h-10"
-										/>
-									</div>
-									<div className="flex gap-2 justify-end">
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => setShowPasswordForm(false)}
-										>
-											Cancel
-										</Button>
-										<Button size="sm">Change Password</Button>
-									</div>
-								</div>
+							{!showPasswordForm && (
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setShowPasswordForm(true)}
+								>
+									Change Password
+								</Button>
 							)}
 						</div>
+
+						{showPasswordForm && (
+							<div className="mt-4 space-y-4">
+								<div className="space-y-2">
+									<Label className="text-sm">Current password</Label>
+									<Input
+										type="password"
+										placeholder="Enter current password"
+										className="h-10"
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label className="text-sm">New password</Label>
+									<Input
+										type="password"
+										placeholder="Enter new password"
+										className="h-10"
+									/>
+									<p className="text-xs text-muted-foreground">
+										At least 8 characters
+									</p>
+								</div>
+								<div className="space-y-2">
+									<Label className="text-sm">Confirm new password</Label>
+									<Input
+										type="password"
+										placeholder="Re-enter new password"
+										className="h-10"
+									/>
+								</div>
+								<div className="flex gap-2 justify-end">
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => setShowPasswordForm(false)}
+									>
+										Cancel
+									</Button>
+									<Button size="sm">Change Password</Button>
+								</div>
+							</div>
+						)}
 					</div>
 					{hasChanges && !showPasswordForm && (
 						<div className="flex justify-end pt-2">
@@ -270,19 +245,10 @@ export function AccountTab() {
 									Connected
 								</span>
 								<span className="text-sm text-muted-foreground font-mono ml-auto">
-									{showKey
-										? apiKey
-										: `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`}
+									{maskedKey}
 								</span>
 							</div>
 							<div className="flex gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setShowKey(!showKey)}
-								>
-									{showKey ? "Hide" : "Show"} Key
-								</Button>
 								<Button
 									variant="outline"
 									size="sm"
