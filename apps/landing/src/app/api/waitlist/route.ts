@@ -1,4 +1,3 @@
-import { clerkClient } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { getPostHogClient } from "@/lib/posthog-server";
 
@@ -8,31 +7,9 @@ interface WaitlistBody {
 }
 
 export async function GET() {
-  try {
-    let clerk;
-    try {
-      clerk = await clerkClient();
-    } catch (err) {
-      console.error("Failed to initialize Clerk client:", err);
-      return NextResponse.json(
-        { success: false, error: "Clerk not configured" },
-        { status: 503 }
-      );
-    }
-
-    // Note: Clerk query syntax doesn't support publicMetadata filtering reliably
-    // Fetch all users and filter client-side
-    const allUsers = await clerk.users.getUserList({ limit: 200 });
-    const waitlistCount = allUsers.data.filter(
-      (u) => u.publicMetadata?.isWaitlist === true
-    ).length;
-
-    return NextResponse.json({ count: waitlistCount }, { status: 200 });
-  } catch (error) {
-    console.error("Waitlist count error:", error);
-    // Return a fallback for display purposes
-    return NextResponse.json({ count: null }, { status: 200 });
-  }
+  // Loop.so doesn't provide a count API, so return null
+  // The social proof component will handle the fallback gracefully
+  return NextResponse.json({ count: null }, { status: 200 });
 }
 
 export async function POST(req: NextRequest) {
@@ -68,82 +45,67 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create Clerk user with waitlist metadata
-    let clerk;
-    try {
-      clerk = await clerkClient();
-    } catch (err) {
-      console.error("Failed to initialize Clerk client:", err);
+    const formId = process.env.LOOPS_FORM_ID;
+    if (!formId) {
+      console.error("LOOPS_FORM_ID not configured");
       return NextResponse.json(
-        { success: false, error: "Clerk not configured. Please set CLERK_SECRET_KEY." },
+        { success: false, error: "Waitlist not configured" },
         { status: 503 }
       );
     }
 
-    // Check if user already exists with this email
-    // Clerk doesn't have a direct "find by email" API, so we try to create
-    // and catch the conflict error
-    let user;
-    try {
-      user = await clerk.users.createUser({
-        emailAddress: [email],
-        password: `${Math.random().toString(36)}_WAITLIST_${Date.now()}`,
-        publicMetadata: {
-          isWaitlist: true,
-          userType,
+    // Submit to Loop.so
+    const formBody = new URLSearchParams({
+      email,
+      classifyUser: userType,
+    });
+
+    const response = await fetch(
+      `https://app.loops.so/api/newsletter-form/${formId}`,
+      {
+        method: "POST",
+        body: formBody.toString(),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        // Don't require email verification immediately for waitlist
-        // User can verify later when they want to sign in
-      });
-    } catch (err: unknown) {
-      // Check if it's a "user already exists" error
-      if (
-        err &&
-        typeof err === "object" &&
-        "errors" in err &&
-        Array.isArray((err as { errors: unknown }).errors) &&
-        ((err as { errors: { code?: string }[] }).errors)[0]?.code === "user_exists"
-      ) {
-        posthog.capture({
-          distinctId,
-          event: "waitlist_signup_error",
-          properties: {
-            error: "email_already_registered",
-            email,
-            ...(sessionId ? { $session_id: sessionId } : {}),
-          },
-        });
-        return NextResponse.json(
-          { success: false, error: "Email already registered" },
-          { status: 409 }
-        );
       }
-      // Log and re-throw unknown errors
-      console.error("Clerk user creation error:", err);
+    );
+
+    if (response.status === 429) {
+      return NextResponse.json(
+        { success: false, error: "Too many signups, please try again later" },
+        { status: 429 }
+      );
+    }
+
+    const data: { success: boolean; message?: string } = await response.json();
+
+    if (!data.success) {
       posthog.capture({
         distinctId,
         event: "waitlist_signup_error",
         properties: {
-          error: "clerk_error",
-          message: err instanceof Error ? err.message : "Unknown error",
+          error: data.message || "loop_error",
+          email,
+          ...(sessionId ? { $session_id: sessionId } : {}),
         },
       });
       return NextResponse.json(
-        { success: false, error: "Failed to create user. Check Clerk configuration." },
-        { status: 500 }
+        { success: false, error: data.message || "Failed to join waitlist" },
+        { status: 400 }
       );
     }
 
     posthog.identify({
       distinctId,
-      properties: { email },
+      properties: { email, userType },
     });
     posthog.capture({
       distinctId,
       event: "waitlist_signup_success",
       properties: {
         email,
-        userId: user.id,
+        userType,
         ...(sessionId ? { $session_id: sessionId } : {}),
       },
     });
@@ -152,7 +114,6 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         message: "You're on the waitlist!",
-        userId: user.id,
       },
       { status: 201 }
     );

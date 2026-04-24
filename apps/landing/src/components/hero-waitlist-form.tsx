@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useWaitlist } from "@clerk/nextjs";
 import posthog from "posthog-js";
 
 type UserType = "agency_owner" | "brand_owner";
@@ -20,6 +19,12 @@ const userTypeOptions: { value: UserType; label: string }[] = [
   { value: "brand_owner", label: "Brand Owner" },
 ];
 
+interface WaitlistResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
 interface WaitlistModalFormProps {
   email: string;
   onSuccess: () => void;
@@ -27,9 +32,8 @@ interface WaitlistModalFormProps {
 
 function WaitlistModalForm({ email, onSuccess }: WaitlistModalFormProps) {
   const [selectedType, setSelectedType] = useState<UserType | "">("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const { waitlist, fetchStatus } = useWaitlist();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,9 +47,16 @@ function WaitlistModalForm({ email, onSuccess }: WaitlistModalFormProps) {
     setErrorMsg("");
 
     try {
-      const { error } = await waitlist.join({ emailAddress: email });
-      if (error) {
-        throw new Error(error.longMessage || "Failed to join waitlist");
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, userType: selectedType }),
+      });
+
+      const data: WaitlistResponse = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to join waitlist");
       }
 
       posthog.capture("waitlist_join_success", {
@@ -53,7 +64,6 @@ function WaitlistModalForm({ email, onSuccess }: WaitlistModalFormProps) {
         userType: selectedType,
       });
 
-      setStatus("idle");
       onSuccess();
     } catch (err) {
       setStatus("error");
@@ -99,11 +109,9 @@ function WaitlistModalForm({ email, onSuccess }: WaitlistModalFormProps) {
         type="submit"
         variant="blue"
         className="w-full py-3"
-        disabled={status === "loading" || fetchStatus === "fetching"}
+        disabled={status === "loading"}
       >
-        {status === "loading" || fetchStatus === "fetching"
-          ? "Joining..."
-          : "Join Waitlist"}
+        {status === "loading" ? "Joining..." : "Join Waitlist"}
       </DepthButton>
     </form>
   );
