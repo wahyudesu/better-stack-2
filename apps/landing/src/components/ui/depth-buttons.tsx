@@ -21,8 +21,6 @@ const baseStyles = cva(
 				destructive:
 					"bg-destructive/10 text-destructive hover:bg-destructive/20 border-1 border-destructive dark:bg-destructive/20 dark:hover:bg-destructive/30 [box-shadow:0_3px_0_0_var(--destructive)]",
 				blue: "bg-blue-600 dark:bg-blue-800 border-blue-800 dark:border-blue-950 border-1 [box-shadow:0_3px_0_0_var(--depth-shadow-blue)]",
-				orange: "bg-primary hover:bg-primary/90 text-white border-primary/90 [box-shadow:0_3px_0_0_var(--primary)]",
-				white: "bg-white hover:bg-white/90 text-primary border-white [box-shadow:0_3px_0_0_var(--white)]",
 			},
 		},
 		defaultVariants: {
@@ -93,14 +91,12 @@ const groupButtonStyles = cva(baseStyles, {
 			destructive:
 				"bg-destructive/10 text-destructive hover:bg-destructive/20 border-1 border-destructive dark:bg-destructive/20 dark:hover:bg-destructive/30 [box-shadow:0_3px_0_0_var(--destructive)]",
 			blue: "bg-blue-600 dark:bg-blue-800 border-blue-800 dark:border-blue-950 border-1 [box-shadow:0_3px_0_0_var(--depth-shadow-blue)]",
-			orange: "bg-primary hover:bg-primary/90 text-white border-primary/90 [box-shadow:0_3px_0_0_var(--primary)]",
-			white: "bg-white hover:bg-white/90 text-primary border-white [box-shadow:0_3px_0_0_var(--white)]",
 		},
 		position: {
-			first: "rounded-r-none border-r-0 -mr-px z-10",
-			middle: "rounded-none border-r-0 -mr-px",
-			last: "rounded-l-none",
-			single: "",
+			first: "rounded-lg rounded-r-none border-r-0 z-10",
+			middle: "rounded-none border-r-0",
+			last: "rounded-lg rounded-l-none",
+			single: "rounded-lg",
 		},
 	},
 	defaultVariants: {
@@ -114,7 +110,7 @@ interface GroupedDepthButtonProps
 	extends Omit<React.ComponentProps<"button">, "size">,
 		Omit<VariantProps<typeof groupButtonStyles>, "position"> {
 	size?: "default" | "sm" | "lg" | "icon" | "icon-sm";
-	variant?: "outline" | "destructive" | "blue" | "orange" | "white";
+	variant?: "outline" | "destructive" | "blue";
 	position?: "first" | "middle" | "last" | "single";
 }
 

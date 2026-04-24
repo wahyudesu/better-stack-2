@@ -4,10 +4,15 @@ const footerLinks = {
   product: {
     title: "Product",
     links: [
-      { label: "Features", href: "#features" },
-      { label: "Pricing", href: "#pricing" },
-      { label: "Changelog", href: "#changelog" },
-      { label: "Roadmap", href: "#roadmap" },
+      { label: "Tools", href: "/tools" },
+      { label: "Comparison", href: "/comparison" },
+    ],
+  },
+  tools: {
+    title: "Tools",
+    links: [
+      { label: "Content Script Engine", href: "/tools/script-engine" },
+      { label: "Personal Branding Builder", href: "/tools/branding" },
     ],
   },
   company: {
@@ -15,16 +20,8 @@ const footerLinks = {
     links: [
       { label: "About", href: "/about" },
       { label: "Blog", href: "/blog" },
-      { label: "Careers", href: "#careers" },
-      { label: "Contact", href: "#contact" },
-    ],
-  },
-  legal: {
-    title: "Legal",
-    links: [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
-      { label: "Security", href: "#security" },
     ],
   },
 };
@@ -42,14 +39,14 @@ export function Footer() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           {/* Top section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 lg:gap-8">
             {/* Brand */}
-            <div className="col-span-2 md:col-span-1">
+            <div className="col-span-2 md:col-span-2 pr-28">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">B2</span>
+                  <span className="text-white font-bold text-sm">ZP</span>
                 </div>
-                <span className="font-bold text-lg">Better Stack 2</span>
+                <span className="font-bold text-lg">ZenPost</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 Social media management dashboard untuk creator dan bisnis Indonesia.
@@ -103,11 +100,11 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Legal links */}
+            {/* Tools links */}
             <div>
-              <h4 className="font-semibold mb-4">{footerLinks.legal.title}</h4>
+              <h4 className="font-semibold mb-4">{footerLinks.tools.title}</h4>
               <ul className="space-y-3">
-                {footerLinks.legal.links.map((link) => (
+                {footerLinks.tools.links.map((link) => (
                   <li key={link.label}>
                     <a
                       href={link.href}
@@ -124,7 +121,7 @@ export function Footer() {
           {/* Bottom section */}
           <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 Better Stack 2. All rights reserved.
+              © 2026 ZenPost. All rights reserved.
             </p>
             <p className="text-sm text-muted-foreground">
               Made with ❤️ untuk creator Indonesia

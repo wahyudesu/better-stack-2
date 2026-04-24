@@ -13,7 +13,7 @@ export function Header() {
 
 	return (
 		<header
-			className={cn("sticky top-0 z-50 w-full border-transparent border-b", {
+			className={cn("top-0 z-50 w-full border-transparent border-b", {
 				"border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50":
 					scrolled,
 			})}
@@ -29,8 +29,8 @@ export function Header() {
 					<DesktopNav />
 				</div>
 				<div className="hidden items-center gap-2 md:flex">
-					<Button variant="outline" onClick={() => posthog.capture("header_cta_clicked", { cta: "sign_in" })}>Sign In</Button>
-					<Button onClick={() => posthog.capture("header_cta_clicked", { cta: "get_started" })}>Get Started</Button>
+					{/*<Button variant="outline" onClick={() => posthog.capture("header_cta_clicked", { cta: "sign_in" })}>Sign In</Button>*/}
+					<Button onClick={() => posthog.capture("header_cta_clicked", { cta: "get_started" })}>Join Waitlist</Button>
 				</div>
 				<MobileNav />
 			</nav>

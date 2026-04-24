@@ -1,12 +1,12 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
 
 import "../index.css";
 import "./globals.css";
 import BottomMenu from "@/components/bottom-menu";
 import Header from "@/components/header";
 import Providers from "@/components/providers";
+import ClientClerkProvider from "@/components/clerk-provider";
 
 export const metadata: Metadata = {
 	title: "better-stack-2",
@@ -19,9 +19,9 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<ClerkProvider>
-			<html lang="en" suppressHydrationWarning className={GeistSans.variable}>
-				<body className="antialiased">
+		<html lang="en" suppressHydrationWarning className={GeistSans.variable}>
+			<body className="antialiased">
+				<ClientClerkProvider>
 					<Providers>
 						<div className="grid grid-rows-[auto_1fr] h-svh">
 							<Header />
@@ -29,8 +29,8 @@ export default function RootLayout({
 						</div>
 						<BottomMenu />
 					</Providers>
-				</body>
-			</html>
-		</ClerkProvider>
+				</ClientClerkProvider>
+			</body>
+		</html>
 	);
 }

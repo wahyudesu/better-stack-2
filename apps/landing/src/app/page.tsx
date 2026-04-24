@@ -1,7 +1,6 @@
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
 import { Features } from "@/components/features";
-import { MoreFeatures } from "@/components/more-features";
 import { Comparison } from "@/components/comparison";
 import { Journey } from "@/components/journey";
 import { CtaSection } from "@/components/cta-section";
@@ -14,8 +13,7 @@ export default function Home() {
 
       <main className="flex-1">
         <Hero />
-        <Features />
-        <MoreFeatures />
+        {/*<Features />*/}
         <Comparison />
         <Journey />
         <CtaSection />

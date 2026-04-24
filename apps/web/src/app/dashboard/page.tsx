@@ -415,17 +415,17 @@ export default function DashboardPage() {
 		[dayOfMonth],
 	);
 
-	// Generate filtered data only for line chart
-	const { chartData: filteredChartData, markers: filteredMarkers } =
-		useMemo(() => {
-			const result = generateData(
+	// Generate filtered data for line chart
+	const filteredData = useMemo(
+		() =>
+			generateData(
 				selectedSocial,
 				selectedType,
 				selectedTime,
 				dayOfMonth,
-			);
-			return { chartData: result.chartData, markers: result.markers };
-		}, [selectedSocial, selectedType, selectedTime, dayOfMonth]);
+			),
+		[selectedSocial, selectedType, selectedTime, dayOfMonth],
+	);
 
 	return (
 		<div className={`${pageContainerClassName}`} style={pageMaxWidth}>
@@ -441,11 +441,11 @@ export default function DashboardPage() {
 
 			{/* Line Chart with Stats - Affected by filters */}
 			<AreaChartCard
-				chartData={filteredChartData}
-				markers={filteredMarkers}
+				chartData={filteredData.chartData}
+				markers={filteredData.markers}
 				formatMetricValue={formatMetricValue}
 				keyProp={`chart-${selectedSocial}-${selectedType}-${selectedTime}`}
-				stats={defaultData.stats}
+				stats={filteredData.stats}
 				primaryMetric={selectedMetric}
 				onMetricChange={setSelectedMetric}
 			/>
