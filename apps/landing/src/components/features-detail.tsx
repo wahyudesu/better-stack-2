@@ -56,7 +56,7 @@ export function FeaturesDetail() {
                 className="aspect-video w-full rounded-xl border border-border bg-black object-cover shadow-inner"
                 controls
                 playsInline
-                preload="metadata"
+                preload="none"
                 aria-label={`Video demo: ${feature.title}`}
               >
                 <source src={feature.videoSrc} type="video/mp4" />

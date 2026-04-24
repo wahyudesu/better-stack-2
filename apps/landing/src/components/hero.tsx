@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { HeroWaitlistForm } from "@/components/hero-waitlist-form";
+import { WaitlistSocialProof } from "@/components/waitlist-social-proof";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FeaturesDetail } from "@/components/features-detail";
 
-type TabId = "analytics" | "scheduler" | "ai";
+type TabId = "analytics" | "inbox" | "scheduler" | "ads" | "ai";
 
 const tabContent: Record<
   TabId,
@@ -16,15 +18,25 @@ const tabContent: Record<
     description:
       "Semua metrik di satu tempat: engagement, pertumbuhan followers, dan performa iklan secara real time.",
   },
+  inbox: {
+    title: "Inbox terpusat",
+    description:
+      "Semua DM, comment, dan mention dari berbagai platform—handle dalam satu inbox tanpa switch tabs.",
+  },
   scheduler: {
     title: "Smart scheduler",
     description:
       "Rencanakan konten mingguan dengan alur yang jelas. Jadwalkan posting ke berbagai platform tanpa ketinggalan.",
   },
-  ai: {
-    title: "Asisten konten AI",
+  ads: {
+    title: "Ads analytics",
     description:
-      "Capion, hashtag, dan ide konten siap pakai dalam hitungan detik—disesuaikan untuk audiens Indonesia.",
+      "View performa semua iklan dari Google, Meta, TikTok—sekaligus. Tau mana yang convert, mana yang buang budget.",
+  },
+  ai: {
+    title: "AI analytics",
+    description:
+      "Insight otomatis dan caption suggestion—disesuaikan untuk audiens Indonesia. Generate dalam hitungan detik.",
   },
 };
 
@@ -52,14 +64,15 @@ export function Hero() {
 
 						<div className="space-y-5 max-w-xl mx-auto text-center items-center">
 							<h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl lg:leading-[1.1]">
-								Analytics first for social media and ads
+								Stop juggling 5 platforms. All your social media metrics—finally in one place.
 							</h1>
 							<p className="text-pretty text-lg text-muted-foreground mx-auto max-w-xl">
-								Jadwalkan konten, pantau angka, dan dapatkan insight berbasis AI—dirancang untuk creator dan bisnis di Indonesia.
+								Analytics, scheduler, inbox, dan ads—sekaligus. Dirancang untuk agency dan bisnis di Indonesia.
 							</p>
 						</div>
 
 						<div className="mx-auto mt-8 max-w-md">
+							<WaitlistSocialProof />
 							<HeroWaitlistForm />
 						</div>
 					</div>
@@ -70,26 +83,80 @@ export function Hero() {
 							<div className="flex justify-center">
 								<TabsList className="">
 									<TabsTrigger value="analytics" className="p-3 rounded-full">Analytics</TabsTrigger>
+									<TabsTrigger value="inbox" className="p-3 rounded-full">Inbox</TabsTrigger>
 									<TabsTrigger value="scheduler" className="p-3 rounded-full">Scheduler</TabsTrigger>
-									<TabsTrigger value="ai" className="p-3 rounded-full">AI Assistant</TabsTrigger>
+									<TabsTrigger value="ads" className="p-3 rounded-full">Ads</TabsTrigger>
+									<TabsTrigger value="ai" className="p-3 rounded-full">AI</TabsTrigger>
 								</TabsList>
 							</div>
 
 							<TabsContent value="analytics" className="mt-2">
 								<div className="overflow-hidden rounded-2xl border border-border/80">
-									<img src="/okok.png" alt={tabContent.analytics.title} className="w-full h-auto" />
+									<Image
+										src="/okok.png"
+										alt={tabContent.analytics.title}
+										width={800}
+										height={450}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										loading="lazy"
+										className="w-full h-auto"
+									/>
+								</div>
+							</TabsContent>
+
+							<TabsContent value="inbox" className="mt-2">
+								<div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+									<Image
+										src="/okok.png"
+										alt={tabContent.inbox.title}
+										width={800}
+										height={450}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										loading="lazy"
+										className="w-full h-auto"
+									/>
 								</div>
 							</TabsContent>
 
 							<TabsContent value="scheduler" className="mt-2">
 								<div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
-									<img src="/okok.png" alt={tabContent.scheduler.title} className="w-full h-auto" />
+									<Image
+										src="/okok.png"
+										alt={tabContent.scheduler.title}
+										width={800}
+										height={450}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										loading="lazy"
+										className="w-full h-auto"
+									/>
+								</div>
+							</TabsContent>
+
+							<TabsContent value="ads" className="mt-2">
+								<div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+									<Image
+										src="/okok.png"
+										alt={tabContent.ads.title}
+										width={800}
+										height={450}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										loading="lazy"
+										className="w-full h-auto"
+									/>
 								</div>
 							</TabsContent>
 
 							<TabsContent value="ai" className="mt-2">
 								<div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
-									<img src="/okok.png" alt={tabContent.ai.title} className="w-full h-auto" />
+									<Image
+										src="/okok.png"
+										alt={tabContent.ai.title}
+										width={800}
+										height={450}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										loading="lazy"
+										className="w-full h-auto"
+									/>
 								</div>
 							</TabsContent>
 						</Tabs>
@@ -100,13 +167,13 @@ export function Hero() {
 				<div className="mt-16 pt-8">
 					<div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12">
 						<div className="flex-1 max-w-[280px] text-center">
-							<p className="text-muted-foreground">Pantau semua metrik media sosial di satu tempat dengan visualisasi data yang mudah dipahami.</p>
+							<p className="text-muted-foreground">Pantau semua metrik—engagement, followers, dan performa iklan—sekaligus tanpa switch platform.</p>
 						</div>
 						<div className="flex-1 max-w-[280px] text-center">
-							<p className="text-muted-foreground">Jadwalkan posting dengan waktu optimal untuk menjangkau audiens secara maksimal.</p>
+							<p className="text-muted-foreground">Semua DM, comment, dan mention—handle dalam satu inbox. Nggak perlu buka 5 tab lagi.</p>
 						</div>
 						<div className="flex-1 max-w-[280px] text-center">
-							<p className="text-muted-foreground">Buat konten berkualitas tinggi dengan bantuan AI yang memahami tren dan preferensi audiens.</p>
+							<p className="text-muted-foreground">View performa semua iklan dari Google, Meta, TikTok—sekaligus. Tau mana yang convert.</p>
 						</div>
 					</div>
 				</div>

@@ -4,7 +4,7 @@ import { useCurrentProfileId } from "./use-profiles";
 
 export interface CreatePostBody {
 	profileId: string;
-	text: string;
+	content: string;
 	socialAccountIds: string[];
 	scheduledAt?: string;
 	media?: Array<{ url: string; type?: string; altText?: string }>;

@@ -4,6 +4,35 @@ import { getPostHogClient } from "@/lib/posthog-server";
 
 interface WaitlistBody {
   email?: string;
+  userType?: string;
+}
+
+export async function GET() {
+  try {
+    let clerk;
+    try {
+      clerk = await clerkClient();
+    } catch (err) {
+      console.error("Failed to initialize Clerk client:", err);
+      return NextResponse.json(
+        { success: false, error: "Clerk not configured" },
+        { status: 503 }
+      );
+    }
+
+    // Note: Clerk query syntax doesn't support publicMetadata filtering reliably
+    // Fetch all users and filter client-side
+    const allUsers = await clerk.users.getUserList({ limit: 200 });
+    const waitlistCount = allUsers.data.filter(
+      (u) => u.publicMetadata?.isWaitlist === true
+    ).length;
+
+    return NextResponse.json({ count: waitlistCount }, { status: 200 });
+  } catch (error) {
+    console.error("Waitlist count error:", error);
+    // Return a fallback for display purposes
+    return NextResponse.json({ count: null }, { status: 200 });
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -14,10 +43,18 @@ export async function POST(req: NextRequest) {
   try {
     const body: WaitlistBody = await req.json();
     const email = body.email;
+    const userType = body.userType;
 
     if (!email || typeof email !== "string") {
       return NextResponse.json(
         { success: false, error: "Email is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!userType || typeof userType !== "string") {
+      return NextResponse.json(
+        { success: false, error: "User type is required" },
         { status: 400 }
       );
     }
@@ -53,6 +90,7 @@ export async function POST(req: NextRequest) {
         password: `${Math.random().toString(36)}_WAITLIST_${Date.now()}`,
         publicMetadata: {
           isWaitlist: true,
+          userType,
         },
         // Don't require email verification immediately for waitlist
         // User can verify later when they want to sign in

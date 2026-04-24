@@ -1,8 +1,10 @@
 # navbar
+logo
 feature
-pricing
+comparison
 /blogs
 
+cta
 # hero
 headings
 subheadings

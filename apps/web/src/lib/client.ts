@@ -47,7 +47,7 @@ async function fetchApi<T>(
 
 // Generic HTTP methods
 const http = {
-	get: <T>(path: string, opts?: { query?: Record<string, string | number | boolean | undefined> }) => {
+	get: <T>(path: string, opts?: { query?: Record<string, string | number | boolean | undefined>; headers?: Record<string, string> }) => {
 		let finalPath = path;
 		if (opts?.query) {
 			const searchParams = new URLSearchParams();
@@ -57,10 +57,10 @@ const http = {
 			const qs = searchParams.toString();
 			if (qs) finalPath = `${path}?${qs}`;
 		}
-		return fetchApi<T>(finalPath);
+		return fetchApi<T>(finalPath, opts?.headers ? { headers: opts.headers } : {});
 	},
-	post: <T>(path: string, body: unknown) =>
-		fetchApi<T>(path, { method: "POST", body: JSON.stringify(body) }),
+	post: <T>(path: string, body: unknown, options?: { headers?: Record<string, string> }) =>
+		fetchApi<T>(path, { method: "POST", body: JSON.stringify(body), headers: options?.headers }),
 	patch: <T>(path: string, body: unknown) =>
 		fetchApi<T>(path, { method: "PATCH", body: JSON.stringify(body) }),
 	delete: <T>(path: string) => fetchApi<T>(path, { method: "DELETE" }),
@@ -90,7 +90,7 @@ export interface SocialAccount {
 export interface Post {
 	_id: string;
 	title?: string;
-	text: string;
+	text?: string;
 	content?: string;
 	profileId: string;
 	socialAccountIds: string[];
@@ -156,6 +156,12 @@ export interface PostAnalytics {
 	engagement: number;
 }
 
+export interface AccountHealth {
+	accountId: string;
+	isHealthy: boolean;
+	error?: string;
+}
+
 export interface UsageStats {
 	planName: string;
 	limits: {
@@ -183,7 +189,7 @@ export interface CommentAutomation {
 
 export interface CreatePostBody {
 	profileId: string;
-	text: string;
+	content: string;
 	socialAccountIds: string[];
 	scheduledAt?: string;
 	media?: Array<{ url: string; type?: string; altText?: string }>;
@@ -208,24 +214,98 @@ export const api = {
 		const params = profileId ? `?profileId=${profileId}` : "";
 		return http.get<{ accounts: SocialAccount[] }>(`/v1/accounts${params}`);
 	},
-	getAccountsHealth: (profileId?: string) => {
-		const params = profileId ? `?profileId=${profileId}` : "";
-		return http.get<any[]>(`/v1/accounts/health${params}`);
+	getAccountHealth: (accountId: string) => {
+		return http.get<AccountHealth>(`/v1/accounts/${accountId}/health`);
 	},
 	deleteAccount: (accountId: string) =>
 		http.delete(`/v1/accounts/${accountId}`),
-	getConnectUrl: (
-		platform: string,
-		profileId: string,
-		redirectUrl: string,
-		headless = true,
-	) => {
-		const params = new URLSearchParams({
-			profileId,
-			redirect_url: redirectUrl,
-			headless: String(headless),
+
+	// Connect — OAuth platforms
+	// GET /v1/connect/{platform}?profileId=... -> returns { authUrl }
+	// Platform list: twitter, instagram, facebook, linkedin, tiktok, youtube, pinterest,
+	//                reddit, bluesky, threads, googlebusiness, telegram, snapchat, whatsapp, discord
+	getConnectUrl: (data: { platform: string; profileId: string }) => {
+		return http.get<{ authUrl: string }>(`/v1/connect/${data.platform}?profileId=${data.profileId}`);
+	},
+
+	// OAuth callback — handled by redirect, no explicit frontend call needed
+	// The server handles the callback and redirects back to redirectUrl
+
+	// Headless mode selection (after OAuth completes, use connectToken)
+	listFacebookPages: (data: { connectToken: string; accountId?: string }) => {
+		const q = data.accountId ? `?accountId=${data.accountId}` : "";
+		return http.get<any>(`/v1/connect/facebook/pages${q}`, {
+			headers: { 'X-Connect-Token': data.connectToken }
 		});
-		return http.get<{ url: string }>(`/v1/connect/${platform}?${params}`);
+	},
+	selectFacebookPage: (data: { connectToken: string; pageId: string; accountId?: string }) => {
+		return http.post<any>("/v1/connect/facebook/select-page", data, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	listGoogleBusinessLocations: (data: { connectToken: string; accountId?: string }) => {
+		const q = data.accountId ? `?accountId=${data.accountId}` : "";
+		return http.get<any>(`/v1/connect/googlebusiness/locations${q}`, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	selectGoogleBusinessLocation: (data: { connectToken: string; locationId: string; accountId?: string }) => {
+		return http.post<any>("/v1/connect/googlebusiness/select-location", data, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	listLinkedInOrganizations: (data: { connectToken: string; accountId?: string }) => {
+		const q = data.accountId ? `?accountId=${data.accountId}` : "";
+		return http.get<any>(`/v1/connect/linkedin/organizations${q}`, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	selectLinkedInOrganization: (data: { connectToken: string; organizationId: string; accountId?: string }) => {
+		return http.post<any>("/v1/connect/linkedin/select-organization", data, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	listPinterestBoards: (data: { connectToken: string; accountId?: string }) => {
+		const q = data.accountId ? `?accountId=${data.accountId}` : "";
+		return http.get<any>(`/v1/connect/pinterest/boards${q}`, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	selectPinterestBoard: (data: { connectToken: string; boardId: string; accountId?: string }) => {
+		return http.post<any>("/v1/connect/pinterest/select-board", data, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	listSnapchatProfiles: (data: { connectToken: string; accountId?: string }) => {
+		const q = data.accountId ? `?accountId=${data.accountId}` : "";
+		return http.get<any>(`/v1/connect/snapchat/profiles${q}`, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+	selectSnapchatProfile: (data: { connectToken: string; profileId: string; accountId?: string }) => {
+		return http.post<any>("/v1/connect/snapchat/select-profile", data, {
+			headers: { 'X-Connect-Token': data.connectToken }
+		});
+	},
+
+	// Non-OAuth platforms
+	connectBluesky: (data: { profileId: string; identifier: string; password: string }) => {
+		return http.post<any>("/v1/connect/bluesky/credentials", data);
+	},
+	connectWhatsApp: (data: { profileId: string; phoneNumber?: string; businessAccountId?: string }) => {
+		return http.post<any>("/v1/connect/whatsapp/credentials", data);
+	},
+	initiateTelegram: (data: { profileId: string; phone: string }) => {
+		return http.post<any>("/v1/connect/telegram/initiate", data);
+	},
+	getTelegramStatus: (data: { profileId: string }) => {
+		return http.get<any>(`/v1/connect/telegram/status?profileId=${data.profileId}`);
+	},
+	connectAds: (data: { platform: string; profileId: string }) => {
+		return http.post<any>("/v1/connect/ads", data);
+	},
+	getPendingData: () => {
+		return http.get<any>("/v1/connect/pending-data");
 	},
 
 	// Posts

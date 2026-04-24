@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { NextRequest } from "next/server";
 
 // Mock Clerk
 const mockCreateUser = vi.fn();
@@ -23,13 +24,17 @@ vi.mock("@/lib/posthog-server", () => ({
 describe("POST /api/waitlist", async () => {
   const { POST } = await import("./route");
 
-  const createMockRequest = (body: string, headers: Record<string, string> = {}) =>
-    ({
-      json: () => Promise.resolve(JSON.parse(body)),
+  const createMockRequest = (body: string, headers: Record<string, string> = {}) => {
+    const req = new NextRequest("http://localhost/api/waitlist", {
+      method: "POST",
       headers: {
-        get: (name: string) => headers[name] || null,
+        "Content-Type": "application/json",
+        ...headers,
       },
-    }) as unknown as Request;
+      body,
+    });
+    return req;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -45,7 +50,7 @@ describe("POST /api/waitlist", async () => {
     const req = createMockRequest('{"email":"not-an-email"}');
     const res = await POST(req);
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = await res.json() as { error?: string };
     expect(body.error).toBe("Invalid email format");
   });
 
@@ -57,7 +62,7 @@ describe("POST /api/waitlist", async () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(201);
-    const body = await res.json();
+    const body = await res.json() as { success?: boolean; userId?: string };
     expect(body.success).toBe(true);
     expect(body.userId).toBe("user_123");
   });
@@ -70,7 +75,7 @@ describe("POST /api/waitlist", async () => {
     const req = createMockRequest('{"email":"existing@example.com"}');
     const res = await POST(req);
     expect(res.status).toBe(409);
-    const body = await res.json();
+    const body = await res.json() as { error?: string };
     expect(body.error).toBe("Email already registered");
   });
 
@@ -80,7 +85,7 @@ describe("POST /api/waitlist", async () => {
     const req = createMockRequest('{"email":"test@example.com"}');
     const res = await POST(req);
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = await res.json() as { success?: boolean };
     expect(body.success).toBe(false);
   });
 });

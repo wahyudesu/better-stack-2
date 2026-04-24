@@ -101,7 +101,7 @@ export default function CreatePostPage() {
 
 			const postData = {
 				profileId,
-				text: content,
+				content,
 				socialAccountIds: selectedAccountIds,
 				scheduledAt:
 					publishMode === "schedule" && scheduledDate && scheduledTime

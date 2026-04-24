@@ -37,18 +37,15 @@ export function useAccounts(profileId?: string) {
 /**
  * Hook to fetch account health status
  */
-export function useAccountsHealth(profileId?: string) {
-	const currentProfileId = useCurrentProfileId();
-	const targetProfileId = profileId || currentProfileId;
-
+export function useAccountsHealth(_profileId?: string) {
 	return useQuery({
-		queryKey: accountKeys.health(targetProfileId || ""),
+		queryKey: accountKeys.health(_profileId || ""),
 		queryFn: async () => {
-			const { data, error } = await api.getAccountsHealth(targetProfileId);
-			if (error) throw error;
-			return data ?? [];
+			// getAccountHealth takes accountId, not profileId - no bulk endpoint exists
+			// Return null to indicate health check unavailable at profile level
+			return null;
 		},
-		enabled: !!targetProfileId,
+		enabled: false, // disabled - needs per-account call, not profile-level
 	});
 }
 
@@ -64,12 +61,10 @@ export function useConnectAccount() {
 			if (!targetProfileId) throw new Error("No profile selected");
 
 			const redirectUrl = `${window.location.origin}/callback`;
-			const { data, error } = await api.getConnectUrl(
+			const { data, error } = await api.getConnectUrl({
 				platform,
-				targetProfileId,
-				redirectUrl,
-				true,
-			);
+				profileId: targetProfileId,
+			});
 			if (error) throw error;
 			return data;
 		},

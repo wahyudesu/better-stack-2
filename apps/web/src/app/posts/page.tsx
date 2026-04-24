@@ -15,11 +15,20 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DepthButton } from "@/components/ui/depth-buttons";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import type { CalendarPlatform } from "@/data/mock";
-import { useDeletePost, usePosts, useUnpublishPost } from "@/hooks/use-posts";
+import {
+	useDeletePost,
+	usePosts,
+	useUnpublishPost,
+	useUpdatePost,
+	useRetryPost,
+	useEditPost,
+} from "@/hooks/use-posts";
 import { useCurrentProfileId, useProfiles } from "@/hooks/use-profiles";
+import { api } from "@/lib/client";
 import type { Post } from "@/lib/client";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
@@ -72,18 +81,21 @@ function postToCalendarEvent(post: Post): CalendarEvent {
 	const date = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
 	const time = `${String(targetDate.getHours()).padStart(2, "0")}:${String(targetDate.getMinutes()).padStart(2, "0")}`;
 
+	// Zernio API uses "content" field, fallback to "text"
+	const postText = post.content || post.text || "";
+
 	// Determine primary platform from socialAccountIds
 	const primaryPlatform = post.socialAccountIds[0] || "instagram";
 
 	return {
 		id: post._id,
-		title: post.text.slice(0, 50) + (post.text.length > 50 ? "..." : ""),
+		title: postText.slice(0, 50) + (postText.length > 50 ? "..." : ""),
 		date,
 		platform: primaryPlatform as CalendarPlatform,
 		platforms: post.socialAccountIds as CalendarPlatform[],
 		type: "post",
 		time,
-		description: post.text,
+		description: postText,
 		status: post.status,
 		color: PLATFORM_COLORS[primaryPlatform] || "328 70% 55%",
 		thumbnail: post.media?.[0]?.url,
@@ -225,44 +237,140 @@ export default function PostsPage() {
 		e.dataTransfer.dropEffect = "move";
 	}, []);
 
+	const { mutate: updatePost } = useUpdatePost();
+
 	const handleDrop = useCallback(
 		(e: React.DragEvent, targetDate: string) => {
 			e.preventDefault();
 			if (!draggedEvent) return;
-			setEvents((prev) =>
-				prev.map((ev) =>
-					ev.id === draggedEvent.id ? { ...ev, date: targetDate } : ev,
-				),
+			const newScheduledAt = new Date(
+				`${targetDate}T${draggedEvent.time || "12:00"}`,
+			).toISOString();
+			updatePost(
+				{ postId: draggedEvent.id, scheduledAt: newScheduledAt },
+				{
+					onSuccess: () => {
+						setEvents((prev) =>
+							prev.map((ev) =>
+								ev.id === draggedEvent.id
+									? { ...ev, date: targetDate }
+									: ev,
+							),
+						);
+						toast.success("Post rescheduled");
+					},
+					onError: (err) => {
+						toast.error(`Failed to reschedule: ${err.message}`);
+					},
+				},
 			);
 			setDraggedEvent(null);
 		},
-		[draggedEvent],
+		[draggedEvent, updatePost],
 	);
 
 	const handleDateClick = useCallback((dateStr: string) => {
 		window.location.href = `/posts/create?date=${dateStr}`;
 	}, []);
 
+	// Post actions popover state
+	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+	const [popoverOpen, setPopoverOpen] = useState(false);
+	const [logsOpen, setLogsOpen] = useState(false);
+	const [postLogs, setPostLogs] = useState<any[]>([]);
+	const [logsLoading, setLogsLoading] = useState(false);
+
+	const { mutate: deletePost } = useDeletePost();
+	const { mutate: unpublishPost } = useUnpublishPost();
+	const { mutate: retryPost } = useRetryPost();
+	const { mutate: editPost } = useEditPost();
+
 	const handleEventClick = useCallback((event: CalendarEvent) => {
-		// TODO: open popover with post details + delete/unpublish actions
+		setSelectedEvent(event);
+		setPopoverOpen(true);
 	}, []);
+
+	const _handleDeleteClick = useCallback((event: CalendarEvent) => {
+		setSelectedEvent(event);
+		setPopoverOpen(false);
+		deletePost(event.id, {
+			onSuccess: () => {
+				toast.success("Post deleted");
+				setEvents((prev) => prev.filter((e) => e.id !== event.id));
+			},
+			onError: (err) => {
+				toast.error(`Failed to delete: ${err.message}`);
+			},
+		});
+	}, [deletePost]);
+
+	const _handleUnpublishClick = useCallback((event: CalendarEvent) => {
+		setSelectedEvent(event);
+		setPopoverOpen(false);
+		unpublishPost(event.id, {
+			onSuccess: () => {
+				toast.success("Post unpublished");
+				setEvents((prev) =>
+					prev.map((e) =>
+						e.id === event.id ? { ...e, status: "cancelled" as const } : e,
+					),
+				);
+			},
+			onError: (err) => {
+				toast.error(`Failed to unpublish: ${err.message}`);
+			},
+		});
+	}, [unpublishPost]);
+
+	const _handleRetryClick = useCallback(
+		(event: CalendarEvent) => {
+			setPopoverOpen(false);
+			retryPost(event.id, {
+				onSuccess: () => {
+					toast.success("Post retry queued");
+					setEvents((prev) =>
+						prev.map((e) =>
+							e.id === event.id ? { ...e, status: "scheduled" as const } : e,
+						),
+					);
+				},
+				onError: (err) => {
+					toast.error(`Failed to retry: ${err.message}`);
+				},
+			});
+		},
+		[retryPost],
+	);
+
+	const _handleViewLogs = useCallback(
+		(event: CalendarEvent) => {
+			setPopoverOpen(false);
+			setLogsOpen(true);
+			setLogsLoading(true);
+			api
+				.getPostLogs(event.id)
+				.then(({ data, error }) => {
+					if (error) {
+						toast.error(`Failed to load logs: ${error}`);
+					} else {
+						setPostLogs(data?.logs || []);
+					}
+				})
+				.finally(() => setLogsLoading(false));
+		},
+		[],
+	);
 
 	// Delete/Unpublish modal state
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [unpublishModalOpen, setUnpublishModalOpen] = useState(false);
-	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-		null,
-	);
 
-	const { mutate: deletePost } = useDeletePost();
-	const { mutate: unpublishPost } = useUnpublishPost();
-
-	const _handleDeleteClick = useCallback((event: CalendarEvent) => {
+	const _handleDeleteConfirm = useCallback((event: CalendarEvent) => {
 		setSelectedEvent(event);
 		setDeleteModalOpen(true);
 	}, []);
 
-	const _handleUnpublishClick = useCallback((event: CalendarEvent) => {
+	const _handleUnpublishConfirm = useCallback((event: CalendarEvent) => {
 		setSelectedEvent(event);
 		setUnpublishModalOpen(true);
 	}, []);
@@ -412,6 +520,104 @@ export default function PostsPage() {
 					onUnpublish={_handleUnpublishClick}
 				/>
 			)}
+
+			{/* Post Actions Dialog */}
+			<Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
+				<DialogContent className="max-w-sm">
+					<DialogHeader>
+						<DialogTitle>Post Actions</DialogTitle>
+					</DialogHeader>
+					{selectedEvent && (
+						<div className="space-y-3">
+							<div className="p-3 rounded-lg bg-muted/50 border">
+								<p className="text-sm font-medium truncate">
+									{selectedEvent.description?.slice(0, 80)}
+									{selectedEvent.description && selectedEvent.description.length > 80
+										? "..."
+										: ""}
+								</p>
+								<p className="text-xs text-muted-foreground mt-1">
+									{selectedEvent.date}
+									{selectedEvent.time ? ` at ${selectedEvent.time}` : ""}
+								</p>
+							</div>
+							<div className="flex flex-col gap-1">
+								{selectedEvent.status === "failed" && (
+									<button
+										className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer text-orange-600 font-medium"
+										onClick={() => selectedEvent && _handleRetryClick(selectedEvent)}
+									>
+										Retry Post
+									</button>
+								)}
+								{selectedEvent.status === "published" && (
+									<button
+										className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer text-orange-600 font-medium"
+										onClick={() =>
+											selectedEvent && _handleUnpublishConfirm(selectedEvent)
+										}
+									>
+										Unpublish
+									</button>
+								)}
+								<button
+									className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer"
+									onClick={() => selectedEvent && _handleViewLogs(selectedEvent)}
+								>
+									View Logs
+								</button>
+								<button
+									className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer text-destructive font-medium"
+									onClick={() =>
+										selectedEvent && _handleDeleteConfirm(selectedEvent)
+									}
+								>
+									Delete
+								</button>
+							</div>
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Logs Dialog */}
+			<Dialog open={logsOpen} onOpenChange={setLogsOpen}>
+				<DialogContent className="max-w-lg">
+					<DialogHeader>
+						<DialogTitle>Post Logs</DialogTitle>
+					</DialogHeader>
+					{logsLoading ? (
+						<div className="py-8 text-center text-muted-foreground text-sm">
+							Loading logs...
+						</div>
+					) : postLogs.length === 0 ? (
+						<div className="py-8 text-center text-muted-foreground text-sm">
+							No logs available
+						</div>
+					) : (
+						<div className="max-h-80 overflow-y-auto space-y-2">
+							{postLogs.map((log: any, i: number) => (
+								<div
+									key={i}
+									className="text-sm p-2 rounded-md bg-muted/50 border"
+								>
+									<div className="flex items-center justify-between">
+										<span className="font-medium text-xs uppercase">
+											{log.status || log.level || "info"}
+										</span>
+										<span className="text-xs text-muted-foreground">
+											{log.createdAt
+												? new Date(log.createdAt).toLocaleString()
+												: ""}
+										</span>
+									</div>
+									<p className="text-sm mt-1">{log.message || log.text}</p>
+								</div>
+							))}
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
 
 			{/* Delete Confirmation Modal */}
 			<AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>

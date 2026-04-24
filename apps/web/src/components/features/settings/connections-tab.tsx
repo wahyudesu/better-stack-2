@@ -135,6 +135,9 @@ export function ConnectionsTab() {
 		error: accountsError,
 	} = useAccounts();
 	const { data: healthData } = useAccountsHealth();
+	// Note: healthData always null - getAccountHealth is per-account, no bulk endpoint
+	// Map stays empty, all accounts default to "healthy" status
+	const _healthMap: Record<string, any> = {};
 	const connectAccount = useConnectAccount();
 	const deleteAccount = useDeleteAccount();
 
@@ -152,10 +155,9 @@ export function ConnectionsTab() {
 	>({});
 
 	// Convert Zernio accounts to Connection format
-	const healthList = Array.isArray(healthData) ? healthData : [];
 	const connectedAccounts: Connection[] =
 		accountsData?.accounts?.map((account: SocialAccount) => {
-			const health = healthList.find((h: any) => h.accountId === account._id);
+			const health = _healthMap[account._id];
 			return {
 				id: account.platform,
 				name: getPlatformConfig(account.platform)?.name || account.platform,
@@ -164,7 +166,7 @@ export function ConnectionsTab() {
 				connected: true,
 				handle: account.username || account.displayName || null,
 				followers: null,
-				status: health?.isHealthy !== false ? "healthy" : "error",
+				status: (health as any)?.isHealthy !== false ? "healthy" : "error",
 				tokenStatus: "valid",
 				accountId: account._id,
 				profilePicture: account.profilePicture,
@@ -198,8 +200,8 @@ export function ConnectionsTab() {
 		setConnectingPlatform(platform);
 		try {
 			const result = await connectAccount.mutateAsync({ platform });
-			if (result?.url) {
-				window.location.href = result.url;
+			if (result?.authUrl) {
+				window.location.href = result.authUrl;
 			}
 		} catch (error) {
 			console.error("Failed to connect:", error);

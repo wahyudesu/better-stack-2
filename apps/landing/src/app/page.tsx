@@ -1,4 +1,4 @@
-import { Header } from "@/components/header";
+import { SimpleHeader } from "@/components/simple-header";
 import { Hero } from "@/components/hero";
 import { Comparison } from "@/components/comparison";
 import { Journey } from "@/components/journey";
@@ -8,11 +8,10 @@ import { Footer } from "@/components/footer";
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header />
+      <SimpleHeader />
 
       <main className="flex-1">
         <Hero />
-        {/*<Features />*/}
         <Comparison />
         <Journey />
         <CtaSection />

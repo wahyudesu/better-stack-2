@@ -3,25 +3,16 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { Scalar } from '@scalar/hono-api-reference'
 
+import { createPostsHandlers } from './routes/handlers/posts'
+import { createQueueHandlers } from './routes/handlers/queue'
+import { createMediaHandlers } from './routes/handlers/media'
+import { createToolsHandlers } from './routes/handlers/tools'
+
 // Cloudflare Worker environment bindings
 export interface Env {
   ZERNIO_API_KEY: string
   API_BASE_URL?: string
   ASSETS: { fetch: typeof fetch }
-}
-
-// Inline minimal OpenAPI spec for testing
-const specData = {
-  openapi: '3.1.0',
-  info: { title: 'Zernio API', version: '1.0.1' },
-  paths: {
-    '/v1/usage-stats': {
-      get: {
-        summary: 'Usage Stats',
-        responses: { '200': { description: 'OK' } }
-      }
-    }
-  }
 }
 
 // Create Hono app with Worker types
@@ -57,6 +48,63 @@ app.get('/zernio-api-openapi.yaml', async (c) => {
 
 // Scalar API docs - point directly to yaml file
 app.use('/docs', Scalar({ url: '/zernio-api-openapi.yaml' }))
+
+// Instantiate route handlers
+const postsHandlers = createPostsHandlers()
+const queueHandlers = createQueueHandlers()
+const mediaHandlers = createMediaHandlers()
+const toolsHandlers = createToolsHandlers()
+
+// ============================================================
+// Content Routes - Posts
+// ============================================================
+app.get('/v1/posts', postsHandlers.list)
+app.post('/v1/posts', postsHandlers.create)
+app.get('/v1/posts/:postId', postsHandlers.get)
+app.patch('/v1/posts/:postId', postsHandlers.update)
+app.delete('/v1/posts/:postId', postsHandlers.delete)
+app.post('/v1/posts/bulk-upload', postsHandlers.bulkUpload)
+app.post('/v1/posts/:postId/edit', postsHandlers.edit)
+app.patch('/v1/posts/:postId/update-metadata', postsHandlers.updateMetadata)
+app.post('/v1/posts/:postId/retry', postsHandlers.retry)
+app.post('/v1/posts/:postId/unpublish', postsHandlers.unpublish)
+app.get('/v1/posts/:postId/logs', postsHandlers.getLogs)
+
+// ============================================================
+// Content Routes - Queue
+// ============================================================
+app.get('/v1/queue/slots', queueHandlers.listSlots)
+app.get('/v1/queue/slots/:slotId', queueHandlers.getSlot)
+app.post('/v1/queue/slots', queueHandlers.createSlot)
+app.patch('/v1/queue/slots/:slotId', queueHandlers.updateSlot)
+app.delete('/v1/queue/slots/:slotId', queueHandlers.deleteSlot)
+app.get('/v1/queue/preview', queueHandlers.preview)
+app.get('/v1/queue/next-slot', queueHandlers.nextSlot)
+
+// ============================================================
+// Content Routes - Media
+// ============================================================
+app.post('/v1/media/presign', mediaHandlers.presign)
+app.get('/v1/media/:mediaId', mediaHandlers.get)
+app.post('/v1/media/upload', mediaHandlers.upload)
+app.post('/v1/media/upload-direct', mediaHandlers.uploadDirect)
+
+// ============================================================
+// Content Routes - Tools
+// ============================================================
+app.get('/v1/tools/youtube/download', toolsHandlers.youtubeDownload)
+app.get('/v1/tools/youtube/transcript', toolsHandlers.youtubeTranscript)
+app.get('/v1/tools/instagram/download', toolsHandlers.instagramDownload)
+app.post('/v1/tools/instagram/hashtag-checker', toolsHandlers.instagramHashtagChecker)
+app.get('/v1/tools/tiktok/download', toolsHandlers.tiktokDownload)
+app.get('/v1/tools/twitter/download', toolsHandlers.twitterDownload)
+app.get('/v1/tools/facebook/download', toolsHandlers.facebookDownload)
+app.get('/v1/tools/linkedin/download', toolsHandlers.linkedinDownload)
+app.get('/v1/tools/bluesky/download', toolsHandlers.blueskyDownload)
+app.post('/v1/tools/validate/post-length', toolsHandlers.validatePostLength)
+app.post('/v1/tools/validate/post', toolsHandlers.validatePost)
+app.post('/v1/tools/validate/media', toolsHandlers.validateMedia)
+app.post('/v1/tools/validate/subreddit', toolsHandlers.validateSubreddit)
 
 /**
  * Extract API key from Authorization header
@@ -95,7 +143,7 @@ app.get('/v1/usage-stats', async (c) => {
     })
 
     const data = await response.json()
-    return c.json(data, response.status)
+    return c.json(data, response.status as any)
   } catch (error) {
     return c.json({
       error: 'Failed to fetch usage',
@@ -138,11 +186,14 @@ app.all('/v1/*', async (c) => {
     }
 
     // Make the request with user's API key
+    // Forward X-Connect-Token for headless OAuth selection endpoints
+    const connectToken = c.req.header('X-Connect-Token')
     const response = await fetch(targetUrl.toString(), {
       method,
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
+        ...(connectToken && { 'X-Connect-Token': connectToken }),
       },
       body: method !== 'GET' && method !== 'HEAD' ? await c.req.text() : undefined,
     })
@@ -154,7 +205,7 @@ app.all('/v1/*', async (c) => {
     }))
 
     // Return response with proper status code
-    return c.json(data, response.status)
+    return c.json(data, response.status as any)
   } catch (error) {
     return c.json({
       error: 'Proxy error',

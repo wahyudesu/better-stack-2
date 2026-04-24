@@ -1,20 +1,20 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { WaitlistForm } from "./waitlist-form";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { HeroWaitlistForm } from "./hero-waitlist-form";
 
-describe("WaitlistForm", () => {
+describe("HeroWaitlistForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("renders email input and submit button", () => {
-    render(<WaitlistForm />);
+    render(<HeroWaitlistForm />);
     expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Join Waitlist" })).toBeInTheDocument();
   });
 
   it("shows error when submitting empty email", async () => {
-    render(<WaitlistForm />);
+    render(<HeroWaitlistForm />);
     fireEvent.click(screen.getByRole("button", { name: "Join Waitlist" }));
     expect(await screen.findByText("Email is required")).toBeInTheDocument();
   });
@@ -26,7 +26,7 @@ describe("WaitlistForm", () => {
     });
     global.fetch = mockFetch;
 
-    render(<WaitlistForm />);
+    render(<HeroWaitlistForm />);
 
     const input = screen.getByPlaceholderText("Enter your email");
     const button = screen.getByRole("button", { name: "Join Waitlist" });
@@ -44,14 +44,13 @@ describe("WaitlistForm", () => {
   });
 
   it("shows loading state while submitting", async () => {
-    let resolve: (value: unknown) => void;
-    const mockFetch = new Promise((r) => { resolve = r; }).then(() => ({
+    const mockFetch = vi.fn().mockImplementation(() => new Promise<void>((resolve) => setTimeout(resolve, 10000)).then(() => ({
       ok: true,
       json: () => Promise.resolve({ success: true }),
-    }));
-    global.fetch = () => mockFetch as unknown as typeof fetch;
+    })));
+    global.fetch = mockFetch as unknown as typeof fetch;
 
-    render(<WaitlistForm />);
+    render(<HeroWaitlistForm />);
 
     const button = screen.getByRole("button", { name: "Join Waitlist" });
     fireEvent.change(screen.getByPlaceholderText("Enter your email"), {
@@ -69,7 +68,7 @@ describe("WaitlistForm", () => {
       json: () => Promise.resolve({ success: true, message: "You're on the waitlist!" }),
     });
 
-    render(<WaitlistForm />);
+    render(<HeroWaitlistForm />);
 
     fireEvent.change(screen.getByPlaceholderText("Enter your email"), {
       target: { value: "test@example.com" },
@@ -87,7 +86,7 @@ describe("WaitlistForm", () => {
       json: () => Promise.resolve({ success: false, error: "Email already registered" }),
     });
 
-    render(<WaitlistForm />);
+    render(<HeroWaitlistForm />);
 
     fireEvent.change(screen.getByPlaceholderText("Enter your email"), {
       target: { value: "existing@example.com" },
@@ -98,9 +97,9 @@ describe("WaitlistForm", () => {
   });
 
   it("disables input and button while loading", async () => {
-    global.fetch = () => new Promise(() => {}) as unknown as typeof fetch;
+    global.fetch = vi.fn().mockImplementation(() => new Promise<void>((resolve) => setTimeout(resolve, 10000))) as unknown as typeof fetch;
 
-    render(<WaitlistForm />);
+    render(<HeroWaitlistForm />);
 
     const input = screen.getByPlaceholderText("Enter your email") as HTMLInputElement;
     const button = screen.getByRole("button", { name: "Join Waitlist" });
