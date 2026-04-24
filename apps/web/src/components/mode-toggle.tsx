@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@better-stack-2/ui/components/button";
+import { Button } from "@zenpost/ui/components/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from "@better-stack-2/ui/components/dropdown-menu";
+} from "@zenpost/ui/components/dropdown-menu";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 

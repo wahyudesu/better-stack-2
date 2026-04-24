@@ -1,5 +1,5 @@
 {
-  "name": "@better-stack-2/infra",
+  "name": "@zenpost/infra",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@better-stack-2/config": "workspace:*",
+    "@zenpost/config": "workspace:*",
     "alchemy": "catalog:",
     "typescript": "^5"
   }

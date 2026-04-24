@@ -2,7 +2,7 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { cn } from "@zenpost/ui/lib/utils";
 
 const baseStyles = cva(
 	"rounded-lg inline-flex shrink-0 items-center justify-center cursor-pointer select-none active:translate-y-1 active:[box-shadow:0_0px_0_0_var(--depth-shadow-blue-active),0_0px_0_0_var(--depth-shadow-blue-active)_/_0.25] active:border-b-[0px] transition-all duration-150 text-white font-medium text-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",

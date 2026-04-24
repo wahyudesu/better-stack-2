@@ -9,7 +9,7 @@
 "use client";
 
 import type * as React from "react";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { cn } from "@zenpost/ui/lib/utils";
 
 const statusBadgeStyles: Record<string, { bg: string; text: string }> = {
 	// Published - Success state (green)

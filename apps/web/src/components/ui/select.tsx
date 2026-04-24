@@ -9,4 +9,4 @@ export {
 	SelectSeparator,
 	SelectTrigger,
 	SelectValue,
-} from "@better-stack-2/ui/components/select";
+} from "@zenpost/ui/components/select";

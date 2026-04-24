@@ -3,4 +3,4 @@ export {
 	ButtonGroupSeparator,
 	ButtonGroupText,
 	buttonGroupVariants,
-} from "@better-stack-2/ui/components/button-group";
+} from "@zenpost/ui/components/button-group";

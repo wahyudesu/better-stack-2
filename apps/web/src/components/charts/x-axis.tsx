@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { cn } from "@zenpost/ui/lib/utils";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { useChart } from "./chart-context";

@@ -5,10 +5,10 @@ export {
 	TabsList,
 	TabsTrigger,
 	tabsListVariants,
-} from "@better-stack-2/ui/components/tabs";
+} from "@zenpost/ui/components/tabs";
 
 // TabsPanel and TabsTab are in the ui subdirectory
 export {
 	TabsPanel,
 	TabsTab,
-} from "@better-stack-2/ui/components/ui/tabs";
+} from "@zenpost/ui/components/ui/tabs";

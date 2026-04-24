@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { cn } from "@zenpost/ui/lib/utils";
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
 import { pie as d3Pie } from "d3-shape";

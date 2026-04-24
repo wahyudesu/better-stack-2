@@ -37,8 +37,8 @@ import {
   type MenuShortcutProps as MenuShortcutPrimitiveProps,
   type MenuSubmenuProps as MenuSubmenuPrimitiveProps,
   type MenuSubmenuTriggerProps as MenuSubmenuTriggerPrimitiveProps,
-} from '@better-stack-2/components/animate-ui/primitives/base/menu';
-import { cn } from '@better-stack-2/ui/lib/utils';
+} from '@zenpost/components/animate-ui/primitives/base/menu';
+import { cn } from '@zenpost/ui/lib/utils';
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react';
 
 type MenuProps = MenuPrimitiveProps;

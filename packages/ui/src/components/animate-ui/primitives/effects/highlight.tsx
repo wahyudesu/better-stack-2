@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { AnimatePresence, motion, type Transition } from 'motion/react';
 
-import { cn } from '@better-stack-2/ui/lib/utils';
+import { cn } from '@zenpost/ui/lib/utils';
 
 type HighlightMode = 'children' | 'parent';
 

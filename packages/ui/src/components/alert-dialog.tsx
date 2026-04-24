@@ -3,8 +3,8 @@
 import * as React from "react"
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
 
-import { cn } from "@better-stack-2/ui/lib/utils"
-import { Button } from "@better-stack-2/ui/components/button"
+import { cn } from "@zenpost/ui/lib/utils"
+import { Button } from "@zenpost/ui/components/button"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />

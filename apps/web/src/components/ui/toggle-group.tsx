@@ -1,4 +1,4 @@
 export {
 	ToggleGroup,
 	ToggleGroupItem,
-} from "@better-stack-2/ui/components/toggle-group";
+} from "@zenpost/ui/components/toggle-group";

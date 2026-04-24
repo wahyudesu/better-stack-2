@@ -4,7 +4,7 @@ export {
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
-} from "@better-stack-2/ui/components/tooltip";
+} from "@zenpost/ui/components/tooltip";
 
 // SimpleTooltip is defined in the ui subdirectory tooltip
-export { SimpleTooltip } from "@better-stack-2/ui/components/ui/tooltip";
+export { SimpleTooltip } from "@zenpost/ui/components/ui/tooltip";

@@ -16,8 +16,8 @@
 	"menuAccent": "subtle",
 	"aliases": {
 		"components": "@/components",
-		"utils": "@better-stack-2/ui/lib/utils",
-		"ui": "@better-stack-2/ui/components",
+		"utils": "@zenpost/ui/lib/utils",
+		"ui": "@zenpost/ui/components",
 		"lib": "@/lib",
 		"hooks": "@/hooks"
 	},

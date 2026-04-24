@@ -1,4 +1,4 @@
-import { cn } from "@better-stack-2/ui/lib/utils"
+import { cn } from "@zenpost/ui/lib/utils"
 
 function AspectRatio({
   ratio,

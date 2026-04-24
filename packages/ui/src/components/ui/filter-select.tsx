@@ -2,15 +2,15 @@
 
 import { ChevronDownIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { PlatformIcon } from "@better-stack-2/ui/components/ui/PlatformIcon";
+import { PlatformIcon } from "@zenpost/ui/components/ui/PlatformIcon";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@better-stack-2/ui/components/select";
-import { cn } from "@better-stack-2/ui/lib/utils";
+} from "@zenpost/ui/components/select";
+import { cn } from "@zenpost/ui/lib/utils";
 
 // ============================================
 // Types

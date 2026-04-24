@@ -4,7 +4,7 @@ import type { TabsRootProps } from "@base-ui/react/tabs";
 
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import type * as React from "react";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { cn } from "@zenpost/ui/lib/utils";
 
 type TabsComponentProps = TabsRootProps;
 

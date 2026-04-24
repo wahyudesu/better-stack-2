@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@better-stack-2/ui/components/button";
-import { type Platform, PlatformIcon } from "@better-stack-2/ui/components/ui/PlatformIcon";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { Button } from "@zenpost/ui/components/button";
+import { type Platform, PlatformIcon } from "@zenpost/ui/components/ui/PlatformIcon";
+import { cn } from "@zenpost/ui/lib/utils";
 
 interface IntegrationCardProps {
 	id: string;

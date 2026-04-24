@@ -5,5 +5,5 @@ export default defineConfig({
   format: "esm",
   outDir: "./dist",
   clean: true,
-  noExternal: [/@better-stack-2\/.*/],
+  noExternal: [/@zenpost\/.*/],
 });

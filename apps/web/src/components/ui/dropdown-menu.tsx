@@ -14,4 +14,4 @@ export {
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
-} from "@better-stack-2/ui/components/dropdown-menu";
+} from "@zenpost/ui/components/dropdown-menu";

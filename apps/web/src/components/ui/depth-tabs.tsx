@@ -1,4 +1,4 @@
-// Re-export from @better-stack-2/ui
+// Re-export from @zenpost/ui
 export {
   DepthTabs,
   DepthTabsList,
@@ -9,4 +9,4 @@ export {
   type DepthTabsListProps,
   type DepthTabsTriggerProps,
   type DepthTabsPanelProps,
-} from "@better-stack-2/ui/components/ui/depth-tabs";
+} from "@zenpost/ui/components/ui/depth-tabs";

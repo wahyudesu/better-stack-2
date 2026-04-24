@@ -1,1 +1,1 @@
-export { Input } from "@better-stack-2/ui/components/input";
+export { Input } from "@zenpost/ui/components/input";

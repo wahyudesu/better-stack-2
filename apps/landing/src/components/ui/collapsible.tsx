@@ -1,1 +1,1 @@
-export { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@better-stack-2/ui/components/collapsible";
+export { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@zenpost/ui/components/collapsible";

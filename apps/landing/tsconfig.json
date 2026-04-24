@@ -1,5 +1,5 @@
 {
-	"extends": "@better-stack-2/config/tsconfig.base.json",
+	"extends": "@zenpost/config/tsconfig.base.json",
 	"compilerOptions": {
 		"target": "ESNext",
 		"lib": ["dom", "dom.iterable", "ESNext"],

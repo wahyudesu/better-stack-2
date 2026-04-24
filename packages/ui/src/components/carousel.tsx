@@ -5,8 +5,8 @@ import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
 
-import { cn } from "@better-stack-2/ui/lib/utils"
-import { Button } from "@better-stack-2/ui/components/button"
+import { cn } from "@zenpost/ui/lib/utils"
+import { Button } from "@zenpost/ui/components/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
 

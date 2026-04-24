@@ -5,24 +5,24 @@ import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { useIsMobile } from "@better-stack-2/ui/hooks/use-mobile"
-import { cn } from "@better-stack-2/ui/lib/utils"
-import { Button } from "@better-stack-2/ui/components/button"
-import { Input } from "@better-stack-2/ui/components/input"
-import { Separator } from "@better-stack-2/ui/components/separator"
+import { useIsMobile } from "@zenpost/ui/hooks/use-mobile"
+import { cn } from "@zenpost/ui/lib/utils"
+import { Button } from "@zenpost/ui/components/button"
+import { Input } from "@zenpost/ui/components/input"
+import { Separator } from "@zenpost/ui/components/separator"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@better-stack-2/ui/components/sheet"
-import { Skeleton } from "@better-stack-2/ui/components/skeleton"
+} from "@zenpost/ui/components/sheet"
+import { Skeleton } from "@zenpost/ui/components/skeleton"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@better-stack-2/ui/components/tooltip"
+} from "@zenpost/ui/components/tooltip"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { SidebarLeftIcon } from "@hugeicons/core-free-icons"
 

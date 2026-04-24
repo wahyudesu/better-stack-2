@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { cn } from "@zenpost/ui/lib/utils";
 import type { ReactNode } from "react";
 import React from "react";
 

@@ -3,14 +3,14 @@
 import * as React from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
 
-import { cn } from "@better-stack-2/ui/lib/utils"
-import { Button } from "@better-stack-2/ui/components/button"
+import { cn } from "@zenpost/ui/lib/utils"
+import { Button } from "@zenpost/ui/components/button"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "@better-stack-2/ui/components/input-group"
+} from "@zenpost/ui/components/input-group"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowDown01Icon, Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 

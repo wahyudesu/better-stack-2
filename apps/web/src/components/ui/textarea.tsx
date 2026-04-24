@@ -1,1 +1,1 @@
-export { Textarea } from "@better-stack-2/ui/components/textarea";
+export { Textarea } from "@zenpost/ui/components/textarea";

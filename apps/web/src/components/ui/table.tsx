@@ -7,4 +7,4 @@ export {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@better-stack-2/ui/components/table";
+} from "@zenpost/ui/components/table";

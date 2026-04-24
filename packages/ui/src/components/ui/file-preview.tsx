@@ -1,8 +1,8 @@
 "use client";
 
 import type { FC, ReactNode } from "react";
-import { cn } from "@better-stack-2/ui/lib/utils";
-import { Cancel01Icon, HugeiconsIcon } from "@better-stack-2/ui/components/icons/tool-icons";
+import { cn } from "@zenpost/ui/lib/utils";
+import { Cancel01Icon, HugeiconsIcon } from "@zenpost/ui/components/icons/tool-icons";
 
 export interface UploadedFile {
 	id: string;

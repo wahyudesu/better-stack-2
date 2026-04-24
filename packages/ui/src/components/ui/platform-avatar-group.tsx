@@ -1,8 +1,8 @@
 "use client";
 
-import type { Platform } from "@better-stack-2/ui/components/ui/PlatformIcon";
-import { PlatformIcon } from "@better-stack-2/ui/components/ui/PlatformIcon";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import type { Platform } from "@zenpost/ui/components/ui/PlatformIcon";
+import { PlatformIcon } from "@zenpost/ui/components/ui/PlatformIcon";
+import { cn } from "@zenpost/ui/lib/utils";
 
 export interface PlatformAvatarGroupProps {
 	platforms: Platform[];

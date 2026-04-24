@@ -1,7 +1,7 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@better-stack-2/ui/components/avatar";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@zenpost/ui/components/avatar";
+import { cn } from "@zenpost/ui/lib/utils";
 
 interface TeamMemberCardProps {
 	id: string;

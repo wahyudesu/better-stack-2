@@ -9,4 +9,4 @@ export {
 	DialogPortal,
 	DialogTitle,
 	DialogTrigger,
-} from "@better-stack-2/ui/components/dialog";
+} from "@zenpost/ui/components/dialog";

@@ -1,6 +1,6 @@
-# better-stack-2
+# ZenPost
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript monorepo stack.
+Social media dashboard for creators and businesses in Indonesia.
 
 ## Features
 
@@ -66,10 +66,10 @@ cd apps/web && pnpm run desktop:build
 ## Project Structure
 
 ```
-better-stack-2/
+zenpost/
 ├── apps/
 │   ├── web/         # Main dashboard app (Next.js 16, App Router)
-│   └── landing/    # Marketing site (Next.js 16)
+│   └── landing/    # Marketing site (zenpost.in)
 ├── packages/
 │   └── ui/          # Shared @base-ui/react components and Tailwind styles
 └── convex/          # Convex backend schema and functions
@@ -77,7 +77,7 @@ better-stack-2/
 
 ## Available Scripts
 
-- `pnpm run dev` - Start all apps (web on :3001, landing on :3002)
+- `pnpm run dev` - Start all apps
 - `pnpm run dev:web` - Start only the web app
 - `pnpm run dev:landing` - Start only the landing page
 - `pnpm run build` - Build all apps

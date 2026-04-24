@@ -1,1 +1,1 @@
-export { Button, buttonVariants } from "@better-stack-2/ui/components/button";
+export { Button, buttonVariants } from "@zenpost/ui/components/button";

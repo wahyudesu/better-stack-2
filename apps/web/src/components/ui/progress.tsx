@@ -1,1 +1,1 @@
-export { Progress } from "@better-stack-2/ui/components/progress";
+export { Progress } from "@zenpost/ui/components/progress";

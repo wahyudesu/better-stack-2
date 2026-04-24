@@ -6,8 +6,8 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@better-stack-2/ui/components/select";
-import { Textarea } from "@better-stack-2/ui/components/textarea";
+} from "@zenpost/ui/components/select";
+import { Textarea } from "@zenpost/ui/components/textarea";
 import { Check, Copy, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast as sooner } from "sonner";

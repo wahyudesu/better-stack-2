@@ -1,4 +1,4 @@
-// Re-export chart primitives/utilities from @better-stack-2/ui
+// Re-export chart primitives/utilities from @zenpost/ui
 export {
 	ChartContainer,
 	ChartLegend,
@@ -6,7 +6,7 @@ export {
 	ChartStyle,
 	ChartTooltip,
 	ChartTooltipContent,
-} from "@better-stack-2/ui/components/chart";
+} from "@zenpost/ui/components/chart";
 
 // Re-export types and utilities from the ui subdirectory
 export type {
@@ -20,7 +20,7 @@ export type {
 	ChartType,
 	IntervalType,
 	XAxisProps,
-} from "@better-stack-2/ui/components/ui/chart";
+} from "@zenpost/ui/components/ui/chart";
 
 export {
 	CHART_COLORS,
@@ -29,4 +29,4 @@ export {
 	getColorValue,
 	useChart,
 	valueToPercent,
-} from "@better-stack-2/ui/components/ui/chart";
+} from "@zenpost/ui/components/ui/chart";

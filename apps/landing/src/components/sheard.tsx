@@ -1,4 +1,4 @@
-import { cn } from "@better-stack-2/ui/lib/utils"
+import { cn } from "@zenpost/ui/lib/utils"
 import type React from "react";
 
 export type LinkItemType = {

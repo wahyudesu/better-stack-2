@@ -3,18 +3,18 @@
 import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
 
-import { cn } from "@better-stack-2/ui/lib/utils"
+import { cn } from "@zenpost/ui/lib/utils"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@better-stack-2/ui/components/dialog"
+} from "@zenpost/ui/components/dialog"
 import {
   InputGroup,
   InputGroupAddon,
-} from "@better-stack-2/ui/components/input-group"
+} from "@zenpost/ui/components/input-group"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { SearchIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 

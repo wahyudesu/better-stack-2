@@ -1,5 +1,5 @@
 {
-  "name": "@better-stack-2/ui",
+  "name": "@zenpost/ui",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -59,7 +59,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@better-stack-2/config": "workspace:*",
+    "@zenpost/config": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "tailwindcss": "catalog:",

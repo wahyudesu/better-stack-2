@@ -3,8 +3,8 @@
 import {
 	DepthButtonMenu,
 	type DepthMenuOption,
-} from "@better-stack-2/ui/components/ui/depth-button-menu";
-import { type Platform, PlatformIcon } from "@better-stack-2/ui/components/ui/PlatformIcon";
+} from "@zenpost/ui/components/ui/depth-button-menu";
+import { type Platform, PlatformIcon } from "@zenpost/ui/components/ui/PlatformIcon";
 
 // Platform configuration
 export const PLATFORM_OPTIONS = [

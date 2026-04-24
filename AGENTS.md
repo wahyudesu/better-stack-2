@@ -1,9 +1,9 @@
-# Better Stack 2 - Social Media Dashboard
+# ZenPost - Social Media Dashboard
 
 ## Project Type
 Monorepo pnpm workspace with:
 - `apps/web` - Next.js 16 + Convex backend (social media dashboard)
-- `apps/landing` - Landing page
+- `apps/landing` - Landing page (zenpost.in)
 - `apps/server` - Server components
 - `packages/ui` - Shared UI package
 
@@ -21,6 +21,3 @@ Monorepo pnpm workspace with:
 - Select onChange: `v ?? "default"` pattern
 - Lazy load Hugeicons
 - verbatimModuleSyntax requires `type` keyword for type imports
-
-## Pending Work
-- Dashboard AGENTS.md: cards for dashboard layout (impression, engagements, audience, sentiment, demographic)

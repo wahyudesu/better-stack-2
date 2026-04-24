@@ -3,4 +3,4 @@ export {
 	AvatarFallback,
 	AvatarGroup,
 	AvatarImage,
-} from "@better-stack-2/ui/components/avatar";
+} from "@zenpost/ui/components/avatar";

@@ -4,8 +4,8 @@ import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
-} from "@better-stack-2/ui/components/avatar";
-import { ScrollArea } from "@better-stack-2/ui/components/scroll-area";
+} from "@zenpost/ui/components/avatar";
+import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	ArrowLeft,

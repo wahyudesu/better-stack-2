@@ -17,8 +17,8 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "@better-stack-2/ui/components/dialog";
-import { cn } from "@better-stack-2/ui/lib/utils";
+} from "@zenpost/ui/components/dialog";
+import { cn } from "@zenpost/ui/lib/utils";
 
 export type DialogSize = "sm" | "md" | "lg" | "xl";
 

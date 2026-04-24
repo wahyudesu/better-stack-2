@@ -1,1 +1,1 @@
-export { Badge, badgeVariants } from "@better-stack-2/ui/components/badge";
+export { Badge, badgeVariants } from "@zenpost/ui/components/badge";

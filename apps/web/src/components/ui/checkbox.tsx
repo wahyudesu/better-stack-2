@@ -1,1 +1,1 @@
-export { Checkbox } from "@better-stack-2/ui/components/checkbox";
+export { Checkbox } from "@zenpost/ui/components/checkbox";

@@ -29,7 +29,7 @@
 		],
 		"paths": {
 			"@/*": ["./src/*"],
-			"@better-stack-2/ui/*": ["../../packages/ui/src/*"]
+			"@zenpost/ui/*": ["../../packages/ui/src/*"]
 		},
 		"types": ["@cloudflare/workers-types"]
 	},

@@ -10,10 +10,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@better-stack-2/ui/components/card";
-import { ChartConfig, ChartContainer } from "@better-stack-2/ui/components/chart";
-import { Badge } from "@better-stack-2/ui/components/badge";
-import { cn } from "@better-stack-2/ui/lib/utils";
+} from "@zenpost/ui/components/card";
+import { ChartConfig, ChartContainer } from "@zenpost/ui/components/chart";
+import { Badge } from "@zenpost/ui/components/badge";
+import { cn } from "@zenpost/ui/lib/utils";
 import { JetBrains_Mono } from "next/font/google";
 import { useMotionValueEvent, useSpring } from "framer-motion";
 

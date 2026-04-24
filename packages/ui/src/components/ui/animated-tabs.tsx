@@ -1,8 +1,8 @@
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
-import { Button } from "@better-stack-2/ui/components/button";
-import { cn } from "@better-stack-2/ui/lib/utils";
+import { Button } from "@zenpost/ui/components/button";
+import { cn } from "@zenpost/ui/lib/utils";
 
 export interface Tab {
 	id: string;

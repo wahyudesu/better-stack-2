@@ -1,10 +1,9 @@
 "use client";
 
-import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const products = [
-  { name: "Better Stack 2", highlighted: true },
+  { name: "ZenPost", highlighted: true },
   { name: "GA", highlighted: false },
   { name: "Plausible", highlighted: false },
   { name: "Fathom", highlighted: false },
@@ -100,10 +99,10 @@ export function Comparison() {
               Comparison
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold mt-2 mb-4">
-              Better Stack 2 vs Others
+              ZenPost vs Others
             </h2>
             <p className="text-secondary-foreground/70">
-              Lihat keunggulan Better Stack 2 dibanding tools lain
+              Lihat keunggulan ZenPost dibanding tools lain
             </p>
           </div>
 
@@ -185,7 +184,7 @@ export function Comparison() {
                       </div>
                     </th>
                     {feature.values.map((value, i) => {
-                      const isHighlighted = products[i].highlighted;
+                      const isHighlighted = products[i]?.highlighted ?? false;
                       return (
                         <td
                           key={i}

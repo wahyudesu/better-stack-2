@@ -1,4 +1,4 @@
-import "@better-stack-2/env/web";
+import "@zenpost/env/web";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 import type { NextConfig } from "next";
 

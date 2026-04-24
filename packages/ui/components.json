@@ -12,11 +12,11 @@
   },
   "iconLibrary": "hugeicons",
   "aliases": {
-    "components": "@better-stack-2/ui/components",
-    "utils": "@better-stack-2/ui/lib/utils",
-    "hooks": "@better-stack-2/ui/hooks",
-    "lib": "@better-stack-2/ui/lib",
-    "ui": "@better-stack-2/ui/components"
+    "components": "@zenpost/ui/components",
+    "utils": "@zenpost/ui/lib/utils",
+    "hooks": "@zenpost/ui/hooks",
+    "lib": "@zenpost/ui/lib",
+    "ui": "@zenpost/ui/components"
   },
   "menuColor": "default",
   "menuAccent": "subtle",

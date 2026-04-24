@@ -1,6 +1,6 @@
 "use client";
 
-import { Toaster } from "@better-stack-2/ui/components/sonner";
+import { Toaster } from "@zenpost/ui/components/sonner";
 import { useAuth } from "@clerk/nextjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";

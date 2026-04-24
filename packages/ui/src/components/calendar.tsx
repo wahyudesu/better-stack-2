@@ -8,8 +8,8 @@ import {
   type Locale,
 } from "react-day-picker"
 
-import { cn } from "@better-stack-2/ui/lib/utils"
-import { Button, buttonVariants } from "@better-stack-2/ui/components/button"
+import { cn } from "@zenpost/ui/lib/utils"
+import { Button, buttonVariants } from "@zenpost/ui/components/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowLeftIcon, ArrowRightIcon, ArrowDownIcon } from "@hugeicons/core-free-icons"
 

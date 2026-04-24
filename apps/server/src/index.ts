@@ -5,6 +5,7 @@ import { Scalar } from '@scalar/hono-api-reference'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse } from 'yaml'
+
 // Cloudflare Worker environment bindings
 export interface Env {
   ZERNIO_API_KEY: string
@@ -12,7 +13,7 @@ export interface Env {
 }
 
 // Create Hono app with Worker types
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono() as Hono<{ Bindings: Env }>
 
 // CORS middleware
 app.use('/*', cors({
@@ -22,7 +23,7 @@ app.use('/*', cors({
 }))
 
 // Health check
-app.get('/', (c) => {
+app.get('/', async (c) => {
   return c.json({
     name: 'Zernio API Client',
     version: '1.0.0',
@@ -32,7 +33,7 @@ app.get('/', (c) => {
 })
 
 // Health check endpoint
-app.get('/health', (c) => {
+app.get('/health', async (c) => {
   return c.json({ status: 'ok' })
 })
 

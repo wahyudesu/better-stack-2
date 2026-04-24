@@ -3,7 +3,7 @@ packages:
   - packages/*
 
 catalog:
-  '@cloudflare/workers-types': ^4.20251213.0
+  '@cloudflare/workers-types': ^4.20260317.1
   '@types/react': ^19.2.10
   '@types/react-dom': ^19.2.3
   alchemy: ^0.87.0

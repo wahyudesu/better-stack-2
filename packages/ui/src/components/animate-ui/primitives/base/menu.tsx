@@ -9,10 +9,10 @@ import {
   HighlightItem,
   type HighlightItemProps,
   type HighlightProps,
-} from '@better-stack-2/components/animate-ui/primitives/effects/highlight';
-import { getStrictContext } from '@better-stack-2/lib/get-strict-context';
-import { useControlledState } from '@better-stack-2/hooks/use-controlled-state';
-import { useDataState } from '@better-stack-2/hooks/use-data-state';
+} from '@zenpost/components/animate-ui/primitives/effects/highlight';
+import { getStrictContext } from '@zenpost/lib/get-strict-context';
+import { useControlledState } from '@zenpost/hooks/use-controlled-state';
+import { useDataState } from '@zenpost/hooks/use-data-state';
 
 type MenuActiveValueContextType = {
   highlightedValue: string | null;

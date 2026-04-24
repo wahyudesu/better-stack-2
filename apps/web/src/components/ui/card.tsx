@@ -6,4 +6,4 @@ export {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@better-stack-2/ui/components/card";
+} from "@zenpost/ui/components/card";

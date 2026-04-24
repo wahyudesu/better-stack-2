@@ -1,4 +1,4 @@
-import { Skeleton } from "@better-stack-2/ui/components/skeleton";
+import { Skeleton } from "@zenpost/ui/components/skeleton";
 import { Card } from "@/components/ui/card";
 
 export function InboxSkeleton() {

@@ -1,5 +1,5 @@
 {
-	"name": "better-stack-2-landing",
+	"name": "zenpost-landing",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2026-03-17",
 	"compatibility_flags": [
@@ -23,7 +23,7 @@
 			// Self-reference service binding, the service name must match the worker name
 			// see https://opennext.js.org/cloudflare/caching
 			"binding": "WORKER_SELF_REFERENCE",
-			"service": "better-stack-2-landing"
+			"service": "zenpost-landing"
 		}
 	],
 	"observability": {
