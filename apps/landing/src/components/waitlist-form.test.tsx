@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { WaitlistForm } from "./waitlist-form";
 
 describe("WaitlistForm", () => {
@@ -20,7 +20,7 @@ describe("WaitlistForm", () => {
   });
 
   it("calls POST /api/waitlist with email on submit", async () => {
-    const mockFetch = jest.fn().mockResolvedValueOnce({
+    const mockFetch = vi.fn().mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ success: true, message: "You're on the waitlist!" }),
     });
@@ -64,7 +64,7 @@ describe("WaitlistForm", () => {
   });
 
   it("shows success dialog after successful submission", async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
+    global.fetch = vi.fn().mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ success: true, message: "You're on the waitlist!" }),
     });
@@ -82,7 +82,7 @@ describe("WaitlistForm", () => {
   });
 
   it("shows error message on API error", async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce({
+    global.fetch = vi.fn().mockResolvedValueOnce({
       ok: false,
       json: () => Promise.resolve({ success: false, error: "Email already registered" }),
     });
