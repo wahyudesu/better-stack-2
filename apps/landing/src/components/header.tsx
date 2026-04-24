@@ -1,39 +1,44 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { useScroll } from "@/hooks/use-scroll";
 import { Button } from "@/components/ui/button";
 import { DesktopNav } from "@/components/desktop-nav";
 import { MobileNav } from "@/components/mobile-nav";
+import { WaitlistModal } from "@/components/waitlist-modal";
 import posthog from "posthog-js";
 
 export function Header() {
 	const scrolled = useScroll(10);
+	const [waitlistOpen, setWaitlistOpen] = useState(false);
 
 	return (
-		<header
-			className={cn("top-0 z-50 w-full border-transparent border-b", {
-				"border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50":
-					scrolled,
-			})}
-		>
-			<nav className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
-				<div className="flex items-center gap-5">
-					<a
-						className="rounded-lg px-3 py-2.5 hover:bg-muted dark:hover:bg-muted/50"
-						href="#"
-					>
-						<Logo className="h-4" />
-					</a>
-					<DesktopNav />
-				</div>
-				<div className="hidden items-center gap-2 md:flex">
-					{/*<Button variant="outline" onClick={() => posthog.capture("header_cta_clicked", { cta: "sign_in" })}>Sign In</Button>*/}
-					<Button onClick={() => posthog.capture("header_cta_clicked", { cta: "get_started" })}>Join Waitlist</Button>
-				</div>
-				<MobileNav />
-			</nav>
-		</header>
+		<>
+			<header
+				className={cn("top-0 z-50 w-full border-transparent border-b", {
+					"border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50":
+							scrolled,
+				})}
+			>
+				<nav className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
+					<div className="flex items-center gap-5">
+						<a
+							className="rounded-lg px-3 py-2.5 hover:bg-muted dark:hover:bg-muted/50"
+							href="#"
+						>
+							<Logo className="h-4" />
+						</a>
+						<DesktopNav />
+					</div>
+					<div className="hidden items-center gap-2 md:flex">
+						<Button onClick={() => { setWaitlistOpen(true); posthog.capture("header_cta_clicked", { cta: "get_started" }); }}>Join Waitlist</Button>
+					</div>
+					<MobileNav />
+				</nav>
+			</header>
+			<WaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
+		</>
 	);
 }

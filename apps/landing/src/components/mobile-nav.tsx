@@ -1,13 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import React from "react";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { Button } from "@/components/ui/button";
 import { companyLinks, companyLinks2, productLinks } from "@/components/nav-links";
 import { LinkItem } from "@/components/sheard";
+import { WaitlistModal } from "@/components/waitlist-modal";
 import { XIcon, MenuIcon } from "lucide-react";
 
 export function MobileNav() {
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
+	const [waitlistOpen, setWaitlistOpen] = useState(false);
 
 	return (
 		<div className="md:hidden">
@@ -26,8 +30,7 @@ export function MobileNav() {
 						open ? "scale-100 opacity-100" : "scale-0 opacity-0"
 					)}
 				>
-					<XIcon
-					/>
+					<XIcon />
 				</div>
 				<div
 					className={cn(
@@ -35,8 +38,7 @@ export function MobileNav() {
 						open ? "scale-0 opacity-0" : "scale-100 opacity-100"
 					)}
 				>
-					<MenuIcon
-					/>
+					<MenuIcon />
 				</div>
 			</Button>
 			{open && (
@@ -75,14 +77,15 @@ export function MobileNav() {
 							))}
 						</div>
 						<div className="mt-5 flex flex-col gap-2">
-							<Button className="w-full" variant="outline">
+							<Button className="w-full" variant="outline" onClick={() => setWaitlistOpen(true)}>
 								Sign In
 							</Button>
-							<Button className="w-full">Get Started</Button>
+							<Button className="w-full" onClick={() => setWaitlistOpen(true)}>Get Started</Button>
 						</div>
 					</div>
 				</Portal>
 			)}
+			<WaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
 		</div>
 	);
 }
