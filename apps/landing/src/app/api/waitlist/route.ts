@@ -32,7 +32,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Create Clerk user with waitlist metadata
-    const clerk = await clerkClient();
+    let clerk;
+    try {
+      clerk = await clerkClient();
+    } catch (err) {
+      console.error("Failed to initialize Clerk client:", err);
+      return NextResponse.json(
+        { success: false, error: "Clerk not configured. Please set CLERK_SECRET_KEY." },
+        { status: 503 }
+      );
+    }
 
     // Check if user already exists with this email
     // Clerk doesn't have a direct "find by email" API, so we try to create
@@ -40,10 +49,10 @@ export async function POST(req: NextRequest) {
     let user;
     try {
       user = await clerk.users.createUser({
-        emailAddress: [email],
+        email_address: [email],
+        password: `${Math.random().toString(36)}_WAITLIST_${Date.now()}`,
         publicMetadata: {
           isWaitlist: true,
-          joinedAt: new Date().toISOString(),
         },
         // Don't require email verification immediately for waitlist
         // User can verify later when they want to sign in
@@ -71,7 +80,20 @@ export async function POST(req: NextRequest) {
           { status: 409 }
         );
       }
-      throw err;
+      // Log and re-throw unknown errors
+      console.error("Clerk user creation error:", err);
+      posthog.capture({
+        distinctId,
+        event: "waitlist_signup_error",
+        properties: {
+          error: "clerk_error",
+          message: err instanceof Error ? err.message : "Unknown error",
+        },
+      });
+      return NextResponse.json(
+        { success: false, error: "Failed to create user. Check Clerk configuration." },
+        { status: 500 }
+      );
     }
 
     posthog.identify({

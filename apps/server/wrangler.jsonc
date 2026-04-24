@@ -1,22 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
 	"name": "zenpost-server",
-	"main": "dist/index.mjs",
+	"main": "src/index.ts",
 	"compatibility_date": "2026-02-17",
 	"compatibility_flags": ["nodejs_compat"],
 	"keep_vars": true,
-	"dev": {
-		"port": 3001,
-		"local_protocol": "http"
-	},
 	"observability": {
 		"enabled": true
 	},
 	"upload_source_maps": true,
-	"vars": {
-		"CORS_ORIGIN": "http://localhost:3000"
-	},
 	"assets": {
-		"directory": "./dist"
+		"directory": "./public"
 	}
 }

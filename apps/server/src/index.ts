@@ -2,18 +2,30 @@ import 'dotenv/config'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { Scalar } from '@scalar/hono-api-reference'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { parse } from 'yaml'
 
 // Cloudflare Worker environment bindings
 export interface Env {
   ZERNIO_API_KEY: string
   API_BASE_URL?: string
+  ASSETS: { fetch: typeof fetch }
+}
+
+// Inline minimal OpenAPI spec for testing
+const specData = {
+  openapi: '3.1.0',
+  info: { title: 'Zernio API', version: '1.0.1' },
+  paths: {
+    '/v1/usage-stats': {
+      get: {
+        summary: 'Usage Stats',
+        responses: { '200': { description: 'OK' } }
+      }
+    }
+  }
 }
 
 // Create Hono app with Worker types
-const app = new Hono() as Hono<{ Bindings: Env }>
+const app = new Hono<{ Bindings: Env }>()
 
 // CORS middleware
 app.use('/*', cors({
@@ -37,15 +49,14 @@ app.get('/health', async (c) => {
   return c.json({ status: 'ok' })
 })
 
-// Serve OpenAPI spec as JSON
-app.get('/openapi.json', (c) => {
-  const specPath = join(process.cwd(), 'zernio-api-openapi.yaml')
-  const spec = readFileSync(specPath, 'utf-8')
-  return c.json(parse(spec))
+// Serve the actual yaml file for Scalar
+app.get('/zernio-api-openapi.yaml', async (c) => {
+  const res = await c.env.ASSETS.fetch(new Request('http://localhost/zernio-api-openapi.yaml'))
+  return res
 })
 
-// Scalar API docs
-app.get('/docs', Scalar({ url: '/openapi.json' }))
+// Scalar API docs - point directly to yaml file
+app.use('/docs', Scalar({ url: '/zernio-api-openapi.yaml' }))
 
 /**
  * Extract API key from Authorization header
@@ -84,10 +95,7 @@ app.get('/v1/usage-stats', async (c) => {
     })
 
     const data = await response.json()
-    return new Response(JSON.stringify(data), {
-      status: response.status,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return c.json(data, response.status)
   } catch (error) {
     return c.json({
       error: 'Failed to fetch usage',
@@ -146,10 +154,7 @@ app.all('/v1/*', async (c) => {
     }))
 
     // Return response with proper status code
-    return new Response(JSON.stringify(data), {
-      status: response.status,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return c.json(data, response.status)
   } catch (error) {
     return c.json({
       error: 'Proxy error',
@@ -159,15 +164,11 @@ app.all('/v1/*', async (c) => {
 })
 
 // Export for Cloudflare Workers
-export default app
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return app.fetch(request, env, ctx)
+  },
+}
 
 // Also export the AppType for client creation
 export type AppType = typeof app
-
-// Start Node.js server for development
-if (process.env.NODE_ENV !== 'production') {
-  import('@hono/node-server').then(({ serve }) => {
-    console.log('Starting dev server on http://localhost:8787')
-    serve({ fetch: app.fetch, port: 8787 })
-  })
-}
