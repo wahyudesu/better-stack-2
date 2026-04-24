@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     let user;
     try {
       user = await clerk.users.createUser({
-        email_address: [email],
+        emailAddress: [email],
         password: `${Math.random().toString(36)}_WAITLIST_${Date.now()}`,
         publicMetadata: {
           isWaitlist: true,

@@ -8,7 +8,6 @@ import {
 	Newspaper,
 	Settings,
 	Sparkles,
-	SquareStack,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -44,20 +43,13 @@ const MENU_ITEMS = [
 	},
 	{ href: "/ai", icon: Sparkles, label: "AI", shortcut: "⌃4", key: "4" },
 	{
-		href: "/tools",
-		icon: SquareStack,
-		label: "Tools",
-		shortcut: "⌃5",
-		key: "5",
-	},
-	{
 		href: "/settings",
 		icon: Settings,
 		label: "Settings",
 		shortcut: "⌃6",
 		key: "6",
 	},
-] as const;
+];
 
 // Key-to-item map for O(1) keyboard lookup (Ctrl+1 through Ctrl+6)
 const KEY_TO_ITEM_MAP = new Map<string, (typeof MENU_ITEMS)[number]>();
@@ -73,7 +65,7 @@ const menuItems: ReadonlyArray<{
 	label: string;
 	shortcut?: string;
 	key?: string;
-}> = [...MENU_ITEMS];
+}> = MENU_ITEMS;
 
 // Helper to check if keyboard input should be ignored
 const shouldIgnoreKeyboard = (target: HTMLElement): boolean => {
@@ -161,7 +153,7 @@ export default function BottomMenu() {
 
 			if (matchingItem && pathnameRef.current !== matchingItem.href) {
 				e.preventDefault();
-				routerRef.current.push(matchingItem.href);
+				routerRef.current.push(matchingItem.href as string);
 			}
 		};
 
@@ -204,7 +196,7 @@ export default function BottomMenu() {
 								ref={(el) => {
 									itemRefs.current[index] = el;
 								}}
-								href={item.href as any}
+								href={item.href}
 								className={cn(
 									"relative flex items-center justify-center p-2 rounded-2xl transition-all duration-200",
 									isActive

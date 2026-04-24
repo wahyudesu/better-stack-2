@@ -4,6 +4,12 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { DepthButton } from "@/components/ui/depth-buttons";
 
+interface WaitlistResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
 export function HeroWaitlistForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -27,7 +33,7 @@ export function HeroWaitlistForm() {
         body: JSON.stringify({ email: email.trim() }),
       });
 
-      const data = await res.json();
+      const data: WaitlistResponse = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || `Request failed (${res.status})`);
