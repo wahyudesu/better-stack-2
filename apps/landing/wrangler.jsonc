@@ -32,5 +32,6 @@
 	"upload_source_maps": true,
 	"vars": {
 		"CLERK_SECRET_KEY": "FIXME"
-	}
+	},
+	"keep_vars": true
 }
