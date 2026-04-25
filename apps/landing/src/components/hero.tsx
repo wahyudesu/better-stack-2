@@ -42,7 +42,7 @@ const tabContent: Record<
 
 export function Hero() {
 	return (
-		<section className="relative overflow-hidden py-16 sm:py-20 lg:py-28">
+		<section className="relative overflow-hidden py-16 sm:py-20 lg:py-28" id="hero">
 			<div className="pointer-events-none absolute inset-0 -z-10">
 				<div className="absolute left-1/2 top-0 h-[420px] w-[min(90vw,640px)] -translate-x-1/2 rounded-full bg-gradient-to-b from-primary/20 to-transparent blur-3xl" />
 				<div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-primary/5 blur-3xl lg:right-[10%]" />
@@ -62,7 +62,7 @@ export function Hero() {
 							</Badge>
 						</div>
 
-						<div className="space-y-5 max-w-xl mx-auto text-center items-center">
+						<div className="space-y-5 max-w-2xl mx-auto text-center items-center">
 							<h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl lg:leading-[1.1]">
 								Stop juggling 5 platforms. All your social media metrics—finally in one place.
 							</h1>

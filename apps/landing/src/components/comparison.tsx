@@ -90,7 +90,7 @@ const XIcon = ({ className }: { className?: string }) => (
 
 export function Comparison() {
   return (
-    <section className="py-24 bg-secondary text-secondary-foreground">
+    <section className="py-24 bg-secondary text-secondary-foreground" id="comparison">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
@@ -107,8 +107,8 @@ export function Comparison() {
           </div>
 
           {/* Comparison table */}
-          <div className="w-full overflow-x-auto">
-            <table className="w-full table-fixed text-left border-collapse">
+          <div className="w-full overflow-hidden rounded-2xl border border-border">
+            <table className="w-full text-left border-collapse">
               <colgroup>
                 <col style={{ width: "50%" }} />
                 <col style={{ width: "12.5%" }} />

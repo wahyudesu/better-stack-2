@@ -7,7 +7,7 @@ import { DepthButton } from "@/components/ui/depth-buttons";
 
 const navLinks: { label: string; href: string }[] = [
   { label: "Features", href: "/#features" },
-  { label: "Comparison", href: "/comparison" },
+  { label: "Comparison", href: "/#comparison" },
   { label: "Blog", href: "/blog" },
 ];
 

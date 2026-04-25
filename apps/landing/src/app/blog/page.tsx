@@ -29,31 +29,13 @@ const blogPosts = [
     category: "Technology",
     readTime: "6 min read",
   },
-  {
-    slug: "content-calendar-template",
-    title: "Content Calendar Template Gratis untuk Creator",
-    excerpt: "Download template content calendar yang bisa langsung kamu pakai untuk merencanakan konten bulanan.",
-    date: "1 April 2025",
-    category: "Resources",
-    readTime: "3 min read",
-  },
-  {
-    slug: "analisis-hashtag-tiktok-2025",
-    title: "Analisis Tren Hashtag TikTok 2025",
-    excerpt: "Update tren hashtag TikTok terbaru dan bagaimana menggunakannya untuk menjangkau audiens yang lebih luas.",
-    date: "28 Maret 2025",
-    category: "TikTok",
-    readTime: "4 min read",
-  },
-  {
-    slug: "multi-platform-social-media-strategy",
-    title: "Strategy Social Media Multi-Platform",
-    excerpt: "Bagaimana cara manage multiple social media platforms sekaligus tanpa kehilangan头发 (sanity). Tips dan tools yang kami gunakan.",
-    date: "20 Maret 2025",
-    category: "Strategy",
-    readTime: "8 min read",
-  },
 ];
+
+const founder = {
+  name: "Reza Pratama",
+  role: "Founder & CEO",
+  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
+};
 
 export default function BlogPage() {
   return (
@@ -62,96 +44,89 @@ export default function BlogPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-24 bg-secondary text-secondary-foreground">
+        <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+            <div className="max-w-2xl mx-auto text-center">
+              <h1 className="text-3xl sm:text-4xl font-bold mb-3">
                 Blog
               </h1>
-              <p className="text-xl text-secondary-foreground/70 mb-8">
-                Tips, tricks, dan insights tentang social media management untuk creator dan bisnis Indonesia.
+              <p className="text-muted-foreground">
+                Insights tentang social media management untuk creator dan bisnis.
               </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <Button variant="outline" size="sm">All Posts</Button>
-                <Button variant="ghost" size="sm">Tips & Tricks</Button>
-                <Button variant="ghost" size="sm">Instagram</Button>
-                <Button variant="ghost" size="sm">TikTok</Button>
-                <Button variant="ghost" size="sm">Strategy</Button>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Blog Posts Grid */}
-        <section className="py-16">
+        {/* Blog Posts */}
+        <section className="pb-20">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="max-w-3xl mx-auto">
+              <div className="space-y-12">
                 {blogPosts.map((post) => (
-                  <article
-                    key={post.slug}
-                    className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
-                  >
-                    {/* Placeholder image area */}
-                    <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <span className="text-4xl opacity-50">📝</span>
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                          {post.category}
-                        </span>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <CalendarIcon className="size-3.5" />
-                          {post.date}
-                        </span>
-                      </div>
-                      <h2 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
-                        <Link href="/blog">
+                  <article key={post.slug} className="group">
+                    <Link href={`/blog/${post.slug}`}>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <span className="font-medium text-primary">{post.category}</span>
+                          <span>·</span>
+                          <span className="flex items-center gap-1">
+                            <CalendarIcon className="size-3.5" />
+                            {post.date}
+                          </span>
+                          <span>·</span>
+                          <span>{post.readTime}</span>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-semibold group-hover:text-primary transition-colors">
                           {post.title}
-                        </Link>
-                      </h2>
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">{post.readTime}</span>
-                        <Button variant="ghost" size="sm" className="text-primary">
+                        </h2>
+                        <p className="text-muted-foreground leading-relaxed">
+                          {post.excerpt}
+                        </p>
+                        <div className="text-sm font-medium text-primary">
                           Read more →
-                        </Button>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   </article>
                 ))}
               </div>
-
-              {/* Load More */}
-              <div className="text-center mt-12">
-                <Button variant="outline" size="lg">
-                  Load More Posts
-                </Button>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Newsletter CTA */}
-        <section className="py-16 bg-secondary text-secondary-foreground">
+        {/* Waitlist CTA */}
+        <section className="py-16 border-t border-border">
           <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-                Subscribe ke Newsletter Kami
+            <div className="max-w-xl mx-auto text-center space-y-4">
+              <h2 className="text-2xl font-bold">
+                Join Waitlist
               </h2>
-              <p className="text-secondary-foreground/70 mb-6">
-                Dapatkan tips terbaru langsung ke email kamu. No spam, unsubscribe anytime.
+              <p className="text-muted-foreground">
+                Dapatkan akses early bird dan update terbaru tentang produk kami.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2.5 rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              <Button size="lg" className="mt-4">
+                <Link href="/" className="flex items-center gap-2">
+                  Daftar Sekarang
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Founder Section */}
+        <section className="py-12 border-t border-border">
+          <div className="container mx-auto px-4">
+            <div className="max-w-md mx-auto">
+              <div className="flex items-center gap-4">
+                <img
+                  src={founder.avatar}
+                  alt={founder.name}
+                  className="w-16 h-16 rounded-full bg-muted"
                 />
-                <Button>Subscribe</Button>
+                <div>
+                  <p className="font-semibold">{founder.name}</p>
+                  <p className="text-sm text-muted-foreground">{founder.role}</p>
+                </div>
               </div>
             </div>
           </div>

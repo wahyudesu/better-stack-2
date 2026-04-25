@@ -28,7 +28,7 @@ const pillarFeatures = [
 
 export function FeaturesDetail() {
   return (
-    <div className="mx-auto mt-20 max-w-6xl border-border/60 pt-16 sm:mt-24 sm:pt-20">
+    <div className="mx-auto mt-20 max-w-6xl border-border/60 pt-16 sm:mt-24 sm:pt-20" id="features">
       <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
         <h2 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">
           Empat pilar untuk operasional sosial yang tenang

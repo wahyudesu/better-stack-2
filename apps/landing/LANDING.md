@@ -1,11 +1,10 @@
 # navbar
 logo
-feature
-comparison
-/blogs
-
+feature, comparison, /blogs
 cta
+
 # hero
+badge
 headings
 subheadings
 cta: waitlist
@@ -18,19 +17,18 @@ logo brand
 3 strength app
 
 # feature
-4 features and videos 
+4 features and videos
+
+# benefit journey that customer get
+3 step before, in progress, and after output
 
 # comparison
 hootsuite, buffer, repliz
 <!--sederhanakan dah-->
 
-# benefit journey that customer get
-
-3 step before, in progress, and after output
+# faq
 
 # cta
-
-# faq
 
 # footer
 link:login, pricing, support:mail, affiliate, contact
