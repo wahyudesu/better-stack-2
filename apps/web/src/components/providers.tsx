@@ -1,8 +1,8 @@
 "use client";
 
-import { Toaster } from "@zenpost/ui/components/sonner";
 import { useAuth } from "@clerk/nextjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@zenpost/ui/components/sonner";
 import { useState } from "react";
 import { AuthGateProvider } from "./auth/AuthGateContext";
 import { ThemeProvider } from "./theme-provider";

@@ -1,10 +1,10 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { getCampaigns, getAds, getAdAccounts } from "@/lib/api/ads";
+import { getAdAccounts, getAds, getCampaigns } from "@/lib/api/ads";
 import { formatCurrency, formatNumber } from "@/lib/metrics";
 
 export async function AdsOverview() {
@@ -15,10 +15,22 @@ export async function AdsOverview() {
 	]);
 
 	// Aggregate metrics
-	const totalSpend = campaigns.reduce((sum, c) => sum + (c.metrics?.spend ?? 0), 0);
-	const totalImpressions = campaigns.reduce((sum, c) => sum + (c.metrics?.impressions ?? 0), 0);
-	const totalClicks = campaigns.reduce((sum, c) => sum + (c.metrics?.clicks ?? 0), 0);
-	const totalConversions = campaigns.reduce((sum, c) => sum + (c.metrics?.conversions ?? 0), 0);
+	const totalSpend = campaigns.reduce(
+		(sum, c) => sum + (c.metrics?.spend ?? 0),
+		0,
+	);
+	const totalImpressions = campaigns.reduce(
+		(sum, c) => sum + (c.metrics?.impressions ?? 0),
+		0,
+	);
+	const totalClicks = campaigns.reduce(
+		(sum, c) => sum + (c.metrics?.clicks ?? 0),
+		0,
+	);
+	const totalConversions = campaigns.reduce(
+		(sum, c) => sum + (c.metrics?.conversions ?? 0),
+		0,
+	);
 
 	const activeCampaigns = campaigns.filter((c) => c.status === "active").length;
 	const activeAds = ads.filter((a) => a.status === "active").length;
@@ -27,11 +39,30 @@ export async function AdsOverview() {
 		<div className="space-y-6">
 			{/* Stat cards */}
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-				<StatCard label="Total Spend" value={formatCurrency(totalSpend)} change="+12.4%" />
-				<StatCard label="Impressions" value={formatNumber(totalImpressions)} change="+8.2%" />
-				<StatCard label="Clicks" value={formatNumber(totalClicks)} change="+5.1%" />
-				<StatCard label="Conversions" value={formatNumber(totalConversions)} change="+18.7%" />
-				<StatCard label="Active Campaigns" value={`${activeCampaigns}/${campaigns.length}`} />
+				<StatCard
+					label="Total Spend"
+					value={formatCurrency(totalSpend)}
+					change="+12.4%"
+				/>
+				<StatCard
+					label="Impressions"
+					value={formatNumber(totalImpressions)}
+					change="+8.2%"
+				/>
+				<StatCard
+					label="Clicks"
+					value={formatNumber(totalClicks)}
+					change="+5.1%"
+				/>
+				<StatCard
+					label="Conversions"
+					value={formatNumber(totalConversions)}
+					change="+18.7%"
+				/>
+				<StatCard
+					label="Active Campaigns"
+					value={`${activeCampaigns}/${campaigns.length}`}
+				/>
 				<StatCard label="Active Ads" value={`${activeAds}/${ads.length}`} />
 			</div>
 
@@ -45,7 +76,10 @@ export async function AdsOverview() {
 					<CardContent>
 						<div className="space-y-3">
 							{accounts.map((acc) => (
-								<div key={acc._id} className="flex items-center justify-between">
+								<div
+									key={acc._id}
+									className="flex items-center justify-between"
+								>
 									<div className="flex items-center gap-2">
 										<Badge variant="outline" className="text-xs capitalize">
 											{acc.platform}
@@ -73,7 +107,10 @@ export async function AdsOverview() {
 					<CardContent>
 						<div className="space-y-3">
 							{campaigns.slice(0, 5).map((camp) => (
-								<div key={camp._id} className="flex items-center justify-between">
+								<div
+									key={camp._id}
+									className="flex items-center justify-between"
+								>
 									<div className="flex items-center gap-2 min-w-0">
 										<Badge variant="outline" className="text-xs capitalize">
 											{camp.platform}
@@ -81,7 +118,15 @@ export async function AdsOverview() {
 										<span className="text-sm truncate">{camp.name}</span>
 									</div>
 									<div className="flex items-center gap-3 shrink-0">
-										<StatusBadge status={camp.status === "active" ? "published" : camp.status === "paused" ? "draft" : "review" as any} />
+										<StatusBadge
+											status={
+												camp.status === "active"
+													? "published"
+													: camp.status === "paused"
+														? "draft"
+														: ("review" as any)
+											}
+										/>
 										<span className="text-sm font-medium">
 											{camp.metrics ? formatCurrency(camp.metrics.spend) : "—"}
 										</span>
@@ -96,7 +141,15 @@ export async function AdsOverview() {
 	);
 }
 
-function StatCard({ label, value, change }: { label: string; value: string; change?: string }) {
+function StatCard({
+	label,
+	value,
+	change,
+}: {
+	label: string;
+	value: string;
+	change?: string;
+}) {
 	return (
 		<Card className="py-4">
 			<CardHeader className="pb-1">

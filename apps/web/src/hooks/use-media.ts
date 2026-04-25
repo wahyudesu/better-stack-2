@@ -102,9 +102,9 @@ export function useMediaUploadDirect() {
 			);
 
 			if (!response.ok) {
-				const err = await response
+				const err = (await response
 					.json()
-					.catch(() => ({ error: response.statusText })) as { error?: string };
+					.catch(() => ({ error: response.statusText }))) as { error?: string };
 				throw new Error(err.error || "Upload failed");
 			}
 

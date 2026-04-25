@@ -1,18 +1,18 @@
 "use client";
 
+import { ChevronDown, Pause, Play } from "lucide-react";
 import { useState } from "react";
-import { Pause, Play, ChevronDown } from "lucide-react";
-import { getCampaigns } from "@/lib/api/ads";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { getCampaigns } from "@/lib/api/ads";
 import { formatCurrency, formatNumber } from "@/lib/metrics";
 import type { AdCampaign } from "@/lib/types/ads";
 
@@ -51,16 +51,26 @@ export async function AdsCampaigns({ platform, status }: AdsCampaignsProps) {
 	);
 }
 
-function mapStatusToBadgeType(status: string): "published" | "draft" | "review" | "failed" | "scheduled" {
+function mapStatusToBadgeType(
+	status: string,
+): "published" | "draft" | "review" | "failed" | "scheduled" {
 	switch (status) {
-		case "active": return "published";
-		case "paused": return "draft";
-		case "pending_review": return "scheduled";
-		case "rejected": return "failed";
-		case "completed": return "draft";
-		case "cancelled": return "draft";
-		case "error": return "failed";
-		default: return "draft";
+		case "active":
+			return "published";
+		case "paused":
+			return "draft";
+		case "pending_review":
+			return "scheduled";
+		case "rejected":
+			return "failed";
+		case "completed":
+			return "draft";
+		case "cancelled":
+			return "draft";
+		case "error":
+			return "failed";
+		default:
+			return "draft";
 	}
 }
 

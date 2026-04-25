@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@zenpost/ui/lib/utils";
 import NumberFlow from "@number-flow/react";
+import { cn } from "@zenpost/ui/lib/utils";
 import type { ReactNode } from "react";
 import { useRing } from "./ring-context";
 

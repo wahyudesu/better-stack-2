@@ -19,12 +19,13 @@
   "dependencies": {
     "@zenpost/env": "workspace:*",
     "dotenv": "catalog:",
+    "use-stick-to-bottom": "^1.1.3",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@zenpost/config": "workspace:*",
     "@cloudflare/workers-types": "catalog:",
     "@types/node": "^22.13.14",
+    "@zenpost/config": "workspace:*",
     "typescript": "^5"
   },
   "packageManager": "pnpm@10.27.0"

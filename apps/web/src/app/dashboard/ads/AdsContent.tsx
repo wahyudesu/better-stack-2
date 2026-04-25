@@ -1,18 +1,26 @@
 "use client";
 
+import { Briefcase, LayoutDashboard, Megaphone, Users } from "lucide-react";
 import { useState } from "react";
-import { Briefcase, Megaphone, Users, LayoutDashboard } from "lucide-react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
-import { AdsOverview } from "./AdsOverview";
+import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
+import { AdsAudiences } from "./AdsAudiences";
 import { AdsCampaigns } from "./AdsCampaigns";
 import { AdsList } from "./AdsList";
-import { AdsAudiences } from "./AdsAudiences";
-import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
+import { AdsOverview } from "./AdsOverview";
 
 const tabs = [
-	{ id: "overview", label: "Overview", icon: <LayoutDashboard className="h-5 w-5" /> },
-	{ id: "campaigns", label: "Campaigns", icon: <Briefcase className="h-5 w-5" /> },
+	{
+		id: "overview",
+		label: "Overview",
+		icon: <LayoutDashboard className="h-5 w-5" />,
+	},
+	{
+		id: "campaigns",
+		label: "Campaigns",
+		icon: <Briefcase className="h-5 w-5" />,
+	},
 	{ id: "ads", label: "Ads", icon: <Megaphone className="h-5 w-5" /> },
 	{ id: "audiences", label: "Audiences", icon: <Users className="h-5 w-5" /> },
 ];

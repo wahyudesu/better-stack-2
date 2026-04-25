@@ -1,12 +1,12 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@zenpost/ui/components/avatar";
 import { ScrollArea } from "@zenpost/ui/components/scroll-area";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	ArrowLeft,
 	Bot,
@@ -1184,7 +1184,9 @@ interface ReviewsTabProps {
 
 function ReviewsTab({ reviews }: ReviewsTabProps) {
 	const [platformFilter, setPlatformFilter] = useState<Platform>("all");
-	const [filter, setFilter] = useState<"all" | "replied" | "not_replied">("all");
+	const [filter, setFilter] = useState<"all" | "replied" | "not_replied">(
+		"all",
+	);
 
 	const filteredReviews = reviews.filter((r) => {
 		if (platformFilter !== "all" && r.platform !== platformFilter) return false;
@@ -1319,7 +1321,13 @@ interface CampaignsTabProps {
 		name: string;
 		platform: string;
 		accountName: string;
-		status: "draft" | "scheduled" | "sending" | "completed" | "failed" | "cancelled";
+		status:
+			| "draft"
+			| "scheduled"
+			| "sending"
+			| "completed"
+			| "failed"
+			| "cancelled";
 		messagePreview: string;
 		scheduledAt: string | null;
 		recipientCount: number;
@@ -1338,14 +1346,32 @@ function CampaignsTab({ broadcasts }: CampaignsTabProps) {
 
 	const platforms = ["all", ...new Set(broadcasts.map((b) => b.platform))];
 
-	const getStatusBadge = (status: CampaignsTabProps["broadcasts"][number]["status"]) => {
+	const getStatusBadge = (
+		status: CampaignsTabProps["broadcasts"][number]["status"],
+	) => {
 		const config = {
 			draft: { label: "Draft", bg: "bg-muted", text: "text-muted-foreground" },
-			scheduled: { label: "Scheduled", bg: "bg-blue-500/10", text: "text-blue-600" },
-			sending: { label: "Sending", bg: "bg-yellow-500/10", text: "text-yellow-600" },
-			completed: { label: "Completed", bg: "bg-green-500/10", text: "text-green-600" },
+			scheduled: {
+				label: "Scheduled",
+				bg: "bg-blue-500/10",
+				text: "text-blue-600",
+			},
+			sending: {
+				label: "Sending",
+				bg: "bg-yellow-500/10",
+				text: "text-yellow-600",
+			},
+			completed: {
+				label: "Completed",
+				bg: "bg-green-500/10",
+				text: "text-green-600",
+			},
 			failed: { label: "Failed", bg: "bg-red-500/10", text: "text-red-600" },
-			cancelled: { label: "Cancelled", bg: "bg-muted", text: "text-muted-foreground" },
+			cancelled: {
+				label: "Cancelled",
+				bg: "bg-muted",
+				text: "text-muted-foreground",
+			},
 		};
 		const c = config[status];
 		return (
@@ -1376,7 +1402,9 @@ function CampaignsTab({ broadcasts }: CampaignsTabProps) {
 						const Icon = config.icon;
 						const deliveryRate =
 							broadcast.recipientCount > 0
-								? Math.round((broadcast.deliveredCount / broadcast.recipientCount) * 100)
+								? Math.round(
+										(broadcast.deliveredCount / broadcast.recipientCount) * 100,
+									)
 								: 0;
 						return (
 							<Card
@@ -1411,12 +1439,20 @@ function CampaignsTab({ broadcasts }: CampaignsTabProps) {
 
 								<div className="grid grid-cols-4 gap-2">
 									<div className="bg-muted/50 rounded-lg p-2 text-center">
-										<p className="text-lg font-bold">{broadcast.recipientCount}</p>
-										<p className="text-[10px] text-muted-foreground">Recipients</p>
+										<p className="text-lg font-bold">
+											{broadcast.recipientCount}
+										</p>
+										<p className="text-[10px] text-muted-foreground">
+											Recipients
+										</p>
 									</div>
 									<div className="bg-muted/50 rounded-lg p-2 text-center">
-										<p className="text-lg font-bold">{broadcast.deliveredCount}</p>
-										<p className="text-[10px] text-muted-foreground">Delivered</p>
+										<p className="text-lg font-bold">
+											{broadcast.deliveredCount}
+										</p>
+										<p className="text-[10px] text-muted-foreground">
+											Delivered
+										</p>
 									</div>
 									<div className="bg-muted/50 rounded-lg p-2 text-center">
 										<p className="text-lg font-bold">{deliveryRate}%</p>
@@ -1501,7 +1537,9 @@ function ContactsTab({ contacts }: ContactsTabProps) {
 					{allTags.slice(0, 3).map((tag, idx) => (
 						<GroupedDepthButton
 							key={tag}
-							position={idx === Math.min(2, allTags.length - 1) ? "last" : "middle"}
+							position={
+								idx === Math.min(2, allTags.length - 1) ? "last" : "middle"
+							}
 							size="sm"
 							variant={tagFilter === tag ? "blue" : "outline"}
 							onClick={() => setTagFilter(tag)}
@@ -1536,12 +1574,16 @@ function ContactsTab({ contacts }: ContactsTabProps) {
 									</Avatar>
 									<div className="flex-1 min-w-0">
 										<div className="flex items-center gap-2 mb-1">
-											<span className="font-semibold text-sm">{contact.name}</span>
+											<span className="font-semibold text-sm">
+												{contact.name}
+											</span>
 											<div className={cn("flex items-center", config.color)}>
 												<Icon className="h-3 w-3" />
 											</div>
 										</div>
-										<p className="text-xs text-muted-foreground">{contact.email}</p>
+										<p className="text-xs text-muted-foreground">
+											{contact.email}
+										</p>
 										{contact.company && (
 											<p className="text-xs text-muted-foreground">
 												{contact.company}

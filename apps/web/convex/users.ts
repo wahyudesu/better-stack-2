@@ -1,5 +1,5 @@
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 
 export const upsertApiKey = mutation({
 	args: { apiKey: v.union(v.string(), v.null()) },
@@ -37,9 +37,7 @@ export const getApiKey = query({
 		if (!identity) return null;
 		const user = await ctx.db
 			.query("users")
-			.withIndex("by_clerkId", (q) =>
-				q.eq("clerkId", identity.tokenIdentifier),
-			)
+			.withIndex("by_clerkId", (q) => q.eq("clerkId", identity.tokenIdentifier))
 			.unique();
 		return user?.apiKey ?? null;
 	},

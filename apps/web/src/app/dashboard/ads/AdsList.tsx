@@ -1,18 +1,18 @@
 "use client";
 
+import { ChevronDown, Eye, Pause, Pencil, Play, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Pause, Play, Eye, Pencil, Trash2, ChevronDown } from "lucide-react";
-import { getAds } from "@/lib/api/ads";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { getAds } from "@/lib/api/ads";
 import { formatCurrency, formatNumber } from "@/lib/metrics";
 import type { Ad } from "@/lib/types/ads";
 
@@ -49,16 +49,26 @@ export async function AdsList({ platform, status }: AdsListProps) {
 	);
 }
 
-function mapStatusToBadgeType(status: string): "published" | "draft" | "review" | "failed" | "scheduled" {
+function mapStatusToBadgeType(
+	status: string,
+): "published" | "draft" | "review" | "failed" | "scheduled" {
 	switch (status) {
-		case "active": return "published";
-		case "paused": return "draft";
-		case "pending_review": return "scheduled";
-		case "rejected": return "failed";
-		case "completed": return "draft";
-		case "cancelled": return "draft";
-		case "error": return "failed";
-		default: return "draft";
+		case "active":
+			return "published";
+		case "paused":
+			return "draft";
+		case "pending_review":
+			return "scheduled";
+		case "rejected":
+			return "failed";
+		case "completed":
+			return "draft";
+		case "cancelled":
+			return "draft";
+		case "error":
+			return "failed";
+		default:
+			return "draft";
 	}
 }
 
@@ -170,11 +180,21 @@ function AdRow({ ad }: { ad: Ad }) {
 								<DropdownMenuItem>
 									<Pencil className="h-4 w-4 mr-2" /> Edit
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => setLocalStatus(localStatus === "paused" ? "active" : "paused")}>
+								<DropdownMenuItem
+									onClick={() =>
+										setLocalStatus(
+											localStatus === "paused" ? "active" : "paused",
+										)
+									}
+								>
 									{localStatus === "paused" ? (
-										<><Play className="h-4 w-4 mr-2" /> Resume</>
+										<>
+											<Play className="h-4 w-4 mr-2" /> Resume
+										</>
 									) : (
-										<><Pause className="h-4 w-4 mr-2" /> Pause</>
+										<>
+											<Pause className="h-4 w-4 mr-2" /> Pause
+										</>
 									)}
 								</DropdownMenuItem>
 								<DropdownMenuItem className="text-red-600">

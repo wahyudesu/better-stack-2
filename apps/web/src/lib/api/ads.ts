@@ -1,9 +1,15 @@
 "use client";
 
-import type { Ad, AdCampaign, AdAudience, AdAccount, AdMetrics } from "@/lib/types/ads";
+import type {
+	Ad,
+	AdAccount,
+	AdAudience,
+	AdCampaign,
+	AdMetrics,
+} from "@/lib/types/ads";
 
 // Re-export types for convenience
-export type { Ad, AdCampaign, AdAudience, AdAccount, AdMetrics };
+export type { Ad, AdAccount, AdAudience, AdCampaign, AdMetrics };
 
 // ============================================================
 // Mock mode check
@@ -23,7 +29,7 @@ export async function getAdAccounts(): Promise<AdAccount[]> {
 		return mockAdAccounts;
 	}
 	const res = await fetch(`/api/v1/ads/accounts`);
-	const data = await res.json() as { accounts?: AdAccount[] };
+	const data = (await res.json()) as { accounts?: AdAccount[] };
 	return data?.accounts ?? [];
 }
 
@@ -50,7 +56,7 @@ export async function getCampaigns(params?: {
 	if (params?.accountId) searchParams.set("accountId", params.accountId);
 	if (params?.limit) searchParams.set("limit", String(params.limit));
 	const res = await fetch(`/api/v1/ads/campaigns?${searchParams}`);
-	const data = await res.json() as { campaigns?: AdCampaign[] };
+	const data = (await res.json()) as { campaigns?: AdCampaign[] };
 	return data?.campaigns ?? [];
 }
 
@@ -71,7 +77,9 @@ export async function getAds(params?: {
 			results = results.filter((a) => a.status === params.status);
 		}
 		if (params?.campaignId) {
-			results = results.filter((a) => a.platformCampaignId === params.campaignId);
+			results = results.filter(
+				(a) => a.platformCampaignId === params.campaignId,
+			);
 		}
 		return results;
 	}
@@ -82,7 +90,7 @@ export async function getAds(params?: {
 	if (params?.campaignId) searchParams.set("campaignId", params.campaignId);
 	if (params?.limit) searchParams.set("limit", String(params.limit));
 	const res = await fetch(`/api/v1/ads?${searchParams}`);
-	const data = await res.json() as { ads?: Ad[] };
+	const data = (await res.json()) as { ads?: Ad[] };
 	return data?.ads ?? [];
 }
 
@@ -96,7 +104,7 @@ export async function getAudiences(params?: {
 	const searchParams = new URLSearchParams();
 	if (params?.accountId) searchParams.set("accountId", params.accountId);
 	const res = await fetch(`/api/v1/ads/audiences?${searchParams}`);
-	const data = await res.json() as { audiences?: AdAudience[] };
+	const data = (await res.json()) as { audiences?: AdAudience[] };
 	return data?.audiences ?? [];
 }
 

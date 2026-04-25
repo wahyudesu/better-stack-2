@@ -1,7 +1,7 @@
-import { useEffect } from "react";
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { useEffect } from "react";
 import { useAuthStore } from "@/stores";
+import { api } from "../../convex/_generated/api";
 
 export function useUserApiKey() {
 	const apiKey = useQuery((api as any).users.getApiKey);

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	AtSign,
 	Bot,
@@ -36,10 +37,9 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/lib/client";
 import type { CommentAutomation } from "@/lib/client";
+import { api } from "@/lib/client";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface AutomationForm {
 	name: string;
@@ -78,13 +78,17 @@ export function InboxAutomation() {
 
 	// Create mutation
 	const createMutation = useMutation({
-		mutationFn: async (body: Parameters<typeof api.createCommentAutomation>[0]) => {
+		mutationFn: async (
+			body: Parameters<typeof api.createCommentAutomation>[0],
+		) => {
 			const res = await api.createCommentAutomation(body);
 			if (res.error) throw new Error(res.error);
 			return res.data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["inbox", "comment-automations"] });
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
 			closeDialog();
 		},
 	});
@@ -107,7 +111,9 @@ export function InboxAutomation() {
 			return res.data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["inbox", "comment-automations"] });
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
 			closeDialog();
 		},
 	});
@@ -120,7 +126,9 @@ export function InboxAutomation() {
 			return res.data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["inbox", "comment-automations"] });
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
 		},
 	});
 
@@ -138,7 +146,9 @@ export function InboxAutomation() {
 			return res.data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["inbox", "comment-automations"] });
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
 		},
 	});
 
@@ -205,7 +215,10 @@ export function InboxAutomation() {
 
 	const activeCount = automationsData?.filter((a) => a.isActive).length ?? 0;
 
-	const updateForm = (field: keyof AutomationForm, value: string | PlatformMultiValue[]) => {
+	const updateForm = (
+		field: keyof AutomationForm,
+		value: string | PlatformMultiValue[],
+	) => {
 		setForm((prev) => ({ ...prev, [field]: value }));
 	};
 
@@ -339,7 +352,11 @@ export function InboxAutomation() {
 
 						{/* Actions */}
 						<div className="flex gap-2 pt-2">
-							<Button variant="outline" onClick={closeDialog} className="flex-1">
+							<Button
+								variant="outline"
+								onClick={closeDialog}
+								className="flex-1"
+							>
 								Cancel
 							</Button>
 							<Button
@@ -380,7 +397,9 @@ export function InboxAutomation() {
 							<div className="flex items-start justify-between gap-4">
 								<div className="flex-1 min-w-0">
 									<div className="flex items-center gap-3 mb-2">
-										<h3 className="font-semibold truncate">{automation.name}</h3>
+										<h3 className="font-semibold truncate">
+											{automation.name}
+										</h3>
 										<Badge
 											variant={automation.isActive ? "default" : "secondary"}
 											className="shrink-0 bg-blue-500/10 text-blue-500"

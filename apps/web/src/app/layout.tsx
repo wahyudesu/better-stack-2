@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import type { Metadata } from "next";
 
 import "../index.css";
 import "./globals.css";
 import BottomMenu from "@/components/bottom-menu";
-import Header from "@/components/header";
-import Providers from "@/components/providers";
 import ClientClerkProvider from "@/components/clerk-provider";
 import ConvexClientProvider from "@/components/convex-client-provider";
+import Header from "@/components/header";
+import Providers from "@/components/providers";
 
 export const metadata: Metadata = {
 	title: "better-stack-2",

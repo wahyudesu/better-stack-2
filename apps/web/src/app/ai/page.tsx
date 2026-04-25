@@ -1,7 +1,8 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { MessageSquareIcon, Sparkles } from "lucide-react";
 import { lazy, Suspense, useRef, useState } from "react";
+import { AIChat } from "@/components/ai-elements/chat";
 import { useAuthGate } from "@/components/auth";
 import { GeneratedPostCard } from "@/components/features/post";
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import {
 	type Tool,
 	type UploadedFile,
 } from "@/components/ui/composer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TemplateManagerDialog } from "@/components/ui/template-manager-dialog";
 import {
 	contentTypes,
@@ -328,145 +330,169 @@ export default function AIChatPage() {
 				</div>
 			</div>
 
-			{/* Composer with Tone Selector and Platform Selector */}
-			<Composer
-				placeholder="What do you want to post about?"
-				onSubmit={handleGenerate}
-				isLoading={isGenerating}
-				showToolsButton={true}
-				tools={aiTools}
-				onToolSelect={handleToolSelect}
-				showToneSelector={true}
-				toneOptions={tones}
-				showTemplateButton={true}
-				onTemplateClick={() => setIsTemplateDialogOpen(true)}
-				templateCount={templateManager.templates.length}
-				platformOptions={platforms.map((p) => ({
-					id: p.id,
-					name: p.name,
-					icon: <span>{p.icon}</span>,
-				}))}
-				selectedPlatform={selectedPlatform}
-				onPlatformSelect={(id) => setSelectedPlatform(id as ProfilePlatform)}
-				attachedFiles={attachedFiles}
-				onRemoveFile={handleRemoveFile}
-				contextOptions={
-					[
-						{
-							id: "attach",
-							label: "Attach Files",
-							description: "Upload documents or images",
-							icon: (
-								<Suspense fallback={<IconFallback size={18} />}>
-									<HugeiconsIcon icon={AttachmentIcon} size={18} />
-								</Suspense>
-							),
-							onClick: openFilePicker,
-						},
-						{
-							id: "image",
-							label: "Add Image",
-							description: "Upload or generate an image",
-							icon: (
-								<Suspense fallback={<IconFallback size={18} />}>
-									<HugeiconsIcon icon={Image01Icon} size={18} />
-								</Suspense>
-							),
-							onClick: openImagePicker,
-						},
-						{
-							id: "content-type",
-							label:
-								"Format: " +
-								supportedContentTypes.find((c) => c.value === contentType)
-									?.label,
-							description: supportedContentTypes.find(
-								(c) => c.value === contentType,
-							)?.description,
-							icon: (
-								<Suspense fallback={<IconFallback size={18} />}>
-									<HugeiconsIcon icon={FolderIcon} size={18} />
-								</Suspense>
-							),
-							onClick: cycleContentType,
-						},
-						{
-							id: "goal",
-							label: `Goal: ${goals.find((g) => g.value === selectedGoal)?.label}`,
-							description: goals.find((g) => g.value === selectedGoal)
-								?.description,
-							onClick: cycleGoal,
-						},
-					] as ComposerContextOption[]
-				}
-			/>
+			{/* Tabs */}
+			<Tabs defaultValue="generate" className="mt-6">
+				<TabsList>
+					<TabsTrigger value="generate">
+						<Sparkles className="h-4 w-4 mr-2" />
+						Generate
+					</TabsTrigger>
+					<TabsTrigger value="chat">
+						<MessageSquareIcon className="h-4 w-4 mr-2" />
+						Chat
+					</TabsTrigger>
+				</TabsList>
 
-			{/* Template Manager Dialog */}
-			<TemplateManagerDialog
-				isOpen={isTemplateDialogOpen}
-				onClose={() => setIsTemplateDialogOpen(false)}
-				templateManager={templateManager}
-				onLoadTemplate={handleLoadTemplate}
-				currentConfig={getCurrentConfig()}
-			/>
+				<TabsContent value="generate">
+					{/* Composer with Tone Selector and Platform Selector */}
+					<Composer
+						placeholder="What do you want to post about?"
+						onSubmit={handleGenerate}
+						isLoading={isGenerating}
+						showToolsButton={true}
+						tools={aiTools}
+						onToolSelect={handleToolSelect}
+						showToneSelector={true}
+						toneOptions={tones}
+						showTemplateButton={true}
+						onTemplateClick={() => setIsTemplateDialogOpen(true)}
+						templateCount={templateManager.templates.length}
+						platformOptions={platforms.map((p) => ({
+							id: p.id,
+							name: p.name,
+							icon: <span>{p.icon}</span>,
+						}))}
+						selectedPlatform={selectedPlatform}
+						onPlatformSelect={(id) =>
+							setSelectedPlatform(id as ProfilePlatform)
+						}
+						attachedFiles={attachedFiles}
+						onRemoveFile={handleRemoveFile}
+						contextOptions={
+							[
+								{
+									id: "attach",
+									label: "Attach Files",
+									description: "Upload documents or images",
+									icon: (
+										<Suspense fallback={<IconFallback size={18} />}>
+											<HugeiconsIcon icon={AttachmentIcon} size={18} />
+										</Suspense>
+									),
+									onClick: openFilePicker,
+								},
+								{
+									id: "image",
+									label: "Add Image",
+									description: "Upload or generate an image",
+									icon: (
+										<Suspense fallback={<IconFallback size={18} />}>
+											<HugeiconsIcon icon={Image01Icon} size={18} />
+										</Suspense>
+									),
+									onClick: openImagePicker,
+								},
+								{
+									id: "content-type",
+									label:
+										"Format: " +
+										supportedContentTypes.find((c) => c.value === contentType)
+											?.label,
+									description: supportedContentTypes.find(
+										(c) => c.value === contentType,
+									)?.description,
+									icon: (
+										<Suspense fallback={<IconFallback size={18} />}>
+											<HugeiconsIcon icon={FolderIcon} size={18} />
+										</Suspense>
+									),
+									onClick: cycleContentType,
+								},
+								{
+									id: "goal",
+									label: `Goal: ${goals.find((g) => g.value === selectedGoal)?.label}`,
+									description: goals.find((g) => g.value === selectedGoal)
+										?.description,
+									onClick: cycleGoal,
+								},
+							] as ComposerContextOption[]
+						}
+					/>
 
-			{/* Generated Posts List */}
-			{posts.length > 0 ? (
-				<div className="space-y-4">
-					<h2 className="text-sm font-medium text-muted-foreground">
-						Generated Posts ({posts.length})
-					</h2>
-					{posts.map((post) => (
-						<GeneratedPostCard
-							key={post.id}
-							post={post}
-							onPlan={handlePlan}
-							onPost={handlePost}
-							onDelete={handleDelete}
-						/>
-					))}
-				</div>
-			) : null}
+					{/* Template Manager Dialog */}
+					<TemplateManagerDialog
+						isOpen={isTemplateDialogOpen}
+						onClose={() => setIsTemplateDialogOpen(false)}
+						templateManager={templateManager}
+						onLoadTemplate={handleLoadTemplate}
+						currentConfig={getCurrentConfig()}
+					/>
 
-			{/* Empty State */}
-			{posts.length === 0 && !isGenerating ? (
-				<Card className="border border-dashed">
-					<div className="text-center py-12">
-						<Sparkles className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-						<h3 className="text-base font-semibold mb-1">
-							Ready to create content?
-						</h3>
-						<p className="text-sm text-muted-foreground">
-							Type your topic above and let AI generate posts for you
-						</p>
-					</div>
-				</Card>
-			) : null}
-
-			{/* Loading State */}
-			{isGenerating ? (
-				<Card className="border">
-					<div className="text-center py-12">
-						<div className="flex gap-1 justify-center mb-3">
-							<span
-								className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
-								style={{ animationDelay: "0ms" }}
-							/>
-							<span
-								className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
-								style={{ animationDelay: "150ms" }}
-							/>
-							<span
-								className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
-								style={{ animationDelay: "300ms" }}
-							/>
+					{/* Generated Posts List */}
+					{posts.length > 0 ? (
+						<div className="space-y-4">
+							<h2 className="text-sm font-medium text-muted-foreground">
+								Generated Posts ({posts.length})
+							</h2>
+							{posts.map((post) => (
+								<GeneratedPostCard
+									key={post.id}
+									post={post}
+									onPlan={handlePlan}
+									onPost={handlePost}
+									onDelete={handleDelete}
+								/>
+							))}
 						</div>
-						<p className="text-sm text-muted-foreground">
-							Generating your post...
-						</p>
+					) : null}
+
+					{/* Empty State */}
+					{posts.length === 0 && !isGenerating ? (
+						<Card className="border border-dashed">
+							<div className="text-center py-12">
+								<Sparkles className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+								<h3 className="text-base font-semibold mb-1">
+									Ready to create content?
+								</h3>
+								<p className="text-sm text-muted-foreground">
+									Type your topic above and let AI generate posts for you
+								</p>
+							</div>
+						</Card>
+					) : null}
+
+					{/* Loading State */}
+					{isGenerating ? (
+						<Card className="border">
+							<div className="text-center py-12">
+								<div className="flex gap-1 justify-center mb-3">
+									<span
+										className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
+										style={{ animationDelay: "0ms" }}
+									/>
+									<span
+										className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
+										style={{ animationDelay: "150ms" }}
+									/>
+									<span
+										className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
+										style={{ animationDelay: "300ms" }}
+									/>
+								</div>
+								<p className="text-sm text-muted-foreground">
+									Generating your post...
+								</p>
+							</div>
+						</Card>
+					) : null}
+				</TabsContent>
+
+				<TabsContent value="chat">
+					<div className="h-[calc(100vh-280px)] min-h-[400px]">
+						<AIChat />
 					</div>
-				</Card>
-			) : null}
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }

@@ -1,12 +1,12 @@
 // Re-export from @zenpost/ui
 export {
-  DepthTabs,
-  DepthTabsList,
-  DepthTabsTrigger,
-  DepthTabsPanel,
-  DepthTabsContent,
-  type DepthTabsProps,
-  type DepthTabsListProps,
-  type DepthTabsTriggerProps,
-  type DepthTabsPanelProps,
+	DepthTabs,
+	DepthTabsContent,
+	DepthTabsList,
+	type DepthTabsListProps,
+	DepthTabsPanel,
+	type DepthTabsPanelProps,
+	type DepthTabsProps,
+	DepthTabsTrigger,
+	type DepthTabsTriggerProps,
 } from "@zenpost/ui/components/ui/depth-tabs";

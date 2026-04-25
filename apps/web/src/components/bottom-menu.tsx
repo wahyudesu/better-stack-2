@@ -4,11 +4,11 @@ import { cn } from "@zenpost/ui/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
 	BarChart3,
+	Megaphone,
 	MessageSquare,
 	Newspaper,
 	Settings,
 	Sparkles,
-	Megaphone,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";

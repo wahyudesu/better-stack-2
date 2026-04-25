@@ -3,8 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PostCardsView, PostControls } from "@/components/features/calendar";
-import type { ViewMode, CalendarView, PostStatus } from "@/components/features/calendar/PostControls";
 import { CalendarGrid } from "@/components/features/calendar/CalendarGrid";
+import type {
+	CalendarView,
+	PostStatus,
+	ViewMode,
+} from "@/components/features/calendar/PostControls";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,21 +19,26 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DepthButton } from "@/components/ui/depth-buttons";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import type { CalendarPlatform } from "@/data/mock";
 import {
 	useDeletePost,
+	useEditPost,
 	usePosts,
+	useRetryPost,
 	useUnpublishPost,
 	useUpdatePost,
-	useRetryPost,
-	useEditPost,
 } from "@/hooks/use-posts";
 import { useCurrentProfileId, useProfiles } from "@/hooks/use-profiles";
-import { api } from "@/lib/client";
 import type { Post } from "@/lib/client";
+import { api } from "@/lib/client";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 
@@ -252,9 +261,7 @@ export default function PostsPage() {
 					onSuccess: () => {
 						setEvents((prev) =>
 							prev.map((ev) =>
-								ev.id === draggedEvent.id
-									? { ...ev, date: targetDate }
-									: ev,
+								ev.id === draggedEvent.id ? { ...ev, date: targetDate } : ev,
 							),
 						);
 						toast.success("Post rescheduled");
@@ -274,7 +281,9 @@ export default function PostsPage() {
 	}, []);
 
 	// Post actions popover state
-	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+		null,
+	);
 	const [popoverOpen, setPopoverOpen] = useState(false);
 	const [logsOpen, setLogsOpen] = useState(false);
 	const [postLogs, setPostLogs] = useState<any[]>([]);
@@ -290,37 +299,43 @@ export default function PostsPage() {
 		setPopoverOpen(true);
 	}, []);
 
-	const _handleDeleteClick = useCallback((event: CalendarEvent) => {
-		setSelectedEvent(event);
-		setPopoverOpen(false);
-		deletePost(event.id, {
-			onSuccess: () => {
-				toast.success("Post deleted");
-				setEvents((prev) => prev.filter((e) => e.id !== event.id));
-			},
-			onError: (err) => {
-				toast.error(`Failed to delete: ${err.message}`);
-			},
-		});
-	}, [deletePost]);
+	const _handleDeleteClick = useCallback(
+		(event: CalendarEvent) => {
+			setSelectedEvent(event);
+			setPopoverOpen(false);
+			deletePost(event.id, {
+				onSuccess: () => {
+					toast.success("Post deleted");
+					setEvents((prev) => prev.filter((e) => e.id !== event.id));
+				},
+				onError: (err) => {
+					toast.error(`Failed to delete: ${err.message}`);
+				},
+			});
+		},
+		[deletePost],
+	);
 
-	const _handleUnpublishClick = useCallback((event: CalendarEvent) => {
-		setSelectedEvent(event);
-		setPopoverOpen(false);
-		unpublishPost(event.id, {
-			onSuccess: () => {
-				toast.success("Post unpublished");
-				setEvents((prev) =>
-					prev.map((e) =>
-						e.id === event.id ? { ...e, status: "cancelled" as const } : e,
-					),
-				);
-			},
-			onError: (err) => {
-				toast.error(`Failed to unpublish: ${err.message}`);
-			},
-		});
-	}, [unpublishPost]);
+	const _handleUnpublishClick = useCallback(
+		(event: CalendarEvent) => {
+			setSelectedEvent(event);
+			setPopoverOpen(false);
+			unpublishPost(event.id, {
+				onSuccess: () => {
+					toast.success("Post unpublished");
+					setEvents((prev) =>
+						prev.map((e) =>
+							e.id === event.id ? { ...e, status: "cancelled" as const } : e,
+						),
+					);
+				},
+				onError: (err) => {
+					toast.error(`Failed to unpublish: ${err.message}`);
+				},
+			});
+		},
+		[unpublishPost],
+	);
 
 	const _handleRetryClick = useCallback(
 		(event: CalendarEvent) => {
@@ -342,24 +357,21 @@ export default function PostsPage() {
 		[retryPost],
 	);
 
-	const _handleViewLogs = useCallback(
-		(event: CalendarEvent) => {
-			setPopoverOpen(false);
-			setLogsOpen(true);
-			setLogsLoading(true);
-			api
-				.getPostLogs(event.id)
-				.then(({ data, error }) => {
-					if (error) {
-						toast.error(`Failed to load logs: ${error}`);
-					} else {
-						setPostLogs(data?.logs || []);
-					}
-				})
-				.finally(() => setLogsLoading(false));
-		},
-		[],
-	);
+	const _handleViewLogs = useCallback((event: CalendarEvent) => {
+		setPopoverOpen(false);
+		setLogsOpen(true);
+		setLogsLoading(true);
+		api
+			.getPostLogs(event.id)
+			.then(({ data, error }) => {
+				if (error) {
+					toast.error(`Failed to load logs: ${error}`);
+				} else {
+					setPostLogs(data?.logs || []);
+				}
+			})
+			.finally(() => setLogsLoading(false));
+	}, []);
 
 	// Delete/Unpublish modal state
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -532,7 +544,8 @@ export default function PostsPage() {
 							<div className="p-3 rounded-lg bg-muted/50 border">
 								<p className="text-sm font-medium truncate">
 									{selectedEvent.description?.slice(0, 80)}
-									{selectedEvent.description && selectedEvent.description.length > 80
+									{selectedEvent.description &&
+									selectedEvent.description.length > 80
 										? "..."
 										: ""}
 								</p>
@@ -545,7 +558,9 @@ export default function PostsPage() {
 								{selectedEvent.status === "failed" && (
 									<button
 										className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer text-orange-600 font-medium"
-										onClick={() => selectedEvent && _handleRetryClick(selectedEvent)}
+										onClick={() =>
+											selectedEvent && _handleRetryClick(selectedEvent)
+										}
 									>
 										Retry Post
 									</button>
@@ -562,7 +577,9 @@ export default function PostsPage() {
 								)}
 								<button
 									className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer"
-									onClick={() => selectedEvent && _handleViewLogs(selectedEvent)}
+									onClick={() =>
+										selectedEvent && _handleViewLogs(selectedEvent)
+									}
 								>
 									View Logs
 								</button>
