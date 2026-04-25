@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@better-stack-2/ui/globals.css";
+@import "@zenpost/ui/globals.css";
 
 /**
  * Custom animations and keyframes.

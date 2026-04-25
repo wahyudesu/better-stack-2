@@ -1,36 +1,65 @@
 # Dashboard - Agent Guidelines
 
-Dashboard page components and patterns.
+Main analytics dashboard with stats cards, audience insights, and chart visualizations.
 
-## Quick Stats Cards
+## Quick Stats (Large Cards)
 
-- **Large card**: impression, engagements, likes, profiles visits, replies, shares
-- **Small card**: audience overview
-- **Small card**: sentiment analysis
+Row of large metric cards:
+- **Impressions** - Total views across platforms
+- **Engagements** - Total interactions (likes, comments, shares)
+- **Likes** - Total likes
+- **Profile Visits** - Profile view count
+- **Replies** - Comment/reply count
+- **Shares** - Share/save count
 
 ## Audience Cards
 
-- **Medium card**: demographic breakdown
-  - By country: Indonesia, Malaysia, USA, etc.
-  - By region: Jakarta, Surabaya, Bandung, Bali
+### Audience Overview (Small)
+Follower count and viewer metrics overview.
 
-- **Medium card**: follower + viewer counts
+### Sentiment Analysis (Small)
+Sentiment breakdown of engagements (positive/neutral/negative).
 
-## Component Patterns
+## Demographic Cards
 
-- Use stats cards for metric display
-- Audience cards show demographic breakdown
-- All cards responsive (mobile + desktop)
+### Demographics (Medium)
+Breakdown by:
+- **Country**: Indonesia, Malaysia, USA, etc.
+- **Region**: Jakarta, Surabaya, Bandung, Bali
+
+### Follower/Viewer Card (Medium)
+Follower and viewer counts with trend indicators.
+
+## Other Components
+
+- **RecentPostsCard** - Latest published posts with engagement stats
+- **FilterBar** - Platform filtering (Instagram, TikTok, Twitter, etc.)
+- **AreaChartCard** - Trend visualization for selected metric
+- **LineChartCard** - Time-series data display
+
+## Chart Patterns
+
+Charts use `@visx` library with composable children pattern:
+```tsx
+<LineChart data={data}>
+  <Line />
+  <XAxis />
+  <ChartMarkers />
+  <ChartTooltip />
+  <SegmentBackground />
+</LineChart>
+```
 
 ## Data Sources
 
-- Analytics from Zernio API (via `apps/server`)
+- Analytics from Zernio API via `apps/server`
 - Social media metrics from connected profiles
-- Demographic data from platform insights
+- Mock data from `/lib/data/analytics-data.ts`
+- Format utilities from `/lib/metrics`
 
 ## Before Making Changes
 
 1. Read `apps/web/AGENTS.md` for general guidelines
 2. Check existing dashboard components for patterns
-3. Ensure metrics display correctly
-4. Test responsive behavior
+3. Ensure metric formatting via `formatCurrency`, `formatNumber`
+4. Test responsive behavior (mobile + desktop)
