@@ -8,6 +8,7 @@ import {
 	Newspaper,
 	Settings,
 	Sparkles,
+	Megaphone,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,6 +34,13 @@ const MENU_ITEMS = [
 		label: "Dashboard",
 		shortcut: "⌃2",
 		key: "2",
+	},
+	{
+		href: "/dashboard/ads",
+		icon: Megaphone,
+		label: "Ads",
+		shortcut: "⌃5",
+		key: "5",
 	},
 	{
 		href: "/inbox",

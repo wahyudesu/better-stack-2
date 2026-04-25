@@ -90,8 +90,7 @@ export default function ScriptEnginePage() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col bg-background text-foreground">
-			<div className="mx-auto max-w-5xl px-4 py-16">
+		<div className="mx-auto max-w-5xl px-4 py-16 w-full">
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold tracking-tight">
 						Content Script Engine
@@ -470,7 +469,6 @@ export default function ScriptEnginePage() {
 						</div>
 					)}
 				</div>
-			</div>
 		</div>
 	);
 }

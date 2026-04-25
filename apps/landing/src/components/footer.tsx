@@ -35,7 +35,7 @@ const socials = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card">
+    <footer className="">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           {/* Top section */}

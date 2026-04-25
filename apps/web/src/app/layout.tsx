@@ -7,6 +7,7 @@ import BottomMenu from "@/components/bottom-menu";
 import Header from "@/components/header";
 import Providers from "@/components/providers";
 import ClientClerkProvider from "@/components/clerk-provider";
+import ConvexClientProvider from "@/components/convex-client-provider";
 
 export const metadata: Metadata = {
 	title: "better-stack-2",
@@ -22,13 +23,15 @@ export default function RootLayout({
 		<html lang="en" suppressHydrationWarning className={GeistSans.variable}>
 			<body className="antialiased">
 				<ClientClerkProvider>
-					<Providers>
-						<div className="grid grid-rows-[auto_1fr] h-svh">
-							<Header />
-							{children}
-						</div>
-						<BottomMenu />
-					</Providers>
+					<ConvexClientProvider>
+						<Providers>
+							<div className="grid grid-rows-[auto_1fr] h-svh">
+								<Header />
+								{children}
+							</div>
+							<BottomMenu />
+						</Providers>
+					</ConvexClientProvider>
 				</ClientClerkProvider>
 			</body>
 		</html>

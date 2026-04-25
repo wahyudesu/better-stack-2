@@ -1,20 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useScroll } from "@/hooks/use-scroll";
 import { DepthButton } from "@/components/ui/depth-buttons";
+import { WaitlistModal } from "@/components/waitlist-modal";
 
 const navLinks: { label: string; href: string }[] = [
   { label: "Features", href: "/#features" },
-  { label: "Comparison", href: "/#comparison" },
+  { label: "Free Tools", href: "/tools" },
   { label: "Blog", href: "/blog" },
 ];
 
 export function SimpleHeader() {
   const scrolled = useScroll(10);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   return (
+    <>
     <header
       className={cn(
         "top-0 z-50 w-full transition-all duration-200",
@@ -75,17 +79,14 @@ export function SimpleHeader() {
           <DepthButton
             variant="blue"
             className="h-9 px-5 text-sm"
-            onClick={() => {
-              const form = document.getElementById("waitlist-form");
-              if (form) {
-                form.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
+            onClick={() => setWaitlistOpen(true)}
           >
-            Get Early Access
+            Join Waitlist
           </DepthButton>
         </div>
       </nav>
     </header>
+    <WaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
+    </>
   );
 }

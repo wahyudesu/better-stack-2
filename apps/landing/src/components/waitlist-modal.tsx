@@ -10,13 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { DepthButton } from "@/components/ui/depth-buttons";
+import { BuildingIcon, StoreIcon } from "lucide-react";
 import posthog from "posthog-js";
 
 type UserType = "agency_owner" | "brand_owner";
 
-const userTypeOptions: { value: UserType; label: string }[] = [
-  { value: "agency_owner", label: "Agency Owner" },
-  { value: "brand_owner", label: "Brand Owner" },
+const userTypeOptions: { value: UserType; label: string; Icon: typeof BuildingIcon }[] = [
+  { value: "agency_owner", label: "Agency Owner", Icon: BuildingIcon },
+  { value: "brand_owner", label: "Brand Owner", Icon: StoreIcon },
 ];
 
 interface WaitlistResponse {
@@ -28,15 +29,10 @@ interface WaitlistResponse {
 interface WaitlistModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialEmail?: string;
 }
 
-interface WaitlistFormProps {
-  email: string;
-  onBack: () => void;
-  onSuccess: () => void;
-}
-
-function WaitlistForm({ email, onBack, onSuccess }: WaitlistFormProps) {
+function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => void }) {
   const [selectedType, setSelectedType] = useState<UserType | "">("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -65,7 +61,7 @@ function WaitlistForm({ email, onBack, onSuccess }: WaitlistFormProps) {
         throw new Error(data.error || "Failed to join waitlist");
       }
 
-      posthog.capture("waitlist_join_modal_success", {
+      posthog.capture("waitlist_join_success", {
         email,
         userType: selectedType,
       });
@@ -79,11 +75,12 @@ function WaitlistForm({ email, onBack, onSuccess }: WaitlistFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3">
+      <p className="text-sm text-muted-foreground text-center">Pilih tipe akun yang cocok</p>
+      <div className="flex flex-row gap-3 w-full">
         {userTypeOptions.map((opt) => (
           <label
             key={opt.value}
-            className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+            className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer transition-all text-center ${
               selectedType === opt.value
                 ? "border-primary bg-primary/5"
                 : "border-input hover:bg-muted"
@@ -95,8 +92,9 @@ function WaitlistForm({ email, onBack, onSuccess }: WaitlistFormProps) {
               value={opt.value}
               checked={selectedType === opt.value}
               onChange={() => setSelectedType(opt.value)}
-              className="accent-primary"
+              className="accent-primary sr-only"
             />
+            <opt.Icon className="size-6" />
             <span className="font-medium">{opt.label}</span>
           </label>
         ))}
@@ -106,45 +104,52 @@ function WaitlistForm({ email, onBack, onSuccess }: WaitlistFormProps) {
         <p className="text-sm text-red-500">{errorMsg}</p>
       )}
 
-      <div className="flex gap-3">
-        <DepthButton
-          type="button"
-          variant="outline"
-          className="flex-1 py-3"
-          onClick={onBack}
-        >
-          Back
-        </DepthButton>
-        <DepthButton
-          type="submit"
-          variant="blue"
-          className="flex-1 py-3"
-          disabled={status === "loading"}
-        >
-          {status === "loading" ? "Joining..." : "Join Waitlist"}
-        </DepthButton>
-      </div>
+      <DepthButton
+        type="submit"
+        variant="blue"
+        className="w-full py-3"
+        disabled={status === "loading"}
+      >
+        {status === "loading" ? "Joining..." : "Join Waitlist"}
+      </DepthButton>
     </form>
   );
 }
 
-export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
-  const [step, setStep] = useState<"email" | "type">("email");
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [message, setMessage] = useState("");
+export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModalProps) {
+  const [email, setEmail] = useState(initialEmail || "");
+  const [step, setStep] = useState<"email" | "type">(initialEmail ? "type" : "email");
+  const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  function handleEmailSubmit() {
+  function handleSuccess() {
+    onOpenChange(false);
+    setEmail("");
+    setStep("email");
+    setStatus("success");
+  }
+
+  function handleOpenChange(newOpen: boolean) {
+    if (!newOpen) {
+      setEmail(initialEmail || "");
+      setStep(initialEmail ? "type" : "email");
+      setStatus("idle");
+      setErrorMsg("");
+    }
+    onOpenChange(newOpen);
+  }
+
+  function handleSubmit() {
     if (!email.trim()) {
       setStatus("error");
-      setMessage("Email is required");
+      setErrorMsg("Email is required");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setStatus("error");
-      setMessage("Invalid email format");
+      setErrorMsg("Invalid email format");
       return;
     }
 
@@ -152,51 +157,16 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
     setStep("type");
   }
 
-  function handleBack() {
-    setStep("email");
-  }
-
-  function handleSuccess() {
-    onOpenChange(false);
-    setStep("email");
-    setEmail("");
-  }
-
-  function handleOpenChange(newOpen: boolean) {
-    if (!newOpen) {
-      setStep("email");
-      setEmail("");
-      setStatus("idle");
-      setMessage("");
-    }
-    onOpenChange(newOpen);
-  }
-
-  if (step === "type") {
-    return (
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Select Account Type</DialogTitle>
-            <DialogDescription>
-              Choose the option that best describes you.
-            </DialogDescription>
-          </DialogHeader>
-          <WaitlistForm email={email} onBack={handleBack} onSuccess={handleSuccess} />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Get Early Access</DialogTitle>
+          <DialogTitle>Join Waitlist</DialogTitle>
           <DialogDescription>
-            Enter your email to join the waitlist.
+            Kami ingin tahu kamu siapa. Pilih tipe akun yang paling cocok.
           </DialogDescription>
         </DialogHeader>
+
         <div className="flex flex-col gap-4">
           <Input
             type="email"
@@ -208,17 +178,21 @@ export function WaitlistModal({ open, onOpenChange }: WaitlistModalProps) {
             placeholder="Enter your email"
             disabled={status === "loading"}
           />
-          {status === "error" && message && (
-            <p className="text-sm text-red-500">{message}</p>
+          {status === "error" && errorMsg && (
+            <p className="text-sm text-red-500">{errorMsg}</p>
           )}
-          <DepthButton
-            onClick={handleEmailSubmit}
-            variant="blue"
-            className="w-full py-3"
-            disabled={status === "loading"}
-          >
-            {status === "loading" ? "Loading..." : "Continue"}
-          </DepthButton>
+          {step === "type" ? (
+            <WaitlistForm email={email} onSuccess={handleSuccess} />
+          ) : (
+            <DepthButton
+              onClick={handleSubmit}
+              variant="blue"
+              className="w-full py-3"
+              disabled={status === "loading"}
+            >
+              Continue
+            </DepthButton>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -32,3 +32,45 @@ export function calculateTrend(current: number, previous: number): number {
 	if (previous === 0) return 0;
 	return ((current - previous) / previous) * 100;
 }
+
+/**
+ * Format currency value for display.
+ * @example
+ * formatCurrency(1234.56) // "$1.23K"
+ * formatCurrency(1234567.89) // "$1.23M"
+ * formatCurrency(99.99) // "$99.99"
+ */
+export function formatCurrency(value: number): string {
+	if (value >= 1000000) {
+		return `$${(value / 1000000).toFixed(2)}M`;
+	}
+	if (value >= 1000) {
+		return `$${(value / 1000).toFixed(2)}K`;
+	}
+	return `$${value.toFixed(2)}`;
+}
+
+/**
+ * Format large numbers with K/M suffix.
+ * @example
+ * formatNumber(1500) // "1.5K"
+ * formatNumber(1500000) // "1.5M"
+ */
+export function formatNumber(value: number): string {
+	if (value >= 1000000) {
+		return `${(value / 1000000).toFixed(1)}M`;
+	}
+	if (value >= 1000) {
+		return `${(value / 1000).toFixed(1)}K`;
+	}
+	return value.toLocaleString();
+}
+
+/**
+ * Format percentage.
+ * @example
+ * formatPercent(2.5) // "2.50%"
+ */
+export function formatPercent(value: number): string {
+	return `${value.toFixed(2)}%`;
+}

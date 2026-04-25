@@ -2,6 +2,7 @@ import { SimpleHeader } from "@/components/simple-header";
 import { Hero } from "@/components/hero";
 import { Comparison } from "@/components/comparison";
 import { Journey } from "@/components/journey";
+import { FAQ } from "@/components/faq";
 import { CtaSection } from "@/components/cta-section";
 import { Footer } from "@/components/footer";
 
@@ -14,6 +15,7 @@ export default function Home() {
         <Hero />
         <Journey />
         <Comparison />
+        <FAQ />
         <CtaSection />
       </main>
 

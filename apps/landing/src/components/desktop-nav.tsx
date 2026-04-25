@@ -38,6 +38,9 @@ export function DesktopNav() {
 						</div>
 					</NavigationMenuContent>
 				</NavigationMenuItem>
+				<a className="px-4 rounded-md p-2 hover:bg-accent" href="/tools">
+					Free Tools
+				</a>
 				<NavigationMenuItem>
 					<NavigationMenuTrigger className="bg-transparent">
 						Company
@@ -65,9 +68,9 @@ export function DesktopNav() {
 						</div>
 					</NavigationMenuContent>
 				</NavigationMenuItem>
-			<a className="px-4 rounded-md p-2 hover:bg-accent" href="/comparison">
-						Comparison
-					</a>
+				<a className="px-4 rounded-md p-2 hover:bg-accent" href="/comparison">
+					Comparison
+				</a>
 			</NavigationMenuList>
 		</NavigationMenu>
 	);

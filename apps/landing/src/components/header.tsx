@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { useScroll } from "@/hooks/use-scroll";
-import { Button } from "@/components/ui/button";
+import { DepthButton } from "@/components/ui/depth-buttons";
 import { DesktopNav } from "@/components/desktop-nav";
 import { MobileNav } from "@/components/mobile-nav";
 import { WaitlistModal } from "@/components/waitlist-modal";
@@ -33,7 +33,9 @@ export function Header() {
 						<DesktopNav />
 					</div>
 					<div className="hidden items-center gap-2 md:flex">
-						<Button onClick={() => { setWaitlistOpen(true); posthog.capture("header_cta_clicked", { cta: "get_started" }); }}>Join Waitlist</Button>
+						<DepthButton variant="blue" onClick={() => { setWaitlistOpen(true); posthog.capture("header_cta_clicked", { cta: "get_started" }); }}>
+							Join Waitlist
+						</DepthButton>
 					</div>
 					<MobileNav />
 				</nav>

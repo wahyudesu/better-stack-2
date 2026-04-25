@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
-import { Button } from "@/components/ui/button";
+import { DepthButton } from "@/components/ui/depth-buttons";
 import { companyLinks, companyLinks2, productLinks } from "@/components/nav-links";
 import { LinkItem } from "@/components/sheard";
 import { WaitlistModal } from "@/components/waitlist-modal";
@@ -60,6 +60,13 @@ export function MobileNav() {
 									{...link}
 								/>
 							))}
+							<span className="text-sm">Free Tools</span>
+							<a
+								className="rounded-lg p-2 hover:bg-muted dark:hover:bg-muted/50"
+								href="/tools"
+							>
+								Free Tools
+							</a>
 							<span className="text-sm">Company</span>
 							{companyLinks.map((link) => (
 								<LinkItem
@@ -77,10 +84,10 @@ export function MobileNav() {
 							))}
 						</div>
 						<div className="mt-5 flex flex-col gap-2">
-							<Button className="w-full" variant="outline" onClick={() => setWaitlistOpen(true)}>
+							<DepthButton className="w-full" variant="outline" onClick={() => setWaitlistOpen(true)}>
 								Sign In
-							</Button>
-							<Button className="w-full" onClick={() => setWaitlistOpen(true)}>Get Started</Button>
+							</DepthButton>
+							<DepthButton className="w-full" variant="blue" onClick={() => setWaitlistOpen(true)}>Join Waitlist</DepthButton>
 						</div>
 					</div>
 				</Portal>

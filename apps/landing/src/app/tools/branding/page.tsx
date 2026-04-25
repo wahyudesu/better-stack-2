@@ -187,8 +187,7 @@ export default function BrandingPage() {
 	const progress = Math.round((filledFields / totalFields) * 100);
 
 	return (
-		<div className="min-h-screen flex flex-col bg-background text-foreground">
-			<div className="mx-auto max-w-5xl px-4 py-16">
+		<div className="mx-auto max-w-5xl px-4 py-16 w-full">
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold tracking-tight">
 						Personal Branding Builder
@@ -534,7 +533,6 @@ export default function BrandingPage() {
 						</div>
 					)}
 				</div>
-			</div>
 		</div>
 	);
 }

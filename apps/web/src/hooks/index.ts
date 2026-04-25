@@ -104,6 +104,7 @@ export {
 	useYouTubeTranscript,
 } from "./use-tools";
 export { usageKeys, useUsageStats } from "./use-usage";
+export { useUserApiKey } from "./use-user-api-key";
 export type {
 	CreateWebhookInput,
 	UpdateWebhookInput,

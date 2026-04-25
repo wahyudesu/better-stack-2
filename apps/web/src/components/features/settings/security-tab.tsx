@@ -17,38 +17,38 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUserApiKey } from "@/hooks/use-user-api-key";
 import { useAuthStore } from "@/stores";
 import type { UsageStats } from "@/stores/auth-store";
 
 export function SecurityTab() {
-	const {
-		apiKey,
-		setApiKey,
-		setUsageStats,
-		setIsValidating,
-		isValidating,
-		error,
-		setError,
-	} = useAuthStore();
+	const { setUsageStats, setIsValidating, isValidating } = useAuthStore();
 	const [apiKeyInput, setApiKeyInput] = useState("");
+	const [error, setLocalError] = useState<string | null>(null);
 
-	const maskedKey = apiKey
-		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
-		: "";
+	const { apiKey, isLoading } = useUserApiKey();
+	const upsertApiKeyMutation = useMutation(api.users.upsertApiKey);
+
+	const maskedKey =
+		typeof apiKey === "string" && apiKey.length > 0
+			? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
+			: "";
 
 	const handleConnect = async () => {
 		if (!apiKeyInput.trim()) {
-			setError("API key is required");
+			setLocalError("API key is required");
 			return;
 		}
 
 		if (!apiKeyInput.startsWith("sk_")) {
-			setError("Invalid API key format");
+			setLocalError("Invalid API key format");
 			return;
 		}
 
 		setIsValidating(true);
-		setError(null);
+		setLocalError(null);
 
 		try {
 			const response = await fetch("/api/validate-key", {
@@ -65,11 +65,12 @@ export function SecurityTab() {
 			}
 
 			const data = (await response.json()) as { data?: UsageStats };
-			setApiKey(apiKeyInput.trim());
 			setUsageStats(data?.data ?? null);
+
+			await upsertApiKeyMutation({ apiKey: apiKeyInput.trim() });
 			setApiKeyInput("");
 		} catch (err) {
-			setError(
+			setLocalError(
 				err instanceof Error ? err.message : "Failed to validate API key",
 			);
 		} finally {
@@ -77,10 +78,10 @@ export function SecurityTab() {
 		}
 	};
 
-	const handleDisconnect = () => {
-		setApiKey(null);
+	const handleDisconnect = async () => {
+		await upsertApiKeyMutation({ apiKey: null });
 		setUsageStats(null);
-		setError(null);
+		setLocalError(null);
 	};
 
 	return (
@@ -121,7 +122,12 @@ export function SecurityTab() {
 						<p className="text-sm font-semibold">Zernio API Key</p>
 					</div>
 
-					{apiKey ? (
+					{isLoading ? (
+						<div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+							<Loader2 className="h-4 w-4 animate-spin" />
+							Loading...
+						</div>
+					) : typeof apiKey === "string" && apiKey.length > 0 ? (
 						<div className="space-y-3">
 							<div className="flex items-center gap-2 p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20">
 								<CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
@@ -167,7 +173,7 @@ export function SecurityTab() {
 									value={apiKeyInput}
 									onChange={(e) => {
 										setApiKeyInput(e.target.value);
-										setError(null);
+										setLocalError(null);
 									}}
 									disabled={isValidating}
 								/>
