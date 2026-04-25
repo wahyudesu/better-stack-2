@@ -1,4 +1,4 @@
-import type { Metadata, Viewport, AlternatesMetadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -6,7 +6,7 @@ import "./globals.css";
 
 const baseUrl = "https://zenpost.in";
 
-export const metadata: Metadata & AlternatesMetadata = {
+export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
     default: "ZenPost - All-in-One Social Media Management for Indonesia",

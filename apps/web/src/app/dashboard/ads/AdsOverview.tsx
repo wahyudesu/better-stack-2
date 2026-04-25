@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -23,67 +23,16 @@ export async function AdsOverview() {
 	const activeCampaigns = campaigns.filter((c) => c.status === "active").length;
 	const activeAds = ads.filter((a) => a.status === "active").length;
 
-	const statCards = [
-		{
-			label: "Total Spend",
-			value: formatCurrency(totalSpend),
-			change: "+12.4%",
-			trend: "up" as const,
-		},
-		{
-			label: "Impressions",
-			value: formatNumber(totalImpressions),
-			change: "+8.2%",
-			trend: "up" as const,
-		},
-		{
-			label: "Clicks",
-			value: formatNumber(totalClicks),
-			change: "+5.1%",
-			trend: "up" as const,
-		},
-		{
-			label: "Conversions",
-			value: formatNumber(totalConversions),
-			change: "+18.7%",
-			trend: "up" as const,
-		},
-		{
-			label: "Active Campaigns",
-			value: `${activeCampaigns}/${campaigns.length}`,
-			change: null,
-			trend: null as const,
-		},
-		{
-			label: "Active Ads",
-			value: `${activeAds}/${ads.length}`,
-			change: null,
-			trend: null as const,
-		},
-	];
-
 	return (
 		<div className="space-y-6">
 			{/* Stat cards */}
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-				{statCards.map((stat) => (
-					<Card key={stat.label} className="py-4">
-						<CardHeader className="pb-1">
-							<CardTitle className="text-xs font-medium text-muted-foreground">
-								{stat.label}
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="pt-0">
-							<div className="text-2xl font-bold">{stat.value}</div>
-							{stat.change && (
-								<div className="flex items-center gap-1 text-xs mt-1 text-green-600">
-									<TrendingUp className="h-3 w-3" />
-									{stat.change}
-								</div>
-							)}
-						</CardContent>
-					</Card>
-				))}
+				<StatCard label="Total Spend" value={formatCurrency(totalSpend)} change="+12.4%" />
+				<StatCard label="Impressions" value={formatNumber(totalImpressions)} change="+8.2%" />
+				<StatCard label="Clicks" value={formatNumber(totalClicks)} change="+5.1%" />
+				<StatCard label="Conversions" value={formatNumber(totalConversions)} change="+18.7%" />
+				<StatCard label="Active Campaigns" value={`${activeCampaigns}/${campaigns.length}`} />
+				<StatCard label="Active Ads" value={`${activeAds}/${ads.length}`} />
 			</div>
 
 			{/* Platform breakdown + Recent campaigns */}
@@ -132,7 +81,7 @@ export async function AdsOverview() {
 										<span className="text-sm truncate">{camp.name}</span>
 									</div>
 									<div className="flex items-center gap-3 shrink-0">
-										<StatusBadge status={(camp.status === "active" ? "published" : camp.status === "paused" ? "draft" : "review") as any} />
+										<StatusBadge status={camp.status === "active" ? "published" : camp.status === "paused" ? "draft" : "review" as any} />
 										<span className="text-sm font-medium">
 											{camp.metrics ? formatCurrency(camp.metrics.spend) : "—"}
 										</span>
@@ -144,5 +93,26 @@ export async function AdsOverview() {
 				</Card>
 			</div>
 		</div>
+	);
+}
+
+function StatCard({ label, value, change }: { label: string; value: string; change?: string }) {
+	return (
+		<Card className="py-4">
+			<CardHeader className="pb-1">
+				<CardTitle className="text-xs font-medium text-muted-foreground">
+					{label}
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="pt-0">
+				<div className="text-2xl font-bold">{value}</div>
+				{change && (
+					<div className="flex items-center gap-1 text-xs mt-1 text-green-600">
+						<TrendingUp className="h-3 w-3" />
+						{change}
+					</div>
+				)}
+			</CardContent>
+		</Card>
 	);
 }

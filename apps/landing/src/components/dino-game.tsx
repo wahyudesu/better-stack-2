@@ -18,7 +18,7 @@ export function DinoGame() {
   const [highScore, setHighScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [started, setStarted] = useState(false);
-  const [paused, setPaused] = useState(false);
+  const [_paused, setPaused] = useState(false);
 
   const gameStateRef = useRef({
     dinoY: 0,

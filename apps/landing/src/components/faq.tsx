@@ -1,4 +1,4 @@
-import { Check, PhoneCall } from "lucide-react";
+import { PhoneCall } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -49,7 +49,7 @@ export const FAQ = () => (
         </div>
 
         <div className="max-w-3xl w-full mx-auto">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion defaultValue={["faq-0"]} className="w-full">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={"faq-" + index}>
                 <AccordionTrigger>{faq.question}</AccordionTrigger>

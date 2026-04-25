@@ -29,7 +29,7 @@ export function SecurityTab() {
 	const [error, setLocalError] = useState<string | null>(null);
 
 	const { apiKey, isLoading } = useUserApiKey();
-	const upsertApiKeyMutation = useMutation(api.users.upsertApiKey);
+	const upsertApiKeyMutation = useMutation((api as any).users.upsertApiKey);
 
 	const maskedKey =
 		typeof apiKey === "string" && apiKey.length > 0

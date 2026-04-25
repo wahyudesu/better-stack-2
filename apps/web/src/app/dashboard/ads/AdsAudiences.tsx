@@ -71,10 +71,8 @@ function AudienceCard({ audience }: { audience: AdAudience }) {
 						</CardTitle>
 					</div>
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-								<ChevronDown className="h-4 w-4" />
-							</Button>
+						<DropdownMenuTrigger className="h-7 w-7 p-0 hover:bg-muted rounded-md transition-colors flex items-center">
+							<ChevronDown className="h-4 w-4" />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuItem>

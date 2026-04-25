@@ -69,7 +69,6 @@ function CampaignRow({ campaign }: { campaign: AdCampaign }) {
 
 	const handleTogglePause = () => {
 		setLocalStatus(localStatus === "paused" ? "active" : "paused");
-		// TODO: call updateCampaignStatus
 	};
 
 	return (
@@ -132,10 +131,8 @@ function CampaignRow({ campaign }: { campaign: AdCampaign }) {
 
 							{/* Actions */}
 							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" size="sm">
-										<ChevronDown className="h-4 w-4" />
-									</Button>
+								<DropdownMenuTrigger className="h-8 w-8 p-0 hover:bg-muted rounded-md transition-colors flex items-center justify-center">
+									<ChevronDown className="h-4 w-4" />
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">
 									<DropdownMenuItem onClick={handleTogglePause}>

@@ -64,7 +64,7 @@ export default function BlogPage() {
               <div className="space-y-12">
                 {blogPosts.map((post) => (
                   <article key={post.slug} className="group">
-                    <Link href={`/blog/${post.slug}`}>
+                    <Link href={`/blog/${post.slug}` as any}>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3 text-sm text-muted-foreground">
                           <span className="font-medium text-primary">{post.category}</span>

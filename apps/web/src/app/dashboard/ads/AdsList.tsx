@@ -160,10 +160,8 @@ function AdRow({ ad }: { ad: Ad }) {
 						)}
 
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" size="sm">
-									<ChevronDown className="h-4 w-4" />
-								</Button>
+							<DropdownMenuTrigger className="h-8 w-8 p-0 hover:bg-muted rounded-md transition-colors flex items-center justify-center">
+								<ChevronDown className="h-4 w-4" />
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
 								<DropdownMenuItem>

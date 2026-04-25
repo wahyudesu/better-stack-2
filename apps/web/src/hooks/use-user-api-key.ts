@@ -4,7 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { useAuthStore } from "@/stores";
 
 export function useUserApiKey() {
-	const apiKey = useQuery(api.users.getApiKey);
+	const apiKey = useQuery((api as any).users.getApiKey);
 	const isLoading = apiKey === undefined;
 	const isError = false;
 
