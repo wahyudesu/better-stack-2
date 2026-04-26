@@ -96,10 +96,10 @@ export default function ComparisonPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-                Manual vs Better Stack 2
+                Manual vs ZenPost
               </h1>
               <p className="text-xl text-secondary-foreground/70 mb-8">
-                Lihat bedanya waktu kamu pakai Better Stack 2
+                Lihat bedanya waktu kamu pakai ZenPost
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a href="#waitlist">
@@ -122,7 +122,7 @@ export default function ComparisonPage() {
                   3-5 Jam
                 </h2>
                 <p className="text-xl text-muted-foreground">
-                  Waktu yang kamu hemat setiap minggu dengan Better Stack 2
+                  Waktu yang kamu hemat setiap minggu dengan ZenPost
                 </p>
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function ComparisonPage() {
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Masalah vs Solusi</h2>
                 <p className="text-muted-foreground">
-                  Bandingkan workflow lama (manual) dengan Better Stack 2
+                  Bandingkan workflow lama (manual) dengan ZenPost
                 </p>
               </div>
 
@@ -172,7 +172,7 @@ export default function ComparisonPage() {
                         <CheckIcon className="size-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm text-primary/80 mb-1">Better Stack 2</p>
+                        <p className="text-sm text-primary/80 mb-1">ZenPost</p>
                         <p className="font-medium">{item.better}</p>
                       </div>
                     </div>
@@ -190,7 +190,7 @@ export default function ComparisonPage() {
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Fitur Comparison</h2>
                 <p className="text-secondary-foreground/70">
-                  Fitur yang kamu dapat dengan Better Stack 2
+                  Fitur yang kamu dapat dengan ZenPost
                 </p>
               </div>
 
@@ -199,7 +199,7 @@ export default function ComparisonPage() {
                 <div className="grid grid-cols-3 gap-4 p-6 bg-muted/50 border-b border-border font-semibold">
                   <div>Fitur</div>
                   <div className="text-center">Manual</div>
-                  <div className="text-center text-primary">Better Stack 2</div>
+                  <div className="text-center text-primary">ZenPost</div>
                 </div>
 
                 {/* Rows */}
@@ -235,7 +235,7 @@ export default function ComparisonPage() {
               {/* CTA */}
               <div className="text-center mt-12">
                 <p className="text-secondary-foreground/70 mb-6">
-                  Mulai workflow baru kamu dengan Better Stack 2
+                  Mulai workflow baru kamu dengan ZenPost
                 </p>
                 <a href="#waitlist">
                   <Button size="lg">Get Started Free</Button>
@@ -252,7 +252,7 @@ export default function ComparisonPage() {
               <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12 text-center">
                 <div className="text-5xl mb-6">💬</div>
                 <blockquote className="text-xl md:text-2xl font-medium mb-6">
-                  &quot;Dulutim kami spend 4+ jam sehari untuk manage social media. Sekarang dengan Better Stack 2, kami cuma perlu 30 menit untuk scheduling dan analytics. Workflow kami jadi 10x lebih efficient!&quot;
+                  &quot;Dulutim kami spend 4+ jam sehari untuk manage social media. Sekarang dengan ZenPost, kami cuma perlu 30 menit untuk scheduling dan analytics. Workflow kami jadi 10x lebih efficient!&quot;
                 </blockquote>
                 <div className="font-semibold">Rina Susanto</div>
                 <div className="text-sm text-muted-foreground">Marketing Manager, Toko skincare lokal</div>

@@ -28,7 +28,7 @@ export default function PrivacyPage() {
               <div className="bg-card border border-border rounded-xl p-8 md:p-12">
                 <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
                 <p className="text-muted-foreground mb-6">
-                  Better Stack 2 (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how your personal information is collected, used, and disclosed by Better Stack 2.
+                  ZenPost (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how your personal information is collected, used, and disclosed by ZenPost.
                 </p>
 
                 <h2 className="text-2xl font-semibold mb-4">2. Information We Collect</h2>
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
                 <h2 className="text-2xl font-semibold mb-4">9. Third-Party Services</h2>
                 <p className="text-muted-foreground mb-6">
-                  Our Service may contain links to third-party websites or services that are not owned or controlled by Better Stack 2. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.
+                  Our Service may contain links to third-party websites or services that are not owned or controlled by ZenPost. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.
                 </p>
 
                 <h2 className="text-2xl font-semibold mb-4">10. Children&apos;s Privacy</h2>

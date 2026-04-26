@@ -6,7 +6,7 @@ import {
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { companyLinks, companyLinks2, productLinks } from "@/components/nav-links";
+import { companyLinks, companyLinks2, productLinks, topNavLinks } from "@/components/nav-links";
 import { LinkItem } from "@/components/sheard";
 
 export function DesktopNav() {
@@ -38,9 +38,11 @@ export function DesktopNav() {
 						</div>
 					</NavigationMenuContent>
 				</NavigationMenuItem>
-				<a className="px-4 rounded-md p-2 hover:bg-accent" href="/tools">
-					Free Tools
-				</a>
+				{topNavLinks.map((link) => (
+					<a key={link.label} className="px-4 rounded-md p-2 hover:bg-accent" href={link.href}>
+						{link.label}
+					</a>
+				))}
 				<NavigationMenuItem>
 					<NavigationMenuTrigger className="bg-transparent">
 						Company
@@ -68,9 +70,6 @@ export function DesktopNav() {
 						</div>
 					</NavigationMenuContent>
 				</NavigationMenuItem>
-				<a className="px-4 rounded-md p-2 hover:bg-accent" href="/comparison">
-					Comparison
-				</a>
 			</NavigationMenuList>
 		</NavigationMenu>
 	);

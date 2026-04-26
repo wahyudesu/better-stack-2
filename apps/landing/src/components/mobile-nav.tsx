@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { Button } from "@/components/ui/button";
 import { DepthButton } from "@/components/ui/depth-buttons";
-import { companyLinks, companyLinks2, productLinks } from "@/components/nav-links";
+import { navSections } from "@/components/nav-links";
 import { LinkItem } from "@/components/sheard";
 import { WaitlistModal } from "@/components/waitlist-modal";
 import { XIcon, MenuIcon } from "lucide-react";
@@ -53,35 +53,19 @@ export function MobileNav() {
 						data-slot={open ? "open" : "closed"}
 					>
 						<div className="flex w-full flex-col gap-y-2">
-							<span className="text-sm">Product</span>
-							{productLinks.map((link) => (
-								<LinkItem
-									className="rounded-lg p-2 active:bg-muted dark:active:bg-muted/50"
-									key={`product-${link.label}`}
-									{...link}
-								/>
-							))}
-							<span className="text-sm">Free Tools</span>
-							<a
-								className="rounded-lg p-2 hover:bg-muted dark:hover:bg-muted/50"
-								href="/tools"
-							>
-								Free Tools
-							</a>
-							<span className="text-sm">Company</span>
-							{companyLinks.map((link) => (
-								<LinkItem
-									className="rounded-lg p-2 active:bg-muted dark:active:bg-muted/50"
-									key={`company-${link.label}`}
-									{...link}
-								/>
-							))}
-							{companyLinks2.map((link) => (
-								<LinkItem
-									className="rounded-lg p-2 active:bg-muted dark:active:bg-muted/50"
-									key={`company-${link.label}`}
-									{...link}
-								/>
+							{navSections.map((section) => (
+								<div key={section.label} className="flex flex-col gap-1">
+									<span className="px-2 py-1 text-sm font-medium text-muted-foreground">
+										{section.label}
+									</span>
+									{section.items.map((link) => (
+										<LinkItem
+											className="rounded-lg p-2 active:bg-muted dark:active:bg-muted/50"
+											key={link.label}
+											{...link}
+										/>
+									))}
+								</div>
 							))}
 						</div>
 						<div className="mt-5 flex flex-col gap-2">

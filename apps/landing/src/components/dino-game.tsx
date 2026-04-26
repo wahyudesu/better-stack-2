@@ -12,13 +12,26 @@ interface GroundSegment {
   x: number;
 }
 
+// Constants moved outside component to avoid recreation on each render
+const GRAVITY = 0.6;
+const JUMP_FORCE = -12;
+const GROUND_HEIGHT = 40;
+const DINO_WIDTH = 40;
+const DINO_HEIGHT = 44;
+const MIN_OBSTACLE_GAP = 1500;
+
+// Base64 game assets as constants
+const DINO_IMAGE =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2NW3y1s9H0/BmBUVfVA0zTPiqI4qZTqGGNaxpjZ95a1VikAMMbM3ltaa5Uxxqy+H7TW4sIYO1NV9UpV1a8AVFWFV6VUlzHm3Bjz7H0BAGitJcMwPAHgCsC5tXbu3tZaEgBiAHgAsA9gH0ALwNbvA2itRQBwD8A+gGMAuwA2fxtAKyUGgDsAdgHsA9gCsPFDgL8GoLUWA8AdALsADgDsALB/eE4J/2wA/1wB/tmA/+0G/N8b+I9uwH9tA/6rG/C/2oD/6gb8Vzfgn24D/lc34L+6Af+qG/C/ugH/dAP+6Qb8rzfgv7YB/6sb8E83QPm3DuA/+A+I5H6j6Q1P3wAAAABJRU5ErkJggg==";
+const DINO_R_IMAGE =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2MWDR42evG+AAiatnk2DEPfGPPkfQEAAK21ZBj+p1KKo5QSj4+PZ/cVQkAIIT8BeL73hdaPF0J8WWsXj43W4vsAfiildgB4xpinUmoXwNbvA2itRQBwD8AewD6AXQC2/s4ArZWi67oHAFcAzgAcAFj/PkDXdY8ADn9aw/9sAP/bBvxvG/D/2oD/1Qb8Vzfgf7cB/9MN+Gcb8E/bgP/qBvxXN+CfagP+qw34X23A/2oD/qkW4J9uA/5XG/B/24D/6gb80w1Q/rYB/3QDlH/rAP6D/4CI7DdY3vD0AAAAAElFTkSuQmCC";
+const CACTUS_IMAGE =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABHElEQVR4nO2WwU7CQBCGf0MKFx0cHBwcdHDQxUURJ0U0NHR00MnJQScnHQj/ANwdXAgXHRx0cHJRROkiWqAQkpCEJIQQaYXg4eG+mV1aKLG85M18M/vN9qysrKys/mc0AKCqKgUgGo1GRQihlFIB4M5xHGdZlvM4juO7rusCEE3T/B5jTBzHcRzHuY7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOIP2eJ7X9H3f9H3fBELTNP8AEM1mswcAwzAMI4xZJEli+77fJISYQoip6zojhJimaZ4TQszJZDK5E0JM0zTN87xJCOGZpinf932TJEk8mUwmE0JMSinP9/05gLl/gqZpNgGglJq6rssB4Pm+3wRA13UdAKLrugiAFxYW5gCglJq6rhsAcF3X5QAwDMMQAK7rugCA7/tNAOA4TgIA13VdBMD3fZcBIISQABBdlxBCaJomAYDv+04DAJZlnQGglJqmaRIA+L7PAAhFUSQB8H2fARCCIAgBIITQ5JxTAHh9fdkEQLIsSwAQ+r7TAMh1XacB8H2fARCyLMsAEPq+UwEoFItFBkB0cXHOAIiapkkAYNs2AyBarZY4F+JcSBZl9Q98AJMkSaKmaTKGYRhGSZJYSqkBIYRlWZYQYiilRhzH8RzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzjvyPXddUYY5qu6zoA0DRN8wJAVBTFcQ3DMCzLsn4BMqJpmsYCgE6n0xQAzPT7/Q6ASL8/6AGIJIoiISL6lVKKlFJaa40xRkkpZa21xhhjjDFaaw0A0lrDGPNfG8QCaK21KIqiQQjRVxTFIIqiQQiRhRBZCJGl67qhruua0+l0lEKhYFBXKIoiIYQYUEoNTafTURzHaQJY8n1/kSTJKMdxHNd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xf+IvwFPe7aH2qKQmwAAAABJRU5ErkJggg==";
+
 export function DinoGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [started, setStarted] = useState(false);
-  const [_paused, setPaused] = useState(false);
 
   const gameStateRef = useRef({
     dinoY: 0,
@@ -34,12 +47,9 @@ export function DinoGame() {
     currentScore: 0,
   });
 
-  const GRAVITY = 0.6;
-  const JUMP_FORCE = -12;
-  const GROUND_HEIGHT = 40;
-  const DINO_WIDTH = 40;
-  const DINO_HEIGHT = 44;
-  const MIN_OBSTACLE_GAP = 1500;
+  // Use refs to avoid stale closures in event handlers
+  const startedRef = useRef(false);
+  const gameOverRef = useRef(false);
 
   const resetGame = useCallback(() => {
     const state = gameStateRef.current;
@@ -52,13 +62,12 @@ export function DinoGame() {
     state.lastObstacleTime = Date.now();
     state.currentScore = 0;
     setScore(0);
-    setGameOver(false);
-    setPaused(false);
+    gameOverRef.current = false;
   }, []);
 
   const startGame = useCallback(() => {
-    setStarted(true);
-    setGameOver(false);
+    startedRef.current = true;
+    gameOverRef.current = false;
     resetGame();
   }, [resetGame]);
 
@@ -73,24 +82,20 @@ export function DinoGame() {
     const dinoR = new Image();
     const cactusImage = new Image();
 
-    let imagesLoaded = false;
+    dinoImage.src = DINO_IMAGE;
+    dinoR.src = DINO_R_IMAGE;
+    cactusImage.src = CACTUS_IMAGE;
 
-    const onImageLoad = () => {
-      if (dinoImage.complete && dinoR.complete && cactusImage.complete) {
-        imagesLoaded = true;
-      }
-    };
+    const images = [dinoImage, dinoR, cactusImage];
+    let imagesLoaded = images.every((img) => img.complete);
 
-    dinoImage.onload = onImageLoad;
-    dinoR.onload = onImageLoad;
-    cactusImage.onload = onImageLoad;
-
-    dinoImage.src =
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2NW3y1s9H0/BmBUVfVA0zTPiqI4qZTqGGNaxpjZ95a1VikAMMbM3ltaa5Uxxqy+H7TW4sIYO1NV9UpV1a8AVFWFV6VUlzHm3Bjz7H0BAGitJcMwPAHgCsC5tXbu3tZaEgBiAHgAsA9gH0ALwNbvA2itRQBwD8A+gGMAuwA2fxtAKyUGgDsAdgHsA9gCsPFDgL8GoLUWA8AdALsADgDsALB/eE4J/2wA/1wB/tmA/+0G/N8b+I9uwH9tA/6rG/C/2oD/6gb8Vzfgn24D/lc34L+6Af+qG/C/ugH/dAP+6Qb8rzfgv7YB/6sb8E83QPm3DuA/+A+I5H6j6Q1P3wAAAABJRU5ErkJggg==";
-    dinoR.src =
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2MWDR42evG+AAiatnk2DEPfGPPkfQEAAK21ZBj+p1KKo5QSj4+PZ/cVQkAIIT8BeL73hdaPF0J8WWsXj43W4vsAfiildgB4xpinUmoXwNbvA2itRQBwD8AewD6AXQC2/s4ArZWi67oHAFcAzgAcAFj/PkDXdY8ADn9aw/9sAP/bBvxvG/D/2oD/1Qb8Vzfgf7cB/9MN+Gcb8E/bgP/qBvxXN+CfagP+qw34X23A/2oD/qkW4J9uA/5XG/B/24D/6gb80w1Q/rYB/3QDlH/rAP6D/4CI7DdY3vD0AAAAAElFTkSuQmCC";
-    cactusImage.src =
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABHElEQVR4nO2WwU7CQBCGf0MKFx0cHBwcdHDQxUURJ0U0NHR00MnJQScnHQj/ANwdXAgXHRx0cHJRROkiWqAQkpCEJIQQaYXg4eG+mV1aKLG85M18M/vN7qysrKys/mc0AKCqKgUgGo1GRQihlFIB4M5xHGdZlvM4juO7rusCEE3T/B5jTBzHcRzHuY7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOIP2eJ7X9H3f9H3fBELTNP8AEM1mswcAwzAMI4xZJEli+77fJISYQoip6zojhJimaZ4TQszJZDK5E0JM0zTN87xJCOGZpinf932TJEk8mUwmE0JMSinP9/05gLl/gqZpNgGglJq6rssB4Pm+3wRA13UdAKLrugiAFxYW5gCglJq6rhsAcF3X5QAwDMMQAK7rugCA7/tNAOA4TgIA13VdBMD3fZcBIISQABBdlxBCaJomAYDv+04DAJZlnQGglJqmaRIA+L7PAAhFUSQB8H2fARCCIAgBIITQ5JxTAHh9fdkEQLIsSwAQ+r7TAMh1XacB8H2fARCyLMsAEPq+UwEoFItFBkB0cXHOAIiapkkAYNs2AyBarZY4F+JcSBZl9Q98AJMkSaKmaTKGYRhGSZJYSqkBIYRlWZYQYiilRhzH8RzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzjvyPXddUYY5qu6zoA0DRN8wJAVBTFcQ3DMCzLsn4BMqJpmsYCgE6n0xQAzPT7/Q6ASL8/6AGIJIoiISL6lVKKlFJaa40xRkkpZa21xhhjjDFaaw0A0lrDGPNfG8QCaK21KIqiQQjRVxTFIIqiQQiRhRBZCJGl67qhruua0+l0lEKhYFBXKIoiIYQYUEoNTafTURzHaQJY8n1/kSTJKMdxHNd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xf+IvwFPe7aH2qKQmwAAAABJRU5ErkJggg==";
+    if (!imagesLoaded) {
+      images.forEach((img) => {
+        img.onload = () => {
+          if (images.every((i) => i.complete)) imagesLoaded = true;
+        };
+      });
+    }
 
     const state = gameStateRef.current;
     state.groundY = canvas.height - GROUND_HEIGHT;
@@ -145,7 +150,7 @@ export function DinoGame() {
       const groundY = canvas.height - GROUND_HEIGHT;
       const currentState = gameStateRef.current;
 
-      if (!started) {
+      if (!startedRef.current) {
         ctx.fillStyle = "#333";
         ctx.font = "bold 16px system-ui";
         ctx.textAlign = "center";
@@ -155,7 +160,7 @@ export function DinoGame() {
         return;
       }
 
-      if (gameOver) {
+      if (gameOverRef.current) {
         ctx.fillStyle = "#333";
         ctx.font = "bold 24px system-ui";
         ctx.textAlign = "center";
@@ -180,7 +185,7 @@ export function DinoGame() {
     };
 
     const update = () => {
-      if (!started || gameOver) return;
+      if (!startedRef.current || gameOverRef.current) return;
 
       const state = gameStateRef.current;
 
@@ -195,11 +200,10 @@ export function DinoGame() {
 
       state.frame++;
       if (state.frame % 5 === 0) {
-        state.currentScore += 1;
-        setScore(state.currentScore);
-        setHighScore((h) =>
-          state.currentScore > h ? state.currentScore : h
-        );
+        const newScore = state.currentScore + 1;
+        state.currentScore = newScore;
+        setScore(newScore);
+        setHighScore((h) => (newScore > h ? newScore : h));
       }
 
       const now = Date.now();
@@ -221,12 +225,8 @@ export function DinoGame() {
 
       for (const obs of state.obstacles) {
         const obsTop = canvas.height - GROUND_HEIGHT - obs.height;
-        if (
-          dinoRight > obs.x &&
-          dinoLeft < obs.x + 20 &&
-          dinoBottom > obsTop
-        ) {
-          setGameOver(true);
+        if (dinoRight > obs.x && dinoLeft < obs.x + 20 && dinoBottom > obsTop) {
+          gameOverRef.current = true;
           return;
         }
       }
@@ -239,49 +239,29 @@ export function DinoGame() {
       newState.animationId = requestAnimationFrame(gameLoop);
     };
 
+    // Single unified event handler
+    const handleGameAction = (e: Event) => {
+      e.preventDefault();
+      if (!startedRef.current || gameOverRef.current) {
+        startGame();
+      } else {
+        const s = gameStateRef.current;
+        if (!s.isJumping && s.dinoY === 0) {
+          s.isJumping = true;
+          s.dinoVelocity = JUMP_FORCE;
+        }
+      }
+    };
+
     const handleKey = (e: KeyboardEvent) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
-        e.preventDefault();
-        if (!started || gameOver) {
-          startGame();
-        } else {
-          const s = gameStateRef.current;
-          if (!s.isJumping && s.dinoY === 0) {
-            s.isJumping = true;
-            s.dinoVelocity = JUMP_FORCE;
-          }
-        }
-      }
-    };
-
-    const handleTouch = (e: TouchEvent) => {
-      e.preventDefault();
-      if (!started || gameOver) {
-        startGame();
-      } else {
-        const s = gameStateRef.current;
-        if (!s.isJumping && s.dinoY === 0) {
-          s.isJumping = true;
-          s.dinoVelocity = JUMP_FORCE;
-        }
-      }
-    };
-
-    const handleClick = () => {
-      if (!started || gameOver) {
-        startGame();
-      } else {
-        const s = gameStateRef.current;
-        if (!s.isJumping && s.dinoY === 0) {
-          s.isJumping = true;
-          s.dinoVelocity = JUMP_FORCE;
-        }
+        handleGameAction(e);
       }
     };
 
     window.addEventListener("keydown", handleKey);
-    canvas.addEventListener("touchstart", handleTouch, { passive: false });
-    canvas.addEventListener("click", handleClick);
+    canvas.addEventListener("touchstart", handleGameAction, { passive: false });
+    canvas.addEventListener("click", handleGameAction);
 
     const initialState = gameStateRef.current;
     for (let i = 0; i < canvas.width / 30 + 1; i++) {
@@ -293,10 +273,10 @@ export function DinoGame() {
     return () => {
       cancelAnimationFrame(gameStateRef.current.animationId);
       window.removeEventListener("keydown", handleKey);
-      canvas.removeEventListener("touchstart", handleTouch);
-      canvas.removeEventListener("click", handleClick);
+      canvas.removeEventListener("touchstart", handleGameAction);
+      canvas.removeEventListener("click", handleGameAction);
     };
-  }, [started, gameOver, startGame]);
+  }, [startGame]);
 
   return (
     <canvas

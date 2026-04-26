@@ -1,4 +1,4 @@
-# Better Stack 2 Landing Page Specification
+# ZenPost Landing Page Specification
 
 ## Concept & Vision
 
@@ -79,9 +79,9 @@ Already installed via `@efferd/header-3`. Customize links in `nav-links.tsx`.
 3. Real-time notifications and engagement inbox
 
 ### 5. Comparison Section
-**Layout**: Centered table/grid comparing "Manual" vs "Better Stack 2"
+**Layout**: Centered table/grid comparing "Manual" vs "ZenPost"
 **Points**:
-| Manual | Better Stack 2 |
+| Manual | ZenPost |
 |--------|---------------|
 | Login ke 5+ apps | 1 dashboard untuk semua |
 | Scroll-scroll-scroll | Auto analytics |

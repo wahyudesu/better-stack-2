@@ -19,21 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/stores";
 import type { UsageStats } from "@/stores/auth-store";
-
-// Mock user data (replace with actual auth when ClerkProvider is set up)
-const mockUser = {
-	id: "user_2xyz123abc",
-	firstName: "John",
-	lastName: "Doe",
-	email: "john.doe@example.com",
-	imageUrl: "",
-	createdAt: new Date("2024-01-15"),
-	lastSignInAt: new Date("2024-03-19"),
-	emailVerified: true,
-	twoFactorEnabled: false,
-};
+import { useUser, useClerk } from "@clerk/nextjs";
 
 export function AccountTab() {
+	const { user, isLoaded } = useUser();
+	const { openUserProfile } = useClerk();
 	const {
 		apiKey,
 		setApiKey,
@@ -46,46 +36,35 @@ export function AccountTab() {
 	} = useAuthStore();
 	const [apiKeyInput, setApiKeyInput] = useState("");
 
-	const [fullName, setFullName] = useState(() => {
-		if (mockUser.firstName && mockUser.lastName) {
-			return `${mockUser.firstName} ${mockUser.lastName}`;
-		}
-		return mockUser.firstName || mockUser.email.split("@")[0] || "";
-	});
+	const fullName = user?.fullName ?? user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ?? "";
 	const [jobTitle] = useState("User");
-	const [originalFullName] = useState(() => {
-		if (mockUser.firstName && mockUser.lastName) {
-			return `${mockUser.firstName} ${mockUser.lastName}`;
-		}
-		return mockUser.firstName || mockUser.email.split("@")[0] || "";
-	});
+	const [originalFullName] = useState(fullName);
 	const [originalJobTitle] = useState("User");
-	const [email] = useState(mockUser.email || "");
+	const email = user?.emailAddresses?.[0]?.emailAddress ?? "";
 	const [showPasswordForm, setShowPasswordForm] = useState(false);
 
 	const hasChanges =
 		fullName !== originalFullName || jobTitle !== originalJobTitle;
 
 	const handleAvatarClick = () => {
-		// Would trigger Clerk's avatar upload in production
-		console.log("Open avatar upload");
+		openUserProfile();
 	};
 
 	const handleSave = async () => {
-		// Update user profile
-		console.log("Profile updated:", fullName);
+		// Update user profile via Clerk
+		if (user) {
+			await user.update({
+				firstName: fullName.split(" ")[0] || undefined,
+				lastName: fullName.split(" ").slice(1).join(" ") || undefined,
+			});
+		}
 	};
 
 	// Get user initials for fallback
 	const getInitials = () => {
-		if (mockUser.firstName && mockUser.lastName) {
-			return `${mockUser.firstName[0]}${mockUser.lastName[0]}`.toUpperCase();
-		}
-		if (mockUser.firstName) {
-			return mockUser.firstName[0].toUpperCase();
-		}
-		if (mockUser.email) {
-			return mockUser.email[0].toUpperCase();
+		const name = user?.fullName ?? user?.firstName ?? email;
+		if (name) {
+			return name[0].toUpperCase();
 		}
 		return "U";
 	};
@@ -113,7 +92,7 @@ export function AccountTab() {
 							className="relative group cursor-pointer"
 						>
 							<Avatar className="size-16 ring-2 ring-border group-hover:ring-primary transition-all">
-								<AvatarImage src={mockUser.imageUrl} />
+								<AvatarImage src={isLoaded ? user?.imageUrl : undefined} alt={user?.fullName ?? "Profile"} />
 								<AvatarFallback>{getInitials()}</AvatarFallback>
 							</Avatar>
 							<div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -123,7 +102,7 @@ export function AccountTab() {
 						<div>
 							<p className="text-sm font-medium">Profile Photo</p>
 							<p className="text-xs text-muted-foreground">
-								Upload a profile photo
+								Photo synced from Google account
 							</p>
 						</div>
 					</div>
@@ -133,16 +112,17 @@ export function AccountTab() {
 						<div className="flex flex-col gap-2">
 							<Label className="text-sm">First Name</Label>
 							<Input
-								value={mockUser.firstName || ""}
-								onChange={(e) => setFullName(e.target.value)}
+								value={user?.firstName ?? ""}
 								className="h-10 font-medium"
+								disabled
 							/>
 						</div>
 						<div className="flex flex-col gap-2">
 							<Label className="text-sm">Last Name</Label>
 							<Input
-								value={mockUser.lastName || ""}
+								value={user?.lastName ?? ""}
 								className="h-10 font-medium"
+								disabled
 							/>
 						</div>
 					</div>

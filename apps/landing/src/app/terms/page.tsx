@@ -28,12 +28,12 @@ export default function TermsPage() {
               <div className="bg-card border border-border rounded-xl p-8 md:p-12">
                 <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
                 <p className="text-muted-foreground mb-6">
-                  By accessing and using Better Stack 2 (&quot;the Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this Service.
+                  By accessing and using ZenPost (&quot;the Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this Service.
                 </p>
 
                 <h2 className="text-2xl font-semibold mb-4">2. Description of Service</h2>
                 <p className="text-muted-foreground mb-6">
-                  Better Stack 2 is a social media management dashboard that allows users to manage, schedule, and analyze social media content across multiple platforms. The Service includes various tools and features designed to help creators and businesses manage their social media presence.
+                  ZenPost is a social media management dashboard that allows users to manage, schedule, and analyze social media content across multiple platforms. The Service includes various tools and features designed to help creators and businesses manage their social media presence.
                 </p>
 
                 <h2 className="text-2xl font-semibold mb-4">3. User Accounts</h2>
@@ -59,7 +59,7 @@ export default function TermsPage() {
 
                 <h2 className="text-2xl font-semibold mb-4">6. Intellectual Property</h2>
                 <p className="text-muted-foreground mb-6">
-                  The Service and its original content, features, and functionality are owned by Better Stack 2 and are protected by international copyright, trademark, and other intellectual property laws.
+                  The Service and its original content, features, and functionality are owned by ZenPost and are protected by international copyright, trademark, and other intellectual property laws.
                 </p>
 
                 <h2 className="text-2xl font-semibold mb-4">7. Payment Terms</h2>
@@ -69,7 +69,7 @@ export default function TermsPage() {
 
                 <h2 className="text-2xl font-semibold mb-4">8. Limitation of Liability</h2>
                 <p className="text-muted-foreground mb-6">
-                  Better Stack 2 shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the Service.
+                  ZenPost shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the Service.
                 </p>
 
                 <h2 className="text-2xl font-semibold mb-4">9. Changes to Terms</h2>

@@ -20,6 +20,7 @@ const footerLinks = {
     links: [
       { label: "About", href: "/about" },
       { label: "Blog", href: "/blog" },
+      { label: "Contact", href: "/contact" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
     ],

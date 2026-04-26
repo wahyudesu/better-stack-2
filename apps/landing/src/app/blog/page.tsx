@@ -1,7 +1,6 @@
-import { Header } from "@/components/header";
+import { SimpleHeader } from "@/components/simple-header";
 import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 const blogPosts = [
@@ -10,41 +9,89 @@ const blogPosts = [
     title: "Cara Memulai Social Media untuk Bisnis di 2025",
     excerpt: "Panduan lengkap untuk memulai presence digital bisnis kamu. Dari pemilihan platform hingga strategi konten yang efektif.",
     date: "15 April 2025",
-    category: "Tips & Tricks",
+    tags: ["Tips & Tricks", "Social Media"],
     readTime: "5 min read",
+    cover: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&h=450&fit=crop",
+    author: {
+      name: "Reza Pratama",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
+    },
   },
   {
     slug: "meningkatkan-engagement-instagram",
     title: "10 Tips Meningkatkan Engagement Instagram",
     excerpt: "Temukan strategi terbukti untuk meningkatkan interaksi followers di Instagram. Mulai dari konten visuel hingga timing posting yang optimal.",
     date: "10 April 2025",
-    category: "Instagram",
+    tags: ["Instagram", "Engagement"],
     readTime: "7 min read",
+    cover: "https://images.unsplash.com/photo-1611262588024-d12430b98921?w=800&h=450&fit=crop",
+    author: {
+      name: "Reza Pratama",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
+    },
   },
   {
     slug: "ai-dalam-social-media-management",
     title: "Bagaimana AI Mengubah Cara Kita Manage Social Media",
     excerpt: "Explorasi bagaimana teknologi AI dapat membantu streamline workflow social media dan meningkatkan produktivitas.",
     date: "5 April 2025",
-    category: "Technology",
+    tags: ["Technology", "AI"],
     readTime: "6 min read",
+    cover: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=450&fit=crop",
+    author: {
+      name: "Reza Pratama",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
+    },
+  },
+  {
+    slug: "memulai-social-media-untuk-bisnis",
+    title: "Cara Memulai Social Media untuk Bisnis di 2025",
+    excerpt: "Panduan lengkap untuk memulai presence digital bisnis kamu. Dari pemilihan platform hingga strategi konten yang efektif.",
+    date: "15 April 2025",
+    tags: ["Tips & Tricks", "Social Media"],
+    readTime: "5 min read",
+    cover: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&h=450&fit=crop",
+    author: {
+      name: "Reza Pratama",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
+    },
+  },
+  {
+    slug: "meningkatkan-engagement-instagram",
+    title: "10 Tips Meningkatkan Engagement Instagram",
+    excerpt: "Temukan strategi terbukti untuk meningkatkan interaksi followers di Instagram. Mulai dari konten visuel hingga timing posting yang optimal.",
+    date: "10 April 2025",
+    tags: ["Instagram", "Engagement"],
+    readTime: "7 min read",
+    cover: "https://images.unsplash.com/photo-1611262588024-d12430b98921?w=800&h=450&fit=crop",
+    author: {
+      name: "Reza Pratama",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
+    },
+  },
+  {
+    slug: "ai-dalam-social-media-management",
+    title: "Bagaimana AI Mengubah Cara Kita Manage Social Media",
+    excerpt: "Explorasi bagaimana teknologi AI dapat membantu streamline workflow social media dan meningkatkan produktivitas.",
+    date: "5 April 2025",
+    tags: ["Technology", "AI"],
+    readTime: "6 min read",
+    cover: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=450&fit=crop",
+    author: {
+      name: "Reza Pratama",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
+    },
   },
 ];
-
-const founder = {
-  name: "Reza Pratama",
-  role: "Founder & CEO",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=reza",
-};
 
 export default function BlogPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header />
+      <SimpleHeader />
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-16">
+        <section className="pt-12 pb-8">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto text-center">
               <h1 className="text-3xl sm:text-4xl font-bold mb-3">
@@ -57,76 +104,68 @@ export default function BlogPage() {
           </div>
         </section>
 
-        {/* Blog Posts */}
+        {/* Blog Grid */}
         <section className="pb-20">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              <div className="space-y-12">
+            <div className="max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {blogPosts.map((post) => (
                   <article key={post.slug} className="group">
-                    <Link href={`/blog/${post.slug}` as any}>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <span className="font-medium text-primary">{post.category}</span>
-                          <span>·</span>
-                          <span className="flex items-center gap-1">
-                            <CalendarIcon className="size-3.5" />
-                            {post.date}
-                          </span>
-                          <span>·</span>
-                          <span>{post.readTime}</span>
+                    <Link href={`/blog/${post.slug}` as any} className="block space-y-3">
+                      {/* Cover */}
+                      <div className="aspect-[16/10] overflow-hidden rounded-lg">
+                        <img
+                          src={post.cover}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-2">
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {post.tags.map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="text-xs px-2 py-0.5"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-semibold group-hover:text-primary transition-colors">
+
+                        {/* Title */}
+                        <h2 className="text-lg font-semibold leading-tight group-hover:text-primary transition-colors">
                           {post.title}
                         </h2>
-                        <p className="text-muted-foreground leading-relaxed">
+
+                        {/* Description */}
+                        <p className="text-sm text-muted-foreground line-clamp-2">
                           {post.excerpt}
                         </p>
-                        <div className="text-sm font-medium text-primary">
-                          Read more →
+
+                        {/* Meta */}
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={post.author.avatar}
+                              alt={post.author.name}
+                              className="w-6 h-6 rounded-full bg-muted"
+                            />
+                            <span className="text-xs text-muted-foreground">
+                              {post.author.name}
+                            </span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {post.date}
+                          </span>
                         </div>
                       </div>
                     </Link>
                   </article>
                 ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Waitlist CTA */}
-        <section className="py-16 border-t border-border">
-          <div className="container mx-auto px-4">
-            <div className="max-w-xl mx-auto text-center space-y-4">
-              <h2 className="text-2xl font-bold">
-                Join Waitlist
-              </h2>
-              <p className="text-muted-foreground">
-                Dapatkan akses early bird dan update terbaru tentang produk kami.
-              </p>
-              <Button size="lg" className="mt-4">
-                <Link href="/" className="flex items-center gap-2">
-                  Daftar Sekarang
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Founder Section */}
-        <section className="py-12 border-t border-border">
-          <div className="container mx-auto px-4">
-            <div className="max-w-md mx-auto">
-              <div className="flex items-center gap-4">
-                <img
-                  src={founder.avatar}
-                  alt={founder.name}
-                  className="w-16 h-16 rounded-full bg-muted"
-                />
-                <div>
-                  <p className="font-semibold">{founder.name}</p>
-                  <p className="text-sm text-muted-foreground">{founder.role}</p>
-                </div>
               </div>
             </div>
           </div>

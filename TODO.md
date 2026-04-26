@@ -12,3 +12,13 @@
 yang ada di server karena mau aku sesuaikan dengan di froted sesuaian data yna dulu sebleum nanti supaya siap untuk dimigrasi 
 
 aku ingin kamu mengecek dengan biak data yang ada di server, aku dalam plan untuk me
+
+[MARKETING IDEAS]
+- free tools linkedin preview, TOFU
+- puluhan hooks untuk threads
+
+
+halo aku wahyu founder dari zenpost.in, social media  schedule let me know jika ada yang bisa aku bantu
+
+
+jenis label nya TOFU, MOFU, BOFU

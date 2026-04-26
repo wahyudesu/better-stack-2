@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useConvexAuth } from "convex/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@zenpost/ui/components/sonner";
 import { useState } from "react";
@@ -8,11 +8,11 @@ import { AuthGateProvider } from "./auth/AuthGateContext";
 import { ThemeProvider } from "./theme-provider";
 
 function ProvidersWithAuth({ children }: { children: React.ReactNode }) {
-	const { isSignedIn, isLoaded } = useAuth();
+	const { isAuthenticated, isLoading } = useConvexAuth();
 
 	// Show children while auth is loading, but use false for isSignedIn until loaded
 	return (
-		<AuthGateProvider isSignedIn={!!isSignedIn && isLoaded}>
+		<AuthGateProvider isSignedIn={!!isAuthenticated && !isLoading}>
 			{children}
 		</AuthGateProvider>
 	);

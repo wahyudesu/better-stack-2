@@ -15,13 +15,13 @@ export const upsertApiKey = mutation({
 
 		if (existing) {
 			await ctx.db.patch(existing._id, {
-				apiKey: args.apiKey,
+				apiKey: args.apiKey ?? undefined,
 				updatedAt: Date.now(),
 			});
 		} else {
 			await ctx.db.insert("users", {
 				clerkId: tokenIdentifier,
-				apiKey: args.apiKey,
+				apiKey: args.apiKey ?? undefined,
 				email: identity.email ?? "",
 				createdAt: Date.now(),
 				updatedAt: Date.now(),

@@ -295,7 +295,7 @@ export function ConnectionsTab() {
 						{connectedAccounts.map((c) => (
 							<div
 								key={c.accountId}
-								className="group relative flex flex-col gap-2 rounded-xl border bg-white p-4 shadow-sm"
+								className="group relative flex flex-col gap-2 rounded-xl border bg-card p-4 shadow-sm"
 							>
 								<div className="flex items-center gap-3">
 									<div className="relative shrink-0">
@@ -313,7 +313,7 @@ export function ConnectionsTab() {
 												/>
 											)}
 										</div>
-										<div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-white shadow-sm p-0.5">
+										<div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-card shadow-sm p-0.5">
 											<SocialIcon
 												network={c.network}
 												style={{ height: 12, width: 12 }}
@@ -437,7 +437,7 @@ export function ConnectionsTab() {
 							{platforms.map((c) => (
 								<div
 									key={c.id}
-									className="flex flex-col items-center gap-2 rounded-xl border bg-white p-4 shadow-sm text-center"
+									className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 shadow-sm text-center"
 								>
 									<SocialIcon
 										network={c.network}

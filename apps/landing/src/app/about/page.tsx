@@ -44,7 +44,7 @@ const values = [
   {
     icon: <HeartIcon className="size-6" />,
     title: "Community",
-    description: "We're building alongside our users. Your feedback shapes Better Stack 2.",
+    description: "We're building alongside our users. Your feedback shapes ZenPost.",
   },
   {
     icon: <ZapIcon className="size-6" />,
@@ -71,7 +71,7 @@ export default function AboutPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-                About Better Stack 2
+                About ZenPost
               </h1>
               <p className="text-xl text-secondary-foreground/70 mb-8">
                 We&apos;re building the future of social media management untuk creator dan bisnis Indonesia.
@@ -114,10 +114,10 @@ export default function AboutPage() {
               </div>
               <div className="bg-card border border-border rounded-xl p-8 md:p-12 space-y-6">
                 <p className="text-lg text-muted-foreground">
-                  Better Stack 2 dimulai dari satu masalah sederhana: kami capek manage multiple social media accounts satu per satu. Login ke 5+ apps, scroll-scroll-scroll cari content, forgot to post, missed analytics...
+                  ZenPost dimulai dari satu masalah sederhana: kami capek manage multiple social media accounts satu per satu. Login ke 5+ apps, scroll-scroll-scroll cari content, forgot to post, missed analytics...
                 </p>
                 <p className="text-lg text-muted-foreground">
-                  Di awal 2024, kami memutuskan untuk bangun solusi sendiri. Dari最初 hanya tool untuk tim kecil, sekarang Better Stack 2 udah digunakan oleh thousands of creators dan businesses di Indonesia.
+                  Di awal 2024, kami memutuskan untuk bangun solusi sendiri. Dari最初 hanya tool untuk tim kecil, sekarang ZenPost udah digunakan oleh thousands of creators dan businesses di Indonesia.
                 </p>
                 <p className="text-lg text-muted-foreground">
                   Kami percaya bahwa social media management shouldn&apos;t be complicated. Dengan AI dan automation, kami membantu creator fokus di what they do best: creating great content.
@@ -162,7 +162,7 @@ export default function AboutPage() {
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
                 <p className="text-muted-foreground">
-                  The people behind Better Stack 2
+                  The people behind ZenPost
                 </p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { WaitlistModal } from "@/components/waitlist-modal";
 import { Input } from "@/components/ui/input";
 import { DepthButton } from "@/components/ui/depth-buttons";
+import { isValidEmail } from "@/lib/utils";
 import posthog from "posthog-js";
 
 export function HeroWaitlistForm() {
@@ -19,8 +20,7 @@ export function HeroWaitlistForm() {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       setStatus("error");
       setMessage("Invalid email format");
       return;

@@ -31,5 +31,8 @@ hootsuite, buffer, repliz
 # cta
 
 # footer
-link:login, pricing, support:mail, affiliate, contact
+link:login, pricing, support:featurebase, changelog, contact us:mail
 legal:term of services, privacy policies
+follow us: instagram, threads, linkedin, youtube
+free tools: personal branding builder, ads creator, all tools
+tools: linkedin post preview generator

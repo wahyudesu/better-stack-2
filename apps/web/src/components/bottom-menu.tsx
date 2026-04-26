@@ -36,7 +36,7 @@ const MENU_ITEMS = [
 		key: "2",
 	},
 	{
-		href: "/dashboard/ads",
+		href: "/ads",
 		icon: Megaphone,
 		label: "Ads",
 		shortcut: "⌃5",

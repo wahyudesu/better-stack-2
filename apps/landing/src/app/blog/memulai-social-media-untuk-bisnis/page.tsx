@@ -1,7 +1,6 @@
-import { Header } from "@/components/header";
+import { SimpleHeader } from "@/components/simple-header";
 import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const post = {
@@ -46,7 +45,7 @@ const post = {
 export default function BlogPostPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header />
+      <SimpleHeader />
 
       <main className="flex-1">
         <article className="py-16">
@@ -66,10 +65,7 @@ export default function BlogPostPage() {
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <span className="font-medium text-primary">{post.category}</span>
                   <span>·</span>
-                  <span className="flex items-center gap-1">
-                    <CalendarIcon className="size-3.5" />
-                    {post.date}
-                  </span>
+                  <span>{post.date}</span>
                   <span>·</span>
                   <span>{post.readTime}</span>
                 </div>
@@ -99,25 +95,6 @@ export default function BlogPostPage() {
             </div>
           </div>
         </article>
-
-        {/* Waitlist CTA */}
-        <section className="py-16 border-t border-border">
-          <div className="container mx-auto px-4">
-            <div className="max-w-xl mx-auto text-center space-y-4">
-              <h2 className="text-2xl font-bold">
-                Join Waitlist
-              </h2>
-              <p className="text-muted-foreground">
-                Dapatkan akses early bird dan update terbaru tentang produk kami.
-              </p>
-              <Button size="lg" className="mt-4">
-                <Link href="/" className="flex items-center gap-2">
-                  Daftar Sekarang
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />

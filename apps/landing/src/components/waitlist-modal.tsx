@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { DepthButton } from "@/components/ui/depth-buttons";
 import { BuildingIcon, StoreIcon } from "lucide-react";
+import { isValidEmail } from "@/lib/utils";
 import posthog from "posthog-js";
 
 type UserType = "agency_owner" | "brand_owner";
@@ -146,8 +147,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!isValidEmail(email)) {
       setStatus("error");
       setErrorMsg("Invalid email format");
       return;

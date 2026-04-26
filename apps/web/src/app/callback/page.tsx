@@ -25,7 +25,6 @@ function CallbackContent() {
 			try {
 				const connected = searchParams?.get("connected");
 				const errorParam = searchParams?.get("error");
-				const _platform = searchParams?.get("platform");
 
 				if (errorParam) {
 					setError(errorParam);
@@ -34,13 +33,26 @@ function CallbackContent() {
 				}
 
 				if (connected) {
-					setStep("success");
-					// Refresh accounts list would happen via query invalidation
-					setTimeout(() => router.push("/settings"), 1500);
-					return;
+					// Store account via API call to server
+					const profileId = searchParams?.get("profileId") || "";
+					const username = searchParams?.get("username") || "Connected Account";
+
+					try {
+						await fetch("/api/accounts/add", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								platform: connected,
+								accountId: profileId,
+								accountName: decodeURIComponent(username),
+							}),
+						});
+					} catch (e) {
+						// API not available yet, continue anyway
+						console.warn("API not configured:", e);
+					}
 				}
 
-				// If no recognized params, just redirect to accounts
 				setStep("success");
 				setTimeout(() => router.push("/settings"), 1500);
 			} catch (err) {

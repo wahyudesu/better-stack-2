@@ -16,21 +16,34 @@ export interface AccountHealth {
 	error?: string;
 }
 
-/**
- * Hook to fetch all accounts for a profile
- */
-export function useAccounts(profileId?: string) {
-	const currentProfileId = useCurrentProfileId();
-	const targetProfileId = profileId || currentProfileId;
+// Convert Zernio account to client.ts SocialAccount format
+function convertToSocialAccount(account: any): SocialAccount {
+	return {
+		_id: account._id,
+		platform: account.platform,
+		username: account.username || account.displayName || "",
+		displayName: account.displayName || account.username,
+		isActive: account.isActive ?? true,
+		profilePicture: account.profilePicture,
+		profileId: account.profileId || "",
+		createdAt: account.createdAt || new Date().toISOString(),
+		updatedAt: account.updatedAt || new Date().toISOString(),
+	};
+}
 
+/**
+ * Hook to fetch all accounts for current user
+ */
+export function useAccounts(_profileId?: string) {
 	return useQuery({
-		queryKey: accountKeys.list(targetProfileId || ""),
+		queryKey: accountKeys.list("local"),
 		queryFn: async () => {
-			const { data, error } = await api.getAccounts(targetProfileId);
+			// Read from Zernio API via server
+			const { data, error } = await api.getAccounts();
 			if (error) throw error;
-			return data;
+			return { accounts: data?.accounts || [] };
 		},
-		enabled: !!targetProfileId,
+		enabled: true,
 	});
 }
 
@@ -41,11 +54,9 @@ export function useAccountsHealth(_profileId?: string) {
 	return useQuery({
 		queryKey: accountKeys.health(_profileId || ""),
 		queryFn: async () => {
-			// getAccountHealth takes accountId, not profileId - no bulk endpoint exists
-			// Return null to indicate health check unavailable at profile level
 			return null;
 		},
-		enabled: false, // disabled - needs per-account call, not profile-level
+		enabled: false,
 	});
 }
 
