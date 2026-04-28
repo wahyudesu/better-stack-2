@@ -85,3 +85,13 @@ zenpost/
 - `pnpm run check` - Run Biome linting and type checking
 - `cd apps/web && pnpm run desktop:dev` - Start Tauri desktop app in development
 - `cd apps/web && pnpm run desktop:build` - Build Tauri desktop app
+
+```
+pnpm dlx @opennextjs/cloudflare build && npx convex deploy && pnpm dlx @opennextjs/cloudflare deploy
+```
+```
+pnpm dlx @opennextjs/cloudflare build && pnpm dlx @opennextjs/cloudflare deploy
+```
+
+CONVEX_DEPLOYMENT=
+CONVEX_DEPLOY_KEY=dev:first-cobra-587|eyJ2MiI6IjQzNjRjZjYxYjVhNDQ1MjE5NWQxMzZiNTYyNDBjYTI0In0=
