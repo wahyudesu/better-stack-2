@@ -74,7 +74,9 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.9",
+		"@clerk/testing": "^2.0.21",
 		"@cloudflare/workers-types": "catalog:",
+		"@playwright/test": "^1.59.1",
 		"@tailwindcss/postcss": "^4.1.18",
 		"@tauri-apps/cli": "^2.4.0",
 		"@types/d3-array": "^3.2.2",

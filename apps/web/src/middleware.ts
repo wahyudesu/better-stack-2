@@ -10,7 +10,7 @@ const isPublicRoute = createRouteMatcher([
 
 const securityHeaders = {
 	"Content-Security-Policy":
-		"default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.clerk.com https://fallback.backupclerk.net https://*.clerk.accounts.dev wss://*.clerk.accounts.dev; frame-ancestors 'none';",
+		"default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.accounts.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.clerk.com https://fallback.backupclerk.net https://*.clerk.accounts.dev wss://*.clerk.accounts.dev; frame-ancestors 'none';",
 	"X-Frame-Options": "DENY",
 	"X-Content-Type-Options": "nosniff",
 	"Referrer-Policy": "strict-origin-when-cross-origin",
