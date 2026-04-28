@@ -6,6 +6,7 @@ const isPublicRoute = createRouteMatcher([
 	"/sign-in(.*)",
 	"/sign-up(.*)",
 	"/callback(.*)",
+	"/__clerk_handshake(.*)",
 ]);
 
 const securityHeaders = {
