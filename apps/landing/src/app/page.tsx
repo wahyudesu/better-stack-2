@@ -1,7 +1,9 @@
 import { SimpleHeader } from "@/components/simple-header";
 import { Hero } from "@/components/hero";
-import { Comparison } from "@/components/comparison";
+import { Solutions } from "@/components/solutions";
+import { FeaturesGrid } from "@/components/features-grid";
 import { Journey } from "@/components/journey";
+import { Comparison } from "@/components/comparison";
 import { FAQ } from "@/components/faq";
 import { CtaSection } from "@/components/cta-section";
 import { Footer } from "@/components/footer";
@@ -13,6 +15,8 @@ export default function Home() {
 
       <main className="flex-1">
         <Hero />
+        <Solutions />
+        <FeaturesGrid />
         <Journey />
         <Comparison />
         <FAQ />

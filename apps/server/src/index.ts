@@ -7,6 +7,7 @@ import { createPostsHandlers } from './routes/handlers/posts'
 import { createQueueHandlers } from './routes/handlers/queue'
 import { createMediaHandlers } from './routes/handlers/media'
 import { createToolsHandlers } from './routes/handlers/tools'
+import { createSyncHandlers } from './routes/handlers/sync'
 
 // Cloudflare Worker environment bindings
 export interface Env {
@@ -22,7 +23,7 @@ const app = new Hono<{ Bindings: Env }>()
 app.use('/*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
 }))
 
 // Health check
@@ -49,11 +50,35 @@ app.get('/zernio-api-openapi.yaml', async (c) => {
 // Scalar API docs - point directly to yaml file
 app.use('/docs', Scalar({ url: '/zernio-api-openapi.yaml' }))
 
+// ============================================================
+// Auth Middleware - Read API key from header
+// Web reads apiKey from Convex and sends it via X-API-Key header
+// ============================================================
+app.use('/v1/*', async (c, next) => {
+  // Check for apiKey in X-API-Key header (sent by web after reading from Convex)
+  const apiKeyHeader = c.req.header('X-API-Key')
+  if (apiKeyHeader) {
+    c.set('userApiKey', apiKeyHeader)
+    await next()
+    return
+  }
+
+  // Fallback: if Bearer token starts with sk_, treat it as Zernio API key
+  const authHeader = c.req.header('Authorization')
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (bearerToken?.startsWith('sk_')) {
+    c.set('userApiKey', bearerToken)
+  }
+
+  await next()
+})
+
 // Instantiate route handlers
 const postsHandlers = createPostsHandlers()
 const queueHandlers = createQueueHandlers()
 const mediaHandlers = createMediaHandlers()
 const toolsHandlers = createToolsHandlers()
+const syncHandlers = createSyncHandlers()
 
 // ============================================================
 // Content Routes - Posts
@@ -106,30 +131,50 @@ app.post('/v1/tools/validate/post', toolsHandlers.validatePost)
 app.post('/v1/tools/validate/media', toolsHandlers.validateMedia)
 app.post('/v1/tools/validate/subreddit', toolsHandlers.validateSubreddit)
 
-/**
- * Extract API key from Authorization header
- * Format: "Bearer sk_xxx"
- */
-function extractApiKey(c: any): string | null {
-  const auth = c.req.header('Authorization')
-  if (!auth) return null
-  if (auth.startsWith('Bearer ')) {
-    return auth.slice(7)
+// ============================================================
+// Content Routes - Sync (raw data for Convex)
+// ============================================================
+app.post('/v1/sync/posts', syncHandlers.posts)
+app.post('/v1/sync/accounts', syncHandlers.accounts)
+
+// ============================================================
+// Profiles & Accounts (needs auth)
+// ============================================================
+app.get('/v1/profiles', async (c) => {
+  const apiKey = c.get('userApiKey')
+  if (!apiKey) {
+    return c.json({ error: 'API key required' }, 401)
   }
-  return auth
-}
+  const baseUrl = c.env.API_BASE_URL || 'https://zernio.com/api'
+  const response = await fetch(`${baseUrl}/v1/profiles`, {
+    headers: { 'Authorization': `Bearer ${apiKey}` },
+  })
+  const data = await response.json().catch(() => ({}))
+  return c.json(data, response.status as any)
+})
+
+app.get('/v1/accounts', async (c) => {
+  const apiKey = c.get('userApiKey')
+  if (!apiKey) {
+    return c.json({ error: 'API key required' }, 401)
+  }
+  const baseUrl = c.env.API_BASE_URL || 'https://zernio.com/api'
+  const response = await fetch(`${baseUrl}/v1/accounts`, {
+    headers: { 'Authorization': `Bearer ${apiKey}` },
+  })
+  const data = await response.json().catch(() => ({}))
+  return c.json(data, response.status as any)
+})
 
 /**
  * Usage endpoint for validating API key
  * Called by frontend /api/validate-key route
- * NOTE: This must be defined BEFORE the /v1/* wildcard route
  */
 app.get('/v1/usage-stats', async (c) => {
-  const apiKey = extractApiKey(c)
-  const key = apiKey || process.env.ZERNIO_API_KEY
-  const baseUrl = process.env.API_BASE_URL || 'https://zernio.com/api'
+  const apiKey = c.get('userApiKey')
+  const baseUrl = c.env.API_BASE_URL || 'https://zernio.com/api'
 
-  if (!key) {
+  if (!apiKey) {
     return c.json({ error: 'API key required' }, 401)
   }
 
@@ -137,7 +182,7 @@ app.get('/v1/usage-stats', async (c) => {
     const targetUrl = new URL('v1/usage-stats', baseUrl.endsWith('/') ? baseUrl : baseUrl + '/')
     const response = await fetch(targetUrl.toString(), {
       headers: {
-        'Authorization': `Bearer ${key}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
     })
@@ -154,30 +199,25 @@ app.get('/v1/usage-stats', async (c) => {
 
 /**
  * Proxy /v1/* requests to Zernio API
- * Uses user's API key from Authorization header if provided,
- * otherwise falls back to server's ZERNIO_API_KEY
+ * Uses API key from X-API-Key header (sent by web app)
  */
 app.all('/v1/*', async (c) => {
-  const userApiKey = extractApiKey(c)
-  const apiKey = userApiKey || c.env.ZERNIO_API_KEY
+  const apiKey = c.get('userApiKey')
   const baseUrl = c.env.API_BASE_URL || 'https://zernio.com/api'
 
   if (!apiKey) {
-    return c.json({ error: 'API key required. Set ZERNIO_API_KEY or provide Authorization header.' }, 401)
+    return c.json({ error: 'API key required. Send via X-API-Key header or Bearer sk_xxx' }, 401)
   }
 
-  // Get the path after /v1
   const path = c.req.path.replace(/^\/v1/, '')
   const method = c.req.method
 
-  // Build query parameters
   const queryParams = new URLSearchParams()
   for (const [key, value] of Object.entries(c.req.query())) {
     queryParams.append(key, value)
   }
 
   try {
-    // Build target URL - ensure path is properly joined with baseUrl
     const cleanPath = path.replace(/^\//, '')
     const base = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'
     const targetUrl = new URL(`v1/${cleanPath}`, base)
@@ -185,8 +225,6 @@ app.all('/v1/*', async (c) => {
       targetUrl.search = queryParams.toString()
     }
 
-    // Make the request with user's API key
-    // Forward X-Connect-Token for headless OAuth selection endpoints
     const connectToken = c.req.header('X-Connect-Token')
     const response = await fetch(targetUrl.toString(), {
       method,
@@ -198,13 +236,11 @@ app.all('/v1/*', async (c) => {
       body: method !== 'GET' && method !== 'HEAD' ? await c.req.text() : undefined,
     })
 
-    // Safely parse JSON response
     const data = await response.json().catch(() => ({
       error: `Invalid response from server`,
       status: response.status,
     }))
 
-    // Return response with proper status code
     return c.json(data, response.status as any)
   } catch (error) {
     return c.json({

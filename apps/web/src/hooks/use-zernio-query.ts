@@ -7,10 +7,10 @@ async function fetchZernio<T>(
 	path: string,
 	options: RequestInit = {},
 ): Promise<T> {
-	const apiKey = useAuthStore.getState().apiKey;
+	const clerkToken = useAuthStore.getState().clerkToken;
 
-	if (!apiKey) {
-		throw new Error("API key not configured");
+	if (!clerkToken) {
+		throw new Error("Not authenticated");
 	}
 
 	const base = ZERNIO_BASE.endsWith("/") ? ZERNIO_BASE : `${ZERNIO_BASE}/`;
@@ -40,12 +40,12 @@ export function useZernioQuery<T>(
 		refetchInterval?: number;
 	},
 ) {
-	const apiKey = useAuthStore((s) => s.apiKey);
+	const clerkToken = useAuthStore((s) => s.clerkToken);
 
 	return useQuery<T>({
 		queryKey: ["zernio", path],
 		queryFn: () => fetchZernio<T>(path),
-		enabled: options?.enabled !== false && !!apiKey,
+		enabled: options?.enabled !== false && !!clerkToken,
 		refetchInterval: options?.refetchInterval ?? false,
 	});
 }

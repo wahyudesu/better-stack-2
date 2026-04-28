@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { Toaster } from "@/components/ui/sonner";
+import FeaturebaseMessenger from "@/components/featurebase-messenger";
 import "./globals.css";
 
 const baseUrl = "https://zenpost.in";
@@ -116,6 +117,7 @@ export default function RootLayout({
         <body className="antialiased">
           {children}
           <Toaster />
+          <FeaturebaseMessenger />
         </body>
       </html>
     </ClerkProvider>

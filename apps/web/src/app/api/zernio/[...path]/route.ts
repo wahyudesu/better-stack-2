@@ -31,6 +31,13 @@ async function proxyRequest(request: NextRequest, context: RouteContext) {
 	const { path } = await context.params;
 	const apiKey = useAuthStore.getState().apiKey;
 
+	if (!apiKey) {
+		return NextResponse.json(
+			{ error: "Not authenticated or API key not set" },
+			{ status: 401 },
+		);
+	}
+
 	const base = API_BASE_URL.endsWith("/") ? API_BASE_URL : `${API_BASE_URL}/`;
 	const targetPath = path.join("/");
 	const targetUrl = new URL(targetPath, base);
@@ -50,10 +57,8 @@ async function proxyRequest(request: NextRequest, context: RouteContext) {
 			...(body && { "Content-Length": String(body.length) }),
 		};
 
-		// Forward user's API key if set; otherwise server uses its own ZERNIO_API_KEY
-		if (apiKey) {
-			headers.Authorization = `Bearer ${apiKey}`;
-		}
+		// Forward API key
+		headers["X-API-Key"] = apiKey;
 
 		const response = await fetch(targetUrl.toString(), {
 			method: request.method,

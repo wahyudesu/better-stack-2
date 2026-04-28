@@ -69,7 +69,7 @@ export default function AboutPage() {
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="max-w-5xl mx-auto text-center">
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">
                 About ZenPost
               </h1>
@@ -87,7 +87,7 @@ export default function AboutPage() {
         {/* Stats Section */}
         <section className="py-16 border-b border-border">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {stats.map((stat) => (
                   <div key={stat.label} className="text-center">
@@ -105,7 +105,7 @@ export default function AboutPage() {
         {/* Our Story Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Our Story</h2>
                 <p className="text-muted-foreground">
@@ -130,7 +130,7 @@ export default function AboutPage() {
         {/* Values Section */}
         <section className="py-16 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Our Values</h2>
                 <p className="text-secondary-foreground/70">
@@ -158,7 +158,7 @@ export default function AboutPage() {
         {/* Team Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
                 <p className="text-muted-foreground">
@@ -187,7 +187,7 @@ export default function AboutPage() {
         {/* CTA Section */}
         <section className="py-16 bg-primary text-primary-foreground">
           <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto text-center">
+            <div className="max-w-5xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-4">
                 Mau Bergabung dengan Tim Kami?
               </h2>

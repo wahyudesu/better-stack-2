@@ -8,7 +8,7 @@ import { CreditCard, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useUsageStats } from "@/hooks/use-accounts";
+import { useUsageStats } from "@/hooks/use-usage";
 
 export function BillingTab() {
 	const { data: usageData, isLoading } = useUsageStats();

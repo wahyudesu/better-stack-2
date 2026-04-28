@@ -24,6 +24,7 @@ import {
 	Tag,
 	Twitter,
 	Users,
+	X,
 	Youtube,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -38,12 +39,14 @@ import {
 	GroupedDepthButton,
 } from "@/components/ui/depth-buttons";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	PlatformFilterDropdown,
 	type PlatformFilterValue,
 } from "@/components/ui/platform-filter";
 import {
 	getMockMessages,
+	type MockContact,
 	mockBroadcasts,
 	mockComments,
 	mockContacts,
@@ -53,7 +56,7 @@ import {
 } from "@/data/inbox-mock";
 import { api } from "@/lib/client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import { cn } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import { InboxAutomation } from "./InboxAutomation";
 
 // Server response shapes from Zernio API
@@ -305,22 +308,6 @@ function mapServerConversation(src: ServerConversation): Conversation {
 	};
 }
 
-// Format relative time string
-function formatRelativeTime(dateStr: string): string {
-	const date = new Date(dateStr);
-	const now = new Date();
-	const diffMs = now.getTime() - date.getTime();
-	const diffMins = Math.floor(diffMs / 60000);
-	const diffHours = Math.floor(diffMs / 3600000);
-	const diffDays = Math.floor(diffMs / 86400000);
-
-	if (diffMins < 1) return "Just now";
-	if (diffMins < 60) return `${diffMins}m ago`;
-	if (diffHours < 24) return `${diffHours}h ago`;
-	if (diffDays < 7) return `${diffDays}d ago`;
-	return date.toLocaleDateString();
-}
-
 export function InboxContent() {
 	const { gatedCallback } = useAuthGate();
 	const queryClient = useQueryClient();
@@ -448,11 +435,6 @@ export function InboxContent() {
 			id: "reviews",
 			label: "Reviews",
 			icon: <Star className="h-5 w-5" />,
-		},
-		{
-			id: "campaigns",
-			label: "Campaigns",
-			icon: <Briefcase className="h-5 w-5" />,
 		},
 		{
 			id: "contacts",
@@ -1062,11 +1044,9 @@ export function InboxContent() {
 
 			{activeTab === "reviews" && <ReviewsTab reviews={mockReviews} />}
 
-			{activeTab === "campaigns" && (
-				<CampaignsTab broadcasts={mockBroadcasts} />
+			{activeTab === "contacts" && (
+				<ContactsTab contacts={mockContacts as unknown as Contact[]} />
 			)}
-
-			{activeTab === "contacts" && <ContactsTab contacts={mockContacts} />}
 		</div>
 	);
 }
@@ -1091,12 +1071,31 @@ interface CommentsTabProps {
 
 function CommentsTab({ comments }: CommentsTabProps) {
 	const [platformFilter, setPlatformFilter] = useState<Platform>("all");
+	const [replyTarget, setReplyTarget] = useState<{
+		postId: string;
+		commentId: string;
+		platform: string;
+	} | null>(null);
+	const [replyText, setReplyText] = useState("");
+	const [isReplying, setIsReplying] = useState(false);
 
 	const filteredComments = comments.filter(
 		(c) => platformFilter === "all" || c.platform === platformFilter,
 	);
 
-	const platforms = ["all", ...new Set(comments.map((c) => c.platform))];
+	const handleReply = async () => {
+		if (!replyTarget || !replyText.trim()) return;
+		setIsReplying(true);
+		try {
+			await api.privateReply(replyTarget.postId, replyTarget.commentId, {
+				text: replyText,
+			});
+			setReplyTarget(null);
+			setReplyText("");
+		} finally {
+			setIsReplying(false);
+		}
+	};
 
 	return (
 		<div className="space-y-4">
@@ -1107,13 +1106,55 @@ function CommentsTab({ comments }: CommentsTabProps) {
 				/>
 			</div>
 
+			{replyTarget && (
+				<Card className="border-border/50 p-4 space-y-3">
+					<div className="flex items-center justify-between">
+						<span className="text-sm font-medium">Reply Comment</span>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-7 w-7"
+							onClick={() => {
+								setReplyTarget(null);
+								setReplyText("");
+							}}
+						>
+							<X className="h-4 w-4" />
+						</Button>
+					</div>
+					<Textarea
+						placeholder="Write your reply..."
+						value={replyText}
+						onChange={(e) => setReplyText(e.target.value)}
+						className="min-h-[80px] resize-none"
+					/>
+					<div className="flex gap-2">
+						<Button
+							onClick={handleReply}
+							disabled={!replyText.trim() || isReplying}
+						>
+							{isReplying ? "Sending..." : "Send Reply"}
+						</Button>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setReplyTarget(null);
+								setReplyText("");
+							}}
+						>
+							Cancel
+						</Button>
+					</div>
+				</Card>
+			)}
+
 			{filteredComments.length === 0 ? (
 				<Card className="border-border/50 p-8 text-center">
 					<MessageSquare className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
 					<p className="text-muted-foreground">No comments found</p>
 				</Card>
 			) : (
-				<div className="space-y-3">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 					{filteredComments.map((post) => {
 						const config = getPlatformConfig(post.platform);
 						const Icon = config.icon;
@@ -1153,6 +1194,20 @@ function CommentsTab({ comments }: CommentsTabProps) {
 												{post.likeCount}
 											</span>
 										</div>
+										<Button
+											variant="outline"
+											size="sm"
+											className="mt-2 h-7 text-xs"
+											onClick={() =>
+												setReplyTarget({
+													postId: post.id,
+													commentId: post.id,
+													platform: post.platform,
+												})
+											}
+										>
+											Reply
+										</Button>
 									</div>
 								</div>
 							</Card>
@@ -1478,25 +1533,27 @@ function CampaignsTab({ broadcasts }: CampaignsTabProps) {
 // CONTACTS TAB
 // ============================================================
 
-interface ContactsTabProps {
-	contacts: Array<{
-		id: string;
-		name: string;
-		email: string;
-		company: string;
-		avatarUrl: string;
-		tags: string[];
-		notes: string;
-		platform: string;
-		isSubscribed: boolean;
-		lastMessageSentAt: string | null;
-		messagesSentCount: number;
-	}>;
+interface Contact {
+	id: string;
+	name: string;
+	email: string;
+	company: string;
+	avatarUrl: string;
+	tags: string[];
+	notes: string;
+	platform: string;
+	isSubscribed: boolean;
+	lastMessageSentAt: string | null;
+	messagesSentCount: number;
 }
 
-function ContactsTab({ contacts }: ContactsTabProps) {
+function ContactsTab({ contacts: initialContacts }: { contacts: Contact[] }) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [tagFilter, setTagFilter] = useState<string | null>(null);
+	const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+	const [editingContact, setEditingContact] = useState<Contact | null>(null);
+	const [showForm, setShowForm] = useState(false);
+	const [formData, setFormData] = useState<Partial<Contact>>({});
 
 	const allTags = useMemo(() => {
 		const tags = new Set<string>();
@@ -1512,6 +1569,56 @@ function ContactsTab({ contacts }: ContactsTabProps) {
 		const matchesTag = !tagFilter || c.tags.includes(tagFilter);
 		return matchesSearch && matchesTag;
 	});
+
+	const handleSave = () => {
+		if (!formData.name) return;
+
+		if (editingContact) {
+			// Update existing
+			setContacts((prev) =>
+				prev.map((c) =>
+					c.id === editingContact.id ? ({ ...c, ...formData } as Contact) : c,
+				),
+			);
+		} else {
+			// Create new
+			const newContact: Contact = {
+				id: `contact_${Date.now()}`,
+				name: formData.name || "",
+				email: formData.email || "",
+				company: formData.company || "",
+				avatarUrl:
+					formData.avatarUrl || `https://i.pravatar.cc/150?u=${Date.now()}`,
+				tags: formData.tags || [],
+				notes: formData.notes || "",
+				platform: formData.platform || "instagram",
+				isSubscribed: true,
+				lastMessageSentAt: null,
+				messagesSentCount: 0,
+			};
+			setContacts((prev) => [newContact, ...prev]);
+		}
+		setShowForm(false);
+		setEditingContact(null);
+		setFormData({});
+	};
+
+	const handleEdit = (contact: Contact) => {
+		setEditingContact(contact);
+		setFormData(contact);
+		setShowForm(true);
+	};
+
+	const handleDelete = (id: string) => {
+		if (!confirm("Delete this contact?")) return;
+		setContacts((prev) => prev.filter((c) => c.id !== id));
+	};
+
+	const handleAddNew = () => {
+		setEditingContact(null);
+		setFormData({ platform: "instagram", tags: [] });
+		setShowForm(true);
+	};
 
 	return (
 		<div className="space-y-4">
@@ -1548,7 +1655,92 @@ function ContactsTab({ contacts }: ContactsTabProps) {
 						</GroupedDepthButton>
 					))}
 				</DepthButtonGroup>
+				<Button onClick={() => setShowForm(!showForm)} size="sm">
+					{showForm ? "Close" : "+ Add Contact"}
+				</Button>
 			</div>
+
+			{/* Contact Form Modal */}
+			{showForm && (
+				<Card className="border-border/50 p-4 space-y-3">
+					<h3 className="font-semibold">
+						{editingContact ? "Edit Contact" : "New Contact"}
+					</h3>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+						<Input
+							placeholder="Name"
+							value={formData.name || ""}
+							onChange={(e) =>
+								setFormData({ ...formData, name: e.target.value })
+							}
+						/>
+						<Input
+							placeholder="Email"
+							value={formData.email || ""}
+							onChange={(e) =>
+								setFormData({ ...formData, email: e.target.value })
+							}
+						/>
+						<Input
+							placeholder="Company"
+							value={formData.company || ""}
+							onChange={(e) =>
+								setFormData({ ...formData, company: e.target.value })
+							}
+						/>
+						<DepthButtonMenu
+							value={formData.platform || "instagram"}
+							onChange={(v) =>
+								setFormData({ ...formData, platform: v || "instagram" })
+							}
+							options={[
+								{ value: "instagram", label: "Instagram" },
+								{ value: "twitter", label: "Twitter" },
+								{ value: "facebook", label: "Facebook" },
+								{ value: "telegram", label: "Telegram" },
+								{ value: "whatsapp", label: "WhatsApp" },
+							]}
+							placeholder="Platform"
+							size="default"
+						/>
+					</div>
+					<Input
+						placeholder="Tags (comma separated)"
+						value={formData.tags?.join(", ") || ""}
+						onChange={(e) =>
+							setFormData({
+								...formData,
+								tags: e.target.value
+									.split(",")
+									.map((t) => t.trim())
+									.filter(Boolean),
+							})
+						}
+					/>
+					<Input
+						placeholder="Notes"
+						value={formData.notes || ""}
+						onChange={(e) =>
+							setFormData({ ...formData, notes: e.target.value })
+						}
+					/>
+					<div className="flex gap-2">
+						<Button onClick={handleSave}>
+							{editingContact ? "Save" : "Create"}
+						</Button>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setShowForm(false);
+								setEditingContact(null);
+								setFormData({});
+							}}
+						>
+							Cancel
+						</Button>
+					</div>
+				</Card>
+			)}
 
 			{filteredContacts.length === 0 ? (
 				<Card className="border-border/50 p-8 text-center">
@@ -1601,12 +1793,38 @@ function ContactsTab({ contacts }: ContactsTabProps) {
 											))}
 										</div>
 									</div>
+									<Button
+										variant="ghost"
+										size="icon"
+										className="h-7 w-7 shrink-0"
+										onClick={() => handleEdit(contact)}
+									>
+										<MoreVertical className="h-4 w-4" />
+									</Button>
 								</div>
 								{contact.notes && (
 									<p className="text-xs text-muted-foreground mt-2 line-clamp-2 bg-muted/50 rounded px-2 py-1">
 										{contact.notes}
 									</p>
 								)}
+								<div className="flex gap-1 mt-2 pt-2 border-t border-border/30">
+									<Button
+										variant="ghost"
+										size="sm"
+										className="h-7 text-xs"
+										onClick={() => handleEdit(contact)}
+									>
+										Edit
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										className="h-7 text-xs text-destructive"
+										onClick={() => handleDelete(contact.id)}
+									>
+										Delete
+									</Button>
+								</div>
 							</Card>
 						);
 					})}

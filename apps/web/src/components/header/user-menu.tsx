@@ -1,15 +1,9 @@
 "use client";
 
+import { useClerk } from "@clerk/nextjs";
+import { FileText, LifeBuoy, LogOut, MessageSquare, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { User, FileText, LifeBuoy, MessageSquare, LogOut } from "lucide-react";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -20,8 +14,14 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useClerk } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface UserMenuProps {
 	avatarSrc?: string;
@@ -36,7 +36,9 @@ const secondaryItems = [
 	{ id: "contact", label: "Contact", icon: MessageSquare, href: "/contact" },
 ];
 
-export function UserMenu({ avatarSrc = "https://i.pravatar.cc/150?u=admin" }: UserMenuProps) {
+export function UserMenu({
+	avatarSrc = "https://i.pravatar.cc/150?u=admin",
+}: UserMenuProps) {
 	const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 	const router = useRouter();
 	const { openUserProfile, signOut: clerkSignOut } = useClerk();
@@ -45,7 +47,9 @@ export function UserMenu({ avatarSrc = "https://i.pravatar.cc/150?u=admin" }: Us
 		clerkSignOut(() => router.push("/"));
 	};
 
-	const handleMenuItemClick = (item: (typeof menuItems)[number] | (typeof secondaryItems)[number]) => {
+	const handleMenuItemClick = (
+		item: (typeof menuItems)[number] | (typeof secondaryItems)[number],
+	) => {
 		if ("action" in item && item.action === "userProfile") {
 			openUserProfile();
 		} else if ("href" in item) {
@@ -95,10 +99,7 @@ export function UserMenu({ avatarSrc = "https://i.pravatar.cc/150?u=admin" }: Us
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			<AlertDialog
-				open={logoutDialogOpen}
-				onOpenChange={setLogoutDialogOpen}
-			>
+			<AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Logout?</AlertDialogTitle>

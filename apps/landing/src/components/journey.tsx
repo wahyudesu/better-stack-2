@@ -80,9 +80,9 @@ export function Journey() {
   return (
     <section className="py-24">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-5xl mx-auto mb-16">
             <span className="text-primary font-medium text-sm uppercase tracking-wider">
               Customer Journey
             </span>

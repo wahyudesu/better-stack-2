@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useConvexAuth, useMutation as useConvexMutation } from "convex/react";
+import { api as convexApi } from "@/convex/_generated/api";
 import { api } from "@/lib/client";
 import { useCurrentProfileId } from "./use-profiles";
 
@@ -240,5 +242,136 @@ export function usePostLogs(postId: string) {
 			return data;
 		},
 		enabled: !!postId,
+	});
+}
+
+/**
+ * Hook to sync posts from the server and update Convex storage
+ * Call this on app load or when you want to refresh post data
+ */
+export function useSyncPosts() {
+	const queryClient = useQueryClient();
+	const { isAuthenticated } = useConvexAuth();
+	const internalSyncPosts = useConvexMutation(convexApi.data.syncPosts);
+
+	return useMutation({
+		mutationFn: async (params?: { profileId?: string; since?: string }) => {
+			if (!isAuthenticated) {
+				throw new Error("Not authenticated");
+			}
+			// Fetch raw posts from Zernio via server
+			const { data, error } = await api.syncPosts(params);
+			if (error) throw error;
+
+			const posts = data?.posts ?? [];
+			if (posts.length === 0) {
+				return { synced: 0, errors: [] };
+			}
+
+			// Transform Zernio posts to Convex format
+			// The internalSyncPosts expects: { posts: [...] }
+			const convexPosts = posts.map((post: any) => ({
+				_id: post._id,
+				text: post.text || post.content || "",
+				profileId: post.profileId || "",
+				socialAccountIds: post.socialAccountIds || [], // Convex will resolve these
+				scheduledAt: post.scheduledAt
+					? new Date(post.scheduledAt).getTime()
+					: undefined,
+				publishedAt: post.publishedAt
+					? new Date(post.publishedAt).getTime()
+					: undefined,
+				media: (post.media || post.mediaItems || []).map(
+					(m: any) => m.url || m,
+				),
+				status: post.status || "draft",
+				createdAt: post.createdAt
+					? new Date(post.createdAt).getTime()
+					: Date.now(),
+				updatedAt: post.updatedAt
+					? new Date(post.updatedAt).getTime()
+					: Date.now(),
+			}));
+
+			// Batch sync - send all posts at once
+			try {
+				await internalSyncPosts({ posts: convexPosts });
+			} catch (err) {
+				return {
+					synced: 0,
+					errors: [
+						`Batch sync failed: ${err instanceof Error ? err.message : String(err)}`,
+					],
+				};
+			}
+
+			return { synced: posts.length, errors: [] };
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: postKeys.all });
+		},
+	});
+}
+
+/**
+ * Hook to sync accounts from the server and update Convex storage
+ */
+export function useSyncAccounts() {
+	const queryClient = useQueryClient();
+	const { isAuthenticated } = useConvexAuth();
+	const internalSyncAccounts = useConvexMutation(
+		convexApi.data.syncAccounts,
+	);
+
+	return useMutation({
+		mutationFn: async (params?: { profileId?: string }) => {
+			if (!isAuthenticated) {
+				throw new Error("Not authenticated");
+			}
+			// Fetch raw accounts from Zernio via server
+			const { data, error } = await api.syncAccounts(params);
+			if (error) throw error;
+
+			const accounts = data?.accounts ?? [];
+			if (accounts.length === 0) {
+				return { synced: 0, errors: [] };
+			}
+
+			// Transform Zernio accounts to Convex format
+			const convexAccounts = accounts.map((account: any) => ({
+				_id: account._id,
+				platform: account.platform,
+				username: account.username || "",
+				displayName: account.displayName || account.username || "",
+				isActive: account.isActive ?? true,
+				profilePicture:
+					account.profilePicture || account.avatarUrl || undefined,
+				profileId: account.profileId || "",
+				createdAt: account.createdAt
+					? new Date(account.createdAt).getTime()
+					: Date.now(),
+				updatedAt: account.updatedAt
+					? new Date(account.updatedAt).getTime()
+					: Date.now(),
+			}));
+
+			// Batch sync - send all accounts at once
+			// Note: internalSyncAccounts requires userId as well
+			try {
+				await internalSyncAccounts({ accounts: convexAccounts });
+			} catch (err) {
+				return {
+					synced: 0,
+					errors: [
+						`Batch sync failed: ${err instanceof Error ? err.message : String(err)}`,
+					],
+				};
+			}
+
+			return { synced: accounts.length, errors: [] };
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["socialAccounts"] });
+		},
 	});
 }

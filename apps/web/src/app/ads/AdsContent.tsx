@@ -1,13 +1,12 @@
 "use client";
 
-import { Briefcase, LayoutDashboard, Megaphone, Users } from "lucide-react";
+import { Bot, Briefcase, LayoutDashboard, Users } from "lucide-react";
 import { useState } from "react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { AdsAudiences } from "./AdsAudiences";
 import { AdsCampaigns } from "./AdsCampaigns";
-import { AdsList } from "./AdsList";
 import { AdsOverview } from "./AdsOverview";
 
 const tabs = [
@@ -21,8 +20,11 @@ const tabs = [
 		label: "Campaigns",
 		icon: <Briefcase className="h-5 w-5" />,
 	},
-	{ id: "ads", label: "Ads", icon: <Megaphone className="h-5 w-5" /> },
-	{ id: "audiences", label: "Audiences", icon: <Users className="h-5 w-5" /> },
+	{
+		id: "audiences",
+		label: "Audiences",
+		icon: <Users className="h-5 w-5" />,
+	},
 ];
 
 const platformOptions = [
@@ -71,8 +73,8 @@ export function AdsContent() {
 				className="mb-6"
 			/>
 
-			{/* Filter bar — shown on Campaigns, Ads tabs */}
-			{(activeTab === "campaigns" || activeTab === "ads") && (
+			{/* Filter bar — shown only on Campaigns tab */}
+			{activeTab === "campaigns" && (
 				<div className="flex items-center gap-2 mb-4">
 					<DepthButtonMenu
 						value={platformFilter}
@@ -95,9 +97,6 @@ export function AdsContent() {
 			{activeTab === "overview" && <AdsOverview />}
 			{activeTab === "campaigns" && (
 				<AdsCampaigns platform={platformFilter} status={statusFilter} />
-			)}
-			{activeTab === "ads" && (
-				<AdsList platform={platformFilter} status={statusFilter} />
 			)}
 			{activeTab === "audiences" && <AdsAudiences />}
 		</div>

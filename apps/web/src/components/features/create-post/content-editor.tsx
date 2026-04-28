@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { PostMedia } from "@/lib/types/social";
@@ -22,6 +22,7 @@ export function ContentEditor({
 	maxChars = 2200,
 }: ContentEditorProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [isDragging, setIsDragging] = useState(false);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
@@ -42,8 +43,55 @@ export function ContentEditor({
 		onMediaChange(updated);
 	};
 
+	const handleDragOver = (e: React.DragEvent) => {
+		if (e.dataTransfer.types.includes("Files")) {
+			e.preventDefault();
+		}
+	};
+
+	const handleDragEnter = (e: React.DragEvent) => {
+		if (e.dataTransfer.types.includes("Files")) {
+			e.preventDefault();
+			setIsDragging(true);
+		}
+	};
+
+	const handleDragLeave = (e: React.DragEvent) => {
+		if (e.dataTransfer.types.includes("Files")) {
+			e.preventDefault();
+			const related = e.relatedTarget as HTMLElement | null;
+			if (!related || !e.currentTarget.contains(related)) {
+				setIsDragging(false);
+			}
+		}
+	};
+
+	const handleDrop = (e: React.DragEvent) => {
+		if (e.dataTransfer.types.includes("Files")) {
+			e.preventDefault();
+			setIsDragging(false);
+
+			const files = e.dataTransfer.files;
+			if (files && files.length > 0) {
+				const newMedia: PostMedia[] = Array.from(files).map((file) => ({
+					url: URL.createObjectURL(file),
+					type: file.type.startsWith("video") ? "video" : "image",
+					alt: file.name,
+				}));
+
+				onMediaChange([...media, ...newMedia]);
+			}
+		}
+	};
+
 	return (
-		<div className="space-y-3">
+		<div
+			className="space-y-3"
+			onDragOver={handleDragOver}
+			onDragEnter={handleDragEnter}
+			onDragLeave={handleDragLeave}
+			onDrop={handleDrop}
+		>
 			<div className="flex items-center justify-between">
 				<span className="text-sm font-medium">content</span>
 				<span className="text-xs text-muted-foreground">
@@ -54,7 +102,9 @@ export function ContentEditor({
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				placeholder="Write your post content..."
-				className="min-h-[120px] resize-none"
+				className={`min-h-[120px] resize-none transition-colors ${
+					isDragging ? "border-primary border-dashed bg-primary/5" : ""
+				}`}
 			/>
 			<input
 				type="file"

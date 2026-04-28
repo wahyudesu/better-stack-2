@@ -1,4 +1,4 @@
-# Dashboard - Agent Guidelines
+# Dashboard - Main Analytics Dashboard
 
 Main analytics dashboard with stats cards, audience insights, and chart visualizations.
 
@@ -55,7 +55,7 @@ Charts use `@visx` library with composable children pattern:
 - Analytics from Zernio API via `apps/server`
 - Social media metrics from connected profiles
 - Mock data from `/lib/data/analytics-data.ts`
-- Format utilities from `/lib/metrics`
+- Format utilities from `/lib/metrics.ts`
 
 ## Before Making Changes
 

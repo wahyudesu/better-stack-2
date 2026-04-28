@@ -11,11 +11,13 @@ type FetchOptions = {
 
 export function createFetchFromHono(c: Context) {
 	return async function fetchFromHono<T>(path: string, options: FetchOptions = {}): Promise<T> {
-		const apiKey = (c.env as any)?.ZERNIO_API_KEY || process.env.ZERNIO_API_KEY
+		// Use apiKey from auth middleware context (set via Clerk JWT validation + Convex lookup)
+		// Fall back to env var only for routes that bypass auth middleware
+		const apiKey = c.get('userApiKey') || (c.env as any)?.ZERNIO_API_KEY || process.env.ZERNIO_API_KEY
 		const baseUrl = (c.env as any)?.API_BASE_URL || process.env.API_BASE_URL || 'https://zernio.com/api'
 
 		if (!apiKey) {
-			throw new Error('API key required')
+			throw new Error('API key required. Authenticate via Clerk JWT.')
 		}
 
 		const url = new URL(path, baseUrl.endsWith('/') ? baseUrl : baseUrl + '/')

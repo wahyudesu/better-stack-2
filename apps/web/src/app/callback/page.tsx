@@ -10,13 +10,13 @@ type CallbackStep = "processing" | "success" | "error";
 function CallbackContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const { apiKey } = useAuthStore();
+	const clerkToken = useAuthStore((s) => s.clerkToken);
 
 	const [step, setStep] = useState<CallbackStep>("processing");
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (!apiKey) {
+		if (!clerkToken) {
 			router.push("/");
 			return;
 		}
@@ -65,7 +65,7 @@ function CallbackContent() {
 		};
 
 		handleCallback();
-	}, [apiKey, router, searchParams]);
+	}, [clerkToken, router, searchParams]);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background p-4">

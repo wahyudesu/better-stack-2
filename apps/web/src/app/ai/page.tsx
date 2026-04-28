@@ -11,7 +11,7 @@ export default function AIChatPage() {
 			<div className="mb-4">
 				<h1 className="font-display text-2xl font-bold tracking-tight flex items-center gap-2">
 					<MessageSquareIcon className="h-6 w-6 text-primary" />
-					AI Social Script Generator
+					AI Content Analysis
 				</h1>
 			</div>
 			<div className="h-[calc(100vh-220px)] min-h-[500px]">

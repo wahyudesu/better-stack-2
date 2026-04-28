@@ -1,13 +1,15 @@
 # Apps Landing - Agent Guidelines
 
-Marketing landing page for better-stack-2 social media dashboard.
+Marketing landing page for Better Stack 2 social media dashboard.
 
 ## Tech Stack
 
-- Next.js 16 App Router
-- Tailwind CSS v4
-- Motion (Framer Motion) for animations
-- Cloudflare Workers via OpenNext
+- **Framework**: Next.js 16.1.5 + React 19
+- **Styling**: Tailwind CSS v4
+- **Testing**: Vitest + Playwright
+- **Animation**: Motion (Framer Motion)
+- **Deployment**: Cloudflare Workers via OpenNext
+- **Analytics**: PostHog for product analytics
 
 ## Product Identity
 
@@ -27,7 +29,7 @@ Marketing landing page for better-stack-2 social media dashboard.
 
 ## Design Guidelines
 
-- Use existing design tokens from `@better-stack-2/ui`
+- Use design tokens from `@zenpost/ui`
 - Mobile-first responsive design
 - Keep simple and fast-loading
 - Use `motion` for subtle animations
@@ -61,6 +63,8 @@ pnpm run dev          # Start dev server
 pnpm run build        # Build for production
 pnpm run deploy       # Deploy to Cloudflare
 pnpm run preview      # Build + preview locally
+pnpm run test         # Vitest unit tests
+pnpm run test:e2e     # Playwright e2e tests
 ```
 
 ## Goals

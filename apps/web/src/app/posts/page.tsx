@@ -31,8 +31,8 @@ import type { CalendarPlatform } from "@/data/mock";
 import {
 	useDeletePost,
 	useEditPost,
-	usePosts,
 	useRetryPost,
+	useSyncPosts,
 	useUnpublishPost,
 	useUpdatePost,
 } from "@/hooks/use-posts";
@@ -40,6 +40,7 @@ import { useCurrentProfileId, useProfiles } from "@/hooks/use-profiles";
 import type { Post } from "@/lib/client";
 import { api } from "@/lib/client";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
+import { api as convexApi, useQuery } from "@/lib/convex-client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 
 // CalendarEvent interface
@@ -139,26 +140,53 @@ export default function PostsPage() {
 		setCurrentDate(new Date());
 	}, []);
 
-	// Ensure profiles are loaded first
-	const { data: profilesData } = useProfiles();
-	const profileId = useCurrentProfileId();
+	// Sync posts from Zernio on mount
+	const { mutateAsync: syncPosts, isPending: isSyncing } = useSyncPosts();
 
-	// Fetch posts from server
-	const { data: postsData, isLoading } = usePosts(profileId);
-	const serverEvents = useMemo(() => {
-		if (!postsData?.posts) return [];
-		return postsData.posts.map(postToCalendarEvent);
-	}, [postsData]);
-
-	// Use server events, fallback to empty array
-	const [events, setEvents] = useState<CalendarEvent[]>([]);
-
-	// Update events when server data loads
+	// Sync on mount to get latest from Zernio
 	useEffect(() => {
-		if (serverEvents.length > 0) {
-			setEvents(serverEvents);
-		}
-	}, [serverEvents]);
+		syncPosts({}).catch(console.error);
+	}, []);
+
+	// Fetch local Convex posts (already synced from Zernio)
+	const convexPosts = useQuery(convexApi.data.listPosts, {});
+
+	// Convert Convex posts to CalendarEvent format
+	const localEvents = useMemo(() => {
+		if (!convexPosts) return [];
+		return convexPosts.map((post: any) => {
+			const targetDate = post.scheduledAt
+				? new Date(post.scheduledAt)
+				: post.publishedAt
+					? new Date(post.publishedAt)
+					: new Date(post.createdAt);
+
+			const date = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
+			const time = `${String(targetDate.getHours()).padStart(2, "0")}:${String(targetDate.getMinutes()).padStart(2, "0")}`;
+
+			return {
+				id: post._id,
+				title: post.text.slice(0, 50) + (post.text.length > 50 ? "..." : ""),
+				date,
+				platform: "instagram" as CalendarPlatform, // TODO: derive from accountIds
+				platforms: [] as CalendarPlatform[],
+				type: "post" as const,
+				time,
+				description: post.text,
+				status:
+					post.status === "published"
+						? ("published" as const)
+						: post.status === "scheduled"
+							? ("scheduled" as const)
+							: post.status === "failed"
+								? ("failed" as const)
+								: ("draft" as const),
+				color: "328 70% 55%",
+				thumbnail: post.mediaUrls?.[0],
+				mediaType: undefined,
+			};
+		});
+	}, [convexPosts]);
 
 	const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
 	const [selectedPlatform, setSelectedPlatform] = useState<Platform | "all">(
@@ -200,8 +228,8 @@ export default function PostsPage() {
 	const filteredEvents = useMemo(() => {
 		let result =
 			selectedPlatform === "all"
-				? events
-				: events.filter(
+				? localEvents
+				: localEvents.filter(
 						(e) => e.platform === (selectedPlatform as CalendarPlatform),
 					);
 
@@ -212,7 +240,7 @@ export default function PostsPage() {
 		}
 
 		return result;
-	}, [events, selectedPlatform, postStatus]);
+	}, [localEvents, selectedPlatform, postStatus]);
 
 	const eventsByDate = useMemo(() => {
 		const map: Record<string, CalendarEvent[]> = {};
@@ -259,11 +287,6 @@ export default function PostsPage() {
 				{ postId: draggedEvent.id, scheduledAt: newScheduledAt },
 				{
 					onSuccess: () => {
-						setEvents((prev) =>
-							prev.map((ev) =>
-								ev.id === draggedEvent.id ? { ...ev, date: targetDate } : ev,
-							),
-						);
 						toast.success("Post rescheduled");
 					},
 					onError: (err) => {
@@ -306,7 +329,6 @@ export default function PostsPage() {
 			deletePost(event.id, {
 				onSuccess: () => {
 					toast.success("Post deleted");
-					setEvents((prev) => prev.filter((e) => e.id !== event.id));
 				},
 				onError: (err) => {
 					toast.error(`Failed to delete: ${err.message}`);
@@ -323,11 +345,6 @@ export default function PostsPage() {
 			unpublishPost(event.id, {
 				onSuccess: () => {
 					toast.success("Post unpublished");
-					setEvents((prev) =>
-						prev.map((e) =>
-							e.id === event.id ? { ...e, status: "cancelled" as const } : e,
-						),
-					);
 				},
 				onError: (err) => {
 					toast.error(`Failed to unpublish: ${err.message}`);
@@ -343,11 +360,6 @@ export default function PostsPage() {
 			retryPost(event.id, {
 				onSuccess: () => {
 					toast.success("Post retry queued");
-					setEvents((prev) =>
-						prev.map((e) =>
-							e.id === event.id ? { ...e, status: "scheduled" as const } : e,
-						),
-					);
 				},
 				onError: (err) => {
 					toast.error(`Failed to retry: ${err.message}`);
@@ -392,7 +404,6 @@ export default function PostsPage() {
 		deletePost(selectedEvent.id, {
 			onSuccess: () => {
 				toast.success("Post deleted");
-				setEvents((prev) => prev.filter((e) => e.id !== selectedEvent.id));
 				setDeleteModalOpen(false);
 				setSelectedEvent(null);
 			},
@@ -407,13 +418,6 @@ export default function PostsPage() {
 		unpublishPost(selectedEvent.id, {
 			onSuccess: () => {
 				toast.success("Post unpublished");
-				setEvents((prev) =>
-					prev.map((e) =>
-						e.id === selectedEvent.id
-							? { ...e, status: "cancelled" as const }
-							: e,
-					),
-				);
 				setUnpublishModalOpen(false);
 				setSelectedEvent(null);
 			},
@@ -464,7 +468,7 @@ export default function PostsPage() {
 				<div className="">
 					<h1 className="text-2xl font-bold tracking-tight">Posts</h1>
 					<p className="text-sm text-muted-foreground">
-						{isLoading ? "Loading..." : "Manage & schedule your content"}
+						{isSyncing ? "Syncing..." : "Manage & schedule your content"}
 					</p>
 				</div>
 				<DepthButton

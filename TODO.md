@@ -1,24 +1,33 @@
-[social media post]
+# server
+[op]
+
+# web
+ 
+[post]
 - perbaiki ui new post nya terlebih dahulu
 - pastikan new posts terintrgeasi ke server sehinga bisa upload konten darisana
 
+[dashboard]
+- cukup pake mock data
+
 [analytics]
-- posts analytics nya sesuaikan mas
+- nanti deh
 
-[all]
-- aku ingin kamu mengecek dengan baik data yang ada di server aku dalam plan untuk menyesuaikan data dari server ke web, modifikasi data dummy nya dulu, supaya nanti mudah intergasinya 
+[ads]
+- cukup pake mock data
 
+[inbox]
+- cukup pake mock data
 
-yang ada di server karena mau aku sesuaikan dengan di froted sesuaian data yna dulu sebleum nanti supaya siap untuk dimigrasi 
+[settings]
+- beberapa sudah terintegrasi
 
-aku ingin kamu mengecek dengan biak data yang ada di server, aku dalam plan untuk me
+# landing
 
 [MARKETING IDEAS]
-- free tools linkedin preview, TOFU
-- puluhan hooks untuk threads
-
+- free tools: linkedin preview, personal branding  
+- blogs:puluhan hooks untuk threads
 
 halo aku wahyu founder dari zenpost.in, social media  schedule let me know jika ada yang bisa aku bantu
-
 
 jenis label nya TOFU, MOFU, BOFU

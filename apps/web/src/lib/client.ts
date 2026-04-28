@@ -14,7 +14,7 @@ async function fetchApi<T>(
 	const apiKey = useAuthStore.getState().apiKey;
 
 	if (!apiKey) {
-		return { data: null, error: "Not authenticated" };
+		return { data: null, error: "Not authenticated or API key not set" };
 	}
 
 	try {
@@ -22,7 +22,7 @@ async function fetchApi<T>(
 			...options,
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
+				"X-API-Key": apiKey,
 				...options.headers,
 			},
 		});
@@ -797,4 +797,10 @@ export const api = {
 		http.post<any>("/v1/tools/validate/media", data),
 	validateSubreddit: (data: { subreddit: string }) =>
 		http.post<any>("/v1/tools/validate/subreddit", data),
+
+	// Sync endpoints - called by Convex background sync
+	syncPosts: (params?: { profileId?: string; since?: string }) =>
+		http.post<{ posts: any[] }>("/v1/sync/posts", params ?? {}),
+	syncAccounts: (params?: { profileId?: string }) =>
+		http.post<{ accounts: any[] }>("/v1/sync/accounts", params ?? {}),
 };

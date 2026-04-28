@@ -1,6 +1,6 @@
 # Apps Server - Agent Guidelines
 
-Server components using Hono + Cloudflare Workers. Integrates with Zernio API for social media features.
+Hono + Cloudflare Workers server components. Integrates with Zernio API for social media features.
 
 ## Zernio API Integration
 
@@ -22,10 +22,17 @@ Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube, Pinterest, Reddit, Blue
 ```bash
 cd apps/server
 pnpm install
-pnpm run dev          # Start dev server
-pnpm run build        # Production build
-pnpm run deploy       # Deploy to Cloudflare
+pnpm run dev          # Start dev server (wrangler dev)
+pnpm run build        # Production build (tsdown)
+pnpm run deploy       # Deploy to Cloudflare Workers
 ```
+
+## Tech Stack
+
+- **Framework**: Hono
+- **Runtime**: Cloudflare Workers via `@opennextjs/cloudflare`
+- **API Client**: Zernio API (`https://zernio.com/api/v1`)
+- **Auth**: `Authorization: Bearer YOUR_API_KEY`
 
 ## Project Structure
 

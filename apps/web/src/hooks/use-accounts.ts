@@ -117,17 +117,3 @@ export function useAccountsByPlatform(profileId?: string) {
 
 	return { data: accountsByPlatform, accounts: data?.accounts, ...rest };
 }
-
-/**
- * Hook to fetch usage stats
- */
-export function useUsageStats() {
-	return useQuery({
-		queryKey: ["usage", "stats"],
-		queryFn: async () => {
-			const { data, error } = await api.getUsageStats();
-			if (error) throw error;
-			return data;
-		},
-	});
-}

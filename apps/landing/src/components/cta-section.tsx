@@ -8,7 +8,7 @@ export function CtaSection() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<section className="py-16 px-4">
+		<section className="py-16 px-4 bg-muted">
 			<div className="max-w-xl mx-auto text-center">
 				<h2 className="text-2xl sm:text-3xl font-bold mb-3">
 					Join waitlist &amp; get early access

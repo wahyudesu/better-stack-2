@@ -4,6 +4,8 @@
 
 "use client";
 
+import { useClerk, useUser } from "@clerk/nextjs";
+import { useMutation } from "convex/react";
 import {
 	AlertCircle,
 	CheckCircle2,
@@ -17,26 +19,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/convex/_generated/api";
+import { useUserApiKey } from "@/hooks/use-user-api-key";
 import { useAuthStore } from "@/stores";
 import type { UsageStats } from "@/stores/auth-store";
-import { useUser, useClerk } from "@clerk/nextjs";
 
 export function AccountTab() {
 	const { user, isLoaded } = useUser();
 	const { openUserProfile } = useClerk();
-	const {
-		apiKey,
-		setApiKey,
-		setUsageStats,
-		setIsValidating,
-		isValidating,
-		error,
-		setError,
-		hasHydrated,
-	} = useAuthStore();
+	const { setUsageStats, setIsValidating, isValidating, error, setError } =
+		useAuthStore();
+	const upsertApiKeyMutation = useMutation((api as any).users.upsertApiKey);
+	const { apiKey, isLoading: isLoadingApiKey } = useUserApiKey();
 	const [apiKeyInput, setApiKeyInput] = useState("");
 
-	const fullName = user?.fullName ?? user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ?? "";
+	const fullName =
+		user?.fullName ??
+		user?.firstName ??
+		user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ??
+		"";
 	const [jobTitle] = useState("User");
 	const [originalFullName] = useState(fullName);
 	const [originalJobTitle] = useState("User");
@@ -92,7 +93,10 @@ export function AccountTab() {
 							className="relative group cursor-pointer"
 						>
 							<Avatar className="size-16 ring-2 ring-border group-hover:ring-primary transition-all">
-								<AvatarImage src={isLoaded ? user?.imageUrl : undefined} alt={user?.fullName ?? "Profile"} />
+								<AvatarImage
+									src={isLoaded ? user?.imageUrl : undefined}
+									alt={user?.fullName ?? "Profile"}
+								/>
 								<AvatarFallback>{getInitials()}</AvatarFallback>
 							</Avatar>
 							<div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -217,7 +221,12 @@ export function AccountTab() {
 						<p className="text-sm font-semibold">Zernio API Key</p>
 					</div>
 
-					{apiKey && hasHydrated ? (
+					{isLoadingApiKey ? (
+						<div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+							<Loader2 className="h-4 w-4 animate-spin" />
+							Loading...
+						</div>
+					) : typeof apiKey === "string" && apiKey.length > 0 ? (
 						<div className="space-y-3">
 							<div className="flex items-center gap-2 p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20">
 								<CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
@@ -241,8 +250,8 @@ export function AccountTab() {
 								<Button
 									variant="destructive"
 									size="sm"
-									onClick={() => {
-										setApiKey(null);
+									onClick={async () => {
+										await upsertApiKeyMutation({ apiKey: null });
 										setUsageStats(null);
 										setError(null);
 									}}
@@ -314,7 +323,7 @@ export function AccountTab() {
 										const data = (await response.json()) as {
 											data?: UsageStats;
 										};
-										setApiKey(apiKeyInput.trim());
+										await upsertApiKeyMutation({ apiKey: apiKeyInput.trim() });
 										setUsageStats(data?.data ?? null);
 										setApiKeyInput("");
 									} catch (err) {

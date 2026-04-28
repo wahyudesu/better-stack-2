@@ -27,9 +27,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-	PlatformFilter,
+	PlatformFilterDropdown as PlatformFilter,
 	type PlatformFilterValue,
-} from "@/components/ui/filter-select";
+} from "@/components/ui/platform-filter";
 import { cn } from "@/lib/utils";
 
 const metricOptions = [

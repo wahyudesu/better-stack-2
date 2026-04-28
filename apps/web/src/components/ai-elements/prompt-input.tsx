@@ -422,7 +422,7 @@ export const PromptInputActionAddAttachments = ({
 
 	const handleSelect: typeof props.onSelect = useCallback(
 		(e: unknown) => {
-			if (e && typeof e === 'object' && 'preventDefault' in e) {
+			if (e && typeof e === "object" && "preventDefault" in e) {
 				(e as Event).preventDefault();
 			}
 			attachments.openFileDialog();
@@ -453,7 +453,7 @@ export const PromptInputActionAddScreenshot = ({
 	const handleSelect = useCallback(
 		async (event: unknown) => {
 			onSelect?.(event as Parameters<typeof onSelect>[0]);
-			if (event && typeof event === 'object' && 'defaultPrevented' in event) {
+			if (event && typeof event === "object" && "defaultPrevented" in event) {
 				if ((event as Event).defaultPrevented) {
 					return;
 				}

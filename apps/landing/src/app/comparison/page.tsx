@@ -94,7 +94,7 @@ export default function ComparisonPage() {
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="max-w-5xl mx-auto text-center">
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">
                 Manual vs ZenPost
               </h1>
@@ -116,7 +116,7 @@ export default function ComparisonPage() {
         {/* Time Savings */}
         <section className="py-16 border-b border-border">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="max-w-5xl mx-auto text-center">
               <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl p-8 md:p-12">
                 <h2 className="text-5xl font-bold text-primary mb-4">
                   3-5 Jam
@@ -132,7 +132,7 @@ export default function ComparisonPage() {
         {/* Comparison Rows */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Masalah vs Solusi</h2>
                 <p className="text-muted-foreground">
@@ -186,7 +186,7 @@ export default function ComparisonPage() {
         {/* Features Comparison Table */}
         <section className="py-16 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Fitur Comparison</h2>
                 <p className="text-secondary-foreground/70">
@@ -248,7 +248,7 @@ export default function ComparisonPage() {
         {/* Testimonial */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 md:p-12 text-center">
                 <div className="text-5xl mb-6">💬</div>
                 <blockquote className="text-xl md:text-2xl font-medium mb-6">

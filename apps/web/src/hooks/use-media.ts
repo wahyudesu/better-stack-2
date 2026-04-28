@@ -95,7 +95,7 @@ export function useMediaUploadDirect() {
 				{
 					method: "POST",
 					headers: {
-						Authorization: `Bearer ${useAuthStore.getState().apiKey}`,
+						Authorization: `Bearer ${useAuthStore.getState().clerkToken}`,
 					},
 					body: formData,
 				},

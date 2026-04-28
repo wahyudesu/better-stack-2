@@ -1,7 +1,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { FAQ } from "@/components/faq";
-import { Button } from "@/components/ui/button";
 import { Mail, FileText, MessageCircle } from "lucide-react";
 
 const contactOptions = [
@@ -37,7 +36,7 @@ export default function ContactPage() {
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="max-w-5xl mx-auto text-center">
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">Contact</h1>
               <p className="text-xl text-secondary-foreground/70 mb-8">
                 Questions about setup, billing, privacy, or anything else? We&apos;re happy to help.
@@ -49,7 +48,7 @@ export default function ContactPage() {
         {/* Contact Options */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="grid md:grid-cols-3 gap-6">
                 {contactOptions.map((option) => (
                   <a

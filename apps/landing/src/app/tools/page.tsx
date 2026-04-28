@@ -65,6 +65,20 @@ export default function ToolsPage() {
             </div>
           </div>
         ))}
+
+        <div className="rounded-xl border border-dashed p-6 text-center">
+          <p className="text-muted-foreground mb-3">
+            Butuh tool lain yang belum ada?
+          </p>
+          <Link
+            href="https://tally.so/r/3lDEb9"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            Request Tool Baru
+          </Link>
+        </div>
       </div>
     </div>
   );

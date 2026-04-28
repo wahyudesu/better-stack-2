@@ -10,7 +10,7 @@ export default function PrivacyPage() {
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="max-w-5xl mx-auto text-center">
               <h1 className="text-4xl sm:text-5xl font-bold mb-4">
                 Privacy Policy
               </h1>
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         {/* Content */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <div className="bg-card border border-border rounded-xl p-8 md:p-12">
                 <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
                 <p className="text-muted-foreground mb-6">
