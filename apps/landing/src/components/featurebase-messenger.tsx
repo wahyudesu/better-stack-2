@@ -14,7 +14,7 @@ const FeaturebaseMessenger = () => {
 
     if (typeof win.Featurebase !== "function") {
       win.Featurebase = function () {
-        (win.Featurebase.q = win.Featurebase.q || []).push(arguments);
+        (win.Featurebase!.q = win.Featurebase!.q || []).push(arguments);
       };
     }
 
