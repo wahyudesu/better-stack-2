@@ -87,8 +87,13 @@ zenpost/
 - `cd apps/web && pnpm run desktop:build` - Build Tauri desktop app
 
 ```
-pnpm dlx @opennextjs/cloudflare build && npx convex deploy && pnpm dlx @opennextjs/cloudflare deploy
+pnpm dlx @opennextjs/cloudflare build && npx convex deploy --cmd-CONVEX_DEPLOY_KEY prod:trustworthy-basilisk-416|eyJ2MiI6IjczNDY4ZTBlMGNiZTQ3Mjg5NDVjNTkwNjNiNjc1ZjQ1In0= && pnpm dlx @opennextjs/cloudflare deploy
 ```
+
+```
+npx convex deploy --cmd-CONVEX_DEPLOY_KEY prod:trustworthy-basilisk-416|eyJ2MiI6IjczNDY4ZTBlMGNiZTQ3Mjg5NDVjNTkwNjNiNjc1ZjQ1In0= --cmd 'pnpm dlx @opennextjs/cloudflare build && pnpm dlx @opennextjs/cloudflare deploy'
+```
+
 ```
 pnpm dlx @opennextjs/cloudflare build && pnpm dlx @opennextjs/cloudflare deploy
 ```

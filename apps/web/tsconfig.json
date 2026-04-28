@@ -32,8 +32,7 @@
 			"@/convex/*": ["./convex/*"],
 			"@zenpost/ui/*": ["../../packages/ui/src/*"]
 		},
-		"types": ["@cloudflare/workers-types"]
-	},
+			},
 	"include": [
 		"next-env.d.ts",
 		"**/*.ts",

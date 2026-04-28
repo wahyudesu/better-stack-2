@@ -2,6 +2,12 @@
 import { useEffect } from "react";
 import Script from "next/script";
 
+declare global {
+  interface Window {
+    Featurebase?: (...args: unknown[]) => void;
+  }
+}
+
 const FeaturebaseMessenger = () => {
   useEffect(() => {
     const win = window;
