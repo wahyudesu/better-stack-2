@@ -10,5 +10,18 @@
 		"not_found_handling": "none",
 		"html_handling": "auto-trailing-slash",
 		"run_worker_first": false
-	}
+	},
+	"observability": {
+    "enabled": true,
+  },
+  "routes": [
+    {
+      "pattern": "zenpost.wahyuikbal.com",
+      "custom_domain": true,
+    },
+    {
+      "pattern": "www.zenpost.wahyuikbal.com",
+      "zone_name": "wahyuikbal.com",
+    },
+  ],
 }
