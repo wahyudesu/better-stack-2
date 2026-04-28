@@ -162,7 +162,10 @@ export const syncPosts = mutation({
 				}
 			}
 
-			if (!userId) continue;
+			if (!userId) {
+				console.warn(`syncPosts: skipped post ${post._id} — no matching social account`);
+				continue;
+			}
 
 			// Upsert: check if post with this externalPostId exists
 			const existing = await ctx.db
@@ -250,8 +253,8 @@ export const syncAccounts = mutation({
 // --- Social Accounts ---
 
 export const listByUser = query({
-	args: {},
-	handler: async (ctx) => {
+	args: { limit: v.optional(v.number()) },
+	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) return [];
 		const user = await ctx.db
@@ -262,7 +265,7 @@ export const listByUser = query({
 		return await ctx.db
 			.query("socialAccounts")
 			.withIndex("by_userId", (q) => q.eq("userId", user._id))
-			.collect();
+			.take(args.limit ?? 50);
 	},
 });
 
@@ -350,7 +353,7 @@ export const removeSocialAccount = mutation({
 // --- Posts ---
 
 export const listPosts = query({
-	args: { status: v.optional(v.string()) },
+	args: { status: v.optional(v.string()), limit: v.optional(v.number()) },
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) return [];
@@ -363,7 +366,7 @@ export const listPosts = query({
 		let posts = await ctx.db
 			.query("posts")
 			.withIndex("by_userId", (q) => q.eq("userId", user._id))
-			.collect();
+			.take(args.limit ?? 100);
 
 		if (args.status) {
 			posts = posts.filter((p) => p.status === args.status);
@@ -494,8 +497,8 @@ export const deletePost = mutation({
 });
 
 export const getScheduledPosts = query({
-	args: {},
-	handler: async (ctx) => {
+	args: { limit: v.optional(v.number()) },
+	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) return [];
 		const user = await ctx.db
@@ -505,23 +508,22 @@ export const getScheduledPosts = query({
 		if (!user) return [];
 
 		const now = Date.now();
-		return await ctx.db
+		const allPosts = await ctx.db
 			.query("posts")
-			.withIndex("by_status", (q) => q.eq("status", "scheduled"))
-			.collect()
-			.then((posts) =>
-				posts.filter(
-					(p) => p.userId === user._id && p.scheduledAt && p.scheduledAt <= now,
-				),
-			);
+			.withIndex("by_scheduledAt", (q) => q.lt("scheduledAt", now + 1))
+			.take(args.limit ?? 50);
+
+		return allPosts
+			.filter((p) => p.userId === user._id && p.status === "scheduled")
+			.sort((a, b) => (a.scheduledAt! - b.scheduledAt!));
 	},
 });
 
 // --- Media ---
 
 export const listMedia = query({
-	args: {},
-	handler: async (ctx) => {
+	args: { limit: v.optional(v.number()) },
+	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) return [];
 		const user = await ctx.db
@@ -533,7 +535,7 @@ export const listMedia = query({
 		return await ctx.db
 			.query("media")
 			.withIndex("by_userId", (q) => q.eq("userId", user._id))
-			.collect();
+			.take(args.limit ?? 50);
 	},
 });
 
