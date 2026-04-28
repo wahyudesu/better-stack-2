@@ -4,7 +4,10 @@ import Script from "next/script";
 
 declare global {
   interface Window {
-    Featurebase?: (...args: unknown[]) => void;
+    Featurebase?: {
+      (...args: unknown[]): void;
+      q?: unknown[];
+    };
   }
 }
 
