@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { Scalar } from '@scalar/hono-api-reference'
+import { createClerkClient } from '@clerk/backend'
 
 import { createPostsHandlers } from './routes/handlers/posts'
 import { createQueueHandlers } from './routes/handlers/queue'
@@ -9,11 +10,17 @@ import { createMediaHandlers } from './routes/handlers/media'
 import { createToolsHandlers } from './routes/handlers/tools'
 import { createSyncHandlers } from './routes/handlers/sync'
 
+// Clerk client for JWT verification and user metadata lookup
+const clerk = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+})
+
 // Cloudflare Worker environment bindings
 export interface Env {
   ZERNIO_API_KEY: string
   API_BASE_URL?: string
   ASSETS: { fetch: typeof fetch }
+  CLERK_SECRET_KEY?: string
 }
 
 // Create Hono app with Worker types
@@ -51,11 +58,11 @@ app.get('/zernio-api-openapi.yaml', async (c) => {
 app.use('/docs', Scalar({ url: '/zernio-api-openapi.yaml' }))
 
 // ============================================================
-// Auth Middleware - Read API key from header
-// Web reads apiKey from Convex and sends it via X-API-Key header
+// Auth Middleware - Clerk JWT validation + metadata lookup
+// Validates Clerk session token and extracts API key from user publicMetadata
 // ============================================================
 app.use('/v1/*', async (c, next) => {
-  // Check for apiKey in X-API-Key header (sent by web after reading from Convex)
+  // Check for API key in X-API-Key header (direct Zernio API key passthrough)
   const apiKeyHeader = c.req.header('X-API-Key')
   if (apiKeyHeader) {
     c.set('userApiKey', apiKeyHeader)
@@ -68,6 +75,39 @@ app.use('/v1/*', async (c, next) => {
   const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
   if (bearerToken?.startsWith('sk_')) {
     c.set('userApiKey', bearerToken)
+    await next()
+    return
+  }
+
+  // Clerk session token - verify JWT and get API key from user metadata
+  if (bearerToken) {
+    const tokenToVerify = bearerToken
+
+    // Verify Clerk JWT
+    const { data, error } = await clerk.verifyToken(tokenToVerify, {
+      audience: 'convex' as any,
+    })
+
+    if (!error && data) {
+      const userId = data.sub
+
+      // Get API key from Clerk user publicMetadata
+      try {
+        const user = await clerk.users.getUser(userId)
+        const apiKey = user.publicMetadata?.apiKey as string | undefined
+
+        if (apiKey) {
+          c.set('userApiKey', apiKey)
+          c.set('userId', userId)
+          await next()
+          return
+        }
+      } catch (err) {
+        console.error('Failed to fetch Clerk user metadata:', err)
+      }
+    }
+
+    return c.json({ error: 'Invalid Clerk token or API key not found in metadata' }, 401)
   }
 
   await next()

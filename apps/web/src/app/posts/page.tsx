@@ -31,16 +31,16 @@ import type { CalendarPlatform } from "@/data/mock";
 import {
 	useDeletePost,
 	useEditPost,
+	usePosts,
 	useRetryPost,
 	useSyncPosts,
 	useUnpublishPost,
 	useUpdatePost,
 } from "@/hooks/use-posts";
-import { useCurrentProfileId, useProfiles } from "@/hooks/use-profiles";
+import { useProfiles } from "@/hooks/use-profiles";
 import type { Post } from "@/lib/client";
 import { api } from "@/lib/client";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
-import { api as convexApi, useQuery } from "@/lib/convex-client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 
 // CalendarEvent interface
@@ -148,45 +148,15 @@ export default function PostsPage() {
 		syncPosts({}).catch(console.error);
 	}, []);
 
-	// Fetch local Convex posts (already synced from Zernio)
-	const convexPosts = useQuery(convexApi.data.listPosts, {});
+	// Fetch posts from TanStack Query
+	const { data: postsData } = usePosts();
+	const posts = postsData?.posts ?? [];
 
-	// Convert Convex posts to CalendarEvent format
+	// Convert posts to CalendarEvent format
 	const localEvents = useMemo(() => {
-		if (!convexPosts) return [];
-		return convexPosts.map((post: any) => {
-			const targetDate = post.scheduledAt
-				? new Date(post.scheduledAt)
-				: post.publishedAt
-					? new Date(post.publishedAt)
-					: new Date(post.createdAt);
-
-			const date = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
-			const time = `${String(targetDate.getHours()).padStart(2, "0")}:${String(targetDate.getMinutes()).padStart(2, "0")}`;
-
-			return {
-				id: post._id,
-				title: post.text.slice(0, 50) + (post.text.length > 50 ? "..." : ""),
-				date,
-				platform: "instagram" as CalendarPlatform, // TODO: derive from accountIds
-				platforms: [] as CalendarPlatform[],
-				type: "post" as const,
-				time,
-				description: post.text,
-				status:
-					post.status === "published"
-						? ("published" as const)
-						: post.status === "scheduled"
-							? ("scheduled" as const)
-							: post.status === "failed"
-								? ("failed" as const)
-								: ("draft" as const),
-				color: "328 70% 55%",
-				thumbnail: post.mediaUrls?.[0],
-				mediaType: undefined,
-			};
-		});
-	}, [convexPosts]);
+		if (!posts || posts.length === 0) return [];
+		return posts.map((post) => postToCalendarEvent(post));
+	}, [posts]);
 
 	const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
 	const [selectedPlatform, setSelectedPlatform] = useState<Platform | "all">(

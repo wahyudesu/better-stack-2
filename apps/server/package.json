@@ -11,6 +11,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
+    "@clerk/backend": "^1.27.0",
     "@cloudflare/workers-types": "catalog:",
     "@hono/node-server": "^1.14.4",
     "@scalar/hono-api-reference": "^0.10.9",

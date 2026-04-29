@@ -1,24 +1,20 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@zenpost/ui/components/sonner";
-import { useConvexAuth } from "convex/react";
 import { useState } from "react";
 
 import { useClerkTokenSync } from "@/hooks/use-clerk-token-sync";
-import { useEnsureUser } from "@/hooks/use-ensure-user";
-import { useUserApiKey } from "@/hooks/use-user-api-key";
 import { AuthGateProvider } from "./auth/AuthGateContext";
 import { ThemeProvider } from "./theme-provider";
 
 function ProvidersWithAuth({ children }: { children: React.ReactNode }) {
-	const { isAuthenticated, isLoading } = useConvexAuth();
-	useEnsureUser();
+	const { isLoaded, isSignedIn } = useAuth();
 	useClerkTokenSync();
-	useUserApiKey(); // Sync API key from Convex to auth store for all consumers
 
 	return (
-		<AuthGateProvider isSignedIn={!!isAuthenticated && !isLoading}>
+		<AuthGateProvider isSignedIn={!!isSignedIn && isLoaded}>
 			{children}
 		</AuthGateProvider>
 	);

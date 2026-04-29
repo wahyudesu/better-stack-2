@@ -39,11 +39,11 @@ import {
 	GroupedDepthButton,
 } from "@/components/ui/depth-buttons";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	PlatformFilterDropdown,
 	type PlatformFilterValue,
 } from "@/components/ui/platform-filter";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	getMockMessages,
 	type MockContact,

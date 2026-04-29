@@ -59,7 +59,7 @@ interface WebhookItem {
 }
 
 export function WebhooksTab() {
-	const apiKey = useAuthStore((s) => s.apiKey);
+	const clerkToken = useAuthStore((s) => s.clerkToken);
 	const { data, isLoading, error } = useWebhookSettings();
 	const updateWebhook = useUpdateWebhook();
 	const deleteWebhook = useDeleteWebhook();
@@ -133,15 +133,15 @@ export function WebhooksTab() {
 		);
 	};
 
-	if (!apiKey) {
+	if (!clerkToken) {
 		return (
 			<div className="flex flex-col gap-6">
 				<Card>
 					<CardContent className="text-center">
 						<AlertCircle className="size-8 mx-auto mb-3 text-muted-foreground" />
-						<p className="text-sm font-medium">API Key Not Connected</p>
+						<p className="text-sm font-medium">Not Signed In</p>
 						<p className="text-xs text-muted-foreground mt-1">
-							Connect your API key in Settings &gt; Account to manage webhooks
+							Sign in to manage webhooks
 						</p>
 					</CardContent>
 				</Card>

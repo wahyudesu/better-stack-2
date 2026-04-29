@@ -4,7 +4,6 @@
 
 "use client";
 
-import { useMutation } from "convex/react";
 import {
 	AlertCircle,
 	CheckCircle2,
@@ -18,18 +17,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { api } from "@/convex/_generated/api";
-import { useUserApiKey } from "@/hooks/use-user-api-key";
 import { useAuthStore } from "@/stores";
 import type { UsageStats } from "@/stores/auth-store";
 
 export function SecurityTab() {
-	const { setUsageStats, setIsValidating, isValidating } = useAuthStore();
+	const { setUsageStats, setIsValidating, isValidating, usageStats } =
+		useAuthStore();
 	const [apiKeyInput, setApiKeyInput] = useState("");
 	const [error, setLocalError] = useState<string | null>(null);
 
-	const { apiKey, isLoading } = useUserApiKey();
-	const upsertApiKeyMutation = useMutation((api as any).users.upsertApiKey);
+	const apiKey = usageStats ? "connected" : null;
+	const isLoading = false;
 
 	const maskedKey =
 		typeof apiKey === "string" && apiKey.length > 0
@@ -66,8 +64,6 @@ export function SecurityTab() {
 
 			const data = (await response.json()) as { data?: UsageStats };
 			setUsageStats(data?.data ?? null);
-
-			await upsertApiKeyMutation({ apiKey: apiKeyInput.trim() });
 			setApiKeyInput("");
 		} catch (err) {
 			setLocalError(
@@ -79,7 +75,6 @@ export function SecurityTab() {
 	};
 
 	const handleDisconnect = async () => {
-		await upsertApiKeyMutation({ apiKey: null });
 		setUsageStats(null);
 		setLocalError(null);
 	};

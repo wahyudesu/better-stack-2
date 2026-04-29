@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageSquareIcon } from "lucide-react";
+import { Suspense } from "react";
 import { AIChat } from "@/components/ai-elements/chat";
 import { useAuthGate } from "@/components/auth";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
@@ -15,7 +16,9 @@ export default function AIChatPage() {
 				</h1>
 			</div>
 			<div className="h-[calc(100vh-220px)] min-h-[500px]">
-				<AIChat />
+				<Suspense fallback={<div className="animate-pulse h-full bg-muted rounded-lg" />}>
+					<AIChat />
+				</Suspense>
 			</div>
 		</div>
 	);

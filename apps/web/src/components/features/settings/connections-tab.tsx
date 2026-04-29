@@ -14,7 +14,7 @@ import {
 	useDeleteAccount,
 } from "@/hooks/use-accounts";
 import { useCurrentProfileId } from "@/hooks/use-profiles";
-import { useUserApiKey } from "@/hooks/use-user-api-key";
+import { useAuthStore } from "@/stores";
 import "react-social-icons/instagram";
 import "react-social-icons/tiktok";
 import "react-social-icons/x";
@@ -127,7 +127,8 @@ const getPlatformConfig = (platform: string) => {
 
 export function ConnectionsTab() {
 	const profileId = useCurrentProfileId();
-	const { apiKey } = useUserApiKey();
+	const { usageStats } = useAuthStore();
+	const apiKey = usageStats ? "connected" : null;
 
 	const {
 		data: accountsData,

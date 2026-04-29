@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { AccountSelector } from "@/components/features/create-post/account-selector";
@@ -10,7 +10,6 @@ import { ScheduledDateTime } from "@/components/features/create-post/scheduled-d
 import { SocialPreview } from "@/components/features/create-post/social-preview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { api as convexApi } from "@/convex/_generated/api";
 import type { ApiResponse, Post } from "@/lib/client";
 import { api as clientApi } from "@/lib/client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
@@ -37,19 +36,22 @@ export default function CreatePostPage() {
 		useState<ProfilePlatform>("instagram");
 	const [maxChars, setMaxChars] = useState(2200);
 
-	// Get accounts from Convex directly
-	const convexAccounts = useQuery(convexApi.data.listByUser, {});
-	const accounts = convexAccounts ?? [];
+	// Get accounts from TanStack Query
+	const { data: accountsData } = useQuery({
+		queryKey: ["accounts"],
+		queryFn: () => clientApi.getAccounts(),
+	});
+	const accounts = accountsData?.data?.accounts ?? [];
 
-	// Transform Convex accounts to SocialMediaProfile format
+	// Transform accounts to SocialMediaProfile format
 	const profiles: SocialMediaProfile[] = accounts.map((a) => ({
 		id: a._id,
 		platform: a.platform as ProfilePlatform,
-		name: a.accountName,
-		username: a.accountName,
-		avatarUrl: a.avatarUrl,
-		status: a.status,
-		connectedAt: new Date(a.connectedAt),
+		name: a.displayName || a.username,
+		username: a.username,
+		avatarUrl: a.profilePicture,
+		status: a.isActive ? "active" : "disconnected",
+		connectedAt: new Date(a.createdAt),
 	}));
 
 	const selectedAccounts = profiles.filter((a) =>

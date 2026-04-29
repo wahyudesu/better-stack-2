@@ -14,13 +14,11 @@ export interface UsageStats {
 }
 
 interface AuthState {
-	apiKey: string | null;
 	clerkToken: string | null;
 	usageStats: UsageStats | null;
 	isValidating: boolean;
 	error: string | null;
 	hasHydrated: boolean;
-	setApiKey: (key: string | null) => void;
 	setClerkToken: (token: string | null) => void;
 	setUsageStats: (stats: UsageStats | null) => void;
 	setIsValidating: (validating: boolean) => void;
@@ -32,13 +30,11 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
 	persist(
 		(set) => ({
-			apiKey: null,
 			clerkToken: null,
 			usageStats: null,
 			isValidating: false,
 			error: null,
 			hasHydrated: false,
-			setApiKey: (key) => set({ apiKey: key, error: null }),
 			setClerkToken: (token) => set({ clerkToken: token, error: null }),
 			setUsageStats: (stats) => set({ usageStats: stats }),
 			setIsValidating: (validating) => set({ isValidating: validating }),
@@ -46,7 +42,6 @@ export const useAuthStore = create<AuthState>()(
 			setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
 			logout: () =>
 				set({
-					apiKey: null,
 					clerkToken: null,
 					usageStats: null,
 					error: null,
@@ -55,7 +50,7 @@ export const useAuthStore = create<AuthState>()(
 		{
 			name: "betterstack-auth",
 			partialize: (state) => ({
-				// Don't persist apiKey or clerkToken - they should only be in memory
+				// Don't persist clerkToken - should only be in memory
 				usageStats: state.usageStats,
 			}),
 			onRehydrateStorage: () => (state) => {

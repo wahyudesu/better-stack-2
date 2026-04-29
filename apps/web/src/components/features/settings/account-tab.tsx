@@ -5,7 +5,6 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
-import { useMutation } from "convex/react";
 import {
 	AlertCircle,
 	CheckCircle2,
@@ -19,18 +18,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api } from "@/convex/_generated/api";
-import { useUserApiKey } from "@/hooks/use-user-api-key";
 import { useAuthStore } from "@/stores";
 import type { UsageStats } from "@/stores/auth-store";
 
 export function AccountTab() {
 	const { user, isLoaded } = useUser();
 	const { openUserProfile } = useClerk();
-	const { setUsageStats, setIsValidating, isValidating, error, setError } =
-		useAuthStore();
-	const upsertApiKeyMutation = useMutation((api as any).users.upsertApiKey);
-	const { apiKey, isLoading: isLoadingApiKey } = useUserApiKey();
+	const {
+		setUsageStats,
+		setIsValidating,
+		isValidating,
+		error,
+		setError,
+		usageStats,
+	} = useAuthStore();
 	const [apiKeyInput, setApiKeyInput] = useState("");
 
 	const fullName =
@@ -70,9 +71,8 @@ export function AccountTab() {
 		return "U";
 	};
 
-	const maskedKey = apiKey
-		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
-		: "";
+	const isApiKeyConnected = usageStats !== null;
+	const isLoadingApiKey = isValidating;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -226,32 +226,19 @@ export function AccountTab() {
 							<Loader2 className="h-4 w-4 animate-spin" />
 							Loading...
 						</div>
-					) : typeof apiKey === "string" && apiKey.length > 0 ? (
+					) : isApiKeyConnected ? (
 						<div className="space-y-3">
 							<div className="flex items-center gap-2 p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20">
 								<CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
 								<span className="text-sm text-emerald-600 dark:text-emerald-400">
 									Connected
 								</span>
-								<span className="text-sm text-muted-foreground font-mono ml-auto">
-									{maskedKey}
-								</span>
 							</div>
 							<div className="flex gap-2">
 								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => {
-										navigator.clipboard.writeText(apiKey);
-									}}
-								>
-									Copy
-								</Button>
-								<Button
 									variant="destructive"
 									size="sm"
-									onClick={async () => {
-										await upsertApiKeyMutation({ apiKey: null });
+									onClick={() => {
 										setUsageStats(null);
 										setError(null);
 									}}
@@ -323,7 +310,6 @@ export function AccountTab() {
 										const data = (await response.json()) as {
 											data?: UsageStats;
 										};
-										await upsertApiKeyMutation({ apiKey: apiKeyInput.trim() });
 										setUsageStats(data?.data ?? null);
 										setApiKeyInput("");
 									} catch (err) {

@@ -11,10 +11,10 @@ async function fetchApi<T>(
 	path: string,
 	options: RequestInit = {},
 ): Promise<ApiResponse<T>> {
-	const apiKey = useAuthStore.getState().apiKey;
+	const clerkToken = useAuthStore.getState().clerkToken;
 
-	if (!apiKey) {
-		return { data: null, error: "Not authenticated or API key not set" };
+	if (!clerkToken) {
+		return { data: null, error: "Not authenticated or token not set" };
 	}
 
 	try {
@@ -22,7 +22,7 @@ async function fetchApi<T>(
 			...options,
 			headers: {
 				"Content-Type": "application/json",
-				"X-API-Key": apiKey,
+				Authorization: `Bearer ${clerkToken}`,
 				...options.headers,
 			},
 		});

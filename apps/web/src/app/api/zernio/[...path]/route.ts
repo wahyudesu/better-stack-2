@@ -29,11 +29,11 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
 async function proxyRequest(request: NextRequest, context: RouteContext) {
 	const { path } = await context.params;
-	const apiKey = useAuthStore.getState().apiKey;
+	const clerkToken = useAuthStore.getState().clerkToken;
 
-	if (!apiKey) {
+	if (!clerkToken) {
 		return NextResponse.json(
-			{ error: "Not authenticated or API key not set" },
+			{ error: "Not authenticated or Clerk token not set" },
 			{ status: 401 },
 		);
 	}
@@ -57,8 +57,8 @@ async function proxyRequest(request: NextRequest, context: RouteContext) {
 			...(body && { "Content-Length": String(body.length) }),
 		};
 
-		// Forward API key
-		headers["X-API-Key"] = apiKey;
+		// Forward Clerk token as Bearer token - server will validate and extract API key
+		headers["Authorization"] = `Bearer ${clerkToken}`;
 
 		const response = await fetch(targetUrl.toString(), {
 			method: request.method,
