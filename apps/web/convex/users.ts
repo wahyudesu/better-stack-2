@@ -6,7 +6,11 @@ export const ensureUser = mutation({
 	args: {},
 	handler: async (ctx) => {
 		const identity = await ctx.auth.getUserIdentity();
-		if (!identity) throw new Error("Not authenticated");
+		console.log("[DEBUG ensureUser] identity:", identity);
+		if (!identity) {
+			console.log("[DEBUG ensureUser] NO IDENTITY - throwing");
+			throw new Error("Not authenticated");
+		}
 		const tokenIdentifier = identity.tokenIdentifier;
 		const email = identity.email ?? "";
 		const displayName = identity.name ?? "";
@@ -16,6 +20,8 @@ export const ensureUser = mutation({
 			.query("users")
 			.withIndex("by_clerkId", (q) => q.eq("clerkId", tokenIdentifier))
 			.unique();
+
+		console.log("[DEBUG ensureUser] existing:", existing);
 
 		if (existing) {
 			// Update existing user info
