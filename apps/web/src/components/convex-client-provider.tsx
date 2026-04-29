@@ -3,25 +3,18 @@
 import { useAuth } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { type ReactNode, Suspense, useState } from "react";
-
-let convexClient: ConvexReactClient | null = null;
-
-function getConvexClient() {
-	const url = process.env.NEXT_PUBLIC_CONVEX_URL;
-	if (!url) return null;
-	if (!convexClient) {
-		convexClient = new ConvexReactClient(url);
-	}
-	return convexClient;
-}
+import { type ReactNode, Suspense, useMemo } from "react";
 
 export default function ConvexClientProvider({
 	children,
 }: {
 	children: ReactNode;
 }) {
-	const [convex] = useState(() => getConvexClient());
+	const convex = useMemo(() => {
+		const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+		if (!url) return null;
+		return new ConvexReactClient(url);
+	}, []);
 	if (!convex) {
 		return (
 			<div className="flex size-full items-center justify-center">

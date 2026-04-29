@@ -9,17 +9,22 @@ import { api } from "@/convex/_generated/api";
  * Creates/updates user record with Clerk identity info.
  */
 export function useEnsureUser() {
-	const { isAuthenticated } = useConvexAuth();
+	const { isAuthenticated, isLoading } = useConvexAuth();
 	const ensureUser = useMutation(api.users.ensureUser);
 
-	useEffect(() => {
-		if (!isAuthenticated) return;
+	console.log("[DEBUG useEnsureUser] isAuthenticated:", isAuthenticated, "isLoading:", isLoading);
 
-		// Call ensureUser mutation to create/update user record
-		ensureUser({}).catch((err) => {
-			console.error("[ensureUser] Failed:", err);
-		});
-	}, [isAuthenticated, ensureUser]);
+	useEffect(() => {
+		console.log("[DEBUG useEnsureUser] useEffect firing", { isAuthenticated, isLoading });
+		if (!isAuthenticated) {
+			console.log("[DEBUG useEnsureUser] skipping - not authenticated");
+			return;
+		}
+
+		console.log("[DEBUG useEnsureUser] calling ensureUser mutation...");
+		ensureUser({}).then(() => console.log("[DEBUG ensureUser] mutation success"))
+			.catch((err) => console.error("[ensureUser] Failed:", err));
+	}, [isAuthenticated, isLoading, ensureUser]);
 }
 
 // Component version for use in providers
