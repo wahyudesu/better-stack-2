@@ -15,6 +15,7 @@ export default function ConvexClientProvider({
 		if (!url) return null;
 		return new ConvexReactClient(url);
 	}, []);
+
 	if (!convex) {
 		return (
 			<div className="flex size-full items-center justify-center">
@@ -22,6 +23,7 @@ export default function ConvexClientProvider({
 			</div>
 		);
 	}
+
 	return (
 		<Suspense
 			fallback={
