@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/client";
+import { useAuthStore } from "@/stores";
 
 export type PlanTier = "free" | "starter" | "pro" | "enterprise";
 
@@ -39,6 +40,18 @@ export function usePlanGate() {
 	return useQuery({
 		queryKey: ["plan-gate"],
 		queryFn: async (): Promise<PlanInfo> => {
+			// Return default plan when token not ready yet
+			if (!useAuthStore.getState().clerkToken) {
+				return {
+					tier: "free",
+					hasInboxAddon: false,
+					inboxStatus: "unknown",
+					usage: { uploads: 0, profiles: 0 },
+					limits: { uploads: 0, profiles: 0 },
+					planName: "Unknown",
+				};
+			}
+
 			const { data, error } = await api.getUsageStats();
 
 			if (error || !data) {

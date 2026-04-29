@@ -57,6 +57,7 @@ import {
 import { api } from "@/lib/client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn, formatRelativeTime } from "@/lib/utils";
+import { useAuthStore } from "@/stores";
 import { InboxAutomation } from "./InboxAutomation";
 
 // Server response shapes from Zernio API
@@ -327,6 +328,11 @@ export function InboxContent() {
 		{
 			queryKey: ["inbox", "conversations", { platform }],
 			queryFn: async () => {
+				// Check if auth token is ready
+				if (!useAuthStore.getState().clerkToken) {
+					// Auth not ready — use mock data to avoid blocking UI
+					return mockConversations;
+				}
 				const res = await api.listConversations({
 					platform: platform === "all" ? undefined : platform,
 					limit: 50,
@@ -352,6 +358,10 @@ export function InboxContent() {
 		queryKey: ["inbox", "messages", selectedConversation?.id],
 		queryFn: async () => {
 			if (!selectedConversation) return [];
+			// Check if auth token is ready
+			if (!useAuthStore.getState().clerkToken) {
+				return getMockMessages(selectedConversation.id);
+			}
 			const res = await api.listMessages(selectedConversation.id, {
 				limit: 50,
 			});

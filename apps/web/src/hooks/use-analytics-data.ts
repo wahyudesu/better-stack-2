@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/client";
+import { useAuthStore } from "@/stores";
 
 export interface AnalyticsFilters {
 	accountId: string;
@@ -81,6 +82,9 @@ export function useAnalyticsOverview(
 	return useQuery({
 		queryKey: analyticsDataKeys.overview(filters),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return null;
+			}
 			const { data, error } = await api.getAccountAnalytics({
 				accountId: filters.accountId,
 				startDate: filters.startDate,
@@ -102,6 +106,9 @@ export function useDailyMetrics(
 	return useQuery({
 		queryKey: analyticsDataKeys.dailyMetrics(filters),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return [];
+			}
 			const { data, error } = await api.getDailyMetrics({
 				accountId: filters.accountId,
 				metric: filters.metric,
@@ -123,6 +130,9 @@ export function useInstagramDemographics(accountId: string) {
 	return useQuery({
 		queryKey: analyticsDataKeys.demographics(accountId, "instagram"),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return null;
+			}
 			const { data, error } = await api.getInstagramDemographics(accountId);
 			if (error) throw error;
 			return data;
@@ -137,6 +147,9 @@ export function useBestTime(accountId: string) {
 	return useQuery({
 		queryKey: analyticsDataKeys.hourlyEngagement(accountId),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return null;
+			}
 			const { data, error } = await api.getBestTime(accountId);
 			if (error) throw error;
 			return data;
@@ -154,6 +167,9 @@ export function useTopPosts(
 	return useQuery({
 		queryKey: analyticsDataKeys.topPosts(filters),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return null;
+			}
 			const { data, error } = await api.getPostTimeline({
 				accountId: filters.accountId,
 				startDate: filters.startDate,
@@ -172,6 +188,9 @@ export function useContentTypePerformance(accountId: string) {
 	return useQuery({
 		queryKey: analyticsDataKeys.contentTypes(accountId),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return null;
+			}
 			const { data, error } = await api.getContentDecay(accountId);
 			if (error) throw error;
 			return data;

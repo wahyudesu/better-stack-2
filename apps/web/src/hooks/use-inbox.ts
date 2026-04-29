@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/client";
+import { useAuthStore } from "@/stores";
+import {
+	mockConversations,
+	getMockMessages,
+	mockComments,
+	mockReviews,
+} from "@/data/inbox-mock";
 
 export const inboxKeys = {
 	conversations: (accountId?: string, platform?: string) =>
@@ -20,6 +27,9 @@ export function useConversations(accountId?: string, platform?: string) {
 	return useQuery({
 		queryKey: inboxKeys.conversations(accountId, platform),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return mockConversations;
+			}
 			const { data, error } = await api.listConversations({
 				accountId,
 				platform,
@@ -53,6 +63,9 @@ export function useMessages(conversationId: string | null) {
 		queryKey: inboxKeys.messages(conversationId ?? ""),
 		queryFn: async () => {
 			if (!conversationId) return [];
+			if (!useAuthStore.getState().clerkToken) {
+				return getMockMessages(conversationId);
+			}
 			const { data, error } = await api.listMessages(conversationId, {
 				limit: 50,
 			});
@@ -102,6 +115,9 @@ export function useComments(accountId?: string) {
 	return useQuery({
 		queryKey: inboxKeys.comments(accountId),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return mockComments;
+			}
 			const { data, error } = await api.listComments({ accountId });
 			if (error) throw error;
 			return data?.comments ?? [];
@@ -160,6 +176,9 @@ export function useReviews(accountId?: string) {
 	return useQuery({
 		queryKey: inboxKeys.reviews(accountId),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return mockReviews;
+			}
 			const { data, error } = await api.listReviews({ accountId });
 			if (error) throw error;
 			return data?.reviews ?? [];

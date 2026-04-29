@@ -5,7 +5,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
 	typedRoutes: false,
 	reactCompiler: true,
-	cacheComponents: true,
+	cacheComponents: false,
 	images: {
 		remotePatterns: [
 			{

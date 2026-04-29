@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SocialAccount } from "@/lib/client";
 import { api } from "@/lib/client";
 import { useCurrentProfileId } from "./use-profiles";
+import { useAuthStore } from "@/stores";
 
 export const accountKeys = {
 	all: ["accounts"] as const,
@@ -38,7 +39,9 @@ export function useAccounts(_profileId?: string) {
 	return useQuery({
 		queryKey: accountKeys.list("local"),
 		queryFn: async () => {
-			// Read from Zernio API via server
+			if (!useAuthStore.getState().clerkToken) {
+				return { accounts: [] };
+			}
 			const { data, error } = await api.getAccounts();
 			if (error) throw error;
 			return { accounts: data?.accounts || [] };

@@ -14,7 +14,8 @@ async function fetchApi<T>(
 	const clerkToken = useAuthStore.getState().clerkToken;
 
 	if (!clerkToken) {
-		return { data: null, error: "Not authenticated or token not set" };
+		// Return a specific error so callers can detect "auth not ready" vs actual auth failures
+		return { data: null, error: "Clerk token not available yet" };
 	}
 
 	try {

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/client";
+import { useAuthStore } from "@/stores";
 
 export const webhookKeys = {
 	all: ["webhooks"] as const,
@@ -54,6 +55,9 @@ export function useWebhookSettings() {
 	return useQuery({
 		queryKey: webhookKeys.settings,
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return { settings: [] };
+			}
 			const { data, error } = await api.getWebhookSettings();
 			if (error) throw error;
 			return data;
@@ -75,6 +79,9 @@ export function useWebhookLogs(params?: {
 	return useQuery({
 		queryKey: webhookKeys.logs(params?.webhookId),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return { logs: [] };
+			}
 			const { data, error } = await api.getWebhookLogs(params);
 			if (error) throw error;
 			return data;

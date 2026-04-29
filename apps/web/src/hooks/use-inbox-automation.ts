@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/client";
+import { useAuthStore } from "@/stores";
 
 export const automationKeys = {
 	sequences: (status?: string) => ["automation", "sequences", status] as const,
@@ -15,6 +16,9 @@ export function useSequences(status?: string) {
 	return useQuery({
 		queryKey: automationKeys.sequences(status),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return [];
+			}
 			const { data, error } = await api.listSequences({ status });
 			if (error) throw error;
 			return data?.sequences ?? [];
@@ -109,6 +113,9 @@ export function useBroadcasts(accountId: string) {
 	return useQuery({
 		queryKey: automationKeys.broadcasts(accountId),
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return [];
+			}
 			const { data, error } = await api.listBroadcasts(accountId);
 			if (error) throw error;
 			return data?.broadcasts ?? [];

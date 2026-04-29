@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { api } from "@/lib/client";
-import { useAppStore } from "@/stores";
+import { useAppStore, useAuthStore } from "@/stores";
+import { sampleProfiles } from "@/lib/data/social-data";
 
 export const profileKeys = {
 	all: ["profiles"] as const,
@@ -17,6 +18,9 @@ export function useProfiles() {
 	const query = useQuery({
 		queryKey: profileKeys.all,
 		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return { profiles: sampleProfiles };
+			}
 			const { data, error } = await api.getProfiles();
 			if (error) throw error;
 			return data;
@@ -27,7 +31,9 @@ export function useProfiles() {
 	// Auto-set default profile if not set
 	useEffect(() => {
 		if (query.data?.profiles?.length && !defaultProfileId) {
-			setDefaultProfileId(query.data.profiles[0]._id);
+			const firstProfile = query.data.profiles[0];
+			// Handle both Profile (_id from API) and SocialMediaProfile (id from sample data)
+			setDefaultProfileId((firstProfile as { _id?: string })._id ?? (firstProfile as { id: string }).id);
 		}
 	}, [query.data, defaultProfileId, setDefaultProfileId]);
 
@@ -40,7 +46,10 @@ export function useProfiles() {
 export function useCurrentProfileId(): string | undefined {
 	const { defaultProfileId } = useAppStore();
 	const { data } = useProfiles();
-	return defaultProfileId || data?.profiles?.[0]?._id;
+	const firstProfile = data?.profiles?.[0];
+	if (!firstProfile) return undefined;
+	// Handle both Profile (_id from API) and SocialMediaProfile (id from sample data)
+	return defaultProfileId ?? ((firstProfile as { _id?: string })._id ?? (firstProfile as { id: string }).id);
 }
 
 /**
