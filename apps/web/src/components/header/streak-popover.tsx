@@ -41,7 +41,7 @@ export function StreakPopover() {
 					)}
 				</div>
 			</PopoverTrigger>
-			<PopoverContent align="end" className="w-64 p-4">
+			<PopoverContent align="end" className="w-80 p-4">
 				<div className="space-y-3">
 					<div className="flex items-center justify-between">
 						<span className="text-sm font-medium">Current Streak</span>

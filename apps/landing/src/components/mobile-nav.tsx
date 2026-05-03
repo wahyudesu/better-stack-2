@@ -4,10 +4,10 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { Button } from "@/components/ui/button";
-import { DepthButton } from "@/components/ui/depth-buttons";
 import { navSections } from "@/components/nav-links";
 import { LinkItem } from "@/components/sheard";
 import { WaitlistModal } from "@/components/waitlist-modal";
+import Link from "next/link";
 import { XIcon, MenuIcon } from "lucide-react";
 
 export function MobileNav() {
@@ -69,10 +69,16 @@ export function MobileNav() {
 							))}
 						</div>
 						<div className="mt-5 flex flex-col gap-2">
-							<DepthButton className="w-full" variant="outline" onClick={() => setWaitlistOpen(true)}>
-								Sign In
-							</DepthButton>
-							<DepthButton className="w-full" variant="blue" onClick={() => setWaitlistOpen(true)}>Join Waitlist</DepthButton>
+							<Link href="/app">
+								<Button className="w-full" variant="outline">
+									Login
+								</Button>
+							</Link>
+							<Link href="/app">
+								<Button className="w-full" variant="ghost">
+									Sign Up
+								</Button>
+							</Link>
 						</div>
 					</div>
 				</Portal>

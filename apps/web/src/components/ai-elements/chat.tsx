@@ -60,12 +60,11 @@ const PromptInputAttachmentsDisplay = () => {
 };
 
 export type AIChatProps = {
-	placeholder?: string;
+	inputValue?: string;
+	onInputChange?: (value: string) => void;
 };
 
-export function AIChat({
-	placeholder = "Ask me anything about your social media content...",
-}: AIChatProps) {
+export function AIChat({ inputValue, onInputChange }: AIChatProps) {
 	const { messages, status, sendMessage } = useChat();
 
 	const handleSubmit = (message: PromptInputMessage) => {
@@ -119,12 +118,16 @@ export function AIChat({
 				<ConversationScrollButton />
 			</Conversation>
 
-			<PromptInput onSubmit={handleSubmit} className="mt-4" globalDrop multiple>
+			<PromptInput onSubmit={handleSubmit} className="" globalDrop multiple>
 				<PromptInputHeader>
 					<PromptInputAttachmentsDisplay />
 				</PromptInputHeader>
 				<PromptInputBody>
-					<PromptInputTextarea placeholder={placeholder} />
+					<PromptInputTextarea
+						placeholder="Ask me anything about your social media content..."
+						value={inputValue}
+						onChange={(e) => onInputChange?.(e.currentTarget.value)}
+					/>
 				</PromptInputBody>
 				<PromptInputFooter>
 					<PromptInputTools>

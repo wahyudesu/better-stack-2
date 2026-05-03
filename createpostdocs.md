@@ -15,7 +15,7 @@ create post baca setiap dokumentasi ini
 - [Snapchat API](https://docs.zernio.com/platforms/snapchat)
 - [WhatsApp API](https://docs.zernio.com/platforms/whatsapp)
 - [Discord API](https://docs.zernio.com/platforms/discord)
-- [Meta Ads](https://docs.zernio.com/meta-ads)
+- [Meta Ads](https://docs.zernio.com/meta-ads)why
 - [Google Ads](https://docs.zernio.com/google-ads)
 - [LinkedIn Ads](https://docs.zernio.com/linkedin-ads)
 - [TikTok Ads](https://docs.zernio.com/tiktok-ads)

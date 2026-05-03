@@ -6,8 +6,7 @@ export type TabId =
 	| "account"
 	| "connections"
 	| "billing"
-	| "preferences"
-	| "user"
+	| "teams"
 	| "webhooks";
 
 export type FirstDayOfWeek = "sunday" | "monday";

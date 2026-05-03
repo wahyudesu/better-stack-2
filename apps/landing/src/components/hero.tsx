@@ -5,7 +5,6 @@ import { HeroWaitlistForm } from "@/components/hero-waitlist-form";
 import { WaitlistSocialProof } from "@/components/waitlist-social-proof";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { FeaturesDetail } from "@/components/features-detail";
 
 type TabId = "analytics" | "inbox" | "scheduler" | "ads" | "ai";
 
@@ -14,29 +13,29 @@ const tabContent: Record<
   { title: string; description: string }
 > = {
   analytics: {
-    title: "Analytics terpusat",
+    title: "Real-time Analytics",
     description:
-      "Semua metrik di satu tempat: engagement, pertumbuhan followers, dan performa iklan secara real time.",
+      "Track engagement, followers, and ad performance across 14+ platforms — all in one dashboard.",
   },
   inbox: {
-    title: "Inbox terpusat",
+    title: "Unified Inbox",
     description:
-      "Semua DM, comment, dan mention dari berbagai platform—handle dalam satu inbox tanpa switch tabs.",
+      "All DMs, comments, and mentions in one place. Nothing falls through the cracks.",
   },
   scheduler: {
-    title: "Smart scheduler",
+    title: "Smart Scheduler",
     description:
-      "Rencanakan konten mingguan dengan alur yang jelas. Jadwalkan posting ke berbagai platform tanpa ketinggalan.",
+      "Plan, schedule, and auto-post to all your platforms — from one calendar.",
   },
   ads: {
-    title: "Ads analytics",
+    title: "Ads Analytics",
     description:
-      "View performa semua iklan dari Google, Meta, TikTok—sekaligus. Tau mana yang convert, mana yang buang budget.",
+      "See performance from Google, Meta, and TikTok ads together. Know which actually converts.",
   },
   ai: {
-    title: "AI analytics",
+    title: "AI Assistant",
     description:
-      "Insight otomatis dan caption suggestion—disesuaikan untuk audiens Indonesia. Generate dalam hitungan detik.",
+      "Get caption suggestions, hashtag recommendations, and content ideas — generated in seconds.",
   },
 };
 
@@ -49,7 +48,7 @@ export function Hero() {
 			</div>
 
 			<div className="container mx-auto px-4 items-center">
-				<div className="mx-auto flex max-w-3xl flex-col items-center gap-12">
+				<div className="mx-auto flex max-w-5xl flex-col items-center gap-12">
 					{/* Copy + waitlist */}
 					<div className="w-full text-center">
 						<div className="mb-5 flex justify-center">
@@ -63,11 +62,11 @@ export function Hero() {
 						</div>
 
 						<div className="space-y-5 max-w-2xl mx-auto text-center items-center">
-							<h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl lg:leading-[1.1]">
-								Stop juggling 5 platforms. All your social media metrics—finally in one place.
+							<h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+								From idea to published post — across 14+ platforms — in one clean workspace.
 							</h1>
-							<p className="text-pretty text-lg text-muted-foreground mx-auto max-w-xl">
-								Analytics, scheduler, inbox, dan ads—sekaligus. Dirancang untuk agency dan bisnis di Indonesia.
+							<p className="text-lg text-muted-foreground mx-auto max-w-xl leading-relaxed">
+								Schedule and boost content, manage conversations, and track performance — all in one simple place. No more tab-switching.
 							</p>
 						</div>
 
@@ -81,12 +80,12 @@ export function Hero() {
 					<div className="w-full pt-16">
 						<Tabs defaultValue="analytics" className="w-full">
 							<div className="flex justify-center">
-								<TabsList className="">
-									<TabsTrigger value="analytics" className="p-3 rounded-full">Analytics</TabsTrigger>
-									<TabsTrigger value="inbox" className="p-3 rounded-full">Inbox</TabsTrigger>
-									<TabsTrigger value="scheduler" className="p-3 rounded-full">Scheduler</TabsTrigger>
-									<TabsTrigger value="ads" className="p-3 rounded-full">Ads</TabsTrigger>
-									<TabsTrigger value="ai" className="p-3 rounded-full">AI</TabsTrigger>
+								<TabsList className="gap-2">
+									<TabsTrigger value="analytics" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Analytics</TabsTrigger>
+									<TabsTrigger value="inbox" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Inbox</TabsTrigger>
+									<TabsTrigger value="scheduler" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Scheduler</TabsTrigger>
+									<TabsTrigger value="ads" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Ads</TabsTrigger>
+									<TabsTrigger value="ai" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">AI</TabsTrigger>
 								</TabsList>
 							</div>
 
@@ -95,9 +94,9 @@ export function Hero() {
 									<Image
 										src="/okok.png"
 										alt={tabContent.analytics.title}
-										width={800}
-										height={450}
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										width={1200}
+										height={675}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
 										loading="lazy"
 										className="w-full h-auto"
 									/>
@@ -109,9 +108,9 @@ export function Hero() {
 									<Image
 										src="/okok.png"
 										alt={tabContent.inbox.title}
-										width={800}
-										height={450}
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										width={1200}
+										height={675}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
 										loading="lazy"
 										className="w-full h-auto"
 									/>
@@ -123,9 +122,9 @@ export function Hero() {
 									<Image
 										src="/okok.png"
 										alt={tabContent.scheduler.title}
-										width={800}
-										height={450}
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										width={1200}
+										height={675}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
 										loading="lazy"
 										className="w-full h-auto"
 									/>
@@ -137,9 +136,9 @@ export function Hero() {
 									<Image
 										src="/okok.png"
 										alt={tabContent.ads.title}
-										width={800}
-										height={450}
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										width={1200}
+										height={675}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
 										loading="lazy"
 										className="w-full h-auto"
 									/>
@@ -151,9 +150,9 @@ export function Hero() {
 									<Image
 										src="/okok.png"
 										alt={tabContent.ai.title}
-										width={800}
-										height={450}
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 800px"
+										width={1200}
+										height={675}
+										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
 										loading="lazy"
 										className="w-full h-auto"
 									/>
@@ -164,21 +163,40 @@ export function Hero() {
 					</div>
 				</div>
 
-				<div className="mt-16 pt-8">
+				<div className="mt-8 pt-8">
 					<div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12">
-						<div className="flex-1 max-w-[280px] text-center">
-							<p className="text-muted-foreground">Pantau semua metrik—engagement, followers, dan performa iklan—sekaligus tanpa switch platform.</p>
+						<div className="flex-1 max-w-none w-full sm:max-w-[280px] text-center">
+							<div className="mb-4 flex justify-center">
+								<div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+									<svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+									</svg>
+								</div>
+							</div>
+							<p className="text-muted-foreground">Track every metric across all platforms — engagement, followers, ad spend — without switching tabs.</p>
 						</div>
-						<div className="flex-1 max-w-[280px] text-center">
-							<p className="text-muted-foreground">Semua DM, comment, dan mention—handle dalam satu inbox. Nggak perlu buka 5 tab lagi.</p>
+						<div className="flex-1 max-w-none w-full sm:max-w-[280px] text-center">
+							<div className="mb-4 flex justify-center">
+								<div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+									<svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+									</svg>
+								</div>
+							</div>
+							<p className="text-muted-foreground">All your DMs, comments, and mentions — in one inbox. No more opening 5 tabs.</p>
 						</div>
-						<div className="flex-1 max-w-[280px] text-center">
-							<p className="text-muted-foreground">View performa semua iklan dari Google, Meta, TikTok—sekaligus. Tau mana yang convert.</p>
+						<div className="flex-1 max-w-none w-full sm:max-w-[280px] text-center">
+							<div className="mb-4 flex justify-center">
+								<div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+									<svg className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+									</svg>
+								</div>
+							</div>
+							<p className="text-muted-foreground">See which posts actually grow your brand — with clear analytics, not guesswork.</p>
 						</div>
 					</div>
 				</div>
-
-				<FeaturesDetail />
 			</div>
 		</section>
 	);

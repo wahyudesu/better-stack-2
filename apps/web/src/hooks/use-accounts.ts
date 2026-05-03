@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SocialAccount } from "@/lib/client";
 import { api } from "@/lib/client";
-import { useCurrentProfileId } from "./use-profiles";
 import { useAuthStore } from "@/stores";
+import { useCurrentProfileId } from "./use-profiles";
 
 export const accountKeys = {
 	all: ["accounts"] as const,

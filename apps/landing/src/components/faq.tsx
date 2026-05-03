@@ -1,49 +1,44 @@
-import { PhoneCall } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { PhoneCall } from "lucide-react";
 
 const faqs = [
   {
-    question: "Platform apa aja yang didukung ZenPost?",
+    question: "What platforms does ZenPost support?",
     answer:
-      "ZenPost mendukung Instagram, Facebook, TikTok, YouTube, LinkedIn, dan Twitter/X. Semua dalam satu dashboard — nggak perlu switch tab lagi.",
+      "ZenPost supports 14+ social media platforms — including Instagram, Facebook, TikTok, YouTube, LinkedIn, Twitter/X, Pinterest, Reddit, Bluesky, Threads, and more — all in one dashboard.",
   },
   {
-    question: "Apakah data akun social media aman di ZenPost?",
+    question: "Is my social media account data safe with ZenPost?",
     answer:
-      "Aman. Kami menggunakan enkripsi standar industri dan nggak pernah menyimpan credential asli akun social media kamu. Koneksi menggunakan OAuth yang aman.",
+      "Yes. We use industry-standard encryption and never store your actual social media credentials. Connections use secure OAuth.",
   },
   {
-    question: "Apakah bisa pakai ZenPost bareng tim?",
+    question: "Can I use ZenPost with my team?",
     answer:
-      "Bisa! Fitur multi-user dengan role access memungkinkan kamu invite team members dengan 권한 yang berbeda — admin, editor, atau viewer.",
+      "Yes! Multi-user features with role access let you invite team members with different roles — admin, editor, or viewer. Collaboration without the chaos.",
   },
   {
-    question: "Bagaimana sistem pricing ZenPost?",
+    question: "How does ZenPost pricing work?",
     answer:
-      "Kami lagi dalam fase early access dengan harga khusus. Daftar waitlist sekarang untuk dapat akses awal dan info pricing terbaru langsung ke email kamu.",
+      "We're currently in early access with special pricing. Join the waitlist now to get early access and the latest pricing info directly to your email.",
   },
 ];
 
 export const FAQ = () => (
-  <div className="w-full py-20 lg:py-40">
+  <div className="w-full py-20 lg:py-32">
     <div className="container mx-auto">
       <div className="flex flex-col gap-10">
         <div className="flex text-center justify-center items-center gap-4 flex-col">
           <Badge variant="outline">FAQ</Badge>
           <div className="flex gap-2 flex-col">
-            <h4 className="text-3xl md:text-5xl tracking-tighter max-w-xl text-center font-regular">
-              Ada pertanyaan?
+            <h4 className="text-2xl md:text-5xl font-bold tracking-tight max-w-xl text-center">
+              Got questions?
             </h4>
-            <p className="text-lg leading-relaxed tracking-tight text-muted-foreground max-w-xl text-center">
-              Temukan jawaban pertanyaan umum tentang ZenPost di bawah ini.
-              Still punya pertanyaan lain? Reach out aja.
+            <p className="text-lg leading-relaxed text-muted-foreground max-w-xl text-center">
+              Find answers to common questions about ZenPost below.
+              Still have questions? Reach out anytime.
             </p>
           </div>
         </div>

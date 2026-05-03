@@ -1,7 +1,23 @@
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { UsersIcon, TargetIcon, HeartIcon, ZapIcon } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About ZenPost - Building the Future of Social Media Management",
+  description:
+    "Learn about ZenPost's mission to help Indonesian creators and businesses manage social media more efficiently. Meet our team and values.",
+  alternates: {
+    canonical: "https://zenpost.in/about",
+  },
+  openGraph: {
+    title: "About ZenPost - Our Story & Team",
+    description:
+      "Discover how ZenPost helps creators save 3-5 hours weekly on social media management.",
+    url: "https://zenpost.in/about",
+    type: "website",
+  },
+};
 
 const teamMembers = [
   {
@@ -63,8 +79,6 @@ const stats = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header />
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">

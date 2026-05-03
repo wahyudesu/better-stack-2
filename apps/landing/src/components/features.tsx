@@ -3,15 +3,15 @@
 const features = [
   {
     id: 1,
-    description: "Pantau semua metrik media sosial di satu tempat dengan visualisasi data yang mudah dipahami.",
+    description: "Monitor all social media metrics in one place with easy-to-understand data visualizations.",
   },
   {
     id: 2,
-    description: "Jadwalkan posting dengan waktu optimal untuk menjangkau audiens secara maksimal.",
+    description: "Schedule posts at optimal times to reach your audience when they're most active.",
   },
   {
     id: 3,
-    description: "Buat konten berkualitas tinggi dengan bantuan AI yang memahami tren dan preferensi audiens.",
+    description: "Create high-quality content with AI that understands trends and audience preferences.",
   },
 ];
 

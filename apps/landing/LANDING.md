@@ -1,6 +1,12 @@
+<!--
+https://social-api.ai
+zernio.com/
+visitors.now
+admanage.ai
+-->
 # navbar
 logo
-feature, comparison, /blogs
+features, solution, /free tools, /blogs
 cta
 
 # hero
@@ -11,13 +17,19 @@ cta: waitlist
 
 image: post, analytics
 
-logo brand
+brand
 
 # feature
 3 strength app
 
-# feature
-4 features and videos
+<!--# feature
+4 features and videos-->
+# demo
+video penjelasan aplikasi
+
+# solution
+
+# detail feature
 
 # benefit journey that customer get
 3 step before, in progress, and after output

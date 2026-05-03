@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { Toaster } from "@/components/ui/sonner";
 import FeaturebaseMessenger from "@/components/featurebase-messenger";
+import { SimpleHeader } from "@/components/simple-header";
 import "./globals.css";
 
 const baseUrl = "https://zenpost.in";
@@ -10,11 +11,11 @@ const baseUrl = "https://zenpost.in";
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "ZenPost - All-in-One Social Media Management for Indonesia",
+    default: "ZenPost - Social Media Dashboard for Indonesia",
     template: "%s | ZenPost",
   },
   description:
-    "ZenPost adalah platform manajemen社交媒体yangcentralized analytics, scheduler, inbox, dan ads—dalam satu dashboard. Dirancang untuk agency dan bisnis di Indonesia.",
+    "ZenPost: Unified social media analytics, scheduler, inbox & ads. Built for Indonesian agencies and businesses.",
   keywords: [
     "social media management",
     "社交媒体管理",
@@ -33,9 +34,9 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: baseUrl,
     siteName: "ZenPost",
-    title: "ZenPost - All-in-One Social Media Management for Indonesia",
+    title: "ZenPost - Social Media Dashboard for Indonesia",
     description:
-      "Analytics, scheduler, inbox, dan ads—sekaligus dalam satu dashboard. Dirancang untuk agency dan bisnis di Indonesia.",
+      "Unified social media analytics, scheduler, inbox & ads—built for Indonesian agencies and businesses.",
     images: [
       {
         url: "/og-image.png",
@@ -47,9 +48,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ZenPost - All-in-One Social Media Management for Indonesia",
+    title: "ZenPost - Social Media Dashboard for Indonesia",
     description:
-      "Analytics, scheduler, inbox, dan ads—sekaligus dalam satu dashboard. Dirancang untuk agency dan bisnis di Indonesia.",
+      "Unified social media analytics, scheduler, inbox & ads—built for Indonesian agencies and businesses.",
     images: ["/og-image.png"],
     creator: "@zenpost",
   },
@@ -88,6 +89,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="id" suppressHydrationWarning className={GeistSans.variable}>
         <head>
+          <meta charSet="UTF-8" />
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link rel="icon" href="/favicon.ico" sizes="any" />
           <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -101,6 +103,7 @@ export default function RootLayout({
                 "@type": "SoftwareApplication",
                 name: "ZenPost",
                 applicationCategory: "BusinessApplication",
+                operatingSystem: "Web Application",
                 description:
                   "All-in-One Social Media Management platform for Indonesia",
                 url: baseUrl,
@@ -115,6 +118,7 @@ export default function RootLayout({
           />
         </head>
         <body className="antialiased">
+          <SimpleHeader />
           {children}
           <Toaster />
           <FeaturebaseMessenger />

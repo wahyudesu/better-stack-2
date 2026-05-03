@@ -1,7 +1,23 @@
-import { SimpleHeader } from "@/components/simple-header";
 import { Footer } from "@/components/footer";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "How AI is Transforming Social Media Management | ZenPost Blog",
+  description:
+    "Explore how AI tools like ChatGPT are revolutionizing social media management—faster content creation, smarter scheduling, and deeper analytics insights.",
+  alternates: {
+    canonical: "https://zenpost.in/blog/ai-dalam-social-media-management",
+  },
+  openGraph: {
+    title: "How AI is Changing Social Media Management",
+    description:
+      "AI is transforming how we manage social media. Learn about content creation, scheduling, and analytics automation.",
+    url: "https://zenpost.in/blog/ai-dalam-social-media-management",
+    type: "article",
+  },
+};
 
 const post = {
   slug: "ai-dalam-social-media-management",
@@ -43,8 +59,6 @@ const post = {
 export default function BlogPostPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <SimpleHeader />
-
       <main className="flex-1">
         <article className="py-16">
           <div className="container mx-auto px-4">

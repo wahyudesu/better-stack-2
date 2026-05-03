@@ -1,7 +1,23 @@
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { FAQ } from "@/components/faq";
 import { Mail, FileText, MessageCircle } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact ZenPost - Get in Touch",
+  description:
+    "Have questions about ZenPost? Contact us via docs, Telegram, or email. We read every message and are happy to help.",
+  alternates: {
+    canonical: "https://zenpost.in/contact",
+  },
+  openGraph: {
+    title: "Contact ZenPost",
+    description:
+      "Get in touch with the ZenPost team. Questions about setup, billing, or anything else?",
+    url: "https://zenpost.in/contact",
+    type: "website",
+  },
+};
 
 const contactOptions = [
   {
@@ -30,8 +46,6 @@ const contactOptions = [
 export default function ContactPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header />
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">

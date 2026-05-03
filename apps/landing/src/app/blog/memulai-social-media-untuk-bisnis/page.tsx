@@ -1,7 +1,23 @@
-import { SimpleHeader } from "@/components/simple-header";
 import { Footer } from "@/components/footer";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "How to Start Using Social Media for Business in 2025 | ZenPost Blog",
+  description:
+    "Complete guide to starting your business's digital presence on social media. Platform selection, content strategy, and growth tactics for 2025.",
+  alternates: {
+    canonical: "https://zenpost.in/blog/memulai-social-media-untuk-bisnis",
+  },
+  openGraph: {
+    title: "How to Start Using Social Media for Business in 2025",
+    description:
+      "A comprehensive guide to building your business's social media presence. From platform selection to content strategy.",
+    url: "https://zenpost.in/blog/memulai-social-media-untuk-bisnis",
+    type: "article",
+  },
+};
 
 const post = {
   slug: "memulai-social-media-untuk-bisnis",
@@ -45,8 +61,6 @@ const post = {
 export default function BlogPostPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <SimpleHeader />
-
       <main className="flex-1">
         <article className="py-16">
           <div className="container mx-auto px-4">

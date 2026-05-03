@@ -1,27 +1,27 @@
 const pillarFeatures = [
   {
-    title: "Satu dashboard, semua platform",
+    title: "One dashboard, all platforms",
     description:
-      "Hubungkan Instagram, TikTok, X, Facebook, dan YouTube di satu tempat. Tidak perlu bolak-balik login—semua metrik dan jadwal terkumpul rapi.",
+      "Connect Instagram, TikTok, X, Facebook, and YouTube in one place. No more switching between logins — all metrics and schedules in one spot.",
     videoSrc: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
   },
   {
-    title: "Kolaborasi tim tanpa ribet",
+    title: "Team collaboration without the hassle",
     description:
-      "Undang anggota tim, atur peran, dan kelola banyak akun bersama. Cocok untuk agensi dan brand dengan banyak saluran sosial.",
+      "Invite team members, set roles, and manage multiple accounts together. Perfect for agencies and brands with many social channels.",
     videoSrc:
       "https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/video-and-audio-content/rabbit320.mp4",
   },
   {
-    title: "Notifikasi real time",
+    title: "Real-time notifications",
     description:
-      "Tangkap komentar, DM, mention, dan lonjakan engagement lebih cepat. Satu kotak masuk notifikasi supaya tidak ada percakapan yang terlewat.",
+      "Catch comments, DMs, mentions, and engagement spikes faster. One notification inbox so no conversation slips through.",
     videoSrc: "https://samplelib.com/mp4/sample-5s.mp4",
   },
   {
-    title: "Insight dan laporan siap bagikan",
+    title: "Insights and shareable reports",
     description:
-      "Ringkasan harian atau mingguan, ekspor data, dan tren yang jelas untuk presentasi ke klien atau stakeholder internal.",
+      "Daily or weekly summaries, data exports, and clear trends for presenting to clients or internal stakeholders.",
     videoSrc: "https://samplelib.com/mp4/sample-10s.mp4",
   },
 ] as const;
@@ -31,10 +31,10 @@ export function FeaturesDetail() {
     <div className="mx-auto mt-20 max-w-5xl border-border/60 pt-16 sm:mt-24 sm:pt-20" id="features">
       <div className="mx-auto mb-10 max-w-5xl text-center sm:mb-12">
         <h2 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">
-          Empat pilar untuk operasional sosial yang tenang
+          Four pillars for calm social operations
         </h2>
         <p className="mt-3 text-pretty text-muted-foreground">
-          Lihat alur singkat di setiap area: integrasi platform, tim, notifikasi, hingga laporan.
+          See a short flow across each area: platform integrations, team, notifications, and reports.
         </p>
       </div>
 

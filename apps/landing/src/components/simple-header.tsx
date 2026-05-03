@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useScroll } from "@/hooks/use-scroll";
-import { DepthButton } from "@/components/ui/depth-buttons";
+import { Button } from "@/components/ui/button";
 import { WaitlistModal } from "@/components/waitlist-modal";
 
 const navLinks: { label: string; href: string }[] = [
@@ -76,13 +76,9 @@ export function SimpleHeader() {
 
         {/* CTA */}
         <div className="flex items-center gap-3">
-          <DepthButton
-            variant="blue"
-            className="h-9 px-5 text-sm"
-            onClick={() => setWaitlistOpen(true)}
-          >
-            Join Waitlist
-          </DepthButton>
+          <Link href="/app">
+            <Button variant="ghost">Login</Button>
+          </Link>
         </div>
       </nav>
     </header>

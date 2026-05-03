@@ -1,8 +1,18 @@
 "use client";
 
-import { useClerk } from "@clerk/nextjs";
-import { FileText, LifeBuoy, LogOut, MessageSquare, User } from "lucide-react";
+import { useClerk, useUser } from "@clerk/nextjs";
+import {
+	FileText,
+	LifeBuoy,
+	LogOut,
+	MessageSquare,
+	Monitor,
+	Moon,
+	Sun,
+	User,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 import {
 	AlertDialog,
@@ -19,12 +29,18 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface UserMenuProps {
 	avatarSrc?: string;
+	isLoaded?: boolean;
+	isSignedIn?: boolean;
 }
 
 const menuItems = [
@@ -36,12 +52,17 @@ const secondaryItems = [
 	{ id: "contact", label: "Contact", icon: MessageSquare, href: "/contact" },
 ];
 
-export function UserMenu({
-	avatarSrc = "https://i.pravatar.cc/150?u=admin",
-}: UserMenuProps) {
+export function UserMenu({ avatarSrc, isLoaded, isSignedIn }: UserMenuProps) {
 	const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 	const router = useRouter();
+	const { user } = useUser();
 	const { openUserProfile, signOut: clerkSignOut } = useClerk();
+	const { theme, setTheme } = useTheme();
+
+	// Use passed props first, fallback to hook data
+	const isUserLoaded = isLoaded ?? !!user;
+	const isUserSignedIn = isSignedIn ?? !!user;
+	const avatarUrl = user?.imageUrl ?? avatarSrc;
 
 	const handleLogout = () => {
 		clerkSignOut(() => router.push("/"));
@@ -57,14 +78,30 @@ export function UserMenu({
 		}
 	};
 
+	// Get initials for fallback avatar
+	const getInitials = () => {
+		if (user?.firstName) return user.firstName[0].toUpperCase();
+		const email = user?.emailAddresses?.[0]?.emailAddress;
+		if (email) return email[0].toUpperCase();
+		return "U";
+	};
+
 	return (
 		<>
 			<DropdownMenu>
 				<DropdownMenuTrigger className="">
 					<Avatar className="size-8">
-						<AvatarImage src={avatarSrc} />
+						<AvatarImage src={isUserLoaded ? avatarUrl : undefined} />
 						<AvatarFallback>
-							<User className="size-5" />
+							{isUserLoaded ? (
+								user ? (
+									getInitials()
+								) : (
+									<User className="size-5" />
+								)
+							) : (
+								<div className="h-3 w-3 animate-pulse rounded-full bg-muted" />
+							)}
 						</AvatarFallback>
 					</Avatar>
 				</DropdownMenuTrigger>
@@ -78,6 +115,43 @@ export function UserMenu({
 							<item.icon className="ml-auto size-4 text-muted-foreground" />
 						</DropdownMenuItem>
 					))}
+					<DropdownMenuSub>
+						<DropdownMenuSubTrigger>
+							<Monitor className="mr-2 size-4" />
+							<span>Theme</span>
+						</DropdownMenuSubTrigger>
+						<DropdownMenuPortal>
+							<DropdownMenuSubContent>
+								<DropdownMenuItem onClick={() => setTheme("light")}>
+									<Sun className="mr-2 size-4" />
+									<span>Light</span>
+									{theme === "light" && (
+										<span className="ml-auto text-xs text-muted-foreground">
+											✓
+										</span>
+									)}
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => setTheme("dark")}>
+									<Moon className="mr-2 size-4" />
+									<span>Dark</span>
+									{theme === "dark" && (
+										<span className="ml-auto text-xs text-muted-foreground">
+											✓
+										</span>
+									)}
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => setTheme("system")}>
+									<Monitor className="mr-2 size-4" />
+									<span>System</span>
+									{theme === "system" && (
+										<span className="ml-auto text-xs text-muted-foreground">
+											✓
+										</span>
+									)}
+								</DropdownMenuItem>
+							</DropdownMenuSubContent>
+						</DropdownMenuPortal>
+					</DropdownMenuSub>
 					<DropdownMenuSeparator />
 					{secondaryItems.map((item) => (
 						<DropdownMenuItem

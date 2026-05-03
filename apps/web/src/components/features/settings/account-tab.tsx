@@ -7,6 +7,7 @@
 import { useClerk, useUser } from "@clerk/nextjs";
 import {
 	AlertCircle,
+	Calendar,
 	CheckCircle2,
 	KeyRound,
 	Loader2,
@@ -18,8 +19,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { TIMEZONES } from "@/lib/constants/settings";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores";
 import type { UsageStats } from "@/stores/auth-store";
+import type { FirstDayOfWeek, TimeFormat } from "./types";
 
 export function AccountTab() {
 	const { user, isLoaded } = useUser();
@@ -33,6 +44,10 @@ export function AccountTab() {
 		usageStats,
 	} = useAuthStore();
 	const [apiKeyInput, setApiKeyInput] = useState("");
+	const [firstDayOfWeek, setFirstDayOfWeek] =
+		useState<FirstDayOfWeek>("monday");
+	const [timezone, setTimezone] = useState("Asia/Jakarta");
+	const [timeFormat, setTimeFormat] = useState<TimeFormat>("24h");
 
 	const fullName =
 		user?.fullName ??
@@ -373,6 +388,76 @@ export function AccountTab() {
 					<p className="text-xs text-muted-foreground mt-2">
 						Contact support to delete your account
 					</p>
+				</CardContent>
+			</Card>
+
+			{/* Calendar Settings */}
+			<Card>
+				<CardContent className="p-4 space-y-3">
+					<div className="flex items-center gap-2">
+						<Calendar className="h-4 w-4" />
+						<p className="font-display font-semibold text-sm">
+							Calendar Settings
+						</p>
+					</div>
+
+					<div className="grid gap-3 sm:grid-cols-2">
+						<div className="flex flex-col gap-1.5">
+							<p className="text-xs text-muted-foreground">First Day of Week</p>
+							<Select
+								value={firstDayOfWeek}
+								onValueChange={(v) => setFirstDayOfWeek(v as FirstDayOfWeek)}
+							>
+								<SelectTrigger className="w-full h-8 text-sm font-medium">
+									<SelectValue placeholder="Select first day" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="sunday">Sunday</SelectItem>
+									<SelectItem value="monday">Monday</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="flex flex-col gap-1.5">
+							<p className="text-xs text-muted-foreground">Timezone</p>
+							<Select
+								value={timezone}
+								onValueChange={(v) => setTimezone(v ?? "Asia/Jakarta")}
+							>
+								<SelectTrigger className="w-full h-8 text-sm font-medium">
+									<SelectValue placeholder="Select timezone" />
+								</SelectTrigger>
+								<SelectContent>
+									{TIMEZONES.map((tz) => (
+										<SelectItem key={tz.value} value={tz.value}>
+											{tz.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+
+					<div className="space-y-1.5">
+						<p className="text-xs text-muted-foreground">Time Format</p>
+						<div className="flex items-center gap-3">
+							<Select
+								value={timeFormat}
+								onValueChange={(v) => setTimeFormat(v as TimeFormat)}
+							>
+								<SelectTrigger className="w-[160px] h-8 text-sm font-medium">
+									<SelectValue placeholder="Select format" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="12h">12 Hour (AM/PM)</SelectItem>
+									<SelectItem value="24h">24 Hour</SelectItem>
+								</SelectContent>
+							</Select>
+							<span className="text-xs text-muted-foreground">
+								Preview: {timeFormat === "12h" ? "3:30 PM" : "15:30"}
+							</span>
+						</div>
+					</div>
 				</CardContent>
 			</Card>
 		</div>

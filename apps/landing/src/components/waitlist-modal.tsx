@@ -76,7 +76,7 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <p className="text-sm text-muted-foreground text-center">Pilih tipe akun yang cocok</p>
+      <p className="text-sm text-muted-foreground text-center">Select your account type</p>
       <div className="flex flex-row gap-3 w-full">
         {userTypeOptions.map((opt) => (
           <label
@@ -163,7 +163,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
         <DialogHeader>
           <DialogTitle>Join Waitlist</DialogTitle>
           <DialogDescription>
-            Kami ingin tahu kamu siapa. Pilih tipe akun yang paling cocok.
+            We want to know who you are. Select the account type that best fits.
           </DialogDescription>
         </DialogHeader>
 

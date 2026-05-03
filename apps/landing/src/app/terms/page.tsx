@@ -1,11 +1,25 @@
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service - ZenPost",
+  description:
+    "Read ZenPost's terms of service. Understand the rules, acceptable use policies, and legal terms governing your use of our platform.",
+  alternates: {
+    canonical: "https://zenpost.in/terms",
+  },
+  openGraph: {
+    title: "ZenPost Terms of Service",
+    description:
+      "The terms and conditions that govern your use of ZenPost.",
+    url: "https://zenpost.in/terms",
+    type: "website",
+  },
+};
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header />
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">

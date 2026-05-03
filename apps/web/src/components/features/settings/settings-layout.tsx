@@ -9,7 +9,6 @@ import {
 	CreditCard,
 	type LucideIcon,
 	Puzzle,
-	Settings,
 	User,
 	Users,
 	Webhook,
@@ -49,17 +48,10 @@ export const settingsTabs: SettingsTab[] = [
 		description: "Manage your subscription and payments",
 	},
 	{
-		id: "preferences",
-		label: "Preferences",
-		icon: Settings,
-		title: "Preferences",
-		description: "Customize your app experience",
-	},
-	{
-		id: "user",
-		label: "User",
+		id: "teams",
+		label: "Teams",
 		icon: Users,
-		title: "User",
+		title: "Teams",
 		description: "Manage team members and access",
 	},
 	{

@@ -1,11 +1,25 @@
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy - ZenPost",
+  description:
+    "Read ZenPost's privacy policy. Learn how we collect, use, and protect your personal information when you use our social media management platform.",
+  alternates: {
+    canonical: "https://zenpost.in/privacy",
+  },
+  openGraph: {
+    title: "ZenPost Privacy Policy",
+    description:
+      "How ZenPost handles your data and protects your privacy.",
+    url: "https://zenpost.in/privacy",
+    type: "website",
+  },
+};
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Header />
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-24 bg-secondary text-secondary-foreground">

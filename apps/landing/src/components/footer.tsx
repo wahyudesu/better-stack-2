@@ -40,9 +40,9 @@ export function Footer() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           {/* Top section */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
             {/* Brand */}
-            <div className="col-span-2 md:col-span-2 pr-28">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                   <span className="text-white font-bold text-sm">ZP</span>
@@ -50,7 +50,7 @@ export function Footer() {
                 <span className="font-bold text-lg">ZenPost</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                Social media management dashboard untuk creator dan bisnis Indonesia.
+                Schedule and boost content, manage conversations, and track performance across social media in one simple place.
               </p>
               {/* Social links */}
               <div className="flex items-center gap-3">
@@ -125,7 +125,7 @@ export function Footer() {
               © 2026 ZenPost. All rights reserved.
             </p>
             <p className="text-sm text-muted-foreground">
-              Made with ❤️ untuk creator Indonesia
+              Made with ❤️ for creators in Indonesia
             </p>
           </div>
         </div>

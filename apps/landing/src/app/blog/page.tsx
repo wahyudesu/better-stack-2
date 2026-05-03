@@ -1,7 +1,23 @@
-import { SimpleHeader } from "@/components/simple-header";
 import { Footer } from "@/components/footer";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog - Social Media Management Insights",
+  description:
+    "Tips, strategies, and insights about social media management for Indonesian creators and businesses. Learn how to grow your social presence.",
+  alternates: {
+    canonical: "https://zenpost.in/blog",
+  },
+  openGraph: {
+    title: "ZenPost Blog - Social Media Insights",
+    description:
+      "Tips and strategies for social media management. Learn how to grow your audience and save time.",
+    url: "https://zenpost.in/blog",
+    type: "website",
+  },
+};
 
 const blogPosts = [
   {
@@ -87,8 +103,6 @@ const blogPosts = [
 export default function BlogPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <SimpleHeader />
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="pt-12 pb-8">

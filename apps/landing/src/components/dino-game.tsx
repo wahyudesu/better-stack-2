@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
 interface Obstacle {
-  x: number;
-  height: number;
-  passed: boolean;
+	x: number;
+	height: number;
 }
 
-interface GroundSegment {
-  x: number;
-}
-
-// Constants moved outside component to avoid recreation on each render
 const GRAVITY = 0.6;
 const JUMP_FORCE = -12;
 const GROUND_HEIGHT = 40;
@@ -20,270 +14,296 @@ const DINO_WIDTH = 40;
 const DINO_HEIGHT = 44;
 const MIN_OBSTACLE_GAP = 1500;
 
-// Base64 game assets as constants
+// Simple pixel art dino as base64
 const DINO_IMAGE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2NW3y1s9H0/BmBUVfVA0zTPiqI4qZTqGGNaxpjZ95a1VikAMMbM3ltaa5Uxxqy+H7TW4sIYO1NV9UpV1a8AVFWFV6VUlzHm3Bjz7H0BAGitJcMwPAHgCsC5tXbu3tZaEgBiAHgAsA9gH0ALwNbvA2itRQBwD8A+gGMAuwA2fxtAKyUGgDsAdgHsA9gCsPFDgL8GoLUWA8AdALsADgDsALB/eE4J/2wA/1wB/tmA/+0G/N8b+I9uwH9tA/6rG/C/2oD/6gb8Vzfgn24D/lc34L+6Af+qG/C/ugH/dAP+6Qb8rzfgv7YB/6sb8E83QPm3DuA/+A+I5H6j6Q1P3wAAAABJRU5ErkJggg==";
+	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2MWDR42evG+AAiatnk2DEPfGPPkfQEAAK21ZBj+p1KKo5QSj4+PZ/cVQkAIIT8BeL73hdaPF0J8WWsXj43W4vsAfiildgB4xpinUmoXwNbvA2itRQBwD8AewD6AXQC2/s4ArZWi67oHAFcAzgAcAFj/PkDXdY8ADn9aw/9sAP/bBvxvG/D/2oD/1Qb8Vzfgf7cB/9MN+Gcb8E/bgP/qBvxXN+CfagP+qw34X23A/2oD/qkW4J9uA/5XG/B/24D/6gb80w1Q/rYB/3QDlH/rAP6D/4CI7DdY3vD0AAAAAElFTkSuQmCC";
 const DINO_R_IMAGE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2MWDR42evG+AAiatnk2DEPfGPPkfQEAAK21ZBj+p1KKo5QSj4+PZ/cVQkAIIT8BeL73hdaPF0J8WWsXj43W4vsAfiildgB4xpinUmoXwNbvA2itRQBwD8AewD6AXQC2/s4ArZWi67oHAFcAzgAcAFj/PkDXdY8ADn9aw/9sAP/bBvxvG/D/2oD/1Qb8Vzfgf7cB/9MN+Gcb8E/bgP/qBvxXN+CfagP+qw34X23A/2oD/qkW4J9uA/5XG/B/24D/6gb80w1Q/rYB/3QDlH/rAP6D/4CI7DdY3vD0AAAAAElFTkSuQmCC";
+	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABqElEQVR4nO2WzUrDQBSGv01FWrVoFYLgRuhW6EaJg4t+AAVBZ+MdXIjyGtzcXVwJFxdnRSlCYbRAa6U8aYHQL7BA/IlpS7i7c2mhlNL7ctd7c/5z7t45BAbwV4J2u90XAIq+7ysA0FqLMebGGDP6K1b7fN8/B4DLOTejlJIMwyBnZ2eL6yqllH8A6Pn+i9PzfX+p67q7x+Nxq/eGYfP/hYe1dgLAl7E5Go1OG2MWDR42evG+AAiadnk2DEPfGPPkfQEAAK21ZBj+p1KKo5QSj4+PZ/cVQkAIIT8BeL73hdaPF0J8WWsXj43W4vsAfiildgB4xpinUmoXwNbvA2itRQBwD8AewD6AXQC2/s4ArZWi67oHAFcAzgAcAFj/PkDXdY8ADn9aw/9sAP/bBvxvG/D/2oD/1Qb8Vzfgf7cB/9MN+Gcb8E/bgP/qBvxXN+CfagP+qw34X23A/2oD/qkW4J9uA/5XG/B/24D/6gb80w1Q/rYB/3QDlH/rAP6D/4CI7DdY3vD0AAAAAElFTkSuQmCC";
 const CACTUS_IMAGE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABHElEQVR4nO2WwU7CQBCGf0MKFx0cHBwcdHDQxUURJ0U0NHR00MnJQScnHQj/ANwdXAgXHRx0cHJRROkiWqAQkpCEJIQQaYXg4eG+mV1aKLG85M18M/vN9qysrKys/mc0AKCqKgUgGo1GRQihlFIB4M5xHGdZlvM4juO7rusCEE3T/B5jTBzHcRzHuY7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOIP2eJ7X9H3f9H3fBELTNP8AEM1mswcAwzAMI4xZJEli+77fJISYQoip6zojhJimaZ4TQszJZDK5E0JM0zTN87xJCOGZpinf932TJEk8mUwmE0JMSinP9/05gLl/gqZpNgGglJq6rssB4Pm+3wRA13UdAKLrugiAFxYW5gCglJq6rhsAcF3X5QAwDMMQAK7rugCA7/tNAOA4TgIA13VdBMD3fZcBIISQABBdlxBCaJomAYDv+04DAJZlnQGglJqmaRIA+L7PAAhFUSQB8H2fARCCIAgBIITQ5JxTAHh9fdkEQLIsSwAQ+r7TAMh1XacB8H2fARCyLMsAEPq+UwEoFItFBkB0cXHOAIiapkkAYNs2AyBarZY4F+JcSBZl9Q98AJMkSaKmaTKGYRhGSZJYSqkBIYRlWZYQYiilRhzH8RzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzjvyPXddUYY5qu6zoA0DRN8wJAVBTFcQ3DMCzLsn4BMqJpmsYCgE6n0xQAzPT7/Q6ASL8/6AGIJIoiISL6lVKKlFJaa40xRkkpZa21xhhjjDFaaw0A0lrDGPNfG8QCaK21KIqiQQjRVxTFIIqiQQiRhRBZCJGl67qhruua0+l0lEKhYFBXKIoiIYQYUEoNTafTURzHaQJY8n1/kSTJKMdxHNd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xf+IvwFPe7aH2qKQmwAAAABJRU5ErkJggg==";
+	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABHElEQVR4nO2WwU7CQBCGf0MKFx0cHBwcdHDQxUURJ0U0NHR00MnJQScnHQj/ANwdXAgXHRx0cHJRROkiWqAQkpCEJIQQaYXg4eG+mV1aKLG85M18M/vN9qysrKys/mc0AKCqKgUgGo1GRQihlFIB4M5xHGdZlvM4juO7rusCEE3T/B5jTBzHcRzHuY7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOI7jOIP2eJ7X9H3f9H3fBELTNP8AEM1mswcAwzAMI4xZJEli+77fJISYQoip6zojhJimaZ4TQszJZDK5E0JM0zTN87xJCOGZpinf932TJEk8mUwmE0JMSinP9/05gLl/gqZpNgGglJq6rssB4Pm+3wRA13UdAKLrugiAFxYW5gCglJq6rhsAcF3X5QAwDMMQAK7rugCA7/tNAOA4TgIA13VdBMD3fZcBIISQABBdlxBCaJomAYDv+04DAJZlnQGglJqmaRIA+L7PAAhFUSQB8H2fARCCIAgBIITQ5JxTAHh9fdkEQLIsSwAQ+r7TAMh1XacB8H2fARCyLMsAEPq+UwEoFItFBkB0cXHOAIiapkkAYNs2AyBarZY4F+JcSBZl9Q98AJMkSaKmaTKGYRhGSZJYSqkBIYRlWZYQYiilRhzH8RzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzjvyPXddUYY5qu6zoA0DRN8wJAVBTFcQ3DMCzLsn4BMqJpmsYCgE6n0xQAzPT7/Q6ASL8/6AGIJIoiISL6lVKKlFJaa40xRkkpZa21xhhjjDFaaw0A0lrDGPNfG8QCaK21KIqiQQjRVxTFIIqiQQiRhRBZCJGl67qhruua0+l0lEKhYFBXKIoiIYQYUEoNTafTURzHaQJY8n1/kSTJKMdxHNd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xdd1Xf+IvwFPe7aH2qKQmwAAAABJRU5ErkJggg==";
+
+type GameStatus = "idle" | "playing" | "gameover";
 
 export function DinoGame() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(0);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [status, setStatus] = useState<GameStatus>("idle");
+	const [score, setScore] = useState(0);
+	const [highScore, setHighScore] = useState(0);
 
-  const gameStateRef = useRef({
-    dinoY: 0,
-    dinoVelocity: 0,
-    isJumping: false,
-    groundY: 0,
-    speed: 6,
-    obstacles: [] as Obstacle[],
-    groundSegments: [] as GroundSegment[],
-    frame: 0,
-    animationId: 0 as number,
-    lastObstacleTime: 0,
-    currentScore: 0,
-  });
+	// Game state refs
+	const gameRef = useRef({
+		dinoY: 0,
+		dinoVelocity: 0,
+		isJumping: false,
+		groundY: 0,
+		speed: 6,
+		obstacles: [] as Obstacle[],
+		frame: 0,
+		lastObstacleTime: 0,
+		currentScore: 0,
+	});
 
-  // Use refs to avoid stale closures in event handlers
-  const startedRef = useRef(false);
-  const gameOverRef = useRef(false);
+	// Refs for game loop
+	const statusRef = useRef<GameStatus>("idle");
+	const animationRef = useRef<number>(0);
+	const scoreRef = useRef(0);
+	const highScoreRef = useRef(0);
 
-  const resetGame = useCallback(() => {
-    const state = gameStateRef.current;
-    state.dinoY = 0;
-    state.dinoVelocity = 0;
-    state.isJumping = false;
-    state.obstacles = [];
-    state.frame = 0;
-    state.speed = 6;
-    state.lastObstacleTime = Date.now();
-    state.currentScore = 0;
-    setScore(0);
-    gameOverRef.current = false;
-  }, []);
+	// Keep refs in sync
+	useEffect(() => {
+		statusRef.current = status;
+	}, [status]);
 
-  const startGame = useCallback(() => {
-    startedRef.current = true;
-    gameOverRef.current = false;
-    resetGame();
-  }, [resetGame]);
+	useEffect(() => {
+		scoreRef.current = score;
+	}, [score]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+	useEffect(() => {
+		highScoreRef.current = highScore;
+	}, [highScore]);
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+	const startGame = useCallback(() => {
+		const game = gameRef.current;
+		game.dinoY = 0;
+		game.dinoVelocity = 0;
+		game.isJumping = false;
+		game.obstacles = [];
+		game.frame = 0;
+		game.speed = 6;
+		game.lastObstacleTime = Date.now();
+		game.currentScore = 0;
+		setScore(0);
+		setStatus("playing");
+	}, []);
 
-    const dinoImage = new Image();
-    const dinoR = new Image();
-    const cactusImage = new Image();
+	const jump = useCallback(() => {
+		const game = gameRef.current;
+		if (!game.isJumping && game.dinoY === 0) {
+			game.isJumping = true;
+			game.dinoVelocity = JUMP_FORCE;
+		}
+	}, []);
 
-    dinoImage.src = DINO_IMAGE;
-    dinoR.src = DINO_R_IMAGE;
-    cactusImage.src = CACTUS_IMAGE;
+	const handleAction = useCallback(() => {
+		if (statusRef.current === "idle" || statusRef.current === "gameover") {
+			startGame();
+		} else if (statusRef.current === "playing") {
+			jump();
+		}
+	}, [startGame, jump]);
 
-    const images = [dinoImage, dinoR, cactusImage];
-    let imagesLoaded = images.every((img) => img.complete);
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) return;
 
-    if (!imagesLoaded) {
-      images.forEach((img) => {
-        img.onload = () => {
-          if (images.every((i) => i.complete)) imagesLoaded = true;
-        };
-      });
-    }
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
 
-    const state = gameStateRef.current;
-    state.groundY = canvas.height - GROUND_HEIGHT;
+		// Preload images
+		const dinoImage = new Image();
+		const dinoR = new Image();
+		const cactusImage = new Image();
 
-    const drawDino = (x: number, y: number, frame: number) => {
-      const dino = frame % 2 === 0 ? dinoImage : dinoR;
-      if (imagesLoaded) {
-        ctx.drawImage(dino, x, y - DINO_HEIGHT, DINO_WIDTH, DINO_HEIGHT);
-      } else {
-        ctx.fillStyle = "#333";
-        ctx.fillRect(x, y - DINO_HEIGHT, DINO_WIDTH, DINO_HEIGHT);
-      }
-    };
+		dinoImage.src = DINO_IMAGE;
+		dinoR.src = DINO_R_IMAGE;
+		cactusImage.src = CACTUS_IMAGE;
 
-    const drawObstacle = (obstacle: Obstacle) => {
-      if (imagesLoaded) {
-        ctx.drawImage(
-          cactusImage,
-          obstacle.x,
-          canvas.height - GROUND_HEIGHT - obstacle.height,
-          20,
-          obstacle.height
-        );
-      } else {
-        ctx.fillStyle = "#2d5a27";
-        ctx.fillRect(
-          obstacle.x,
-          canvas.height - GROUND_HEIGHT - obstacle.height,
-          20,
-          obstacle.height
-        );
-      }
-    };
+		let imagesReady = false;
+		const checkImages = () => {
+			if (dinoImage.complete && dinoR.complete && cactusImage.complete) {
+				imagesReady = true;
+			}
+		};
+		checkImages();
 
-    const drawGround = () => {
-      ctx.fillStyle = "#b5b5b5";
-      state.groundSegments.forEach((seg) => {
-        ctx.fillRect(
-          seg.x,
-          canvas.height - GROUND_HEIGHT,
-          30,
-          GROUND_HEIGHT
-        );
-      });
-      ctx.fillRect(0, canvas.height - GROUND_HEIGHT + 5, canvas.width, 2);
-    };
+		// Initialize ground
+		const game = gameRef.current;
+		game.groundY = canvas.height - GROUND_HEIGHT;
 
-    const draw = () => {
-      ctx.fillStyle = "#f7f7f7";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+		const draw = () => {
+			const currentStatus = statusRef.current;
+			const currentGame = gameRef.current;
 
-      const groundY = canvas.height - GROUND_HEIGHT;
-      const currentState = gameStateRef.current;
+			// Clear canvas
+			ctx.fillStyle = "#f7f7f7";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      if (!startedRef.current) {
-        ctx.fillStyle = "#333";
-        ctx.font = "bold 16px system-ui";
-        ctx.textAlign = "center";
-        ctx.fillText("Press SPACE or Tap to Start", canvas.width / 2, groundY - 60);
-        drawDino(50, groundY, 0);
-        drawGround();
-        return;
-      }
+			// Draw ground
+			ctx.fillStyle = "#b5b5b5";
+			ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+			ctx.fillStyle = "#666";
+			ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, 2);
 
-      if (gameOverRef.current) {
-        ctx.fillStyle = "#333";
-        ctx.font = "bold 24px system-ui";
-        ctx.textAlign = "center";
-        ctx.fillText("GAME OVER", canvas.width / 2, groundY - 60);
-        ctx.font = "bold 14px system-ui";
-        ctx.fillText(`Score: ${score} | Best: ${highScore}`, canvas.width / 2, groundY - 35);
-        ctx.fillText("Press SPACE to Restart", canvas.width / 2, groundY - 10);
-        drawGround();
-        return;
-      }
+			// Draw dino
+			const dinoX = 50;
+			const dinoY = canvas.height - GROUND_HEIGHT + currentGame.dinoY;
 
-      drawDino(50, groundY + currentState.dinoY, currentState.frame);
-      currentState.obstacles.forEach(drawObstacle);
-      drawGround();
+			if (imagesReady) {
+				const dinoImg = currentGame.frame % 10 < 5 ? dinoImage : dinoR;
+				ctx.drawImage(dinoImg, dinoX, dinoY - DINO_HEIGHT, DINO_WIDTH, DINO_HEIGHT);
+			} else {
+				ctx.fillStyle = "#333";
+				ctx.fillRect(dinoX, dinoY - DINO_HEIGHT, DINO_WIDTH, DINO_HEIGHT);
+			}
 
-      ctx.fillStyle = "#333";
-      ctx.font = "bold 14px system-ui";
-      ctx.textAlign = "left";
-      ctx.fillText(`Score: ${score}`, 10, 25);
-      ctx.textAlign = "right";
-      ctx.fillText(`Best: ${highScore}`, canvas.width - 10, 25);
-    };
+			// Draw obstacles
+			for (const obs of currentGame.obstacles) {
+				if (imagesReady) {
+					ctx.drawImage(
+						cactusImage,
+						obs.x,
+						canvas.height - GROUND_HEIGHT - obs.height,
+						20,
+						obs.height
+					);
+				} else {
+					ctx.fillStyle = "#2d5a27";
+					ctx.fillRect(
+						obs.x,
+						canvas.height - GROUND_HEIGHT - obs.height,
+						20,
+						obs.height
+					);
+				}
+			}
 
-    const update = () => {
-      if (!startedRef.current || gameOverRef.current) return;
+			// Draw UI based on status
+			ctx.fillStyle = "#333";
+			ctx.font = "bold 14px system-ui, -apple-system, sans-serif";
 
-      const state = gameStateRef.current;
+			if (currentStatus === "idle") {
+				ctx.textAlign = "center";
+				ctx.fillText("Press SPACE or Tap to Start", canvas.width / 2, canvas.height - GROUND_HEIGHT - 60);
+			} else if (currentStatus === "gameover") {
+				ctx.font = "bold 24px system-ui, -apple-system, sans-serif";
+				ctx.textAlign = "center";
+				ctx.fillText("GAME OVER", canvas.width / 2, canvas.height - GROUND_HEIGHT - 60);
+				ctx.font = "bold 14px system-ui, -apple-system, sans-serif";
+				ctx.fillText(
+					`Score: ${scoreRef.current} | Best: ${highScoreRef.current}`,
+					canvas.width / 2,
+					canvas.height - GROUND_HEIGHT - 35
+				);
+				ctx.fillText("Press SPACE to Restart", canvas.width / 2, canvas.height - GROUND_HEIGHT - 10);
+			} else {
+				ctx.textAlign = "left";
+				ctx.fillText(`Score: ${scoreRef.current}`, 10, 25);
+				ctx.textAlign = "right";
+				ctx.fillText(`Best: ${highScoreRef.current}`, canvas.width - 10, 25);
+			}
+		};
 
-      if (!state.isJumping) {
-        state.dinoY += state.dinoVelocity;
-        state.dinoVelocity += GRAVITY;
-        if (state.dinoY >= 0) {
-          state.dinoY = 0;
-          state.dinoVelocity = 0;
-        }
-      }
+		const update = () => {
+			if (statusRef.current !== "playing") return;
 
-      state.frame++;
-      if (state.frame % 5 === 0) {
-        const newScore = state.currentScore + 1;
-        state.currentScore = newScore;
-        setScore(newScore);
-        setHighScore((h) => (newScore > h ? newScore : h));
-      }
+			const currentGame = gameRef.current;
 
-      const now = Date.now();
-      if (now - state.lastObstacleTime > MIN_OBSTACLE_GAP / state.speed * 200) {
-        const height = 30 + Math.random() * 30;
-        state.obstacles.push({ x: canvas.width, height, passed: false });
-        state.lastObstacleTime = now;
-      }
+			// Physics
+			if (currentGame.isJumping) {
+				currentGame.dinoY += currentGame.dinoVelocity;
+				currentGame.dinoVelocity += GRAVITY;
 
-      state.obstacles.forEach((obs) => {
-        obs.x -= state.speed;
-      });
+				if (currentGame.dinoY >= 0) {
+					currentGame.dinoY = 0;
+					currentGame.dinoVelocity = 0;
+					currentGame.isJumping = false;
+				}
+			}
 
-      state.obstacles = state.obstacles.filter((obs) => obs.x > -30);
+			// Animation frame
+			currentGame.frame++;
 
-      const dinoLeft = 50;
-      const dinoRight = 50 + DINO_WIDTH;
-      const dinoBottom = state.groundY + state.dinoY;
+			// Score
+			if (currentGame.frame % 5 === 0) {
+				currentGame.currentScore++;
+				setScore(currentGame.currentScore);
+				if (currentGame.currentScore > highScoreRef.current) {
+					highScoreRef.current = currentGame.currentScore;
+					setHighScore(currentGame.currentScore);
+				}
+			}
 
-      for (const obs of state.obstacles) {
-        const obsTop = canvas.height - GROUND_HEIGHT - obs.height;
-        if (dinoRight > obs.x && dinoLeft < obs.x + 20 && dinoBottom > obsTop) {
-          gameOverRef.current = true;
-          return;
-        }
-      }
-    };
+			// Spawn obstacles
+			const now = Date.now();
+			const spawnInterval = MIN_OBSTACLE_GAP / currentGame.speed;
+			if (now - currentGame.lastObstacleTime > spawnInterval) {
+				const height = 30 + Math.random() * 30;
+				currentGame.obstacles.push({ x: canvas.width, height });
+				currentGame.lastObstacleTime = now;
+			}
 
-    const gameLoop = () => {
-      update();
-      draw();
-      const newState = gameStateRef.current;
-      newState.animationId = requestAnimationFrame(gameLoop);
-    };
+			// Move obstacles
+			for (const obs of currentGame.obstacles) {
+				obs.x -= currentGame.speed;
+			}
 
-    // Single unified event handler
-    const handleGameAction = (e: Event) => {
-      e.preventDefault();
-      if (!startedRef.current || gameOverRef.current) {
-        startGame();
-      } else {
-        const s = gameStateRef.current;
-        if (!s.isJumping && s.dinoY === 0) {
-          s.isJumping = true;
-          s.dinoVelocity = JUMP_FORCE;
-        }
-      }
-    };
+			// Remove off-screen obstacles
+			currentGame.obstacles = currentGame.obstacles.filter((obs) => obs.x > -30);
 
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.code === "Space" || e.code === "ArrowUp") {
-        handleGameAction(e);
-      }
-    };
+			// Collision detection
+			const dinoLeft = 50;
+			const dinoRight = 50 + DINO_WIDTH - 5;
+			const dinoBottom = canvas.height - GROUND_HEIGHT + currentGame.dinoY;
 
-    window.addEventListener("keydown", handleKey);
-    canvas.addEventListener("touchstart", handleGameAction, { passive: false });
-    canvas.addEventListener("click", handleGameAction);
+			for (const obs of currentGame.obstacles) {
+				const obsLeft = obs.x + 2;
+				const obsRight = obs.x + 18;
+				const obsTop = canvas.height - GROUND_HEIGHT - obs.height;
 
-    const initialState = gameStateRef.current;
-    for (let i = 0; i < canvas.width / 30 + 1; i++) {
-      initialState.groundSegments.push({ x: i * 30 });
-    }
+				if (dinoRight > obsLeft && dinoLeft < obsRight && dinoBottom > obsTop) {
+					setStatus("gameover");
+					return;
+				}
+			}
+		};
 
-    gameLoop();
+		const gameLoop = () => {
+			update();
+			draw();
+			animationRef.current = requestAnimationFrame(gameLoop);
+		};
 
-    return () => {
-      cancelAnimationFrame(gameStateRef.current.animationId);
-      window.removeEventListener("keydown", handleKey);
-      canvas.removeEventListener("touchstart", handleGameAction);
-      canvas.removeEventListener("click", handleGameAction);
-    };
-  }, [startGame]);
+		// Initial draw
+		draw();
 
-  return (
-    <canvas
-      ref={canvasRef}
-      width={600}
-      height={160}
-      className="w-full max-w-xl cursor-pointer rounded-lg border border-border/30 bg-background/50"
-    />
-  );
+		// Start game loop
+		animationRef.current = requestAnimationFrame(gameLoop);
+
+		// Event handlers
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.code === "Space" || e.code === "ArrowUp") {
+				e.preventDefault();
+				handleAction();
+			}
+		};
+
+		const handleClick = () => {
+			handleAction();
+		};
+
+		const handleTouch = (e: TouchEvent) => {
+			e.preventDefault();
+			handleAction();
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		canvas.addEventListener("click", handleClick);
+		canvas.addEventListener("touchstart", handleTouch, { passive: false });
+
+		return () => {
+			cancelAnimationFrame(animationRef.current);
+			window.removeEventListener("keydown", handleKeyDown);
+			canvas.removeEventListener("click", handleClick);
+			canvas.removeEventListener("touchstart", handleTouch);
+		};
+	}, [handleAction]);
+
+	return (
+		<canvas
+			ref={canvasRef}
+			width={600}
+			height={160}
+			className="w-full max-w-xl cursor-pointer rounded-lg border border-border/30 bg-background/50"
+		/>
+	);
 }

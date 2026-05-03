@@ -1,4 +1,69 @@
-export const teamMembers = [
+// ============================================================
+// TEAM MEMBERS (for Teams Settings)
+// Data format matches Zernio /v1/users API response
+// ============================================================
+
+import type { TeamMember } from "@/components/features/settings/teams-tab";
+
+export const teamMembers: TeamMember[] = [
+	{
+		_id: "6507a1b2c3d4e5f6a7b8c9d0",
+		name: "John Doe",
+		email: "john@example.com",
+		role: "owner",
+		isRoot: true,
+		profileAccess: ["all"],
+		createdAt: "2024-01-15T10:30:00Z",
+	},
+	{
+		_id: "6507a1b2c3d4e5f6a7b8c9d1",
+		name: "Sarah Wilson",
+		email: "sarah.wilson@example.com",
+		role: "admin",
+		isRoot: false,
+		profileAccess: ["64f0a1b2c3d4e5f6a7b8c9d0", "64f0a1b2c3d4e5f6a7b8c9d1"],
+		createdAt: "2024-03-20T14:45:00Z",
+	},
+	{
+		_id: "6507a1b2c3d4e5f6a7b8c9d2",
+		name: "Mike Chen",
+		email: "mike.chen@example.com",
+		role: "member",
+		isRoot: false,
+		profileAccess: ["64f0a1b2c3d4e5f6a7b8c9d0"],
+		createdAt: "2024-04-10T09:15:00Z",
+	},
+	{
+		_id: "6507a1b2c3d4e5f6a7b8c9d3",
+		name: "Emma Davis",
+		email: "emma.davis@example.com",
+		role: "member",
+		isRoot: false,
+		profileAccess: ["64f0a1b2c3d4e5f6a7b8c9d2"],
+		createdAt: "2024-04-25T16:30:00Z",
+	},
+];
+
+export const teamUsersResponse = {
+	currentUserId: "6507a1b2c3d4e5f6a7b8c9d0",
+	users: teamMembers,
+};
+
+// ============================================================
+// LEGACY DASHBOARD DATA (for backward compatibility)
+// ============================================================
+
+export type LegacyTeamMember = {
+	id: string;
+	name: string;
+	role: string;
+	email: string;
+	avatar: string;
+	online: boolean;
+	tasksCompleted: number;
+};
+
+export const legacyTeamMembers: LegacyTeamMember[] = [
 	{
 		id: "1",
 		name: "Sarah Chen",

@@ -24,9 +24,9 @@ import {
 	Tag,
 	Twitter,
 	Users,
-	X,
 	Youtube,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { useAuthGate } from "@/components/auth";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
@@ -58,7 +58,6 @@ import { api } from "@/lib/client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { useAuthStore } from "@/stores";
-import { InboxAutomation } from "./InboxAutomation";
 
 // Server response shapes from Zernio API
 // https://zernio.com/docs - Inbox Conversations endpoint
@@ -446,16 +445,6 @@ export function InboxContent() {
 			label: "Reviews",
 			icon: <Star className="h-5 w-5" />,
 		},
-		{
-			id: "contacts",
-			label: "Contacts",
-			icon: <Users className="h-5 w-5" />,
-		},
-		{
-			id: "automation",
-			label: "Automation",
-			icon: <Bot className="h-5 w-5" />,
-		},
 	];
 
 	// Filter conversations
@@ -512,13 +501,29 @@ export function InboxContent() {
 	return (
 		<div className={pageContainerClassName} style={pageMaxWidth}>
 			{/* Header */}
-			<div className="mb-4">
-				<h1 className="font-display text-2xl font-bold tracking-tight">
-					Inbox
-				</h1>
-				<p className="text-sm text-muted-foreground">
-					Manage conversations and automation
-				</p>
+			<div className="flex items-start justify-between mb-4">
+				<div>
+					<h1 className="font-display text-2xl font-bold tracking-tight">
+						Inbox
+					</h1>
+					<p className="text-sm text-muted-foreground">
+						Manage conversations and automation
+					</p>
+				</div>
+				<div className="flex items-center gap-2">
+					<Button variant="outline" size="sm">
+						<Link href="/contacts">
+							<Users className="h-4 w-4 mr-2" />
+							Contacts
+						</Link>
+					</Button>
+					<Button variant="outline" size="sm">
+						<Link href="/inbox/automation">
+							<Bot className="h-4 w-4 mr-2" />
+							Automation
+						</Link>
+					</Button>
+				</div>
 			</div>
 
 			{/* Tabs */}
@@ -564,7 +569,7 @@ export function InboxContent() {
 							{/* Search & Sort */}
 							<div className="p-3 border-b border-border/50 space-y-2">
 								{/* Filter Tabs + Sort in one row */}
-								<div className="flex items-center justify-between gap-2">
+								<div className="flex items-center justify-between gap-2 pb-2">
 									<DepthButtonGroup>
 										<GroupedDepthButton
 											position="first"
@@ -1048,15 +1053,9 @@ export function InboxContent() {
 				</>
 			)}
 
-			{activeTab === "automation" && <InboxAutomation />}
-
 			{activeTab === "comments" && <CommentsTab comments={mockComments} />}
 
 			{activeTab === "reviews" && <ReviewsTab reviews={mockReviews} />}
-
-			{activeTab === "contacts" && (
-				<ContactsTab contacts={mockContacts as unknown as Contact[]} />
-			)}
 		</div>
 	);
 }
@@ -1116,48 +1115,6 @@ function CommentsTab({ comments }: CommentsTabProps) {
 				/>
 			</div>
 
-			{replyTarget && (
-				<Card className="border-border/50 p-4 space-y-3">
-					<div className="flex items-center justify-between">
-						<span className="text-sm font-medium">Reply Comment</span>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-7 w-7"
-							onClick={() => {
-								setReplyTarget(null);
-								setReplyText("");
-							}}
-						>
-							<X className="h-4 w-4" />
-						</Button>
-					</div>
-					<Textarea
-						placeholder="Write your reply..."
-						value={replyText}
-						onChange={(e) => setReplyText(e.target.value)}
-						className="min-h-[80px] resize-none"
-					/>
-					<div className="flex gap-2">
-						<Button
-							onClick={handleReply}
-							disabled={!replyText.trim() || isReplying}
-						>
-							{isReplying ? "Sending..." : "Send Reply"}
-						</Button>
-						<Button
-							variant="outline"
-							onClick={() => {
-								setReplyTarget(null);
-								setReplyText("");
-							}}
-						>
-							Cancel
-						</Button>
-					</div>
-				</Card>
-			)}
-
 			{filteredComments.length === 0 ? (
 				<Card className="border-border/50 p-8 text-center">
 					<MessageSquare className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
@@ -1204,20 +1161,51 @@ function CommentsTab({ comments }: CommentsTabProps) {
 												{post.likeCount}
 											</span>
 										</div>
-										<Button
-											variant="outline"
-											size="sm"
-											className="mt-2 h-7 text-xs"
-											onClick={() =>
-												setReplyTarget({
-													postId: post.id,
-													commentId: post.id,
-													platform: post.platform,
-												})
-											}
-										>
-											Reply
-										</Button>
+										{/* Inline Reply Form */}
+										{replyTarget?.commentId === post.id ? (
+											<div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+												<Textarea
+													placeholder="Write your reply..."
+													value={replyText}
+													onChange={(e) => setReplyText(e.target.value)}
+													className="min-h-[60px] resize-none text-sm"
+												/>
+												<div className="flex gap-2">
+													<Button
+														onClick={handleReply}
+														disabled={!replyText.trim() || isReplying}
+														size="sm"
+													>
+														{isReplying ? "Sending..." : "Send"}
+													</Button>
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={() => {
+															setReplyTarget(null);
+															setReplyText("");
+														}}
+													>
+														Cancel
+													</Button>
+												</div>
+											</div>
+										) : (
+											<Button
+												variant="outline"
+												size="sm"
+												className="mt-2 h-7 text-xs"
+												onClick={() =>
+													setReplyTarget({
+														postId: post.id,
+														commentId: post.id,
+														platform: post.platform,
+													})
+												}
+											>
+												Reply
+											</Button>
+										)}
 									</div>
 								</div>
 							</Card>

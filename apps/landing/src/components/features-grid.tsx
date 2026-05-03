@@ -7,8 +7,8 @@ const features = [
         <path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    title: "Analytics Dashboard",
-    description: "Semua metrik di satu tempat—engagement, pertumbuhan followers, dan performa iklan secara real-time.",
+    title: "Performance Analytics",
+    description: "Track engagement, reach, and conversions across all your platforms in real-time.",
   },
   {
     icon: (
@@ -16,8 +16,8 @@ const features = [
         <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    title: "Smart Inbox",
-    description: "Semua DM, comment, dan mention dari berbagai platform—handle dalam satu inbox tanpa switch tabs.",
+    title: "Brand Inbox",
+    description: "All DMs, comments, and mentions from 14+ platforms — in one inbox. Nothing slips through.",
   },
   {
     icon: (
@@ -26,8 +26,8 @@ const features = [
         <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
     ),
-    title: "Content Calendar",
-    description: "Rencanakan konten mingguan dengan visual calendar. Drag-drop, schedule, dan auto-post ke berbagai platform.",
+    title: "Multi-Channel Publishing",
+    description: "Schedule and publish to 14+ platforms from one calendar. No more tab-switching.",
   },
   {
     icon: (
@@ -35,8 +35,8 @@ const features = [
         <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    title: "AI Assistant",
-    description: "Caption suggestion, hashtag recommendations, dan content ideas—generate dalam hitungan detik.",
+    title: "AI Analytics Assistant",
+    description: "Ask your data anything. Get answers on what's driving growth — not more charts.",
   },
   {
     icon: (
@@ -45,7 +45,7 @@ const features = [
       </svg>
     ),
     title: "Media Library",
-    description: "Simpan dan organize semua assets—images, videos, dan GIFs. Akses instan kapanpun.",
+    description: "Store and organize all your brand assets — images, videos, GIFs. Access anytime.",
   },
   {
     icon: (
@@ -54,7 +54,7 @@ const features = [
       </svg>
     ),
     title: "Team Collaboration",
-    description: "Invite team members, assign tasks, dan approval workflows—collaboration tanpa chaos.",
+    description: "Invite team members, assign tasks, and manage approval workflows — without chaos.",
   },
   {
     icon: (
@@ -63,8 +63,8 @@ const features = [
         <path d="M2 12H22M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2V2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    title: "Multi-Platform",
-    description: "Connect semua platform—Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube, dan lebih banyak lagi.",
+    title: "Multi-Platform Support",
+    description: "Connect Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube, and 8+ more.",
   },
   {
     icon: (
@@ -73,7 +73,7 @@ const features = [
       </svg>
     ),
     title: "Best Time to Post",
-    description: "AI анализирует活跃时段 твоей аудитории и自动 публикует в оптимальное время.",
+    description: "AI analyzes your audience's active hours and auto-posts at the optimal moment.",
   },
   {
     icon: (
@@ -82,7 +82,7 @@ const features = [
       </svg>
     ),
     title: "White-label Reports",
-    description: "Generate professional reports dengan branding kamu. Download sebagai PDF atau share via link.",
+    description: "Generate professional reports with your branding. Download as PDF or share via link.",
   },
   {
     icon: (
@@ -91,8 +91,8 @@ const features = [
         <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
       </svg>
     ),
-    title: "Client Management",
-    description: "Give setiap client their own dashboard. Track performance per client dengan mudah.",
+    title: "Multi-Brand Support",
+    description: "Manage multiple brands from one dashboard. Perfect for agencies handling many clients.",
   },
   {
     icon: (
@@ -102,8 +102,8 @@ const features = [
         <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    title: "Competitor Analysis",
-    description: "Monitor competitor activity dan benchmark performance against industry standards.",
+    title: "Sentiment Analysis",
+    description: "Spot negative feedback early — before it becomes a public complaint.",
   },
   {
     icon: (
@@ -113,8 +113,8 @@ const features = [
         <path d="M18 8V22M6 14V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
     ),
-    title: "Ads Integration",
-    description: "View performa semua iklan dari Google, Meta, TikTok—sekaligus. Tau mana yang convert.",
+    title: "Ads Campaign Boosting",
+    description: "Amplify your best-performing posts with paid boost — directly from the dashboard.",
   },
   {
     icon: (
@@ -125,8 +125,8 @@ const features = [
         <circle cx="15" cy="9" r="1" fill="currentColor"/>
       </svg>
     ),
-    title: "Social Listening",
-    description: "Monitor brand mentions dan engage dengan audience—sebelum issues escalation.",
+    title: "Social CRM",
+    description: "Track your most engaged customers across platforms. Build relationships, not just followers.",
   },
   {
     icon: (
@@ -136,7 +136,7 @@ const features = [
       </svg>
     ),
     title: "URL Shortening",
-    description: "Shorten links dengan branded domains. Track click dan attribution dengan detail.",
+    description: "Shorten links with branded domains. Track clicks and attribution in detail.",
   },
   {
     icon: (
@@ -146,7 +146,7 @@ const features = [
       </svg>
     ),
     title: "24/7 Automation",
-    description: "Set it and forget it. Auto-post, auto-reply, dan auto-schedule—running even while you sleep.",
+    description: "Set it and forget it. Auto-post, auto-reply, and auto-schedule — running while you sleep.",
   },
 ];
 
@@ -157,39 +157,39 @@ export function FeaturesGrid() {
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-5xl mx-auto mb-16">
-            <span className="text-primary font-medium text-sm uppercase tracking-wider">
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">
               Features
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold mt-2 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold mt-2 mb-4 tracking-tight">
               Everything you need to dominate social media
             </h2>
-            <p className="text-muted-foreground text-lg">
-              Dari analytics sampai automation—semua tools yang kamu butuhin buat scale social media presence.
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              From scheduling to analytics — all the tools to plan, publish, engage, and grow across 14+ platforms.
             </p>
           </div>
 
           {/* Feature grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group relative bg-card border border-border rounded-2xl p-6 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                className="group relative bg-card border border-border rounded-2xl sm:rounded-3xl p-4 sm:p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
               >
                 {/* Icon */}
-                <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                   {feature.icon}
                 </div>
 
                 {/* Content */}
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-1">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-none">
                   {feature.description}
                 </p>
 
                 {/* Subtle corner accent */}
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-primary/5 to-transparent rounded-tr-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/5 to-transparent rounded-tr-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             ))}
           </div>

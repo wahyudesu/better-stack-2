@@ -1,7 +1,23 @@
-import { SimpleHeader } from "@/components/simple-header";
 import { Footer } from "@/components/footer";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "10 Tips to Boost Instagram Engagement | ZenPost Blog",
+  description:
+    "Proven strategies to increase your Instagram engagement. From Reels to timing to community building—practical tips for Indonesian businesses.",
+  alternates: {
+    canonical: "https://zenpost.in/blog/meningkatkan-engagement-instagram",
+  },
+  openGraph: {
+    title: "10 Tips to Boost Your Instagram Engagement",
+    description:
+      "Increase your Instagram engagement with these proven strategies. Learn about Reels, timing, captions, and community building.",
+    url: "https://zenpost.in/blog/meningkatkan-engagement-instagram",
+    type: "article",
+  },
+};
 
 const post = {
   slug: "meningkatkan-engagement-instagram",
@@ -55,8 +71,6 @@ const post = {
 export default function BlogPostPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <SimpleHeader />
-
       <main className="flex-1">
         <article className="py-16">
           <div className="container mx-auto px-4">

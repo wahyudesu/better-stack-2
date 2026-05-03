@@ -6,7 +6,7 @@ const steps = [
     phase: "Before",
     title: "Chaotic & Overwhelmed",
     description:
-      "Login ke 5 apps. Scroll-scroll-scroll. Missed posts. Lost track of DMs. Social media jadi burden, bukan asset.",
+      "Juggling 5 apps. Scrolling endlessly. Missed posts. Lost DMs. Social media becomes a burden, not an asset.",
     visual: (
       <div className="relative flex justify-center">
         <div className="grid grid-cols-3 gap-2">
@@ -24,14 +24,13 @@ const steps = [
         </div>
       </div>
     ),
-    color: "border-red-500/30 bg-red-500/5",
   },
   {
     number: "02",
     phase: "During",
     title: "Organized & Efficient",
     description:
-      "Plan konten mingguan di calendar. Set auto-post. Connect semua platform. Kamu cuma perlu approve content, sisanya kita yang handle.",
+      "Plan weekly content on a calendar. Set auto-post. Connect all platforms. You just approve — we handle the rest.",
     visual: (
       <div className="relative">
         <div className="bg-card rounded-xl border border-border p-4 space-y-2">
@@ -46,14 +45,13 @@ const steps = [
         </div>
       </div>
     ),
-    color: "border-yellow-500/30 bg-yellow-500/5",
   },
   {
     number: "03",
     phase: "After",
     title: "Growing & Scaling",
     description:
-      "Dashboard real-time. Analytics terpantau. Audience grow. Kamu fokus strategy, kita handle execution. Social media finally jadi competitive advantage.",
+      "Real-time dashboard. Analytics monitored. Audience growing. You focus on strategy — we handle execution. Social media finally becomes a competitive advantage.",
     visual: (
       <div className="relative">
         <div className="bg-card rounded-xl border border-border p-4">
@@ -72,7 +70,6 @@ const steps = [
         </div>
       </div>
     ),
-    color: "border-green-500/30 bg-green-500/5",
   },
 ];
 
@@ -83,14 +80,14 @@ export function Journey() {
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-5xl mx-auto mb-16">
-            <span className="text-primary font-medium text-sm uppercase tracking-wider">
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">
               Customer Journey
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold mt-2 mb-4">
-              Transformasi yang kamu dapet
+            <h2 className="text-3xl sm:text-4xl font-bold mt-2 mb-4 tracking-tight">
+              The transformation you get
             </h2>
-            <p className="text-muted-foreground">
-              Dari overwhelmed sama social media, sampai finally punya control penuh
+            <p className="text-muted-foreground leading-relaxed">
+              From overwhelmed by social media to having full control
             </p>
           </div>
 
@@ -103,7 +100,7 @@ export function Journey() {
               {steps.map((step) => (
                 <div
                   key={step.number}
-                  className={`rounded-2xl border ${step.color} p-6`}
+                  className="rounded-2xl border border-border bg-card p-6"
                 >
                   {/* Step header */}
                   <div className="flex items-center gap-4 mb-6">
