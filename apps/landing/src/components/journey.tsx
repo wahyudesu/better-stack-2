@@ -3,12 +3,9 @@
 const steps = [
   {
     number: "01",
-    phase: "Before",
     title: "Chaotic & Overwhelmed",
-    description:
-      "Juggling 5 apps. Scrolling endlessly. Missed posts. Lost DMs. Social media becomes a burden, not an asset.",
     visual: (
-      <div className="relative flex justify-center">
+      <div className="relative flex justify-center h-32">
         <div className="grid grid-cols-3 gap-2">
           {["📱", "📱", "📱", "📱", "📱", "📱"].map((phone, i) => (
             <div
@@ -27,12 +24,9 @@ const steps = [
   },
   {
     number: "02",
-    phase: "During",
     title: "Organized & Efficient",
-    description:
-      "Plan weekly content on a calendar. Set auto-post. Connect all platforms. You just approve — we handle the rest.",
     visual: (
-      <div className="relative">
+      <div className="relative h-32 flex items-center justify-center">
         <div className="bg-card rounded-xl border border-border p-4 space-y-2">
           {["Mon", "Wed", "Fri"].map((day) => (
             <div key={day} className="flex items-center gap-2">
@@ -48,12 +42,9 @@ const steps = [
   },
   {
     number: "03",
-    phase: "After",
     title: "Growing & Scaling",
-    description:
-      "Real-time dashboard. Analytics monitored. Audience growing. You focus on strategy — we handle execution. Social media finally becomes a competitive advantage.",
     visual: (
-      <div className="relative">
+      <div className="relative h-32 flex items-center justify-center">
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-end justify-center gap-2 h-20">
             {[40, 55, 45, 70, 60, 85, 75, 90, 80, 100].map((height, i) => (
@@ -100,28 +91,20 @@ export function Journey() {
               {steps.map((step) => (
                 <div
                   key={step.number}
-                  className="rounded-2xl border border-border bg-card p-6"
+                  className="rounded-2xl bg-muted p-6"
                 >
+                  {/* Visual */}
+                  <div className="mb-6">{step.visual}</div>
+
                   {/* Step header */}
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center font-bold text-lg">
                       {step.number}
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                        {step.phase}
-                      </p>
-                      <p className="font-semibold">{step.title}</p>
+                      <p className="font-semibold text-lg">{step.title}</p>
                     </div>
                   </div>
-
-                  {/* Visual */}
-                  <div className="mb-6">{step.visual}</div>
-
-                  {/* Description */}
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {step.description}
-                  </p>
                 </div>
               ))}
             </div>
@@ -131,3 +114,4 @@ export function Journey() {
     </section>
   );
 }
+

@@ -8,66 +8,61 @@ const solutions = [
   {
     id: "agency",
     label: "Agency",
-    headline: "Run 20 clients like you run 2.",
     description:
-      "Managing multiple clients means managing multiple tools, multiple logins, multiple reports — and somehow still delivering on time. zenpost.in brings it all under one roof.",
+      "Manage multiple clients without multiplying tools. One dashboard to schedule, track, and deliver — while your clients see white-label reports with your brand on it.",
     features: [
-      "Built-in approval workflow — no more back-and-forth",
-      "Schedule content from one calendar, not ten",
-      "White-label reports — your brand, not ours",
-      "Add new clients without adding headcount",
+      "Approval workflow — clients review without needing an account",
+      "Schedule from one calendar across 15+ platforms",
+      "White-label reports — your brand, your name",
+      "Add unlimited clients, no plan upgrade needed",
     ],
   },
   {
     id: "brand",
     label: "Brand",
-    headline: "Know what's growing your brand.",
     description:
-      "From scheduling to performance tracking — everything your brand needs to show up consistently and grow with confidence.",
+      "Show up consistently on every platform. Track what works, reply fast, and grow — all from one place.",
     features: [
+      "One inbox for DMs, comments, mentions, reviews",
       "Real-time analytics across every platform",
-      "All DMs, comments, mentions — one inbox",
       "AI insight — answers not more charts",
-      "Turn top posts into paid campaigns",
+      "Boost top-performing posts into paid campaigns",
     ],
   },
   {
     id: "freelancer",
     label: "Freelancer",
-    headline: "Enterprise tools without the enterprise price.",
     description:
-      "One person. Multiple clients. Zero chaos. Deliver results that look like a full agency — solo.",
+      "Deliver results that look like a full agency — solo. No retained staff, no complex tools, just you and your clients.",
     features: [
+      "Clients review and approve without an account",
       "Polished reports with your own branding",
-      "Clients review without needing an account",
       "Handle multiple clients from one dashboard",
-      "Scheduling, auto-reports, workflow automation",
+      "Auto-reports, scheduling, and workflow automation",
     ],
   },
   {
     id: "ecommerce",
     label: "E-Commerce",
-    headline: "Every reply = a potential sale.",
     description:
-      "Social media is your storefront. Slow replies cost you customers. zenpost.in keeps you on top of every interaction.",
+      "Your social channels are your storefront. Slow replies cost you customers. Every interaction is a chance to convert.",
     features: [
       "All product questions in one inbox",
       "Spot negative feedback before it goes viral",
       "Track engaged customers across platforms",
-      "Boost top-performing posts directly",
+      "Boost top-performing posts directly into ads",
     ],
   },
   {
     id: "automation",
     label: "Automation",
-    headline: "Set it once. Let it run forever.",
     description:
-      "Automate the stuff you do over and over — so your social presence keeps growing while you focus on work that matters.",
+      "Let the work run while you sleep. AI-powered replies, auto-scheduling, and workflow automation — so your social presence keeps growing.",
     features: [
       "AI-powered instant replies for DMs & comments",
-      "Custom automation flows",
-      "Publish at optimal times automatically",
       "Auto-generate captions tuned to your brand",
+      "Publish at optimal times automatically",
+      "Custom automation flows for your workflow",
     ],
   },
 ];
@@ -116,9 +111,6 @@ export function Solutions() {
 
           {/* Content */}
           <div className="text-center mb-8">
-            <h3 className="text-xl sm:text-2xl font-bold mb-2">
-              {activeSolution.headline}
-            </h3>
             <p className="text-muted-foreground text-sm sm:text-base">
               {activeSolution.description}
             </p>

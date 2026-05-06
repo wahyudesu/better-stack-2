@@ -5,24 +5,24 @@ import { PhoneCall } from "lucide-react";
 
 const faqs = [
   {
-    question: "What platforms does ZenPost support?",
+    question: "Can Zernio handle thousands of client accounts?",
     answer:
-      "ZenPost supports 14+ social media platforms — including Instagram, Facebook, TikTok, YouTube, LinkedIn, Twitter/X, Pinterest, Reddit, Bluesky, Threads, and more — all in one dashboard.",
+      "Yes. Scales to unlimited accounts, no changes needed.",
   },
   {
-    question: "Is my social media account data safe with ZenPost?",
+    question: "Can AI agents use Zernio to post on social media?",
     answer:
-      "Yes. We use industry-standard encryption and never store your actual social media credentials. Connections use secure OAuth.",
+      "Yes. Zernio ships an MCP server with 280+ tools. Connect it to Claude Desktop, Cursor, or any MCP-compatible client and your agent can post, schedule, read analytics, and manage DMs via natural language.",
   },
   {
-    question: "Can I use ZenPost with my team?",
+    question: "Which social media platforms does Zernio support?",
     answer:
-      "Yes! Multi-user features with role access let you invite team members with different roles — admin, editor, or viewer. Collaboration without the chaos.",
+      "15 platforms: Instagram, TikTok, X/Twitter, Facebook, LinkedIn, YouTube, WhatsApp, Threads, Pinterest, Reddit, Bluesky, Telegram, Google Business, Snapchat, and Discord. With Ads API support for 7 platforms.",
   },
   {
-    question: "How does ZenPost pricing work?",
+    question: "Will posting through Zernio get my accounts banned or reduce reach?",
     answer:
-      "We're currently in early access with special pricing. Join the waitlist now to get early access and the latest pricing info directly to your email.",
+      "No. We only use official platform APIs, so your posts are treated exactly like native posts.",
   },
 ];
 
@@ -55,7 +55,7 @@ export const FAQ = () => (
         </div>
 
         <div className="flex justify-center">
-          <Button className="gap-4" variant="outline">
+          <Button className="gap-4" variant="outline" onClick={() => window.Featurebase?.("showNewMessage")}>
             Any questions? Reach out <PhoneCall className="w-4 h-4" />
           </Button>
         </div>

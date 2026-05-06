@@ -10,7 +10,7 @@ import { WaitlistModal } from "@/components/waitlist-modal";
 const navLinks: { label: string; href: string }[] = [
   { label: "Features", href: "/#features" },
   { label: "Free Tools", href: "/tools" },
-  { label: "Blog", href: "/blog" },
+  // { label: "Blog", href: "/blog" },
 ];
 
 export function SimpleHeader() {

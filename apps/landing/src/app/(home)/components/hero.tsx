@@ -57,13 +57,13 @@ export function Hero() {
 									<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
 									<span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
 								</span>
-								Early access
+								How to use with AI Agent CLI (OpenClaw)
 							</Badge>
 						</div>
 
 						<div className="space-y-5 max-w-2xl mx-auto text-center items-center">
-							<h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-								From idea to published post — across 14+ platforms — in one clean workspace.
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+                Social Media Management Tool for Agencies and Brand Owner
 							</h1>
 							<p className="text-lg text-muted-foreground mx-auto max-w-xl leading-relaxed">
 								Schedule and boost content, manage conversations, and track performance — all in one simple place. No more tab-switching.

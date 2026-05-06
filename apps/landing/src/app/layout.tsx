@@ -4,6 +4,7 @@ import { ClerkProvider } from "@/components/clerk-provider";
 import { Toaster } from "@/components/ui/sonner";
 import FeaturebaseMessenger from "@/components/featurebase-messenger";
 import { SimpleHeader } from "@/components/simple-header";
+import { Footer } from "@/components/footer";
 import "./globals.css";
 
 const baseUrl = "https://zenpost.in";
@@ -120,6 +121,7 @@ export default function RootLayout({
         <body className="antialiased">
           <SimpleHeader />
           {children}
+          <Footer />
           <Toaster />
           <FeaturebaseMessenger />
         </body>
