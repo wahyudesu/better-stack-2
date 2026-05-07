@@ -1,4 +1,4 @@
-import { ScrollArea } from "@better-stack-2/ui/components/scroll-area";
+import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import {
 	Avatar,
 	AvatarFallback,

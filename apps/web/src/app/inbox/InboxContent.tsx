@@ -1,6 +1,6 @@
 "use client";
 
-import { ScrollArea } from "@better-stack-2/ui/components/scroll-area";
+import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	Avatar,
