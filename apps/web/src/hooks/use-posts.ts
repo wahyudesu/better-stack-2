@@ -28,7 +28,10 @@ function convertToPost(post: any): Post {
 		status: post.status || "draft",
 		scheduledAt: post.scheduledAt,
 		publishedAt: post.publishedAt,
-		media: post.mediaUrls?.map((url: string) => ({ url, type: "image" as const })),
+		media: post.mediaUrls?.map((url: string) => ({
+			url,
+			type: "image" as const,
+		})),
 		mediaItems: post.mediaUrls?.map((url: string) => ({ url })),
 		profileId: "",
 		socialAccountIds: post.accountIds || [],
@@ -97,7 +100,10 @@ export function useDeletePost() {
 			await deleteMutation({ postId });
 			queryClient.invalidateQueries({ queryKey: postKeys.all });
 		},
-		mutate: async (postId: string, callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void }) => {
+		mutate: async (
+			postId: string,
+			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
 			try {
 				await deleteMutation({ postId });
 				queryClient.invalidateQueries({ queryKey: postKeys.all });
@@ -119,13 +125,20 @@ export function useQueueSlots() {
 }
 
 export function useEditPost() {
-	return { mutateAsync: async () => {}, isPending: false, mutate: async () => {} };
+	return {
+		mutateAsync: async () => {},
+		isPending: false,
+		mutate: async () => {},
+	};
 }
 
 export function useUpdatePost() {
 	return {
 		mutateAsync: async (params: object) => ({ success: true }),
-		mutate: async (_params: object, callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void }) => {
+		mutate: async (
+			_params: object,
+			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
 			callbacks?.onSuccess?.();
 		},
 		isPending: false,
@@ -135,7 +148,10 @@ export function useUpdatePost() {
 export function useRetryPost() {
 	return {
 		mutateAsync: async () => ({}),
-		mutate: async (_id: string, callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void }) => {
+		mutate: async (
+			_id: string,
+			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
 			callbacks?.onSuccess?.();
 		},
 		isPending: false,
@@ -145,7 +161,10 @@ export function useRetryPost() {
 export function useUnpublishPost() {
 	return {
 		mutateAsync: async () => ({}),
-		mutate: async (_id: string, callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void }) => {
+		mutate: async (
+			_id: string,
+			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
 			callbacks?.onSuccess?.();
 		},
 		isPending: false,

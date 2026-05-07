@@ -32,8 +32,19 @@ export function useCreateSequence() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (body: { name: string; steps: any[]; profileId?: string; accountId?: string; platform?: string }) => {
-			const { data, error } = await api.createSequence({ ...body, profileId: body.profileId || "", accountId: body.accountId || "", platform: body.platform || "instagram" });
+		mutationFn: async (body: {
+			name: string;
+			steps: any[];
+			profileId?: string;
+			accountId?: string;
+			platform?: string;
+		}) => {
+			const { data, error } = await api.createSequence({
+				...body,
+				profileId: body.profileId || "",
+				accountId: body.accountId || "",
+				platform: body.platform || "instagram",
+			});
 			if (error) throw error;
 			return data;
 		},

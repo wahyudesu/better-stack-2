@@ -6,8 +6,8 @@ import {
 	MousePointerClick,
 	Play,
 	RotateCw,
-	TrendingUp,
 	Trash2,
+	TrendingUp,
 } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
@@ -340,9 +340,7 @@ export function CalendarGrid({
 												borderColor: `hsl(${ev.color})`,
 											}}
 										>
-											<div
-												className="flex items-start min-w-0 mb-auto"
-											>
+											<div className="flex items-start min-w-0 mb-auto">
 												{ev.thumbnail ? (
 													<div className="relative size-10 rounded overflow-hidden flex-shrink-0 bg-muted mr-2">
 														<Image
@@ -447,7 +445,12 @@ function ContentItemPopover({
 				{/* Content */}
 				<div className="flex gap-3 px-3 pb-3">
 					<div className="flex-1 min-w-0">
-						<p className={cn("text-sm text-muted-foreground", expanded ? "" : "line-clamp-4")}>
+						<p
+							className={cn(
+								"text-sm text-muted-foreground",
+								expanded ? "" : "line-clamp-4",
+							)}
+						>
 							{event.description || event.title}
 						</p>
 						<button

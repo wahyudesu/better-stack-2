@@ -133,7 +133,10 @@ function postToCalendarEvent(post: Post): CalendarEvent {
 		description: postText,
 		status: post.status,
 		color: PLATFORM_COLORS[primaryPlatform] || "328 70% 55%",
-		thumbnail: post.media?.[0]?.url || (post as any).mediaItems?.[0]?.url || (post as any).mediaUrls?.[0],
+		thumbnail:
+			post.media?.[0]?.url ||
+			(post as any).mediaItems?.[0]?.url ||
+			(post as any).mediaUrls?.[0],
 		mediaType: post.media?.[0]?.type === "video" ? "video" : "image",
 	};
 }

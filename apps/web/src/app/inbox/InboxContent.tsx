@@ -1,12 +1,12 @@
 "use client";
 
-import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@zenpost/ui/components/avatar";
+import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import { Bot, MessageSquare, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";

@@ -19,10 +19,28 @@ declare namespace Cloudflare {
 }
 interface CloudflareEnv extends Cloudflare.Env {}
 type StringifyValues<EnvType extends Record<string, unknown>> = {
-	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
+	[Binding in keyof EnvType]: EnvType[Binding] extends string
+		? EnvType[Binding]
+		: string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "NEXT_PUBLIC_API_URL" | "NEXT_PUBLIC_SERVER_URL" | "NEXT_PUBLIC_ZERNIO_BASE_URL" | "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" | "CLERK_SECRET_KEY" | "CLERK_FRONTEND_API_URL" | "CLERK_JWT_ISSUER_DOMAIN" | "CONVEX_DEPLOY_KEY" | "NEXT_PUBLIC_CONVEX_URL" | "NEXT_PUBLIC_CONVEX_SITE_URL" | "CONVEX_DEPLOYMENT">> {}
+	interface ProcessEnv
+		extends StringifyValues<
+			Pick<
+				Cloudflare.Env,
+				| "NEXT_PUBLIC_API_URL"
+				| "NEXT_PUBLIC_SERVER_URL"
+				| "NEXT_PUBLIC_ZERNIO_BASE_URL"
+				| "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+				| "CLERK_SECRET_KEY"
+				| "CLERK_FRONTEND_API_URL"
+				| "CLERK_JWT_ISSUER_DOMAIN"
+				| "CONVEX_DEPLOY_KEY"
+				| "NEXT_PUBLIC_CONVEX_URL"
+				| "NEXT_PUBLIC_CONVEX_SITE_URL"
+				| "CONVEX_DEPLOYMENT"
+			>
+		> {}
 }
 
 // Begin runtime types

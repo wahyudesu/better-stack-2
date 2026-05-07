@@ -44,12 +44,18 @@ export function useConversations(accountId?: string, platform?: string) {
 	});
 }
 
-export function useConversation(conversationId: string | null, accountId?: string) {
+export function useConversation(
+	conversationId: string | null,
+	accountId?: string,
+) {
 	return useQuery({
 		queryKey: inboxKeys.conversation(conversationId ?? ""),
 		queryFn: async () => {
 			if (!conversationId) return null;
-			const { data, error } = await api.getConversation(conversationId, accountId ?? "");
+			const { data, error } = await api.getConversation(
+				conversationId,
+				accountId ?? "",
+			);
 			if (error) throw error;
 			return data;
 		},
@@ -84,7 +90,10 @@ export function useSendMessage(conversationId: string, accountId: string) {
 
 	return useMutation({
 		mutationFn: async (text: string) => {
-			const { data, error } = await api.sendMessage(conversationId, { accountId, message: text });
+			const { data, error } = await api.sendMessage(conversationId, {
+				accountId,
+				message: text,
+			});
 			if (error) throw error;
 			return data;
 		},
@@ -141,7 +150,11 @@ export function useHideComment() {
 			commentId: string;
 			accountId?: string;
 		}) => {
-			const { error } = await api.hideComment(postId, commentId, accountId ?? "");
+			const { error } = await api.hideComment(
+				postId,
+				commentId,
+				accountId ?? "",
+			);
 			if (error) throw error;
 		},
 		onSuccess: () => {

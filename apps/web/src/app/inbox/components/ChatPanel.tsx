@@ -1,9 +1,9 @@
-import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@zenpost/ui/components/avatar";
+import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import { MoreVertical, Paperclip, Send, Smile, Star, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

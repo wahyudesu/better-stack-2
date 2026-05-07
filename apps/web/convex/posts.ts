@@ -252,7 +252,8 @@ export const createPostToZernio = action({
 			platforms: args.platforms,
 			scheduledAt: args.scheduledAt,
 			mediaUrls: args.mediaUrls,
-			status: zernioPost.status || (args.scheduledAt ? "scheduled" : "published"),
+			status:
+				zernioPost.status || (args.scheduledAt ? "scheduled" : "published"),
 			scheduledAtZernio: zernioPost.scheduledAt || undefined,
 			publishedAtZernio: zernioPost.publishedAt || undefined,
 		});
@@ -354,7 +355,9 @@ export const deletePostFromConvex = mutation({
 			.query("posts")
 			.withIndex("by_userId", (q) => q.eq("userId", user._id))
 			.collect();
-		const localPost = existingPosts.find((p) => p.externalPostId === args.externalPostId);
+		const localPost = existingPosts.find(
+			(p) => p.externalPostId === args.externalPostId,
+		);
 
 		if (localPost) {
 			await ctx.db.delete(localPost._id);
