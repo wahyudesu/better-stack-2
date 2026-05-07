@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase';
 import { uploadMedia } from '@/lib/storage';
-import { createUserClient } from '@/lib/db';
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -11,9 +11,11 @@ export async function POST(req: Request) {
   const file = formData.get('file') as File;
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
 
+  // Upload to Supabase Storage (admin, bypasses RLS for storage operations)
   const { storageId, url } = await uploadMedia(userId, file);
 
-  const supabase = createUserClient(userId);
+  // Insert media record (user-scoped)
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from('media')
     .insert({

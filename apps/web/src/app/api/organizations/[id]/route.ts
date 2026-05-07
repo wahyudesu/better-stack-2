@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { createUserClient } from '@/lib/db';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -9,7 +9,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const { id } = await params;
   const { name, logoUrl } = await req.json();
 
-  const supabase = createUserClient(userId);
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from('organizations')
     .update({ name, logo_url: logoUrl })

@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { createUserClient } from '@/lib/db';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function PATCH(req: Request) {
   const { userId } = await auth();
@@ -8,7 +8,7 @@ export async function PATCH(req: Request) {
 
   const { apiKey } = await req.json();
 
-  const supabase = createUserClient(userId);
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from('users')
     .update({ api_key: apiKey })

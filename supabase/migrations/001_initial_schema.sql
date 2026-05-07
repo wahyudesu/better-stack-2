@@ -1,3 +1,6 @@
+-- Migration: Create initial schema for all 5 tables
+-- Run: supabase db push
+
 CREATE TABLE IF NOT EXISTS users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   clerk_id TEXT UNIQUE NOT NULL,
@@ -59,6 +62,7 @@ CREATE TABLE IF NOT EXISTS organizations (
   created_at BIGINT NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW())::BIGINT * 1000
 );
 
+-- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_clerk_id ON users(clerk_id);
 CREATE INDEX IF NOT EXISTS idx_social_accounts_user_id ON social_accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_social_accounts_platform ON social_accounts(platform);

@@ -1,12 +1,12 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { createUserClient } from '@/lib/db';
+import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createUserClient(userId);
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from('posts')
     .select('*')
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   const zernioPost = await zernioRes.json();
 
   // Write to Supabase
-  const supabase = createUserClient(userId);
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from('posts')
     .insert({
