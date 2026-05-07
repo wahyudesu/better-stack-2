@@ -7,8 +7,8 @@ Marketing landing page for Better Stack 2 social media dashboard.
 - **Framework**: Next.js 16.1.5 + React 19
 - **Styling**: Tailwind CSS v4
 - **Testing**: Vitest + Playwright
-- **Animation**: Motion (Framer Motion)
-- **Deployment**: Cloudflare Workers via OpenNext
+- **Animation**: Motion (Framer Motion v12)
+- **Deployment**: Cloudflare Workers via `@opennextjs/cloudflare`
 - **Analytics**: PostHog for product analytics
 
 ## Product Identity

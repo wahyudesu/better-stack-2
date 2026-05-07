@@ -31,6 +31,13 @@ export function createProfilesRoutes(fetch: <T>(path: string, options?: any) => 
     update: (profileId: string, data: { name?: string; description?: string }) => {
       return fetch<any>(`/v1/profiles/${profileId}`, { method: 'PATCH', body: data })
     },
+
+    /**
+     * Delete a profile
+     */
+    delete: (profileId: string) => {
+      return fetch<any>(`/v1/profiles/${profileId}`, { method: 'DELETE' })
+    },
   }
 }
 

@@ -4,7 +4,24 @@ const competitors = ["Postiz", "Repliz", "Buffer", "Meta Business Suite"] as con
 
 type CellVariant = "check" | "partial" | "x" | "text";
 
-function Cell({ variant, text }: { variant: CellVariant; text?: string }) {
+type RowCell = {
+  variant: "check" | "x";
+  text?: never;
+} | {
+  variant: "partial" | "text";
+  text: string;
+} | {
+  variant: CellVariant;
+  text?: string;
+};
+
+type RowData = {
+  feature: string;
+  zen: { variant: CellVariant; label?: string; text?: string };
+  data: RowCell[];
+};
+
+function Cell({ variant, text }: { variant: CellVariant; text?: string | undefined }) {
   if (variant === "check") {
     return (
       <div className="flex items-center justify-center min-h-[28px]">
@@ -91,7 +108,7 @@ function CellZen({ label, text }: { label?: string; text?: string }) {
   );
 }
 
-const rows = [
+const rows: RowData[] = [
   {
     feature: "App integrations",
     zen: { variant: "text" as CellVariant, text: "15+" },
@@ -206,7 +223,7 @@ export function Comparison() {
                         key={colIndex}
                         className="py-2.5 px-1 text-center border-b border-border-warm group-hover:bg-bg-warm/60"
                       >
-                        <Cell variant={cell.variant} text={cell.text} />
+                        <Cell variant={cell.variant} text={cell.text ?? undefined} />
                       </td>
                     ))}
                   </tr>

@@ -16,11 +16,20 @@ export function createPostsHandlers() {
 				limit: c.req.query('limit') ? Number(c.req.query('limit')) : undefined,
 				profileId: c.req.query('profileId') || undefined,
 				status: c.req.query('status') || undefined,
+				platform: c.req.query('platform') || undefined,
+				createdBy: c.req.query('createdBy') || undefined,
+				dateFrom: c.req.query('dateFrom') || undefined,
+				dateTo: c.req.query('dateTo') || undefined,
+				includeHidden: c.req.query('includeHidden') === 'true' ? true : undefined,
+				search: c.req.query('search') || undefined,
+				sortBy: c.req.query('sortBy') || undefined,
+				accountId: c.req.query('accountId') || undefined,
 			}
 			try {
 				const result = await routes.list(params)
 				return c.json(result)
 			} catch (error) {
+				console.error('[posts/list]', error)
 				return c.json(
 					{ error: error instanceof Error ? error.message : 'Unknown error' },
 					500,
@@ -60,7 +69,7 @@ export function createPostsHandlers() {
 			}
 		},
 
-		/** PATCH /v1/posts/:postId */
+		/** PUT /v1/posts/:postId */
 		update: async (c: Context) => {
 			const postId = c.req.param('postId')!
 			const body = await c.req.json()
@@ -117,6 +126,23 @@ export function createPostsHandlers() {
 			const routes = createPostsRoutes(fetch)
 			try {
 				const result = await routes.edit(postId, body)
+				return c.json(result)
+			} catch (error) {
+				return c.json(
+					{ error: error instanceof Error ? error.message : 'Unknown error' },
+					500,
+				)
+			}
+		},
+
+		/** PUT /v1/posts/:postId */
+		replace: async (c: Context) => {
+			const postId = c.req.param('postId')!
+			const body = await c.req.json()
+			const fetch = createFetchFromHono(c)
+			const routes = createPostsRoutes(fetch)
+			try {
+				const result = await routes.replace(postId, body)
 				return c.json(result)
 			} catch (error) {
 				return c.json(

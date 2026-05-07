@@ -44,12 +44,12 @@ export function useConversations(accountId?: string, platform?: string) {
 	});
 }
 
-export function useConversation(conversationId: string | null) {
+export function useConversation(conversationId: string | null, accountId?: string) {
 	return useQuery({
 		queryKey: inboxKeys.conversation(conversationId ?? ""),
 		queryFn: async () => {
 			if (!conversationId) return null;
-			const { data, error } = await api.getConversation(conversationId);
+			const { data, error } = await api.getConversation(conversationId, accountId ?? "");
 			if (error) throw error;
 			return data;
 		},
@@ -58,7 +58,7 @@ export function useConversation(conversationId: string | null) {
 	});
 }
 
-export function useMessages(conversationId: string | null) {
+export function useMessages(conversationId: string | null, accountId?: string) {
 	return useQuery({
 		queryKey: inboxKeys.messages(conversationId ?? ""),
 		queryFn: async () => {
@@ -67,6 +67,7 @@ export function useMessages(conversationId: string | null) {
 				return getMockMessages(conversationId);
 			}
 			const { data, error } = await api.listMessages(conversationId, {
+				accountId: accountId ?? "",
 				limit: 50,
 			});
 			if (error) throw error;
@@ -78,12 +79,12 @@ export function useMessages(conversationId: string | null) {
 	});
 }
 
-export function useSendMessage(conversationId: string) {
+export function useSendMessage(conversationId: string, accountId: string) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async (text: string) => {
-			const { data, error } = await api.sendMessage(conversationId, { text });
+			const { data, error } = await api.sendMessage(conversationId, { accountId, message: text });
 			if (error) throw error;
 			return data;
 		},
@@ -95,12 +96,12 @@ export function useSendMessage(conversationId: string) {
 	});
 }
 
-export function useMarkAsRead(conversationId: string) {
+export function useMarkAsRead(conversationId: string, accountId: string) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async () => {
-			const { error } = await api.markAsRead(conversationId);
+			const { error } = await api.markAsRead(conversationId, accountId);
 			if (error) throw error;
 		},
 		onSuccess: () => {
@@ -134,11 +135,13 @@ export function useHideComment() {
 		mutationFn: async ({
 			postId,
 			commentId,
+			accountId,
 		}: {
 			postId: string;
 			commentId: string;
+			accountId?: string;
 		}) => {
-			const { error } = await api.hideComment(postId, commentId);
+			const { error } = await api.hideComment(postId, commentId, accountId ?? "");
 			if (error) throw error;
 		},
 		onSuccess: () => {
@@ -155,13 +158,16 @@ export function usePrivateReply() {
 			postId,
 			commentId,
 			text,
+			accountId,
 		}: {
 			postId: string;
 			commentId: string;
 			text: string;
+			accountId?: string;
 		}) => {
 			const { data, error } = await api.privateReply(postId, commentId, {
-				text,
+				accountId: accountId ?? "",
+				message: text,
 			});
 			if (error) throw error;
 			return data;

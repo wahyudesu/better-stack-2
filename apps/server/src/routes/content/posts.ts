@@ -7,8 +7,21 @@ export function createPostsRoutes(fetch: <T>(path: string, options?: any) => Pro
     /**
      * List posts with pagination
      */
-    list: (params: { page?: number; limit?: number; profileId?: string; status?: string } = {}) => {
-      return fetch<any>('/v1/posts', { query: params })
+    list: (params: {
+      page?: number
+      limit?: number
+      profileId?: string
+      status?: string
+      platform?: string
+      createdBy?: string
+      dateFrom?: string
+      dateTo?: string
+      includeHidden?: boolean
+      search?: string
+      sortBy?: string
+      accountId?: string
+    } = {}) => {
+      return fetch<{ posts?: any[]; data?: any[]; pagination?: any }>('/v1/posts', { query: params })
     },
 
     /**
@@ -33,14 +46,30 @@ export function createPostsRoutes(fetch: <T>(path: string, options?: any) => Pro
     },
 
     /**
-     * Update a post
+     * Update a post (partial)
      */
     update: (postId: string, data: {
+      content?: string
+      scheduledFor?: string
+      tiktokSettings?: object
+      facebookSettings?: object
+      recycling?: object
+    }) => {
+      return fetch<any>(`/v1/posts/${postId}`, { method: 'PUT', body: data })
+    },
+
+    /**
+     * Replace a post (full update)
+     */
+    replace: (postId: string, data: {
+      profileId?: string
       text?: string
+      socialAccountIds?: string[]
       scheduledAt?: string
       media?: Array<{ url: string; type?: string; altText?: string }>
+      thread?: Array<{ text: string; media?: Array<{ url: string }> }>
     }) => {
-      return fetch<any>(`/v1/posts/${postId}`, { method: 'PATCH', body: data })
+      return fetch<any>(`/v1/posts/${postId}`, { method: 'PUT', body: data })
     },
 
     /**

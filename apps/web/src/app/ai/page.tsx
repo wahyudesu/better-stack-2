@@ -18,12 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 
-const REFERENCE_PROMPTS = [
-	"Analisis winning konten di platform Instagram",
-	"Buatkan strategi content calendar untuk TikTok",
-	" Tips meningkatkan engagement rate di LinkedIn",
-] as const;
-
 export default function AIChatPage() {
 	const [copiedMcp, setCopiedMcp] = useState(false);
 	const [inputValue, setInputValue] = useState("");
@@ -37,6 +31,10 @@ export default function AIChatPage() {
 
 	return (
 		<div className={pageContainerClassName} style={pageMaxWidth}>
+			<div className="mb-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-2 text-sm text-yellow-700 dark:text-yellow-400">
+				<span className="font-medium">Beta:</span> AI features masih dalam
+				pengembangan. Output bisa kurang akurat.
+			</div>
 			<div className="mb-4 flex items-center justify-between">
 				<h1 className="font-display text-2xl font-bold tracking-tight flex items-center gap-2">
 					<MessageSquareIcon className="h-6 w-6 text-primary" />
@@ -60,19 +58,6 @@ export default function AIChatPage() {
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
-			</div>
-			<div className="mb-3 flex flex-wrap gap-2">
-				{REFERENCE_PROMPTS.map((prompt) => (
-					<Button
-						key={prompt}
-						variant="outline"
-						size="sm"
-						className="text-muted-foreground"
-						onClick={() => setInputValue(prompt)}
-					>
-						{prompt}
-					</Button>
-				))}
 			</div>
 			<div className="h-[calc(100vh-280px)] min-h-[500px]">
 				<Suspense

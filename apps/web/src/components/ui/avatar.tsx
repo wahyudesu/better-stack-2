@@ -1,5 +1,6 @@
 export {
 	Avatar,
+	AvatarBadge,
 	AvatarFallback,
 	AvatarGroup,
 	AvatarImage,

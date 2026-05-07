@@ -24,7 +24,7 @@ export function createSyncHandlers() {
 			if (since) queryParams.set('since', since)
 
 			try {
-				const response = await fetch(`${baseUrl}/v1/posts?${queryParams.toString()}`, {
+				const response = await fetch(`${baseUrl}/posts?${queryParams.toString()}`, {
 					method: 'GET',
 					headers: { Authorization: `Bearer ${apiKey}` },
 				})
@@ -57,7 +57,7 @@ export function createSyncHandlers() {
 			if (profileId) queryParams.set('profileId', profileId)
 
 			try {
-				const response = await fetch(`${baseUrl}/v1/accounts?${queryParams.toString()}`, {
+				const response = await fetch(`${baseUrl}/accounts?${queryParams.toString()}`, {
 					method: 'GET',
 					headers: { Authorization: `Bearer ${apiKey}` },
 				})

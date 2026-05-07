@@ -14,8 +14,8 @@ export function createAdAudiencesRoutes(fetch: <T>(path: string, options?: any) 
     /**
      * Create a custom audience
      */
-    create: (accountId: string, data: { name: string; source?: string; description?: string; retentionDays?: number }) => {
-      return fetch<any>('/v1/ads/audiences', { method: 'POST', body: { accountId, ...data } })
+    create: (data: { accountId?: string; name: string; source?: string; description?: string; retentionDays?: number }) => {
+      return fetch<any>('/v1/ads/audiences', { method: 'POST', body: data })
     },
 
     /**
@@ -42,8 +42,15 @@ export function createAdAudiencesRoutes(fetch: <T>(path: string, options?: any) 
     /**
      * Add users to audience
      */
-    addUsers: (accountId: string, audienceId: string, data: { users: Array<{ identifier: string; type: string }> }) => {
-      return fetch<any>(`/v1/ads/audiences/${audienceId}/users`, { method: 'POST', body: { accountId, ...data } })
+    addUsers: (audienceId: string, data: { accountId?: string; users?: Array<{ identifier: string; type: string }> }) => {
+      return fetch<any>(`/v1/ads/audiences/${audienceId}/users`, { method: 'POST', body: data })
+    },
+
+    /**
+     * List users in audience
+     */
+    listUsers: (audienceId: string, params?: { page?: number; limit?: number }) => {
+      return fetch<any>(`/v1/ads/audiences/${audienceId}/users`, { query: params })
     },
   }
 }

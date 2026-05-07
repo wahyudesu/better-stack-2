@@ -5,15 +5,16 @@
 
 "use client";
 
+import { useQuery } from "convex/react";
 import { useState } from "react";
 import { SocialIcon } from "react-social-icons/component";
+import { api } from "@/convex/_generated/api";
 import {
 	useAccounts,
 	useAccountsHealth,
 	useConnectAccount,
 	useDeleteAccount,
 } from "@/hooks/use-accounts";
-import { useCurrentProfileId } from "@/hooks/use-profiles";
 import { useAuthStore } from "@/stores";
 import "react-social-icons/instagram";
 import "react-social-icons/tiktok";
@@ -41,6 +42,12 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+	Avatar,
+	AvatarBadge,
+	AvatarFallback,
+	AvatarImage,
+} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -62,6 +69,7 @@ interface Connection {
 	tokenStatus?: "valid" | "expired" | "invalid";
 	expiresAt?: string;
 	accountId?: string;
+	convexId?: string; // Convex document ID for mutations
 	profilePicture?: string;
 	isOrganization?: boolean;
 	permissions?: {
@@ -126,9 +134,7 @@ const getPlatformConfig = (platform: string) => {
 };
 
 export function ConnectionsTab() {
-	const profileId = useCurrentProfileId();
-	const { usageStats } = useAuthStore();
-	const apiKey = usageStats ? "connected" : null;
+	const { apiKey } = useAuthStore();
 
 	const {
 		data: accountsData,
@@ -155,9 +161,11 @@ export function ConnectionsTab() {
 		Record<string, boolean>
 	>({});
 
-	// Convert Zernio accounts to Connection format
+	// Convert accounts to Connection format
+	// account._id = Zernio account ID (for display)
+	// account.convexId = Convex document ID (for mutations)
 	const connectedAccounts: Connection[] =
-		accountsData?.accounts?.map((account: SocialAccount) => {
+		accountsData?.accounts?.map((account: any) => {
 			const health = _healthMap[account._id];
 			return {
 				id: account.platform,
@@ -170,6 +178,7 @@ export function ConnectionsTab() {
 				status: (health as any)?.isHealthy !== false ? "healthy" : "error",
 				tokenStatus: "valid",
 				accountId: account._id,
+				convexId: account.convexId,
 				profilePicture: account.profilePicture,
 				isOrganization: linkedinOrganization[account._id] ?? false,
 			};
@@ -225,24 +234,18 @@ export function ConnectionsTab() {
 		setLinkedinOrganization((prev) => ({ ...prev, [accountId]: value }));
 	};
 
-	// Not authenticated
-	if (!apiKey) {
+	// Loading
+	if (accountsLoading) {
 		return (
 			<div className="flex flex-col gap-6">
-				<Card>
-					<CardContent className="text-center">
-						<AlertCircle className="size-8 mx-auto mb-3 text-muted-foreground" />
-						<p className="text-sm font-medium">API Key Not Connected</p>
-						<p className="text-xs text-muted-foreground mt-1">
-							Connect your API key in Settings &gt; Security to view accounts
-						</p>
-					</CardContent>
-				</Card>
+				<div className="flex items-center justify-center py-12">
+					<Loader2 className="size-6 animate-spin text-muted-foreground" />
+				</div>
 			</div>
 		);
 	}
 
-	// Loading
+	// Loading state
 	if (accountsLoading) {
 		return (
 			<div className="flex flex-col gap-6">
@@ -264,7 +267,7 @@ export function ConnectionsTab() {
 							Failed to load accounts
 						</p>
 						<p className="text-xs text-muted-foreground mt-1">
-							{accountsError.message}
+							{String(accountsError)}
 						</p>
 					</CardContent>
 				</Card>
@@ -300,26 +303,30 @@ export function ConnectionsTab() {
 							>
 								<div className="flex items-center gap-3">
 									<div className="relative shrink-0">
-										<div className="w-8 h-8 rounded-full bg-muted overflow-hidden">
-											{c.profilePicture ? (
-												<img
-													src={c.profilePicture}
-													alt={c.handle ?? c.name}
-													className="w-full h-full object-cover"
-												/>
-											) : (
+										<Avatar className="w-8 h-8">
+											<AvatarImage
+												src={c.profilePicture}
+												alt={c.handle ?? c.name}
+											/>
+											<AvatarFallback>
 												<SocialIcon
 													network={c.network}
-													style={{ height: 32, width: 32 }}
+													style={{ height: 28, width: 28 }}
 												/>
-											)}
-										</div>
-										<div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-card shadow-sm p-0.5">
+											</AvatarFallback>
+										</Avatar>
+										<AvatarBadge>
 											<SocialIcon
 												network={c.network}
 												style={{ height: 12, width: 12 }}
 											/>
-										</div>
+										</AvatarBadge>
+										{/*<div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-card shadow-sm p-0.5">
+												<SocialIcon
+													network={c.network}
+													style={{ height: 12, width: 12 }}
+												/>
+											</div>*/}
 									</div>
 									<div className="flex-1 min-w-0">
 										<p className="text-sm font-semibold truncate">
@@ -397,17 +404,17 @@ export function ConnectionsTab() {
 								</div>
 								<div className="flex items-center justify-end">
 									<Button
-										variant="ghost"
+										variant="destructive"
 										size="sm"
 										onClick={() =>
 											setDialog({
 												open: true,
 												id: c.id,
 												name: c.name,
-												accountId: c.accountId,
+												accountId: c.convexId,
 											})
 										}
-										className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive transition-colors"
+										className="h-7 px-2 text-xs text-destructive/50 hover:text-destructive transition-colors"
 									>
 										<LogOut className="size-3.5 mr-1" />
 										Disconnect
@@ -450,7 +457,7 @@ export function ConnectionsTab() {
 											variant="default"
 											size="sm"
 											onClick={() => handleConnect(c.id)}
-											disabled={connectingPlatform !== null || !profileId}
+											disabled={connectingPlatform !== null || !apiKey}
 											className="w-full rounded-lg"
 										>
 											{connectingPlatform === c.id ? (

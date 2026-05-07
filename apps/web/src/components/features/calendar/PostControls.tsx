@@ -15,7 +15,7 @@ import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 
 export type ViewMode = "calendar" | "cards";
 export type CalendarView = "month" | "week";
-export type PostStatus = "draft" | "pending" | "published" | "failed";
+export type PostStatus = "all" | "draft" | "pending" | "published" | "failed";
 
 interface PostControlsProps {
 	viewMode: ViewMode;
@@ -58,6 +58,7 @@ export function PostControls({
 	];
 
 	const statusTabs = [
+		{ id: "all", label: "All" },
 		{ id: "draft", label: "Draft" },
 		{ id: "pending", label: "Pending" },
 		{ id: "published", label: "Published" },

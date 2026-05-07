@@ -1,13 +1,16 @@
 import {
+	Ban,
 	ExternalLink,
 	Heart,
 	MessageCircle,
 	MousePointerClick,
 	Play,
+	RotateCw,
 	TrendingUp,
+	Trash2,
 } from "lucide-react";
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { type Platform, PlatformIcon } from "@/components/ui/PlatformIcon";
@@ -33,8 +36,15 @@ interface CalendarGridProps {
 	onDragEnd: (e: React.DragEvent) => void;
 	onDragOver: (e: React.DragEvent) => void;
 	onDrop: (e: React.DragEvent, dateStr: string) => void;
+	onDelete?: (event: CalendarEvent) => void;
+	onUnpublish?: (event: CalendarEvent) => void;
+	onRetry?: (event: CalendarEvent) => void;
+	onViewLogs?: (event: CalendarEvent) => void;
 	calendarView?: CalendarView;
 }
+
+const BASE_HEADER_HEIGHT = 72; // px for date header
+const EVENT_ITEM_HEIGHT = 72; // px per event row
 
 export function CalendarGrid({
 	cells,
@@ -47,6 +57,10 @@ export function CalendarGrid({
 	onDragEnd,
 	onDragOver,
 	onDrop,
+	onDelete,
+	onUnpublish,
+	onRetry,
+	onViewLogs,
 	calendarView = "month",
 }: CalendarGridProps) {
 	// Stable callbacks for week view
@@ -113,7 +127,7 @@ export function CalendarGrid({
 	);
 
 	if (calendarView === "week") {
-		// Week view - same content item style as month view
+		// Week view - dynamic height based on content
 		return (
 			<Card className="overflow-hidden">
 				{/* Header row with day names */}
@@ -128,7 +142,7 @@ export function CalendarGrid({
 					))}
 				</div>
 
-				{/* Days columns */}
+				{/* Days columns - single row, height driven by content */}
 				<div className="grid grid-cols-7">
 					{cells.map((cell, cellIndex) => {
 						const dayEvents = cell.dateStr
@@ -145,9 +159,14 @@ export function CalendarGrid({
 							<div
 								key={cellKey}
 								className={cn(
-									"flex flex-col min-h-[600px] border border-border/30",
+									"flex flex-col border border-border/30",
 									cell.day ? "bg-card" : "bg-muted/20",
 								)}
+								style={{
+									minHeight:
+										BASE_HEADER_HEIGHT +
+										Math.max(dayEvents.length, 1) * EVENT_ITEM_HEIGHT,
+								}}
 							>
 								{/* Date header */}
 								<div className="p-3 text-center sticky top-0 bg-card/95 backdrop-blur-sm z-10">
@@ -163,10 +182,17 @@ export function CalendarGrid({
 									)}
 								</div>
 
-								{/* Event cards - same style as month view */}
-								<div className="p-2 space-y-1.5">
-									{dayEvents.slice(0, 4).map((ev) => (
-										<ContentItemPopover key={ev.id} event={ev}>
+								{/* Event cards - dynamic count, no slice limit */}
+								<div className="p-2 space-y-1.5 flex-1">
+									{dayEvents.map((ev) => (
+										<ContentItemPopover
+											key={ev.id}
+											event={ev}
+											onDelete={onDelete}
+											onUnpublish={onUnpublish}
+											onRetry={onRetry}
+											onViewLogs={onViewLogs}
+										>
 											<div
 												draggable
 												onDragStart={handleWeekDragStart(ev)}
@@ -187,6 +213,23 @@ export function CalendarGrid({
 												}}
 											>
 												<div className="flex items-start min-w-0 mb-auto">
+													{ev.thumbnail ? (
+														<div className="relative size-10 rounded overflow-hidden flex-shrink-0 bg-muted mr-2">
+															<Image
+																src={ev.thumbnail}
+																alt=""
+																fill
+																className="object-cover"
+															/>
+														</div>
+													) : (
+														<span className="shrink-0 flex items-center mr-2">
+															<PlatformIcon
+																platform={ev.platform as Platform}
+																size={14}
+															/>
+														</span>
+													)}
 													<span className="line-clamp-2 leading-tight flex-1 text-inherit">
 														{ev.description}
 													</span>
@@ -207,11 +250,6 @@ export function CalendarGrid({
 											</div>
 										</ContentItemPopover>
 									))}
-									{dayEvents.length > 4 && (
-										<p className="px-2 text-xs text-muted-foreground">
-											+{dayEvents.length - 4} more
-										</p>
-									)}
 								</div>
 							</div>
 						);
@@ -302,7 +340,26 @@ export function CalendarGrid({
 												borderColor: `hsl(${ev.color})`,
 											}}
 										>
-											<div className="flex items-start min-w-0 mb-auto">
+											<div
+												className="flex items-start min-w-0 mb-auto"
+											>
+												{ev.thumbnail ? (
+													<div className="relative size-10 rounded overflow-hidden flex-shrink-0 bg-muted mr-2">
+														<Image
+															src={ev.thumbnail}
+															alt=""
+															fill
+															className="object-cover"
+														/>
+													</div>
+												) : (
+													<span className="shrink-0 flex items-center mr-2">
+														<PlatformIcon
+															platform={ev.platform as Platform}
+															size={14}
+														/>
+													</span>
+												)}
 												<span className="line-clamp-2 leading-tight flex-1 text-inherit">
 													{ev.description}
 												</span>
@@ -341,13 +398,26 @@ export function CalendarGrid({
 interface ContentItemPopoverProps {
 	event: CalendarEvent;
 	children: React.ReactNode;
+	onDelete?: (event: CalendarEvent) => void;
+	onUnpublish?: (event: CalendarEvent) => void;
+	onRetry?: (event: CalendarEvent) => void;
+	onViewLogs?: (event: CalendarEvent) => void;
 }
 
-function ContentItemPopover({ event, children }: ContentItemPopoverProps) {
+function ContentItemPopover({
+	event,
+	children,
+	onDelete,
+	onUnpublish,
+	onRetry,
+	onViewLogs,
+}: ContentItemPopoverProps) {
+	const [expanded, setExpanded] = useState(false);
+	const toggleExpand = useCallback(() => setExpanded((prev) => !prev), []);
 	return (
 		<Popover>
 			<PopoverTrigger>
-				<div>{children}</div>
+				<div onClick={(e) => e.stopPropagation()}>{children}</div>
 			</PopoverTrigger>
 			<PopoverContent
 				side="right"
@@ -377,14 +447,15 @@ function ContentItemPopover({ event, children }: ContentItemPopoverProps) {
 				{/* Content */}
 				<div className="flex gap-3 px-3 pb-3">
 					<div className="flex-1 min-w-0">
-						<p className="text-sm text-muted-foreground line-clamp-4">
+						<p className={cn("text-sm text-muted-foreground", expanded ? "" : "line-clamp-4")}>
 							{event.description || event.title}
 						</p>
 						<button
 							type="button"
 							className="text-xs text-primary mt-1 hover:underline"
+							onClick={toggleExpand}
 						>
-							see more
+							{expanded ? "see less" : "see more"}
 						</button>
 					</div>
 
@@ -416,7 +487,52 @@ function ContentItemPopover({ event, children }: ContentItemPopoverProps) {
 				</div>
 
 				{/* Actions */}
-				<div className="flex items-center justify-end px-3 py-2.5 border-t border-border/50">
+				<div className="flex items-center justify-between px-3 py-2.5 border-t border-border/50 gap-2">
+					<div className="flex gap-1">
+						{event.status === "failed" && onRetry && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-xs h-8 text-orange-600 hover:text-orange-700"
+								onClick={() => onRetry(event)}
+							>
+								<RotateCw className="size-3.5 mr-1" />
+								Retry
+							</Button>
+						)}
+						{event.status === "published" && onUnpublish && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-xs h-8"
+								onClick={() => onUnpublish(event)}
+							>
+								<Ban className="size-3.5 mr-1" />
+								Unpublish
+							</Button>
+						)}
+						{onViewLogs && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-xs h-8"
+								onClick={() => onViewLogs(event)}
+							>
+								View Logs
+							</Button>
+						)}
+						{onDelete && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-xs h-8 text-destructive hover:text-destructive"
+								onClick={() => onDelete(event)}
+							>
+								<Trash2 className="size-3.5 mr-1" />
+								Delete
+							</Button>
+						)}
+					</div>
 					<Button
 						variant="default"
 						size="sm"

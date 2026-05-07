@@ -1,14 +1,6 @@
 // Re-export all hooks
 
-export type { AccountHealth } from "./use-accounts";
-export {
-	accountKeys,
-	useAccounts,
-	useAccountsByPlatform,
-	useAccountsHealth,
-	useConnectAccount,
-	useDeleteAccount,
-} from "./use-accounts";
+export type { AccountHealth } from "@/lib/client";
 export { analyticsKeys, usePostAnalytics } from "./use-analytics";
 export {
 	type AnalyticsFilters,
@@ -56,17 +48,13 @@ export {
 export type { CreatePostBody } from "./use-posts";
 export {
 	postKeys,
-	useBulkUploadPost,
 	useCreatePost,
 	useDeletePost,
 	useEditPost,
-	usePost,
-	usePostLogs,
 	usePosts,
 	useRetryPost,
 	useUnpublishPost,
 	useUpdatePost,
-	useUpdatePostMetadata,
 } from "./use-posts";
 export {
 	profileKeys,

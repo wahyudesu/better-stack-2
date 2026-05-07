@@ -117,7 +117,6 @@ export function UserMenu({ avatarSrc, isLoaded, isSignedIn }: UserMenuProps) {
 					))}
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>
-							<Monitor className="mr-2 size-4" />
 							<span>Theme</span>
 						</DropdownMenuSubTrigger>
 						<DropdownMenuPortal>

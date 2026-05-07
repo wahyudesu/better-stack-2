@@ -70,7 +70,7 @@ const solutions = [
 export function Solutions() {
   const [activeTab, setActiveTab] = useState("agency");
   const activeSolution =
-    solutions.find((s) => s.id === activeTab) ?? solutions[0];
+    solutions.find((s) => s.id === activeTab) ?? solutions[0]!;
 
   return (
     <section className="py-24 overflow-hidden" id="solutions">

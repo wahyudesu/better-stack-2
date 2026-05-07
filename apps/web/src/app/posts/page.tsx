@@ -80,13 +80,17 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 /**
  * Convert server Post to CalendarEvent format
+ * Handles both local Convex posts and Zernio API response format
  */
 function postToCalendarEvent(post: Post): CalendarEvent {
-	const targetDate = post.scheduledAt
-		? new Date(post.scheduledAt)
-		: post.publishedAt
-			? new Date(post.publishedAt)
-			: new Date(post.createdAt);
+	// Zernio uses scheduledFor, local uses scheduledAt
+	const targetDate = (post as any).scheduledFor
+		? new Date((post as any).scheduledFor)
+		: post.scheduledAt
+			? new Date(post.scheduledAt)
+			: post.publishedAt
+				? new Date(post.publishedAt)
+				: new Date(post.createdAt);
 
 	const date = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
 	const time = `${String(targetDate.getHours()).padStart(2, "0")}:${String(targetDate.getMinutes()).padStart(2, "0")}`;
@@ -94,21 +98,42 @@ function postToCalendarEvent(post: Post): CalendarEvent {
 	// Zernio API uses "content" field, fallback to "text"
 	const postText = post.content || post.text || "";
 
-	// Determine primary platform from socialAccountIds
-	const primaryPlatform = post.socialAccountIds[0] || "instagram";
+	// Zernio: platforms is array of { platform, accountId, status, ... }
+	// Extract accountIds from platforms if available
+	let accountIds: string[] = [];
+	let primaryPlatform = "instagram";
+
+	if ((post as any).platforms && Array.isArray((post as any).platforms)) {
+		const platforms = (post as any).platforms as Array<{
+			platform?: string;
+			accountId?: { _id?: string } | string;
+		}>;
+		accountIds = platforms
+			.map((p) => {
+				if (typeof p.accountId === "object" && p.accountId !== null) {
+					return (p.accountId as any)._id || "";
+				}
+				return String(p.accountId || "");
+			})
+			.filter(Boolean);
+		primaryPlatform = platforms[0]?.platform || "instagram";
+	} else if (post.socialAccountIds && post.socialAccountIds.length > 0) {
+		accountIds = post.socialAccountIds;
+		primaryPlatform = (post as any).platform || "instagram";
+	}
 
 	return {
 		id: post._id,
 		title: postText.slice(0, 50) + (postText.length > 50 ? "..." : ""),
 		date,
 		platform: primaryPlatform as CalendarPlatform,
-		platforms: post.socialAccountIds as CalendarPlatform[],
+		platforms: accountIds as CalendarPlatform[],
 		type: "post",
 		time,
 		description: postText,
 		status: post.status,
 		color: PLATFORM_COLORS[primaryPlatform] || "328 70% 55%",
-		thumbnail: post.media?.[0]?.url,
+		thumbnail: post.media?.[0]?.url || (post as any).mediaItems?.[0]?.url || (post as any).mediaUrls?.[0],
 		mediaType: post.media?.[0]?.type === "video" ? "video" : "image",
 	};
 }
@@ -128,7 +153,7 @@ export default function PostsPage() {
 	// View mode states
 	const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 	const [calendarView, setCalendarView] = useState<CalendarView>("month");
-	const [postStatus, setPostStatus] = useState<PostStatus>("draft");
+	const [postStatus, setPostStatus] = useState<PostStatus>("all");
 
 	// Use a fixed date for initial render to prevent hydration mismatch
 	const [currentDate, setCurrentDate] = useState<Date>(
@@ -203,10 +228,12 @@ export default function PostsPage() {
 						(e) => e.platform === (selectedPlatform as CalendarPlatform),
 					);
 
-		if (postStatus === "pending") {
-			result = result.filter((e) => e.status === "scheduled");
-		} else {
-			result = result.filter((e) => e.status === postStatus);
+		if (postStatus !== "all") {
+			if (postStatus === "pending") {
+				result = result.filter((e) => e.status === "scheduled");
+			} else {
+				result = result.filter((e) => e.status === postStatus);
+			}
 		}
 
 		return result;
@@ -289,7 +316,6 @@ export default function PostsPage() {
 
 	const handleEventClick = useCallback((event: CalendarEvent) => {
 		setSelectedEvent(event);
-		setPopoverOpen(true);
 	}, []);
 
 	const _handleDeleteClick = useCallback(
@@ -494,6 +520,10 @@ export default function PostsPage() {
 					onDragEnd={handleDragEnd}
 					onDragOver={handleDragOver}
 					onDrop={handleDrop}
+					onDelete={_handleDeleteClick}
+					onUnpublish={_handleUnpublishClick}
+					onRetry={_handleRetryClick}
+					onViewLogs={_handleViewLogs}
 					calendarView={calendarView}
 				/>
 			)}
@@ -506,70 +536,6 @@ export default function PostsPage() {
 					onUnpublish={_handleUnpublishClick}
 				/>
 			)}
-
-			{/* Post Actions Dialog */}
-			<Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
-				<DialogContent className="max-w-sm">
-					<DialogHeader>
-						<DialogTitle>Post Actions</DialogTitle>
-					</DialogHeader>
-					{selectedEvent && (
-						<div className="space-y-3">
-							<div className="p-3 rounded-lg bg-muted/50 border">
-								<p className="text-sm font-medium truncate">
-									{selectedEvent.description?.slice(0, 80)}
-									{selectedEvent.description &&
-									selectedEvent.description.length > 80
-										? "..."
-										: ""}
-								</p>
-								<p className="text-xs text-muted-foreground mt-1">
-									{selectedEvent.date}
-									{selectedEvent.time ? ` at ${selectedEvent.time}` : ""}
-								</p>
-							</div>
-							<div className="flex flex-col gap-1">
-								{selectedEvent.status === "failed" && (
-									<button
-										className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer text-orange-600 font-medium"
-										onClick={() =>
-											selectedEvent && _handleRetryClick(selectedEvent)
-										}
-									>
-										Retry Post
-									</button>
-								)}
-								{selectedEvent.status === "published" && (
-									<button
-										className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer text-orange-600 font-medium"
-										onClick={() =>
-											selectedEvent && _handleUnpublishConfirm(selectedEvent)
-										}
-									>
-										Unpublish
-									</button>
-								)}
-								<button
-									className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer"
-									onClick={() =>
-										selectedEvent && _handleViewLogs(selectedEvent)
-									}
-								>
-									View Logs
-								</button>
-								<button
-									className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted cursor-pointer text-destructive font-medium"
-									onClick={() =>
-										selectedEvent && _handleDeleteConfirm(selectedEvent)
-									}
-								>
-									Delete
-								</button>
-							</div>
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
 
 			{/* Logs Dialog */}
 			<Dialog open={logsOpen} onOpenChange={setLogsOpen}>

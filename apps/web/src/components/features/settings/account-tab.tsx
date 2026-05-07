@@ -5,14 +5,8 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
-import {
-	AlertCircle,
-	Calendar,
-	CheckCircle2,
-	KeyRound,
-	Loader2,
-	Trash2,
-} from "lucide-react";
+import { useMutation, useQuery } from "convex/react";
+import { Calendar, CheckCircle2, KeyRound, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,24 +20,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { api } from "@/convex/_generated/api";
 import { TIMEZONES } from "@/lib/constants/settings";
-import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores";
-import type { UsageStats } from "@/stores/auth-store";
 import type { FirstDayOfWeek, TimeFormat } from "./types";
 
 export function AccountTab() {
 	const { user, isLoaded } = useUser();
 	const { openUserProfile } = useClerk();
-	const {
-		setUsageStats,
-		setIsValidating,
-		isValidating,
-		error,
-		setError,
-		usageStats,
-	} = useAuthStore();
-	const [apiKeyInput, setApiKeyInput] = useState("");
+	const { setApiKey, setUsageStats } = useAuthStore();
+
 	const [firstDayOfWeek, setFirstDayOfWeek] =
 		useState<FirstDayOfWeek>("monday");
 	const [timezone, setTimezone] = useState("Asia/Jakarta");
@@ -63,12 +49,23 @@ export function AccountTab() {
 	const hasChanges =
 		fullName !== originalFullName || jobTitle !== originalJobTitle;
 
+	// Convex query to get API key from database
+	const storedApiKey = useQuery(api.users.getApiKey);
+	// Convex mutation to remove API key
+	const upsertApiKeyMutation = useMutation(api.users.upsertApiKey);
+
+	// Use Convex-stored API key as source of truth
+	const apiKey = storedApiKey ?? null;
+
+	const maskedKey = apiKey
+		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
+		: "";
+
 	const handleAvatarClick = () => {
 		openUserProfile();
 	};
 
 	const handleSave = async () => {
-		// Update user profile via Clerk
 		if (user) {
 			await user.update({
 				firstName: fullName.split(" ")[0] || undefined,
@@ -77,7 +74,12 @@ export function AccountTab() {
 		}
 	};
 
-	// Get user initials for fallback
+	const handleDisconnect = async () => {
+		await upsertApiKeyMutation({ apiKey: null });
+		setApiKey(null);
+		setUsageStats(null);
+	};
+
 	const getInitials = () => {
 		const name = user?.fullName ?? user?.firstName ?? email;
 		if (name) {
@@ -85,9 +87,6 @@ export function AccountTab() {
 		}
 		return "U";
 	};
-
-	const isApiKeyConnected = usageStats !== null;
-	const isLoadingApiKey = isValidating;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -236,133 +235,38 @@ export function AccountTab() {
 						<p className="text-sm font-semibold">Zernio API Key</p>
 					</div>
 
-					{isLoadingApiKey ? (
-						<div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-							<Loader2 className="h-4 w-4 animate-spin" />
-							Loading...
-						</div>
-					) : isApiKeyConnected ? (
-						<div className="space-y-3">
-							<div className="flex items-center gap-2 p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+					<div className="flex items-center gap-2 p-3 rounded-md bg-muted border">
+						{apiKey ? (
+							<>
 								<CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
 								<span className="text-sm text-emerald-600 dark:text-emerald-400">
 									Connected
 								</span>
-							</div>
-							<div className="flex gap-2">
+								<span className="text-sm text-muted-foreground font-mono">
+									{maskedKey}
+								</span>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => navigator.clipboard.writeText(apiKey)}
+									className="ml-auto"
+								>
+									Copy
+								</Button>
 								<Button
 									variant="destructive"
 									size="sm"
-									onClick={() => {
-										setUsageStats(null);
-										setError(null);
-									}}
+									onClick={handleDisconnect}
 								>
-									<Trash2 className="size-4 mr-1" />
-									Disconnect
+									<Trash2 className="size-4" />
 								</Button>
-							</div>
-						</div>
-					) : (
-						<div className="space-y-3">
-							<p className="text-xs text-muted-foreground">
-								Connect your Zernio account to access AI features and social
-								media integrations.
-							</p>
-							<div className="space-y-2">
-								<Label htmlFor="api-key">API Key</Label>
-								<Input
-									id="api-key"
-									type="password"
-									placeholder="sk_xxx"
-									value={apiKeyInput}
-									onChange={(e) => {
-										setApiKeyInput(e.target.value);
-										setError(null);
-									}}
-									disabled={isValidating}
-								/>
-							</div>
-
-							{error && (
-								<div className="flex items-center gap-2 text-sm text-destructive">
-									<AlertCircle className="h-4 w-4" />
-									{error}
-								</div>
-							)}
-
-							<Button
-								onClick={async () => {
-									if (!apiKeyInput.trim()) {
-										setError("API key is required");
-										return;
-									}
-
-									if (!apiKeyInput.startsWith("sk_")) {
-										setError("Invalid API key format");
-										return;
-									}
-
-									setIsValidating(true);
-									setError(null);
-
-									try {
-										const response = await fetch("/api/validate-key", {
-											method: "POST",
-											headers: { "Content-Type": "application/json" },
-											body: JSON.stringify({ apiKey: apiKeyInput.trim() }),
-										});
-
-										if (!response.ok) {
-											const data = (await response
-												.json()
-												.catch(() => ({}))) as {
-												error?: string;
-											};
-											throw new Error(data?.error || "Invalid API key");
-										}
-
-										const data = (await response.json()) as {
-											data?: UsageStats;
-										};
-										setUsageStats(data?.data ?? null);
-										setApiKeyInput("");
-									} catch (err) {
-										setError(
-											err instanceof Error
-												? err.message
-												: "Failed to validate API key",
-										);
-									} finally {
-										setIsValidating(false);
-									}
-								}}
-								disabled={isValidating || !apiKeyInput.trim()}
-								size="sm"
-							>
-								{isValidating ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Validating...
-									</>
-								) : (
-									"Connect"
-								)}
-							</Button>
-
-							<p className="text-xs text-muted-foreground">
-								Don&apos;t have an API key?{" "}
-								<a
-									href="https://zernio.com/api-keys"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="underline underline-offset-4 hover:text-primary"
-								>
-									Get one here
-								</a>
-							</p>
-						</div>
-					)}
+							</>
+						) : (
+							<span className="text-sm text-muted-foreground">
+								Not connected
+							</span>
+						)}
+					</div>
 				</CardContent>
 			</Card>
 

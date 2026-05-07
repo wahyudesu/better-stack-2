@@ -17,7 +17,7 @@ pnpm run build        # Production build
 ## Tech Stack
 
 - **Framework**: Next.js 16.2 + React 19
-- **Routing**: react-router-dom v7
+- **Routing**: Next.js App Router (react-router-dom v7 for some routes)
 - **Backend**: Convex (read `convex/_generated/ai/guidelines.md` first)
 - **Auth**: Clerk (`@clerk/nextjs`)
 - **Data Fetching**: @tanstack/react-query

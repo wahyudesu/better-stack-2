@@ -1,47 +1,54 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
-import { useEffect, useRef } from "react";
+import { useOrganization, useUser } from "@clerk/nextjs";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect } from "react";
+import { api } from "@/convex/_generated/api";
 import { useAuthStore } from "@/stores";
 
 /**
- * Sync Clerk session token to auth store.
- * Token is used for server-side auth (server validates JWT and looks up API key from Convex).
- *
- * Handles race condition where getToken() returns null on first call because Clerk hasn't
- * fully loaded yet. Polls until token is available.
+ * Sync Clerk user + org to Convex and load API key from Convex.
+ * API key is stored in Convex users table after Zernio OAuth.
  */
 export function useClerkTokenSync() {
-	const { isLoaded, isSignedIn, getToken } = useAuth();
-	const hasSynced = useRef(false);
+	const { user } = useUser();
+	const { organization } = useOrganization();
+	const setApiKey = useAuthStore((s) => s.setApiKey);
+
+	// Mutations
+	const ensureUser = useMutation(api.users.ensureUser);
+	const syncOrganization = useMutation(api.organizations.syncFromClerk);
+
+	// Query to get API key from Convex
+	const storedApiKey = useQuery(api.users.getApiKey);
 
 	useEffect(() => {
-		if (!isLoaded) return;
+		if (!user) return;
 
-		// If signed out, clear token and reset sync state
-		if (!isSignedIn) {
-			useAuthStore.getState().setClerkToken(null);
-			hasSynced.current = false;
-			return;
+		// Sync user to Convex
+		ensureUser({
+			email: user?.emailAddresses?.[0]?.emailAddress ?? "",
+			displayName: user?.fullName ?? user?.firstName ?? "",
+			avatarUrl: user?.imageUrl ?? undefined,
+		}).catch((err) => {
+			console.error("[useClerkTokenSync] ensureUser failed:", err);
+		});
+
+		// Sync org (if user is in one)
+		if (organization) {
+			syncOrganization({
+				orgName: organization.name,
+				orgLogo: organization.imageUrl ?? undefined,
+			}).catch((err) => {
+				console.error("[useClerkTokenSync] syncOrganization failed:", err);
+			});
 		}
+	}, [user, organization, ensureUser, syncOrganization]);
 
-		// Poll until we get a valid token (handles Clerk loading race condition)
-		const syncToken = async () => {
-			try {
-				const token = await getToken();
-				if (token && token !== useAuthStore.getState().clerkToken) {
-					useAuthStore.getState().setClerkToken(token);
-					hasSynced.current = true;
-				} else if (!token && !hasSynced.current) {
-					// Token still null, Clerk might still be loading — retry
-					setTimeout(syncToken, 100);
-				}
-			} catch {
-				// getToken threw (e.g., network error) — retry after delay
-				setTimeout(syncToken, 1000);
-			}
-		};
-
-		syncToken();
-	}, [isLoaded, isSignedIn, getToken]);
+	// Load API key from Convex into auth store
+	useEffect(() => {
+		if (storedApiKey) {
+			setApiKey(storedApiKey);
+		}
+	}, [storedApiKey, setApiKey]);
 }

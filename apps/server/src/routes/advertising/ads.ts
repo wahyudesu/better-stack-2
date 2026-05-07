@@ -54,6 +54,13 @@ export function createAdsRoutes(fetch: <T>(path: string, options?: any) => Promi
     },
 
     /**
+     * Get comments on an ad (Meta only)
+     */
+    getAdComments: (adId: string, params?: { limit?: number; cursor?: string }) => {
+      return fetch<any>(`/v1/ads/${adId}/comments`, { query: params })
+    },
+
+    /**
      * Boost a post as ad
      */
     boost: (accountId: string, data: { postId: string; budget?: number; targetAgeMin?: number; targetAgeMax?: number; targetGender?: string }) => {
@@ -101,6 +108,23 @@ export function createAdsRoutes(fetch: <T>(path: string, options?: any) => Promi
      */
     updateCampaignStatus: (accountId: string, campaignId: string, data: { status: string }) => {
       return fetch<any>(`/v1/ads/campaigns/${campaignId}/status`, { method: 'POST', body: { accountId, ...data } })
+    },
+
+    /**
+     * Duplicate a campaign (Meta, TikTok)
+     */
+    duplicateCampaign: (campaignId: string, data: {
+      platform: string
+      deepCopy?: boolean
+      statusOption?: string
+      startTime?: string
+      endTime?: string
+      renameStrategy?: string
+      renamePrefix?: string
+      renameSuffix?: string
+      syncAfter?: boolean
+    }) => {
+      return fetch<any>(`/v1/ads/campaigns/${campaignId}/duplicate`, { method: 'POST', body: data })
     },
   }
 }

@@ -32,8 +32,8 @@ export function useCreateSequence() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (body: { name: string; steps: any[] }) => {
-			const { data, error } = await api.createSequence(body);
+		mutationFn: async (body: { name: string; steps: any[]; profileId?: string; accountId?: string; platform?: string }) => {
+			const { data, error } = await api.createSequence({ ...body, profileId: body.profileId || "", accountId: body.accountId || "", platform: body.platform || "instagram" });
 			if (error) throw error;
 			return data;
 		},
@@ -109,18 +109,18 @@ export function useToggleSequence() {
 	});
 }
 
-export function useBroadcasts(accountId: string) {
+export function useBroadcasts(profileId: string) {
 	return useQuery({
-		queryKey: automationKeys.broadcasts(accountId),
+		queryKey: automationKeys.broadcasts(profileId),
 		queryFn: async () => {
 			if (!useAuthStore.getState().clerkToken) {
 				return [];
 			}
-			const { data, error } = await api.listBroadcasts(accountId);
+			const { data, error } = await api.listBroadcasts({ profileId });
 			if (error) throw error;
 			return data?.broadcasts ?? [];
 		},
 		staleTime: STALE_TIME,
-		enabled: !!accountId,
+		enabled: !!profileId,
 	});
 }

@@ -1,26 +1,26 @@
 # server
-[op]
+- update ke openapi.yaml paling terbaru
 
 # web
  
 [post]
-- perbaiki ui new post nya terlebih dahulu
-- pastikan new posts terintrgeasi ke server sehinga bisa upload konten darisana
+- [ ] perbaiki ui new post nya terlebih dahulu
+- [ ] pastikan new posts terintrgeasi ke server sehinga bisa upload konten darisana
 
 [dashboard]
-- cukup pake mock data
+- [ ] cukup pake mock data
 
 [analytics]
-- nanti deh
+- [ ] nanti deh
 
 [ads]
-- cukup pake mock data
+- [ ] cukup pake mock data
 
 [inbox]
-- cukup pake mock data
+- [ ] cukup pake mock data
 
 [settings]
-- beberapa sudah terintegrasi
+- [ ] beberapa sudah terintegrasi
 
 # landing
 
@@ -33,23 +33,22 @@ halo aku wahyu founder dari zenpost.in, social media  schedule let me know jika 
 jenis label nya TOFU, MOFU, BOFU
 
 
-22:37:15.559	Current Version ID: d8ecafa5-6c04-4668-acda-87b770ffb358
-22:37:15.562	
-22:37:15.562	Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
-22:37:15.645	▲ [WARNING] Duplicate key "options" in object literal [duplicate-object-key]
-22:37:15.645	
-22:37:15.645	    .open-next/server-functions/default/apps/web/handler.mjs:556:242134:
-22:37:15.645	      556 │ ...nmentOffset:F3}},reset:E3}},options:[a3,c3]})],102382);var c2=...
-22:37:15.645	          ╵                                ~~~~~~~
-22:37:15.645	
-22:37:15.645	  The original key "options" is here:
-22:37:15.645	
-22:37:15.645	    .open-next/server-functions/default/apps/web/handler.mjs:556:241120:
-22:37:15.646	      556 │ ...",0,(a3,c3)=>({name:"arrow",options:a3,async fn(c4){let{x:d2,y...
-22:37:15.646	          ╵                                ~~~~~~~
-22:37:15.646	
-22:37:15.646	
-22:37:15.751	Success: Deploy command completed
-22:37:15.755	Uploading to build output cache
-22:37:16.314	Success: Build output uploaded to build cache.
-22:37:16.424	✨ Success! Build completed.
+# checklist all
+- [ ] landingpage hampir jadi
+- [ ] isi copywriting landingpage nya udah selesai
+- [ ] mekanisme waitlist nya clerk berhasil di production
+- [ ]
+
+# prompt
+
+buatkan saya planning untuk integrasi data dari web dengan server route ads dengan buatkan saya PLAN.md di @ads, pertama cek dulu semua data yang dibutuhkan dari server selanjutnya sesuaikan denagn data yang ada di ui
+
+jika sudah sama data nya maka buatkan saya planning, terapkan jugua best practice seperti handling error, skeleton
+
+
+
+buatkan saya planning untuk intergasi clerk organization dgn user/tetams yang ada di server zernio
+
+
+
+dgn menggunakan multi agent secara parallel lakukan pnpm build pada landing, web dan server, jika ada error perbaiki, iterasi hingga ketiganya berhasil di build

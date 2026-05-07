@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Test the API key by calling the usage endpoint
-		const response = await fetch(`${API_BASE_URL}/v1/usage-stats`, {
+		const response = await fetch(`${API_BASE_URL}/v1/usage`, {
 			headers: {
 				Authorization: `Bearer ${apiKey}`,
 				"Content-Type": "application/json",

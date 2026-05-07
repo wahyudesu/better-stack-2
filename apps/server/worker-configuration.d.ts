@@ -7,6 +7,8 @@ declare namespace Cloudflare {
 	}
 	interface Env {
 		CORS_ORIGIN: string;
+		// Custom app variables
+		userApiKey?: string;
 	}
 }
 interface Env extends Cloudflare.Env {}

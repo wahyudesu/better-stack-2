@@ -9,15 +9,15 @@ export function createQueueHandlers() {
 	return {
 		/** GET /v1/queue/slots */
 		listSlots: async (c: Context) => {
-			const profileId = c.req.query('profileId')
 			const params = {
-				startDate: c.req.query('startDate') || undefined,
-				endDate: c.req.query('endDate') || undefined,
+				profileId: c.req.query('profileId') || undefined,
+				queueId: c.req.query('queueId') || undefined,
+				all: c.req.query('all') || undefined,
 			}
 			const fetch = createFetchFromHono(c)
 			const routes = createQueueRoutes(fetch)
 			try {
-				const result = await routes.listSlots(profileId || '', params)
+				const result = await routes.listSlots(params)
 				return c.json(result)
 			} catch (error) {
 				return c.json(
@@ -59,14 +59,13 @@ export function createQueueHandlers() {
 			}
 		},
 
-		/** PATCH /v1/queue/slots/:slotId */
+		/** PUT /v1/queue/slots */
 		updateSlot: async (c: Context) => {
-			const slotId = c.req.param('slotId')!
 			const body = await c.req.json()
 			const fetch = createFetchFromHono(c)
 			const routes = createQueueRoutes(fetch)
 			try {
-				const result = await routes.updateSlot(slotId, body)
+				const result = await routes.updateSlot(body)
 				return c.json(result)
 			} catch (error) {
 				return c.json(
@@ -76,14 +75,17 @@ export function createQueueHandlers() {
 			}
 		},
 
-		/** DELETE /v1/queue/slots/:slotId */
+		/** DELETE /v1/queue/slots */
 		deleteSlot: async (c: Context) => {
-			const slotId = c.req.param('slotId')!
+			const params = {
+				profileId: c.req.query('profileId') || undefined,
+				queueId: c.req.query('queueId') || undefined,
+			}
 			const fetch = createFetchFromHono(c)
 			const routes = createQueueRoutes(fetch)
 			try {
-				await routes.deleteSlot(slotId)
-				return c.json({ success: true })
+				const result = await routes.deleteSlot(params)
+				return c.json(result)
 			} catch (error) {
 				return c.json(
 					{ error: error instanceof Error ? error.message : 'Unknown error' },
@@ -94,15 +96,15 @@ export function createQueueHandlers() {
 
 		/** GET /v1/queue/preview */
 		preview: async (c: Context) => {
-			const profileId = c.req.query('profileId')
 			const params = {
-				startDate: c.req.query('startDate') || undefined,
-				endDate: c.req.query('endDate') || undefined,
+				profileId: c.req.query('profileId') || undefined,
+				queueId: c.req.query('queueId') || undefined,
+				count: c.req.query('count') ? Number(c.req.query('count')) : undefined,
 			}
 			const fetch = createFetchFromHono(c)
 			const routes = createQueueRoutes(fetch)
 			try {
-				const result = await routes.preview(profileId || '', params)
+				const result = await routes.preview(params)
 				return c.json(result)
 			} catch (error) {
 				return c.json(
@@ -114,11 +116,14 @@ export function createQueueHandlers() {
 
 		/** GET /v1/queue/next-slot */
 		nextSlot: async (c: Context) => {
-			const profileId = c.req.query('profileId')
+			const params = {
+				profileId: c.req.query('profileId') || undefined,
+				queueId: c.req.query('queueId') || undefined,
+			}
 			const fetch = createFetchFromHono(c)
 			const routes = createQueueRoutes(fetch)
 			try {
-				const result = await routes.nextSlot(profileId || '')
+				const result = await routes.nextSlot(params)
 				return c.json(result)
 			} catch (error) {
 				return c.json(

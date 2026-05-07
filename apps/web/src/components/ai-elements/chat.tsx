@@ -64,6 +64,12 @@ export type AIChatProps = {
 	onInputChange?: (value: string) => void;
 };
 
+const REFERENCE_PROMPTS = [
+	"Analisis winning konten di platform Instagram",
+	"Buatkan strategi content calendar untuk TikTok",
+	" Tips meningkatkan engagement rate di LinkedIn",
+] as const;
+
 export function AIChat({ inputValue, onInputChange }: AIChatProps) {
 	const { messages, status, sendMessage } = useChat();
 
@@ -117,6 +123,21 @@ export function AIChat({ inputValue, onInputChange }: AIChatProps) {
 				</ConversationContent>
 				<ConversationScrollButton />
 			</Conversation>
+
+			<div className="mb-3 flex flex-wrap gap-2">
+				{REFERENCE_PROMPTS.map((prompt) => (
+					<button
+						key={prompt}
+						type="button"
+						className="rounded-full border px-3 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted"
+						onClick={() => {
+							if (onInputChange) onInputChange(prompt);
+						}}
+					>
+						{prompt}
+					</button>
+				))}
+			</div>
 
 			<PromptInput onSubmit={handleSubmit} className="" globalDrop multiple>
 				<PromptInputHeader>

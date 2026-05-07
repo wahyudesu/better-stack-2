@@ -1,79 +1,108 @@
 /**
  * Broadcasts routes
- * WhatsApp broadcast campaigns
+ * Platform-agnostic broadcast campaigns for messaging
  */
 export function createBroadcastsRoutes(fetch: <T>(path: string, options?: any) => Promise<T>) {
-  return {
-    /**
-     * List broadcasts
-     */
-    list: (accountId: string, params?: { page?: number; limit?: number }) => {
-      return fetch<any>('/v1/broadcasts', { query: { accountId, ...params } })
-    },
+	return {
+		/**
+		 * List broadcasts
+		 */
+		list: (params?: {
+			profileId?: string
+			status?: string
+			platform?: string
+			limit?: number
+			skip?: number
+		}) => {
+			return fetch<any>('/v1/broadcasts', { query: params })
+		},
 
-    /**
-     * Create a broadcast
-     */
-    create: (accountId: string, data: { templateName: string; recipientIds?: string[]; segmentFilter?: object }) => {
-      return fetch<any>('/v1/broadcasts', { method: 'POST', body: { accountId, ...data } })
-    },
+		/**
+		 * Create a broadcast draft
+		 */
+		create: (data: {
+			profileId: string
+			accountId: string
+			platform: string
+			name: string
+			description?: string
+			message?: object
+			template?: object
+			segmentFilters?: object
+		}) => {
+			return fetch<any>('/v1/broadcasts', { method: 'POST', body: data })
+		},
 
-    /**
-     * Get a broadcast
-     */
-    get: (accountId: string, broadcastId: string) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}`, { query: { accountId } })
-    },
+		/**
+		 * Get broadcast details
+		 */
+		get: (broadcastId: string) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}`)
+		},
 
-    /**
-     * Update a broadcast
-     */
-    update: (accountId: string, broadcastId: string, data: { templateName?: string }) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}`, { method: 'PATCH', body: { accountId, ...data } })
-    },
+		/**
+		 * Update a broadcast (draft only)
+		 */
+		update: (broadcastId: string, data: {
+			name?: string
+			description?: string
+			message?: object
+			template?: object
+			segmentFilters?: object
+		}) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}`, { method: 'PATCH', body: data })
+		},
 
-    /**
-     * Delete a broadcast
-     */
-    delete: (accountId: string, broadcastId: string) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}`, { method: 'DELETE', body: { accountId } })
-    },
+		/**
+		 * Delete a broadcast (draft only)
+		 */
+		delete: (broadcastId: string) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}`, { method: 'DELETE' })
+		},
 
-    /**
-     * Send a broadcast now
-     */
-    send: (accountId: string, broadcastId: string) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}/send`, { method: 'POST', body: { accountId } })
-    },
+		/**
+		 * Send broadcast now
+		 */
+		send: (broadcastId: string) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}/send`, { method: 'POST' })
+		},
 
-    /**
-     * Schedule a broadcast
-     */
-    schedule: (accountId: string, broadcastId: string, data: { scheduledAt: string }) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}/schedule`, { method: 'POST', body: { accountId, ...data } })
-    },
+		/**
+		 * Schedule broadcast for later
+		 */
+		schedule: (broadcastId: string, data: { scheduledAt: string }) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}/schedule`, { method: 'POST', body: data })
+		},
 
-    /**
-     * Cancel a broadcast
-     */
-    cancel: (accountId: string, broadcastId: string) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}/cancel`, { method: 'POST', body: { accountId } })
-    },
+		/**
+		 * Cancel broadcast
+		 */
+		cancel: (broadcastId: string) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}/cancel`, { method: 'POST' })
+		},
 
-    /**
-     * List broadcast recipients
-     */
-    listRecipients: (accountId: string, broadcastId: string, params?: { page?: number; limit?: number }) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}/recipients`, { query: { accountId, ...params } })
-    },
+		/**
+		 * List broadcast recipients
+		 */
+		listRecipients: (broadcastId: string, params?: {
+			status?: string
+			limit?: number
+			skip?: number
+		}) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}/recipients`, { query: params })
+		},
 
-    /**
-     * Add recipients to a broadcast
-     */
-    addRecipients: (accountId: string, broadcastId: string, data: { recipientIds?: string[]; segmentFilter?: object }) => {
-      return fetch<any>(`/v1/broadcasts/${broadcastId}/recipients`, { method: 'POST', body: { accountId, ...data } })
-    },
-  }
+		/**
+		 * Add recipients to a broadcast
+		 */
+		addRecipients: (broadcastId: string, data: {
+			contactIds?: string[]
+			phones?: string[]
+			useSegment?: boolean
+		}) => {
+			return fetch<any>(`/v1/broadcasts/${broadcastId}/recipients`, { method: 'POST', body: data })
+		},
+	}
 }
 
 export type BroadcastsRoutes = ReturnType<typeof createBroadcastsRoutes>

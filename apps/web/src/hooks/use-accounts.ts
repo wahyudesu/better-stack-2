@@ -1,122 +1,121 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAction, useMutation, useQuery } from "convex/react";
+import { useEffect } from "react";
+import { api } from "@/convex/_generated/api";
 import type { SocialAccount } from "@/lib/client";
-import { api } from "@/lib/client";
 import { useAuthStore } from "@/stores";
-import { useCurrentProfileId } from "./use-profiles";
 
 export const accountKeys = {
 	all: ["accounts"] as const,
-	list: (profileId: string) => ["accounts", "list", profileId] as const,
-	health: (profileId: string) => ["accounts", "health", profileId] as const,
-	detail: (accountId: string) => ["accounts", "detail", accountId] as const,
+	list: () => ["accounts", "list"] as const,
 };
 
-export interface AccountHealth {
-	accountId: string;
-	isHealthy: boolean;
-	error?: string;
+// Extended SocialAccount with Convex doc ID for internal use
+interface ConvexSocialAccount extends SocialAccount {
+	convexId?: string; // Convex document ID for mutations
 }
 
-// Convert Zernio account to client.ts SocialAccount format
-function convertToSocialAccount(account: any): SocialAccount {
+// Convert Convex account to SocialAccount format (matches Zernio structure)
+function convertToSocialAccount(account: any): ConvexSocialAccount {
+	const isActive = account.status === "active";
+	const createdAt = account.createdAt
+		? new Date(account.createdAt).toISOString()
+		: new Date(account.connectedAt).toISOString();
+
 	return {
-		_id: account._id,
+		_id: account.accountId, // Zernio's account _id for display
+		convexId: account._id, // Convex document ID for mutations
 		platform: account.platform,
-		username: account.username || account.displayName || "",
-		displayName: account.displayName || account.username,
-		isActive: account.isActive ?? true,
-		profilePicture: account.profilePicture,
-		profileId: account.profileId || "",
-		createdAt: account.createdAt || new Date().toISOString(),
-		updatedAt: account.updatedAt || new Date().toISOString(),
+		username: account.accountName || "",
+		displayName: account.accountName || undefined,
+		isActive,
+		profilePicture: account.avatarUrl || undefined,
+		profileId: "",
+		createdAt,
+		updatedAt: createdAt,
+	};
+}
+
+// Sync staleness threshold: 2 minutes
+const SYNC_STALE_MS = 2 * 60 * 1000;
+
+/**
+ * Hook to fetch all social accounts for current user from Convex
+ * Auto-syncs from Zernio if data is stale (>2 min since last sync)
+ */
+export function useAccounts() {
+	const apiKey = useAuthStore((s) => s.apiKey);
+	const queryClient = useQueryClient();
+
+	const convexAccounts = useQuery(api.socialAccounts.list);
+	const userInfoQuery = useQuery(api.users.getUserInfo);
+	const syncMutation = useAction(api.socialAccounts.syncFromZernio);
+
+	// Trigger sync on mount - always sync if we have apiKey and accounts is empty
+	useEffect(() => {
+		if (!apiKey) {
+			console.log("[useAccounts] No apiKey, skipping sync");
+			return;
+		}
+
+		// Sync if: no userInfo yet (loading), OR stale (>2min), OR accounts empty
+		const shouldSync =
+			!userInfoQuery ||
+			!userInfoQuery.lastSyncedAt ||
+			Date.now() - userInfoQuery.lastSyncedAt > SYNC_STALE_MS ||
+			(convexAccounts !== undefined && convexAccounts.length === 0);
+
+		console.log("[useAccounts] sync check:", {
+			hasApiKey: !!apiKey,
+			userInfoQuery,
+			convexAccountsLen: convexAccounts?.length,
+			shouldSync,
+		});
+
+		if (shouldSync) {
+			console.log("[useAccounts] Triggering sync from Zernio");
+			syncMutation({}).catch((e) =>
+				console.error("[useAccounts] Sync failed:", e),
+			);
+		}
+	}, [apiKey, userInfoQuery, convexAccounts]);
+
+	// Map Convex accounts to SocialAccount format
+	const accounts = convexAccounts
+		? convexAccounts.map(convertToSocialAccount)
+		: [];
+
+	return {
+		data: { accounts },
+		isLoading: convexAccounts === undefined && !!apiKey,
+		error: null,
 	};
 }
 
 /**
- * Hook to fetch all accounts for current user
- */
-export function useAccounts(_profileId?: string) {
-	return useQuery({
-		queryKey: accountKeys.list("local"),
-		queryFn: async () => {
-			if (!useAuthStore.getState().clerkToken) {
-				return { accounts: [] };
-			}
-			const { data, error } = await api.getAccounts();
-			if (error) throw error;
-			return { accounts: data?.accounts || [] };
-		},
-		enabled: true,
-	});
-}
-
-/**
- * Hook to fetch account health status
- */
-export function useAccountsHealth(_profileId?: string) {
-	return useQuery({
-		queryKey: accountKeys.health(_profileId || ""),
-		queryFn: async () => {
-			return null;
-		},
-		enabled: false,
-	});
-}
-
-/**
- * Hook to start OAuth connection flow
- */
-export function useConnectAccount() {
-	const currentProfileId = useCurrentProfileId();
-
-	return useMutation({
-		mutationFn: async ({ platform }: { platform: string }) => {
-			const targetProfileId = currentProfileId;
-			if (!targetProfileId) throw new Error("No profile selected");
-
-			const redirectUrl = `${window.location.origin}/callback`;
-			const { data, error } = await api.getConnectUrl({
-				platform,
-				profileId: targetProfileId,
-			});
-			if (error) throw error;
-			return data;
-		},
-	});
-}
-
-/**
- * Hook to delete/disconnect an account
+ * Hook to delete a social account
  */
 export function useDeleteAccount() {
 	const queryClient = useQueryClient();
+	const deleteMutation = useMutation(api.socialAccounts.deleteAccount);
 
-	return useMutation({
-		mutationFn: async (accountId: string) => {
-			const { error } = await api.deleteAccount(accountId);
-			if (error) throw error;
-		},
-		onSuccess: () => {
+	return {
+		mutateAsync: async (accountId: string) => {
+			await deleteMutation({ accountId });
 			queryClient.invalidateQueries({ queryKey: accountKeys.all });
 		},
-	});
+		isPending: false,
+	};
 }
 
-/**
- * Hook to get accounts grouped by platform
- */
-export function useAccountsByPlatform(profileId?: string) {
-	const { data, ...rest } = useAccounts(profileId);
+export function useAccountsHealth() {
+	return { data: null };
+}
 
-	const accountsByPlatform = data?.accounts?.reduce(
-		(acc: Record<string, SocialAccount[]>, account: SocialAccount) => {
-			const platform = account.platform;
-			if (!acc[platform]) acc[platform] = [];
-			acc[platform].push(account);
-			return acc;
+export function useConnectAccount() {
+	return {
+		mutateAsync: async (_params: { platform: string }) => {
+			return { authUrl: "" };
 		},
-		{} as Record<string, SocialAccount[]>,
-	);
-
-	return { data: accountsByPlatform, accounts: data?.accounts, ...rest };
+	};
 }

@@ -11,11 +11,11 @@ async function fetchApi<T>(
 	path: string,
 	options: RequestInit = {},
 ): Promise<ApiResponse<T>> {
-	const clerkToken = useAuthStore.getState().clerkToken;
+	const apiKey = useAuthStore.getState().apiKey;
 
-	if (!clerkToken) {
+	if (!apiKey) {
 		// Return a specific error so callers can detect "auth not ready" vs actual auth failures
-		return { data: null, error: "Clerk token not available yet" };
+		return { data: null, error: "API key not available yet" };
 	}
 
 	try {
@@ -23,7 +23,7 @@ async function fetchApi<T>(
 			...options,
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: `Bearer ${clerkToken}`,
+				Authorization: `Bearer ${apiKey}`,
 				...options.headers,
 			},
 		});
@@ -194,13 +194,24 @@ export interface UsageStats {
 
 export interface CommentAutomation {
 	_id: string;
+	profileId?: string;
 	name: string;
 	accountId: string;
 	accountUsername?: string;
+	platformPostId?: string;
+	postId?: string;
+	postTitle?: string;
 	keywords?: string[];
-	autoReply?: string;
-	assignTo?: string;
+	matchMode?: "contains" | "exact";
+	dmMessage?: string;
+	commentReply?: string;
 	isActive: boolean;
+	stats?: {
+		triggered?: number;
+		dmsSent?: number;
+		dmsFailed?: number;
+		uniqueContacts?: number;
+	};
 	createdAt: string;
 	updatedAt?: string;
 }
@@ -495,7 +506,22 @@ export const api = {
 			usage: { uploads: number; profiles: number };
 			limits: { uploads: number; profiles: number };
 			planName: string;
-		}>("/v1/usage"),
+		}>("/v1/usage-stats"),
+
+	// Users
+	listUsers: () =>
+		http.get<{
+			currentUserId: string;
+			users: Array<{
+				_id: string;
+				name: string;
+				email: string;
+				role: string;
+				isRoot: boolean;
+				profileAccess: string[];
+				createdAt: string;
+			}>;
+		}>("/v1/users"),
 
 	// Webhooks
 	getWebhookSettings: () =>
@@ -540,44 +566,75 @@ export const api = {
 		);
 	},
 
-	// Inbox
+	// Inbox - Messages (Conversations & DMs)
 	listConversations: (params?: {
-		accountId?: string;
+		profileId?: string;
 		platform?: string;
-		page?: number;
+		status?: string;
+		accountId?: string;
 		limit?: number;
+		cursor?: string;
 	}) => {
 		const searchParams = new URLSearchParams();
-		if (params?.accountId) searchParams.set("accountId", params.accountId);
+		if (params?.profileId) searchParams.set("profileId", params.profileId);
 		if (params?.platform) searchParams.set("platform", params.platform);
-		if (params?.page) searchParams.set("page", String(params.page));
+		if (params?.status) searchParams.set("status", params.status);
+		if (params?.accountId) searchParams.set("accountId", params.accountId);
 		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.cursor) searchParams.set("cursor", params.cursor);
 		const query = searchParams.toString();
 		return http.get<{ conversations: any[] }>(
-			`/v1/inbox/conversations${query ? `?${query}` : ""}`,
+			`/v1/inbox/messages${query ? `?${query}` : ""}`,
 		);
 	},
-	getConversation: (conversationId: string) =>
-		http.get<any>(`/v1/inbox/conversations/${conversationId}`),
+	getConversation: (conversationId: string, accountId: string) =>
+		http.get<any>(`/v1/inbox/messages/${conversationId}?accountId=${accountId}`),
 	listMessages: (
 		conversationId: string,
-		params?: { page?: number; limit?: number },
+		params?: { accountId: string; limit?: number; cursor?: string; sortOrder?: string },
 	) => {
 		const searchParams = new URLSearchParams();
-		if (params?.page) searchParams.set("page", String(params.page));
+		if (params?.accountId) searchParams.set("accountId", params.accountId);
 		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.cursor) searchParams.set("cursor", params.cursor);
+		if (params?.sortOrder) searchParams.set("sortOrder", params.sortOrder);
 		const query = searchParams.toString();
 		return http.get<{ messages: any[] }>(
-			`/v1/inbox/conversations/${conversationId}/messages${query ? `?${query}` : ""}`,
+			`/v1/inbox/messages/${conversationId}/messages${query ? `?${query}` : ""}`,
 		);
 	},
 	sendMessage: (
 		conversationId: string,
-		body: { text: string; mediaUrl?: string },
-	) =>
-		http.post<any>(`/v1/inbox/conversations/${conversationId}/messages`, body),
-	markAsRead: (conversationId: string) =>
-		http.post(`/v1/inbox/conversations/${conversationId}/read`, {}),
+		body: {
+			accountId: string;
+			message?: string;
+			attachmentUrl?: string;
+			attachmentType?: string;
+			quickReplies?: Array<{ title: string; payload: string; imageUrl?: string }>;
+			buttons?: Array<{ type: string; title: string; url?: string; payload?: string; phone?: string }>;
+			template?: object;
+			interactive?: object;
+			replyMarkup?: object;
+			messagingType?: string;
+			messageTag?: string;
+			replyTo?: string;
+		},
+	) => http.post<any>(`/v1/inbox/messages/${conversationId}/messages`, body),
+	markAsRead: (conversationId: string, accountId: string) =>
+		http.post(`/v1/inbox/messages/${conversationId}?accountId=${accountId}`, { status: "active" }),
+	createConversation: (body: {
+		accountId: string;
+		participantId?: string;
+		participantUsername?: string;
+		message?: string;
+		skipDmCheck?: boolean;
+	}) => http.post<any>("/v1/inbox/messages", body),
+	sendTyping: (conversationId: string, accountId: string) =>
+		http.post<any>(`/v1/inbox/messages/${conversationId}/typing`, { accountId }),
+	deleteMessage: (conversationId: string, messageId: string, accountId: string) =>
+		http.delete(`/v1/inbox/messages/${conversationId}/messages/${messageId}?accountId=${accountId}`),
+
+	// Inbox - Comments
 	listComments: (params?: {
 		accountId?: string;
 		page?: number;
@@ -592,29 +649,77 @@ export const api = {
 			`/v1/inbox/comments${query ? `?${query}` : ""}`,
 		);
 	},
-	hideComment: (postId: string, commentId: string) =>
-		http.delete(`/v1/inbox/posts/${postId}/comments/${commentId}`),
-	privateReply: (postId: string, commentId: string, body: { text: string }) =>
-		http.post<any>(
-			`/v1/inbox/posts/${postId}/comments/${commentId}/reply`,
-			body,
-		),
+	hideComment: (postId: string, commentId: string, accountId: string) =>
+		http.post<any>(`/v1/inbox/comments/${postId}/${commentId}/hide`, { accountId }),
+	unhideComment: (postId: string, commentId: string, accountId: string) =>
+		http.delete(`/v1/inbox/comments/${postId}/${commentId}/hide?accountId=${accountId}`),
+	privateReply: (postId: string, commentId: string, body: {
+		accountId: string;
+		message: string;
+		quickReplies?: Array<{ title: string; payload: string; imageUrl?: string }>;
+		buttons?: Array<{ type: string; title: string; url?: string; payload?: string; phone?: string }>;
+	}) => http.post<any>(`/v1/inbox/comments/${postId}/${commentId}/private-reply`, body),
+	likeComment: (postId: string, commentId: string, data: { accountId: string; cid?: string }) =>
+		http.post<any>(`/v1/inbox/comments/${postId}/${commentId}/like`, data),
+	unLikeComment: (postId: string, commentId: string, params: { accountId: string; likeUri?: string }) => {
+		const query = new URLSearchParams(params).toString();
+		return http.delete(`/v1/inbox/comments/${postId}/${commentId}/like?${query}`);
+	},
+	deleteComment: (postId: string, accountId: string, commentId: string) =>
+		http.delete(`/v1/inbox/comments/${postId}?accountId=${accountId}&commentId=${commentId}`),
+
+	// Inbox - Reviews
 	listReviews: (params?: {
+		profileId?: string;
+		platform?: string;
+		hasReply?: boolean;
 		accountId?: string;
-		page?: number;
 		limit?: number;
+		cursor?: string;
 	}) => {
 		const searchParams = new URLSearchParams();
+		if (params?.profileId) searchParams.set("profileId", params.profileId);
+		if (params?.platform) searchParams.set("platform", params.platform);
+		if (params?.hasReply !== undefined) searchParams.set("hasReply", String(params.hasReply));
 		if (params?.accountId) searchParams.set("accountId", params.accountId);
-		if (params?.page) searchParams.set("page", String(params.page));
 		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.cursor) searchParams.set("cursor", params.cursor);
 		const query = searchParams.toString();
 		return http.get<{ reviews: any[] }>(
 			`/v1/inbox/reviews${query ? `?${query}` : ""}`,
 		);
 	},
-	replyToReview: (reviewId: string, body: { text: string }) =>
+	replyToReview: (reviewId: string, body: { accountId: string; message: string }) =>
 		http.post<any>(`/v1/inbox/reviews/${reviewId}/reply`, body),
+	deleteReviewReply: (reviewId: string, accountId: string) =>
+		http.delete(`/v1/inbox/reviews/${reviewId}/reply`),
+
+	// Contacts
+	listContacts: (params?: { page?: number; limit?: number; search?: string }) => {
+		const searchParams = new URLSearchParams();
+		if (params?.page) searchParams.set("page", String(params.page));
+		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.search) searchParams.set("search", params.search);
+		const query = searchParams.toString();
+		return http.get<{ contacts: any[] }>(
+			`/v1/contacts${query ? `?${query}` : ""}`,
+		);
+	},
+	getContact: (contactId: string) =>
+		http.get<any>(`/v1/contacts/${contactId}`),
+	createContact: (body: {
+		phone?: string;
+		email?: string;
+		firstName?: string;
+		lastName?: string;
+		tags?: string[];
+	}) => http.post<any>("/v1/contacts", body),
+	updateContact: (contactId: string, body: { firstName?: string; lastName?: string; tags?: string[] }) =>
+		http.patch<any>(`/v1/contacts/${contactId}`, body),
+	deleteContact: (contactId: string) =>
+		http.delete(`/v1/contacts/${contactId}`),
+	bulkCreateContacts: (body: { contacts: Array<{ phone?: string; email?: string; firstName?: string; lastName?: string }> }) =>
+		http.post<any>("/v1/contacts/bulk", body),
 
 	// Comment Automations
 	listCommentAutomations: (params?: {
@@ -632,19 +737,27 @@ export const api = {
 		);
 	},
 	createCommentAutomation: (body: {
-		name: string;
+		profileId?: string;
 		accountId: string;
+		name: string;
+		platformPostId?: string;
+		postId?: string;
+		postTitle?: string;
 		keywords?: string[];
-		autoReply?: string;
-		assignTo?: string;
+		matchMode?: "contains" | "exact";
+		dmMessage?: string;
+		commentReply?: string;
 	}) => http.post<CommentAutomation>("/v1/comment-automations", body),
+	getCommentAutomation: (automationId: string) =>
+		http.get<CommentAutomation>(`/v1/comment-automations/${automationId}`),
 	updateCommentAutomation: (
 		automationId: string,
 		body: {
 			name?: string;
 			keywords?: string[];
-			autoReply?: string;
-			assignTo?: string;
+			matchMode?: "contains" | "exact";
+			dmMessage?: string;
+			commentReply?: string;
 			isActive?: boolean;
 		},
 	) =>
@@ -654,29 +767,64 @@ export const api = {
 		),
 	deleteCommentAutomation: (automationId: string) =>
 		http.delete(`/v1/comment-automations/${automationId}`),
-
-	// Sequences
-	listSequences: (params?: {
-		page?: number;
-		limit?: number;
-		status?: string;
-	}) => {
+	getCommentAutomationLogs: (automationId: string, params?: { page?: number; limit?: number }) => {
 		const searchParams = new URLSearchParams();
 		if (params?.page) searchParams.set("page", String(params.page));
 		if (params?.limit) searchParams.set("limit", String(params.limit));
+		const query = searchParams.toString();
+		return http.get<any>(
+			`/v1/comment-automations/${automationId}/logs${query ? `?${query}` : ""}`,
+		);
+	},
+
+	// Sequences
+	listSequences: (params?: {
+		profileId?: string;
+		status?: string;
+		limit?: number;
+		skip?: number;
+	}) => {
+		const searchParams = new URLSearchParams();
+		if (params?.profileId) searchParams.set("profileId", params.profileId);
 		if (params?.status) searchParams.set("status", params.status);
+		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.skip) searchParams.set("skip", String(params.skip));
 		const query = searchParams.toString();
 		return http.get<{ sequences: any[] }>(
 			`/v1/sequences${query ? `?${query}` : ""}`,
 		);
 	},
 	createSequence: (body: {
+		profileId: string;
+		accountId: string;
+		platform: string;
 		name: string;
-		steps: Array<{ delay?: number; action?: string; templateId?: string }>;
+		description?: string;
+		steps: Array<{
+			order: number;
+			delayMinutes: number;
+			message?: object;
+			template?: object;
+		}>;
+		exitOnReply?: boolean;
+		exitOnUnsubscribe?: boolean;
 	}) => http.post<any>("/v1/sequences", body),
+	getSequence: (sequenceId: string) =>
+		http.get<any>(`/v1/sequences/${sequenceId}`),
 	updateSequence: (
 		sequenceId: string,
-		body: { name?: string; steps?: any[] },
+		body: {
+			name?: string;
+			description?: string;
+			steps?: Array<{
+				order: number;
+				delayMinutes: number;
+				message?: object;
+				template?: object;
+			}>;
+			exitOnReply?: boolean;
+			exitOnUnsubscribe?: boolean;
+		},
 	) => http.patch<any>(`/v1/sequences/${sequenceId}`, body),
 	deleteSequence: (sequenceId: string) =>
 		http.delete(`/v1/sequences/${sequenceId}`),
@@ -684,25 +832,69 @@ export const api = {
 		http.post<any>(`/v1/sequences/${sequenceId}/activate`, {}),
 	pauseSequence: (sequenceId: string) =>
 		http.post<any>(`/v1/sequences/${sequenceId}/pause`, {}),
+	enrollSequence: (sequenceId: string, body: { contactIds?: string[]; tag?: string }) =>
+		http.post<any>(`/v1/sequences/${sequenceId}/enroll`, body),
+	listSequenceEnrollments: (sequenceId: string, params?: { status?: string; limit?: number; skip?: number }) => {
+		const searchParams = new URLSearchParams();
+		if (params?.status) searchParams.set("status", params.status);
+		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.skip) searchParams.set("skip", String(params.skip));
+		const query = searchParams.toString();
+		return http.get<any>(`/v1/sequences/${sequenceId}/enrollments${query ? `?${query}` : ""}`);
+	},
 
 	// Broadcasts
-	listBroadcasts: (
-		accountId: string,
-		params?: { page?: number; limit?: number },
-	) => {
-		const searchParams = new URLSearchParams({ accountId });
-		if (params?.page) searchParams.set("page", String(params.page));
+	listBroadcasts: (params?: {
+		profileId?: string;
+		status?: string;
+		platform?: string;
+		limit?: number;
+		skip?: number;
+	}) => {
+		const searchParams = new URLSearchParams();
+		if (params?.profileId) searchParams.set("profileId", params.profileId);
+		if (params?.status) searchParams.set("status", params.status);
+		if (params?.platform) searchParams.set("platform", params.platform);
 		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.skip) searchParams.set("skip", String(params.skip));
 		return http.get<{ broadcasts: any[] }>(`/v1/broadcasts?${searchParams}`);
 	},
 	createBroadcast: (body: {
+		profileId: string;
 		accountId: string;
-		templateName: string;
-		recipientIds?: string[];
-		segmentFilter?: object;
+		platform: string;
+		name: string;
+		description?: string;
+		message?: object;
+		template?: object;
+		segmentFilters?: object;
 	}) => http.post<any>("/v1/broadcasts", body),
-	sendBroadcast: (broadcastId: string, accountId: string) =>
-		http.post<any>(`/v1/broadcasts/${broadcastId}/send`, { accountId }),
+	getBroadcast: (broadcastId: string) =>
+		http.get<any>(`/v1/broadcasts/${broadcastId}`),
+	updateBroadcast: (broadcastId: string, body: {
+		name?: string;
+		description?: string;
+		message?: object;
+		template?: object;
+		segmentFilters?: object;
+	}) => http.patch<any>(`/v1/broadcasts/${broadcastId}`, body),
+	deleteBroadcast: (broadcastId: string) =>
+		http.delete(`/v1/broadcasts/${broadcastId}`),
+	sendBroadcast: (broadcastId: string) =>
+		http.post<any>(`/v1/broadcasts/${broadcastId}/send`, {}),
+	scheduleBroadcast: (broadcastId: string, scheduledAt: string) =>
+		http.post<any>(`/v1/broadcasts/${broadcastId}/schedule`, { scheduledAt }),
+	cancelBroadcast: (broadcastId: string) =>
+		http.post<any>(`/v1/broadcasts/${broadcastId}/cancel`, {}),
+	listBroadcastRecipients: (broadcastId: string, params?: { status?: string; limit?: number; skip?: number }) => {
+		const searchParams = new URLSearchParams();
+		if (params?.status) searchParams.set("status", params.status);
+		if (params?.limit) searchParams.set("limit", String(params.limit));
+		if (params?.skip) searchParams.set("skip", String(params.skip));
+		return http.get<any>(`/v1/broadcasts/${broadcastId}/recipients?${searchParams}`);
+	},
+	addBroadcastRecipients: (broadcastId: string, body: { contactIds?: string[]; phones?: string[]; useSegment?: boolean }) =>
+		http.post<any>(`/v1/broadcasts/${broadcastId}/recipients`, body),
 
 	// Queue Slots
 	listQueueSlots: (

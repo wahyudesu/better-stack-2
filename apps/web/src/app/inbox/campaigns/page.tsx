@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { InboxSkeleton } from "@/components/ui/InboxSkeleton";
-import { InboxAutomation } from "./InboxAutomation";
+import { InboxCampaigns } from "./InboxCampaigns";
 
-export default function InboxAutomationPage() {
+export default function InboxCampaignsPage() {
 	return (
 		<Suspense fallback={<InboxSkeleton />}>
-			<InboxAutomation />
+			<InboxCampaigns />
 		</Suspense>
 	);
 }

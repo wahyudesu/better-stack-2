@@ -11,7 +11,6 @@ const settingsTabs = [
   { id: "account", label: "Account", icon: User, component: AccountTab },
   { id: "connections", label: "Connections", icon: Link2, component: ConnectionsTab },
   { id: "billing", label: "Billing", icon: CreditCard, component: BillingTab },
-  { id: "preferences", label: "Preferences", icon: Settings2, component: PreferencesTab },
   { id: "user", label: "Team", icon: Users, component: UserTab },
   { id: "webhooks", label: "Webhooks", icon: Webhook, component: WebhooksTab },
 ];
@@ -22,10 +21,9 @@ Max-width 1024px, centered with `px-5 py-4`.
 ## Tab Components
 
 ### AccountTab
+disini pas pertama kali login maka akan sinkronkan data dari clerk dan convex, zernio api key fetch dari data convex
 - Avatar upload UI
 - Password change form
-- **Zernio API key connection** with validation endpoint
-- Danger zone (delete account)
 
 ### ConnectionsTab
 - Social account management

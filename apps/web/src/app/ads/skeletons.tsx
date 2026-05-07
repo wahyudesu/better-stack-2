@@ -22,11 +22,9 @@ export function PlatformBreakdownCardSkeleton() {
 					</div>
 					<div className="h-4 w-20 animate-pulse bg-muted rounded" />
 				</div>
-			)
-	)
-}
-</div>
-)
+			))}
+		</div>
+	);
 }
 
 export function RecentCampaignsCardSkeleton() {
@@ -43,11 +41,9 @@ export function RecentCampaignsCardSkeleton() {
 						<div className="h-4 w-12 animate-pulse bg-muted rounded" />
 					</div>
 				</div>
-			)
-	)
-}
-</div>
-)
+			))}
+		</div>
+	);
 }
 
 export function CampaignRowSkeleton() {
@@ -59,31 +55,27 @@ export function CampaignRowSkeleton() {
 						<div className="h-5 w-40 animate-pulse bg-muted rounded" />
 						<div className="h-5 w-16 animate-pulse bg-muted rounded" />
 					</div>
-					<div
-	className="flex items-center gap-3">
+					<div className="flex items-center gap-3">
 						<div className="h-4 w-12 animate-pulse bg-muted rounded" />
 						<div className="h-4 w-20 animate-pulse bg-muted rounded" />
 						<div className="h-4 w-12 animate-pulse bg-muted rounded" />
 						<div className="h-4 w-24 animate-pulse bg-muted rounded" />
 					</div>
 				</div>
-				<div
-	className="flex items-center gap-6 shrink-0">
+				<div className="flex items-center gap-6 shrink-0">
 					<div className="grid grid-cols-4 gap-4">
 						{[...Array(4)].map((_, i) => (
 							<div key={i} className="space-y-1 text-center">
 								<div className="h-3 w-8 animate-pulse bg-muted rounded mx-auto" />
 								<div className="h-4 w-10 animate-pulse bg-muted rounded mx-auto" />
 							</div>
-	))
-}
-</div>
-					<div
-className="h-8 w-8 animate-pulse bg-muted rounded" />
+						))}
+					</div>
+					<div className="h-8 w-8 animate-pulse bg-muted rounded" />
 				</div>
 			</div>
 		</div>
-)
+	);
 }
 
 export function AdCardSkeleton() {
@@ -96,8 +88,7 @@ export function AdCardSkeleton() {
 						<div className="h-4 w-28 animate-pulse bg-muted rounded" />
 						<div className="h-5 w-16 animate-pulse bg-muted rounded" />
 					</div>
-					<div
-	className="h-3 w-48 animate-pulse bg-muted rounded" />
+					<div className="h-3 w-48 animate-pulse bg-muted rounded" />
 					<div className="flex items-center gap-2">
 						<div className="h-3 w-12 animate-pulse bg-muted rounded" />
 						<div className="h-3 w-16 animate-pulse bg-muted rounded" />
@@ -106,7 +97,7 @@ export function AdCardSkeleton() {
 				</div>
 			</div>
 		</div>
-	)
+	);
 }
 
 export function AudienceCardSkeleton() {
@@ -117,16 +108,14 @@ export function AudienceCardSkeleton() {
 					<div className="h-4 w-4 animate-pulse bg-muted rounded" />
 					<div className="h-4 w-24 animate-pulse bg-muted rounded" />
 				</div>
-				<div
-	className="h-7 w-7 animate-pulse bg-muted rounded" />
+				<div className="h-7 w-7 animate-pulse bg-muted rounded" />
 			</div>
-			<div
-	className="h-8 w-20 animate-pulse bg-muted rounded" />
+			<div className="h-8 w-20 animate-pulse bg-muted rounded" />
 			<div className="h-3 w-32 animate-pulse bg-muted rounded" />
 			<div className="flex items-center gap-2">
 				<div className="h-5 w-16 animate-pulse bg-muted rounded" />
 				<div className="h-5 w-20 animate-pulse bg-muted rounded" />
 			</div>
 		</div>
-	)
+	);
 }

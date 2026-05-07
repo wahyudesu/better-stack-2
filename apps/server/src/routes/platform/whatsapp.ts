@@ -1,14 +1,16 @@
 /**
  * WhatsApp routes
- * WhatsApp Business API for messages, templates, groups, phone numbers
+ * WhatsApp Business API for messages, templates, business profile, phone numbers, groups
  */
 export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => Promise<T>) {
   return {
+    // --- Templates ---
+
     /**
      * List WhatsApp templates
      */
     listTemplates: (accountId: string, params?: { page?: number; limit?: number }) => {
-      return fetch<any>(`/v1/whatsapp/templates`, { query: { accountId, ...params } })
+      return fetch<any>('/v1/whatsapp/templates', { query: { accountId, ...params } })
     },
 
     /**
@@ -19,10 +21,25 @@ export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => 
     },
 
     /**
+     * Create WhatsApp template
+     */
+    createTemplate: (accountId: string, data: {
+      name: string
+      category: string
+      language: string
+      components?: object[]
+      library_template_name?: string
+      library_template_body_inputs?: object
+      library_template_button_inputs?: object[]
+    }) => {
+      return fetch<any>('/v1/whatsapp/templates', { method: 'POST', body: { accountId, ...data } })
+    },
+
+    /**
      * Update WhatsApp template
      */
-    updateTemplate: (accountId: string, templateName: string, data: any) => {
-      return fetch<any>(`/v1/whatsapp/templates/${templateName}`, { method: 'PUT', body: { accountId, ...data } })
+    updateTemplate: (accountId: string, templateName: string, data: { components: object[] }) => {
+      return fetch<any>(`/v1/whatsapp/templates/${templateName}`, { method: 'PATCH', body: { accountId, ...data } })
     },
 
     /**
@@ -31,6 +48,8 @@ export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => 
     deleteTemplate: (accountId: string, templateName: string) => {
       return fetch<any>(`/v1/whatsapp/templates/${templateName}`, { method: 'DELETE', body: { accountId } })
     },
+
+    // --- Business Profile ---
 
     /**
      * Get WhatsApp Business profile
@@ -42,15 +61,29 @@ export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => 
     /**
      * Update WhatsApp Business profile
      */
-    updateBusinessProfile: (accountId: string, data: { about?: string; vertical?: string; address?: string }) => {
-      return fetch<any>('/v1/whatsapp/business-profile', { method: 'PUT', body: { accountId, ...data } })
+    updateBusinessProfile: (accountId: string, data: {
+      about?: string
+      address?: string
+      description?: string
+      email?: string
+      websites?: string[]
+      vertical?: string
+      profilePictureHandle?: string
+    }) => {
+      return fetch<any>('/v1/whatsapp/business-profile', { method: 'POST', body: { accountId, ...data } })
     },
 
     /**
      * Upload WhatsApp Business profile photo
      */
-    uploadBusinessProfilePhoto: (accountId: string, mediaUrl: string) => {
-      return fetch<any>('/v1/whatsapp/business-profile/photo', { method: 'POST', body: { accountId, mediaUrl } })
+    uploadBusinessProfilePhoto: (accountId: string, file: File | FormData) => {
+      const formData = file instanceof FormData ? file : (() => {
+        const fd = new FormData()
+        fd.append('accountId', accountId)
+        fd.append('file', file)
+        return fd
+      })()
+      return fetch<any>('/v1/whatsapp/business-profile/photo', { method: 'POST', body: formData })
     },
 
     /**
@@ -63,9 +96,11 @@ export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => 
     /**
      * Request WhatsApp display name change
      */
-    updateDisplayName: (accountId: string, data: { displayName: string;about?: string }) => {
+    updateDisplayName: (accountId: string, data: { displayName: string; about?: string }) => {
       return fetch<any>('/v1/whatsapp/business-profile/display-name', { method: 'POST', body: { accountId, ...data } })
     },
+
+    // --- Phone Numbers ---
 
     /**
      * List WhatsApp phone numbers
@@ -84,7 +119,7 @@ export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => 
     /**
      * Purchase WhatsApp phone number
      */
-    purchasePhoneNumber: (accountId: string, data: { number?: string; category?: string }) => {
+    purchasePhoneNumber: (accountId: string, data?: { number?: string; category?: string }) => {
       return fetch<any>('/v1/whatsapp/phone-numbers/purchase', { method: 'POST', body: { accountId, ...data } })
     },
 
@@ -94,6 +129,8 @@ export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => 
     releasePhoneNumber: (accountId: string, phoneNumberId: string) => {
       return fetch<any>(`/v1/whatsapp/phone-numbers/${phoneNumberId}`, { method: 'DELETE', body: { accountId } })
     },
+
+    // --- Groups ---
 
     /**
      * List WhatsApp groups
@@ -170,6 +207,15 @@ export function createWhatsAppRoutes(fetch: <T>(path: string, options?: any) => 
      */
     rejectJoinRequests: (accountId: string, groupId: string, data: { requests: string[] }) => {
       return fetch<any>(`/v1/whatsapp/wa-groups/${groupId}/join-requests/reject`, { method: 'POST', body: { accountId, ...data } })
+    },
+
+    // --- Conversions ---
+
+    /**
+     * Send conversion events
+     */
+    sendConversions: (accountId: string, data: { events: Array<{ eventName: string; data?: object }> }) => {
+      return fetch<any>('/v1/whatsapp/conversions', { method: 'POST', body: { accountId, ...data } })
     },
   }
 }

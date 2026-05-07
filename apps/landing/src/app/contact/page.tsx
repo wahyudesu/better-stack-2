@@ -1,5 +1,5 @@
 import { Footer } from "@/components/footer";
-import { FAQ } from "@/components/faq";
+import { FAQ } from "@/app/(home)/components/faq";
 import { Mail, FileText, MessageCircle } from "lucide-react";
 import type { Metadata } from "next";
 

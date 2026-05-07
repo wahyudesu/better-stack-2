@@ -4,79 +4,32 @@
 
 "use client";
 
-import {
-	AlertCircle,
-	CheckCircle2,
-	KeyRound,
-	Loader2,
-	Trash2,
-} from "lucide-react";
-import { useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { CheckCircle2, KeyRound, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { api } from "@/convex/_generated/api";
 import { useAuthStore } from "@/stores";
-import type { UsageStats } from "@/stores/auth-store";
 
 export function SecurityTab() {
-	const { setUsageStats, setIsValidating, isValidating, usageStats } =
-		useAuthStore();
-	const [apiKeyInput, setApiKeyInput] = useState("");
-	const [error, setLocalError] = useState<string | null>(null);
+	const { setApiKey, setUsageStats } = useAuthStore();
 
-	const apiKey = usageStats ? "connected" : null;
-	const isLoading = false;
+	// Convex query to get API key from database
+	const storedApiKey = useQuery(api.users.getApiKey);
+	// Convex mutation to remove API key
+	const upsertApiKeyMutation = useMutation(api.users.upsertApiKey);
 
-	const maskedKey =
-		typeof apiKey === "string" && apiKey.length > 0
-			? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
-			: "";
+	// Use Convex-stored API key as source of truth
+	const apiKey = storedApiKey ?? null;
 
-	const handleConnect = async () => {
-		if (!apiKeyInput.trim()) {
-			setLocalError("API key is required");
-			return;
-		}
-
-		if (!apiKeyInput.startsWith("sk_")) {
-			setLocalError("Invalid API key format");
-			return;
-		}
-
-		setIsValidating(true);
-		setLocalError(null);
-
-		try {
-			const response = await fetch("/api/validate-key", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ apiKey: apiKeyInput.trim() }),
-			});
-
-			if (!response.ok) {
-				const data = (await response.json().catch(() => ({}))) as {
-					error?: string;
-				};
-				throw new Error(data?.error || "Invalid API key");
-			}
-
-			const data = (await response.json()) as { data?: UsageStats };
-			setUsageStats(data?.data ?? null);
-			setApiKeyInput("");
-		} catch (err) {
-			setLocalError(
-				err instanceof Error ? err.message : "Failed to validate API key",
-			);
-		} finally {
-			setIsValidating(false);
-		}
-	};
+	const maskedKey = apiKey
+		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
+		: "";
 
 	const handleDisconnect = async () => {
+		await upsertApiKeyMutation({ apiKey: null });
+		setApiKey(null);
 		setUsageStats(null);
-		setLocalError(null);
 	};
 
 	return (
@@ -86,12 +39,10 @@ export function SecurityTab() {
 					<p className="text-sm font-semibold">Password</p>
 					<div className="flex flex-col gap-3">
 						<div className="space-y-2">
-							<Label>Current password</Label>
-							<Input type="password" />
+							<span className="text-sm">Current password</span>
 						</div>
 						<div className="space-y-2">
-							<Label>New password</Label>
-							<Input type="password" />
+							<span className="text-sm">New password</span>
 						</div>
 					</div>
 					<div className="flex justify-end">
@@ -104,7 +55,7 @@ export function SecurityTab() {
 				<CardContent className="space-y-3">
 					<p className="text-sm font-semibold">Two-factor authentication</p>
 					<div className="flex items-center gap-3">
-						<Switch />
+						<input type="checkbox" />
 						<span className="text-sm text-muted-foreground">Disabled</span>
 					</div>
 				</CardContent>
@@ -117,12 +68,7 @@ export function SecurityTab() {
 						<p className="text-sm font-semibold">Zernio API Key</p>
 					</div>
 
-					{isLoading ? (
-						<div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-							<Loader2 className="h-4 w-4 animate-spin" />
-							Loading...
-						</div>
-					) : typeof apiKey === "string" && apiKey.length > 0 ? (
+					{apiKey ? (
 						<div className="space-y-3">
 							<div className="flex items-center gap-2 p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20">
 								<CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
@@ -154,59 +100,10 @@ export function SecurityTab() {
 							</div>
 						</div>
 					) : (
-						<div className="space-y-3">
-							<p className="text-xs text-muted-foreground">
-								Connect your Zernio account to access AI features and social
-								media integrations.
-							</p>
-							<div className="space-y-2">
-								<Label htmlFor="api-key">API Key</Label>
-								<Input
-									id="api-key"
-									type="password"
-									placeholder="sk_xxx"
-									value={apiKeyInput}
-									onChange={(e) => {
-										setApiKeyInput(e.target.value);
-										setLocalError(null);
-									}}
-									disabled={isValidating}
-								/>
-							</div>
-
-							{error && (
-								<div className="flex items-center gap-2 text-sm text-destructive">
-									<AlertCircle className="h-4 w-4" />
-									{error}
-								</div>
-							)}
-
-							<Button
-								onClick={handleConnect}
-								disabled={isValidating || !apiKeyInput.trim()}
-								size="sm"
-							>
-								{isValidating ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Validating...
-									</>
-								) : (
-									"Connect"
-								)}
-							</Button>
-
-							<p className="text-xs text-muted-foreground">
-								Don&apos;t have an API key?{" "}
-								<a
-									href="https://zernio.com/api-keys"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="underline underline-offset-4 hover:text-primary"
-								>
-									Get one here
-								</a>
-							</p>
+						<div className="flex items-center gap-2 p-3 rounded-md bg-muted border">
+							<span className="text-sm text-muted-foreground">
+								Not connected
+							</span>
 						</div>
 					)}
 				</CardContent>

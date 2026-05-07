@@ -4,10 +4,7 @@
  * Covers: conversations, messages, comments, reviews, contacts, broadcasts, sequences
  */
 
-import type {
-	ServerConversation,
-	ServerMessage,
-} from "@/app/inbox/InboxContent";
+import type { ServerConversation, ServerMessage } from "@/app/inbox/types";
 
 // ============================================================
 // Helper functions for timestamps
@@ -992,4 +989,4 @@ export function shouldUseMockData(error: unknown): boolean {
 export type {
 	ServerConversation,
 	ServerMessage,
-} from "@/app/inbox/InboxContent";
+} from "@/app/inbox/types";
