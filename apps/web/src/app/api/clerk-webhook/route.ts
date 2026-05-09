@@ -4,13 +4,11 @@ import { createAdminClient } from "@/lib/supabase";
 
 const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET!;
 
-// Minimal webhook verification using Node crypto
 function verifyWebhook(body: string, sig: string): boolean {
 	const expected = createHmac("sha256", WEBHOOK_SECRET)
 		.update(body)
 		.digest("hex");
 	const expectedSig = `v1=${expected}`;
-	// Use timing-safe comparison
 	try {
 		const a = Buffer.from(expectedSig, "utf8");
 		const b = Buffer.from(sig, "utf8");
@@ -34,9 +32,6 @@ export async function POST(req: NextRequest) {
 	const event = JSON.parse(body);
 	const { type, data } = event as { type: string; data: any };
 
-	// Handle organization events - forward to server
-	// User auth is handled by Clerk+Supabase native integration
-	// No need to sync users to auth.users
 	switch (type) {
 		case "organization.created":
 		case "organization.updated":

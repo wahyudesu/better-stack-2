@@ -1,5 +1,15 @@
 import { FileText, UserCheck, Wrench } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Tools - ZenPost Brand & Content Tools",
+  description:
+    "Kumpulan tools untuk membantu workflow social media kamu. Build personal brand identity dan generate content scripts dengan AI-powered tools dari ZenPost.",
+  alternates: {
+    canonical: "https://zenpost.in/tools",
+  },
+};
 
 const groups = [
   {

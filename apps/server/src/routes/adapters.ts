@@ -20,7 +20,19 @@ export function createFetchFromHono(c: Context) {
 			throw new Error('API key required. Authenticate via Clerk JWT with API key in publicMetadata.')
 		}
 
-		const url = new URL(path, baseUrl.endsWith('/') ? baseUrl : baseUrl + '/')
+		let url: URL
+		if (/^https?:\/\//i.test(path)) {
+			// Absolute URL passed directly - use it as-is
+			url = new URL(path)
+		} else {
+			// Relative path - resolve against baseUrl
+			const base = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/'
+			const hasAbsolutePath = path.startsWith('/')
+			const urlStr = hasAbsolutePath
+				? baseUrl.replace(/\/$/, '') + path
+				: base + path
+			url = new URL(urlStr)
+		}
 
 		if (options.query) {
 			Object.entries(options.query).forEach(([key, value]) => {

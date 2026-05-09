@@ -6,6 +6,7 @@ Monorepo pnpm workspace with:
 - `apps/web` - Next.js 16 + Supabase backend (social media dashboard)
 - `apps/landing` - Marketing landing page
 - `apps/server` - Server components (Hono + Cloudflare Workers)
+- `apps/zernio-node` - Zernio API Node.js client
 - `packages/ui` - Shared UI components
 - `packages/infra` - Infrastructure utilities
 - `packages/env` - Environment validation (Zod)
@@ -14,7 +15,7 @@ Monorepo pnpm workspace with:
 ## Key Technologies
 
 ### Web App
-- Next.js 16.2 + React 19
+- Next.js 16 + React 19
 - Supabase (PostgreSQL) via API routes + `@supabase/ssr` for server-side auth
 - Clerk for auth
 - @base-ui/react for UI primitives
@@ -32,7 +33,7 @@ Monorepo pnpm workspace with:
 - Zernio API for social media integration (see `apps/server/GUIDE.md`)
 
 ### Landing App
-- Next.js 16.1.5 + React 19
+- Next.js 16 + React 19
 - Tailwind CSS v4
 - Vitest + Playwright for testing
 - Cloudflare Workers deployment
@@ -120,11 +121,10 @@ await supabase.from("organizations").select("*").eq("clerk_id", userId);
 ## Before Making Changes
 
 1. Read `CLAUDE.md` for project context
-2. For Convex code: read `convex/_generated/ai/guidelines.md` first
-3. For server/Zernio integration: read `apps/server/GUIDE.md`
-4. For web app: read `apps/web/CLAUDE.md`
-5. For landing: read `apps/landing/AGENTS.md`
-6. For server: read `apps/server/AGENTS.md`
+2. For server/Zernio integration: read `apps/server/GUIDE.md`
+3. For web app: read `apps/web/CLAUDE.md`
+4. For landing: read `apps/landing/AGENTS.md`
+5. For server: read `apps/server/AGENTS.md`
 
 ## Deployment
 
@@ -162,5 +162,5 @@ pnpm run test:e2e     # Playwright e2e
 ```bash
 cd apps/server
 pnpm run dev          # Wrangler dev
-pnpm run deploy        # Deploy to Cloudflare
+pnpm run deploy       # Deploy to Cloudflare
 ```

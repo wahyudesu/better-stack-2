@@ -4,12 +4,15 @@
  */
 
 import type {
+	CalendarPostItem,
+	DashboardPostItem,
+} from "@/lib/types/content/view";
+import type {
 	ContentPost,
 	PostAnalytics,
 	ProfilePlatform,
 	SocialMediaProfile,
 } from "@/lib/types/social";
-import type { CalendarPostItem, DashboardPostItem } from "@/lib/types/content/view";
 
 // ============================================================
 // 1. SAMPLE PROFILES

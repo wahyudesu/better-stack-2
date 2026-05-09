@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { api } from "@/lib/client";
+import { useZernio } from "@/hooks/use-zernio";
 import { sampleProfiles } from "@/lib/data/social-data";
+import { getZernioErrorMessage } from "@/lib/zernio-error";
 import { useAppStore } from "@/stores/app-store";
-import { useAuthStore } from "@/stores/auth-store";
 
 export const profileKeys = {
 	all: ["profiles"] as const,
@@ -14,26 +14,30 @@ export const profileKeys = {
  * Hook to fetch all profiles
  */
 export function useProfiles() {
+	const { zernio, loading, error } = useZernio();
 	const { defaultProfileId, setDefaultProfileId } = useAppStore();
 
 	const query = useQuery({
 		queryKey: profileKeys.all,
 		queryFn: async () => {
-			if (!useAuthStore.getState().clerkToken) {
+			if (loading || !zernio) {
 				return { profiles: sampleProfiles };
 			}
-			const { data, error } = await api.getProfiles();
-			if (error) throw error;
-			return data;
+			const response = await zernio.profiles.listProfiles();
+			if (!response.data) {
+				throw new Error(getZernioErrorMessage(response.error));
+			}
+			const profiles = response.data.profiles ?? [];
+			return { profiles };
 		},
 		enabled: true,
 	});
 
 	// Auto-set default profile if not set
 	useEffect(() => {
-		if (query.data?.profiles?.length && !defaultProfileId) {
-			const firstProfile = query.data.profiles[0];
-			// Handle both Profile (_id from API) and SocialMediaProfile (id from sample data)
+		const profiles = query.data?.profiles;
+		if (Array.isArray(profiles) && profiles.length && !defaultProfileId) {
+			const firstProfile = profiles[0];
 			setDefaultProfileId(
 				(firstProfile as { _id?: string })._id ??
 					(firstProfile as { id: string }).id,
@@ -41,7 +45,11 @@ export function useProfiles() {
 		}
 	}, [query.data, defaultProfileId, setDefaultProfileId]);
 
-	return query;
+	return {
+		...query,
+		isLoading: loading || query.isLoading,
+		error: error || query.error,
+	};
 }
 
 /**
@@ -52,7 +60,6 @@ export function useCurrentProfileId(): string | undefined {
 	const { data } = useProfiles();
 	const firstProfile = data?.profiles?.[0];
 	if (!firstProfile) return undefined;
-	// Handle both Profile (_id from API) and SocialMediaProfile (id from sample data)
 	return (
 		defaultProfileId ??
 		(firstProfile as { _id?: string })._id ??
@@ -64,14 +71,21 @@ export function useCurrentProfileId(): string | undefined {
  * Hook to fetch a single profile
  */
 export function useProfile(profileId: string) {
+	const { zernio } = useZernio();
+
 	return useQuery({
 		queryKey: profileKeys.detail(profileId),
 		queryFn: async () => {
-			const { data, error } = await api.getProfile(profileId);
-			if (error) throw error;
-			return data;
+			if (!zernio) throw new Error("Zernio not initialized");
+			const response = await zernio.profiles.getProfile({
+				path: { profileId },
+			});
+			if (!response.data) {
+				throw new Error(getZernioErrorMessage(response.error));
+			}
+			return response.data;
 		},
-		enabled: !!profileId,
+		enabled: !!profileId && !zernio,
 	});
 }
 
@@ -80,12 +94,16 @@ export function useProfile(profileId: string) {
  */
 export function useCreateProfile() {
 	const queryClient = useQueryClient();
+	const { zernio } = useZernio();
 
 	return useMutation({
 		mutationFn: async (data: { name: string; description?: string }) => {
-			const { data: profile, error } = await api.createProfile(data);
-			if (error) throw error;
-			return profile;
+			if (!zernio) throw new Error("Zernio not initialized");
+			const response = await zernio.profiles.createProfile({ body: data });
+			if (!response.data) {
+				throw new Error(getZernioErrorMessage(response.error));
+			}
+			return response.data;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: profileKeys.all });
@@ -98,6 +116,7 @@ export function useCreateProfile() {
  */
 export function useUpdateProfile() {
 	const queryClient = useQueryClient();
+	const { zernio } = useZernio();
 
 	return useMutation({
 		mutationFn: async ({
@@ -108,9 +127,15 @@ export function useUpdateProfile() {
 			name?: string;
 			timezone?: string;
 		}) => {
-			const { data: profile, error } = await api.updateProfile(profileId, data);
-			if (error) throw error;
-			return profile;
+			if (!zernio) throw new Error("Zernio not initialized");
+			const response = await zernio.profiles.updateProfile({
+				path: { profileId },
+				body: data,
+			});
+			if (!response.data) {
+				throw new Error(getZernioErrorMessage(response.error));
+			}
+			return response.data;
 		},
 		onSuccess: (_, { profileId }) => {
 			queryClient.invalidateQueries({ queryKey: profileKeys.all });

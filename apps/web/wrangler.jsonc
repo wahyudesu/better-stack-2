@@ -14,13 +14,13 @@
 	// 	"CORS_ORIGIN": "http://localhost:3000"
 	// },
 	"routes": [
-    {
-      "pattern": "app.zenpost.wahyuikbal.com",
-      "custom_domain": true,
-    },
-    {
-      "pattern": "www.app.zenpost.wahyuikbal.com",
-      "zone_name": "wahyuikbal.com",
-    },
-  ],
+		{
+			"pattern": "app.zenpost.wahyuikbal.com",
+			"custom_domain": true
+		},
+		{
+			"pattern": "www.app.zenpost.wahyuikbal.com",
+			"zone_name": "wahyuikbal.com"
+		}
+	]
 }

@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
 		],
 	},
 	skipTrailingSlashRedirect: true,
+	compress: true,
+	productionBrowserSourceMaps: false,
 };
 
 export default nextConfig;

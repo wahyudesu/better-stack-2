@@ -6,16 +6,24 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Contact ZenPost - Get in Touch",
   description:
-    "Have questions about ZenPost? Contact us via docs, Telegram, or email. We read every message and are happy to help.",
+    "Have questions about ZenPost? Contact us via docs, Telegram, or email. We read every message and are happy to help you get started with social media management.",
   alternates: {
     canonical: "https://zenpost.in/contact",
   },
   openGraph: {
     title: "Contact ZenPost",
     description:
-      "Get in touch with the ZenPost team. Questions about setup, billing, or anything else?",
+      "Get in touch with the ZenPost team. Questions about setup, billing, or anything else? We respond within 24 hours.",
     url: "https://zenpost.in/contact",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ZenPost - Social Media Dashboard",
+      },
+    ],
   },
 };
 

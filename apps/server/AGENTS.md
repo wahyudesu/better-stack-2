@@ -44,8 +44,9 @@ apps/server/src/
 └── routes/
     ├── adapters.ts             # Platform adapters
     ├── index.ts                # Route registration
-    └── [category]/
-        └── [feature].ts        # Feature routes (posts, analytics, inbox, ads, etc.)
+    └── handlers/               # Route handlers
+        ├── connect.ts          # OAuth connection handlers
+        └── sync.ts            # Sync handlers
 ```
 
 ## Route Categories

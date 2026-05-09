@@ -5,18 +5,24 @@ Main Next.js 16 social media dashboard application.
 ## Quick Start
 
 ```bash
+cd apps/web
 pnpm install          # Install dependencies
 pnpm run dev          # Start dev server (port 3000)
+pnpm run dev:bare     # Dev without Cloudflare tunneling (port 3001)
 pnpm run format       # Format code with Biome
 pnpm run lint         # Lint code (Biome)
 pnpm run lint:fix     # Auto-fix lint issues
 pnpm run check        # Check and fix code (Biome)
 pnpm run build        # Production build
+pnpm run build:cf     # Build for Cloudflare Workers
+pnpm run preview      # Preview Cloudflare build locally
+pnpm run desktop:dev  # Tauri desktop dev
+pnpm run desktop:build # Tauri desktop build
 ```
 
 ## Tech Stack
 
-- **Framework**: Next.js 16.2 + React 19
+- **Framework**: Next.js 16 + React 19
 - **Routing**: Next.js App Router (react-router-dom v7 for some routes)
 - **Backend**: Supabase (PostgreSQL) via API routes + `@supabase/ssr` for server-side auth
 - **Auth**: Clerk (`@clerk/nextjs`)
@@ -33,6 +39,11 @@ pnpm run build        # Production build
 apps/web/src/
 ├── app/                   # Next.js App Router pages
 │   ├── api/               # API routes (Supabase backend)
+│   │   ├── posts/         # Posts CRUD
+│   │   ├── profiles/      # Profile management
+│   │   ├── social-accounts/ # Social account management
+│   │   └── clerk-webhook/ # Clerk webhook handler
+│   ├── (auth)/            # Auth routes (login, register, callback)
 │   ├── dashboard/         # Main dashboard with analytics
 │   ├── analytics/         # Deep analytics with charts
 │   ├── posts/             # Content calendar + management
@@ -46,14 +57,22 @@ apps/web/src/
 │   ├── dashboard/          # Dashboard components
 │   ├── charts/             # @visx chart components
 │   └── ui/                 # Shared UI components
+├── hooks/                  # Custom React hooks
+│   ├── use-accounts.ts     # Social accounts hook
+│   ├── use-profiles.ts     # Profiles hook
+│   ├── use-posts.ts        # Posts hook
+│   └── use-zernio.ts       # Zernio API client hook
 ├── lib/
 │   ├── constants/         # App constants
 │   ├── data/              # Static/mock data
 │   ├── types/             # TypeScript types
-│   ├── hooks/             # Custom React hooks
 │   ├── api/               # API client functions
 │   ├── stores/            # zustand stores
-│   └── metrics.ts        # Metric formatting utilities
+│   ├── metrics.ts         # Metric formatting utilities
+│   ├── zernio-client.ts   # Zernio API client
+│   └── zernio-error.ts    # Zernio error handling
+├── lib/data/              # Sample data for development
+└── lib/supabase.ts        # Supabase client setup with Clerk auth
 ```
 
 ## Component Patterns
@@ -93,17 +112,8 @@ apps/web/src/
 - `src/lib/data/social-data.ts` - Sample data for development
 - `src/lib/api/` - API client functions for backend communication
 - `src/lib/supabase.ts` - Supabase client setup with Clerk auth
-
-## Deployment
-
-```bash
-pnpm run build:cf      # Build for Cloudflare Workers
-pnpm run deploy:cf     # Deploy to Cloudflare Workers
-pnpm run dev:bare      # Dev without Cloudflare tunneling (port 3001)
-pnpm run preview       # Preview Cloudflare build locally
-pnpm run desktop:dev   # Tauri desktop dev
-pnpm run desktop:build # Tauri desktop build
-```
+- `src/lib/zernio-client.ts` - Zernio API client
+- `src/lib/zernio-error.ts` - Zernio error handling
 
 ## Before Making Changes
 

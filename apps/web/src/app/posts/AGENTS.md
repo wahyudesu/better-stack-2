@@ -13,43 +13,30 @@ Create → Schedule → Publish → Analytics
 
 ```
 ┌─────────┐     ┌──────────┐     ┌────────┐     ┌────────┐
-│  User   │ ──▶ │ Convex   │ ──▶ │ Server │ ──▶ │ Zernio │
-│ Browser │     │ (DB)     │     │ (Hono) │     │  API   │
+│  User   │ ──▶ │  Web App │ ──▶ │ Server │ ──▶ │ Zernio │
+│ Browser │     │ (Next.js)│     │ (Hono) │     │  API   │
 └─────────┘     └──────────┘     └────────┘     └────────┘
-                    ▲                │
-                    │                ▼
-                    └────────── (Response)
+                      │                │
+                      │                ▼
+                      └────────── (Response)
 ```
 
 **Data flow:**
-1. User creates post in browser
-2. Convex stores post metadata (profiles, accounts, scheduledAt)
-3. When scheduled time arrives, Convex calls Server endpoint
-4. Server calls Zernio API to publish
-5. Zernio posts to social platforms
+1. User creates post in browser (Next.js app)
+2. Web app stores post metadata in Supabase via API routes
+3. When scheduled time arrives, Server calls Zernio API to publish
+4. Zernio posts to social platforms
+5. Post status updated in Supabase
 
-## Objectives
+## Post Status Workflow
 
-### 1. Post Creation
-- User fills content → selects platforms → selects accounts → picks date/time
-- Convex stores: `{ profileId, socialAccountIds, content, scheduledAt, media }`
-- Status: `draft` → `scheduled`
+```
+draft → review → scheduled → published
+                    ↓
+                 failed
+```
 
-### 2. Queue Processing (Background)
-- Convex scheduler checks every minute for due posts
-- Calls `POST /v1/queue` via Server → Zernio
-- Updates post status: `scheduled` → `published` or `failed`
-
-### 3. Calendar Display
-- Fetch posts from Convex (not from Zernio directly)
-- Calendar shows dots per platform color
-- Drag-and-drop reschedules via `useUpdatePost`
-
-### 4. Post Actions
-- Retry failed posts
-- Unpublish (if platform supports)
-- Delete
-- View logs (Zernio response metadata)
+Statuses: `draft`, `review`, `scheduled`, `publishing`, `published`, `failed`, `cancelled`
 
 ## Key Components
 
@@ -69,17 +56,7 @@ Calendar grid rendering with event dots and drag-and-drop.
 - Click cell → navigate to `/posts/create?date=<dateStr>`
 
 ### PostCardsView (`PostCardsView.tsx`)
-Card-based list view of all posts.
-
-## Post Status Workflow
-
-```
-draft → review → scheduled → published
-                    ↓
-                 failed
-```
-
-Statuses: `draft`, `review`, `scheduled`, `publishing`, `published`, `failed`, `cancelled`
+Card-based post list view of all posts.
 
 ## Drag-and-Drop Reschedule
 
@@ -87,9 +64,9 @@ Statuses: `draft`, `review`, `scheduled`, `publishing`, `published`, `failed`, `
 // On drag start
 const handleDragStart = (e, postId) => {...}
 
-// On drop - calls useUpdatePost to update scheduledAt
+// On drop - calls API to update scheduledAt
 const handleDrop = (date) => {
-  useUpdatePost({ id: postId, scheduledAt: date })
+  mutateUpdatePost({ id: postId, scheduledAt: date })
 }
 ```
 
@@ -128,35 +105,33 @@ import { postToCalendarEvent } from "@/lib/data/social-data";
 
 | Hook | Method | Endpoint | Purpose |
 |------|--------|----------|---------|
-| `usePosts` | GET | `/v1/posts` | List posts for calendar |
-| `useCreatePost` | POST | `/v1/posts` | Create draft/scheduled |
-| `useUpdatePost` | PATCH | `/v1/posts/:id` | Reschedule |
-| `useDeletePost` | DELETE | `/v1/posts/:id` | Remove post |
-| `useRetryPost` | POST | `/v1/posts/:id/retry` | Re-publish failed |
-| `useUnpublishPost` | POST | `/v1/posts/:id/unpublish` | Unpublish |
-| `usePostLogs` | GET | `/v1/posts/:id/logs` | Zernio response |
+| `usePosts` | GET | `/api/posts` | List posts for calendar |
+| `useCreatePost` | POST | `/api/posts` | Create draft/scheduled |
+| `useUpdatePost` | PATCH | `/api/posts/:id` | Reschedule |
+| `useDeletePost` | DELETE | `/api/posts/:id` | Remove post |
+| `useRetryPost` | POST | `/api/posts/:id/retry` | Re-publish failed |
+| `useUnpublishPost` | POST | `/api/posts/:id/unpublish` | Unpublish |
+| `usePostLogs` | GET | `/api/posts/:id/logs` | Zernio response |
 
-## Server Integration
+## User Identity Pattern
 
-Server runs at `http://localhost:8787` (dev) and handles:
-- Authentication: `Authorization: Bearer <Zernio_API_Key>`
-- Rate limiting per Zernio plan
-- Response caching for analytics
-
-### Making Server Calls
+All API routes MUST use this pattern to access user data:
 
 ```typescript
-// Use api client - sends Bearer token from authStore
-const { data, error } = await api.getPosts({ profileId, status: 'scheduled' })
+// 1. Get user UUID from Clerk ID
+const { data: user } = await supabase
+  .from("users")
+  .select("id")
+  .eq("clerk_id", userId)
+  .single();
 
-// Post creation
-await api.createPost({
-  profileId: 'xxx',
-  content: 'Hello world',
-  socialAccountIds: ['acc1', 'acc2'],
-  scheduledAt: '2026-05-10T09:00:00Z',
-  media: [{ url: 'https://...', type: 'image' }]
-})
+if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+// 2. Query posts with user_id (NOT clerk_id)
+const { data } = await supabase
+  .from("posts")
+  .select("*")
+  .eq("user_id", user.id);
 ```
 
 ## Layout Pattern
@@ -176,14 +151,13 @@ import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 2. Follow drag-and-drop pattern from existing CalendarGrid
 3. Use `sonner` toast for success/error feedback
 4. Platform colors from HSL strings mapped per platform
-5. When adding new API call: check `src/lib/client.ts` for existing endpoints first
+5. When adding new API call: check `src/lib/api/` for existing endpoints first
 6. Test with `pnpm run dev` (web) + `cd apps/server && pnpm run dev` (server)
 
-## Convex vs Server
+## Data Storage
 
 | Data | Storage | Reason |
 |------|---------|--------|
-| Post metadata (content, schedule) | Convex | Fast queries, real-time sync |
-| Social account tokens | Convex | Security |
+| Post metadata (content, schedule) | Supabase | Persistent, queryable |
+| Social account tokens | Server (env) | Security |
 | Published posts/analytics | Server → Zernio | External API |
-| Media files | Convex → S3 | Persistent storage |

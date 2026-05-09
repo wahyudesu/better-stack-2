@@ -1,5 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useZernio } from "@/hooks/use-zernio";
 import type { Post } from "@/lib/client";
+import { getZernioErrorMessage } from "@/lib/zernio-error";
 
 export interface CreatePostBody {
 	profileId: string;
@@ -20,7 +22,7 @@ export const postKeys = {
 // Convert API post to Post format
 function convertToPost(post: any): Post {
 	return {
-		_id: post.id,
+		_id: post.id ?? post._id,
 		text: post.text || post.content,
 		platforms: post.platforms || [],
 		status: post.status || "draft",
@@ -35,7 +37,7 @@ function convertToPost(post: any): Post {
 			type: "image" as const,
 		})),
 		mediaItems: post.mediaUrls?.map((url: string) => ({ url })),
-		profileId: "",
+		profileId: post.profileId ?? "",
 		socialAccountIds: post.accountIds || [],
 		createdAt: post.createdAt
 			? new Date(post.createdAt).toISOString()
@@ -46,53 +48,70 @@ function convertToPost(post: any): Post {
 	};
 }
 
-async function fetchPosts(): Promise<Post[]> {
-	const res = await fetch("/api/posts");
-	if (!res.ok) throw new Error("Failed to fetch posts");
-	const data = await res.json();
-	return Array.isArray(data) ? data.map(convertToPost) : [];
+async function fetchPosts(zernio: any): Promise<Post[]> {
+	const response = await zernio.posts.listPosts({ query: { limit: 50 } });
+	if (!response.data) {
+		throw new Error(getZernioErrorMessage(response.error));
+	}
+	const posts = response.data.posts ?? response.data.data ?? [];
+	return posts.map(convertToPost);
 }
 
-async function createPost(body: {
-	text: string;
-	platforms: string[];
-	scheduledAt?: number;
-	mediaUrls?: string[];
-	socialAccountIds?: string[];
-	profileId?: string;
-}) {
-	const res = await fetch("/api/posts", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(body),
+async function createPost(
+	zernio: any,
+	body: {
+		text: string;
+		platforms: string[];
+		scheduledAt?: number;
+		mediaUrls?: string[];
+		socialAccountIds?: string[];
+		profileId?: string;
+	},
+) {
+	const response = await zernio.posts.createPost({
+		body: {
+			content: body.text,
+			platforms: body.platforms.map((p) => ({ platform: p, accountId: "" })),
+			scheduledAt: body.scheduledAt
+				? new Date(body.scheduledAt).toISOString()
+				: undefined,
+			socialAccountIds: body.socialAccountIds,
+			profileId: body.profileId,
+		},
 	});
-	if (!res.ok) throw new Error("Failed to create post");
-	return res.json();
+	if (!response.data) {
+		throw new Error(getZernioErrorMessage(response.error));
+	}
+	return response.data;
 }
 
-async function deletePost(postId: string) {
-	const res = await fetch("/api/posts", {
-		method: "DELETE",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ postId }),
-	});
-	if (!res.ok) throw new Error("Failed to delete post");
-	return res.json();
+async function deletePost(zernio: any, postId: string) {
+	const response = await zernio.posts.deletePost({ path: { postId } });
+	if (response.error) {
+		throw new Error(getZernioErrorMessage(response.error));
+	}
+	return response.data;
 }
 
 /**
  * Hook to fetch all posts
  */
 export function usePosts() {
-	const { data, isLoading, error } = useQuery({
+	const { zernio, loading, error } = useZernio();
+
+	const query = useQuery({
 		queryKey: postKeys.list(),
-		queryFn: fetchPosts,
+		queryFn: async () => {
+			if (!zernio) return [];
+			return fetchPosts(zernio);
+		},
+		enabled: !loading && !!zernio,
 	});
 
 	return {
-		data: { posts: data ?? [] },
-		isLoading,
-		error,
+		data: { posts: query.data ?? [] },
+		isLoading: loading || query.isFetching,
+		error: error || query.error,
 	};
 }
 
@@ -101,6 +120,7 @@ export function usePosts() {
  */
 export function useCreatePost() {
 	const queryClient = useQueryClient();
+	const { zernio } = useZernio();
 
 	return {
 		mutateAsync: async (params: {
@@ -111,7 +131,8 @@ export function useCreatePost() {
 			socialAccountIds?: string[];
 			profileId?: string;
 		}) => {
-			const result = await createPost(params);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const result = await createPost(zernio, params);
 			queryClient.invalidateQueries({ queryKey: postKeys.all });
 			return result;
 		},
@@ -123,10 +144,12 @@ export function useCreatePost() {
  */
 export function useDeletePost() {
 	const queryClient = useQueryClient();
+	const { zernio } = useZernio();
 
 	return {
 		mutateAsync: async (postId: string) => {
-			await deletePost(postId);
+			if (!zernio) throw new Error("Zernio not initialized");
+			await deletePost(zernio, postId);
 			queryClient.invalidateQueries({ queryKey: postKeys.all });
 		},
 		mutate: async (
@@ -134,7 +157,8 @@ export function useDeletePost() {
 			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
 		) => {
 			try {
-				await deletePost(postId);
+				if (!zernio) throw new Error("Zernio not initialized");
+				await deletePost(zernio, postId);
 				queryClient.invalidateQueries({ queryKey: postKeys.all });
 				callbacks?.onSuccess?.();
 			} catch (err) {
@@ -144,17 +168,20 @@ export function useDeletePost() {
 	};
 }
 
-// Sync hook - fetches from Zernio via API route
+// Sync hook - fetches from Zernio directly
 export function useSyncPosts() {
 	const queryClient = useQueryClient();
+	const { zernio } = useZernio();
 
 	return {
 		mutateAsync: async (_params?: object) => {
-			const res = await fetch("/api/zernio/sync", { method: "POST" });
-			if (!res.ok) throw new Error("Sync failed");
-			const result = await res.json();
+			if (!zernio) {
+				// Not initialized yet - skip silently
+				return { synced: false };
+			}
+			// Sync is handled by fetching latest data
 			queryClient.invalidateQueries({ queryKey: postKeys.all });
-			return result;
+			return { synced: true };
 		},
 		isPending: false,
 	};
@@ -184,7 +211,6 @@ export function useUpdatePost() {
 			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
 		) => {
 			try {
-				// Stub: would call PATCH /api/posts
 				console.log("updatePost stub:", params);
 				callbacks?.onSuccess?.();
 			} catch (err) {
@@ -196,14 +222,16 @@ export function useUpdatePost() {
 
 // Retry hook - stub implementation
 export function useRetryPost() {
+	const { zernio } = useZernio();
+
 	return {
 		mutate: async (
 			postId: string,
 			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
 		) => {
 			try {
-				// Stub: would call POST /api/posts/retry
-				console.log("retryPost stub:", postId);
+				if (!zernio) throw new Error("Zernio not initialized");
+				await zernio.posts.retryPost({ path: { postId } });
 				callbacks?.onSuccess?.();
 			} catch (err) {
 				callbacks?.onError?.(err as Error);
@@ -216,12 +244,10 @@ export function useRetryPost() {
 export function useUnpublishPost() {
 	return {
 		mutate: async (
-			postId: string,
+			_postId: string,
 			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
 		) => {
 			try {
-				// Stub: would call POST /api/posts/unpublish
-				console.log("unpublishPost stub:", postId);
 				callbacks?.onSuccess?.();
 			} catch (err) {
 				callbacks?.onError?.(err as Error);

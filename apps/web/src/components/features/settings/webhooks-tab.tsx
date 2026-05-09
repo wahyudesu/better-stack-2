@@ -10,6 +10,7 @@ import {
 	Bell,
 	Loader2,
 	Pencil,
+	Plus,
 	Trash2,
 	Webhook,
 	Zap,
@@ -29,8 +30,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import {
+	useCreateWebhook,
 	useDeleteWebhook,
 	useTestWebhook,
 	useUpdateWebhook,
@@ -41,12 +50,39 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 
 const EVENT_OPTIONS = [
-	{ value: "post.published", label: "Post Published" },
-	{ value: "post.failed", label: "Post Failed" },
-	{ value: "post.scheduled", label: "Post Scheduled" },
-	{ value: "comment.new", label: "New Comment" },
-	{ value: "message.new", label: "New Message" },
-	{ value: "review.new", label: "New Review" },
+	// Posts
+	{ value: "post.scheduled", label: "Post Scheduled", group: "Posts" },
+	{ value: "post.published", label: "Post Published", group: "Posts" },
+	{ value: "post.failed", label: "Post Failed", group: "Posts" },
+	{ value: "post.partial", label: "Post Partial", group: "Posts" },
+	{ value: "post.recycled", label: "Post Recycled", group: "Posts" },
+	// Accounts
+	{ value: "account.connected", label: "Account Connected", group: "Accounts" },
+	{
+		value: "account.disconnected",
+		label: "Account Disconnected",
+		group: "Accounts",
+	},
+	{
+		value: "account.ads.initial_sync_completed",
+		label: "Ads Initial Sync Completed",
+		group: "Accounts",
+	},
+	// Messages
+	{ value: "message.received", label: "Message Received", group: "Messages" },
+	{ value: "message.sent", label: "Message Sent", group: "Messages" },
+	{ value: "message.edited", label: "Message Edited", group: "Messages" },
+	{ value: "message.deleted", label: "Message Deleted", group: "Messages" },
+	{ value: "message.delivered", label: "Message Delivered", group: "Messages" },
+	{ value: "message.read", label: "Message Read", group: "Messages" },
+	{ value: "message.failed", label: "Message Failed", group: "Messages" },
+	// Comments
+	{ value: "comment.received", label: "Comment Received", group: "Comments" },
+	// Reviews
+	{ value: "review.new", label: "New Review", group: "Reviews" },
+	{ value: "review.updated", label: "Review Updated", group: "Reviews" },
+	// Ads
+	{ value: "ad.status_changed", label: "Ad Status Changed", group: "Ads" },
 ];
 
 interface WebhookItem {
@@ -78,6 +114,17 @@ export function WebhooksTab() {
 	const [editUrl, setEditUrl] = useState("");
 	const [editEvents, setEditEvents] = useState<string[]>([]);
 	const [editActive, setEditActive] = useState(true);
+
+	// Create form state
+	const [createOpen, setCreateOpen] = useState(false);
+	const [createName, setCreateName] = useState("");
+	const [createUrl, setCreateUrl] = useState("");
+	const [createSecret, setCreateSecret] = useState("");
+	const [createEvents, setCreateEvents] = useState<string[]>([]);
+	const [createHeaders, setCreateHeaders] = useState<
+		{ key: string; value: string }[]
+	>([]);
+	const createWebhook = useCreateWebhook();
 
 	const settings: WebhookItem[] = data?.settings || [];
 
@@ -127,10 +174,69 @@ export function WebhooksTab() {
 		}
 	};
 
-	const toggleEvent = (event: string) => {
+	const toggleCreateEvent = (event: string) => {
+		setCreateEvents((prev) =>
+			prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event],
+		);
+	};
+
+	const toggleEditEvent = (event: string) => {
 		setEditEvents((prev) =>
 			prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event],
 		);
+	};
+
+	const addCustomHeader = () => {
+		setCreateHeaders((prev) => [...prev, { key: "", value: "" }]);
+	};
+
+	const updateCustomHeader = (
+		index: number,
+		field: "key" | "value",
+		val: string,
+	) => {
+		setCreateHeaders((prev) => {
+			const next = [...prev];
+			next[index][field] = val;
+			return next;
+		});
+	};
+
+	const removeCustomHeader = (index: number) => {
+		setCreateHeaders((prev) => prev.filter((_, i) => i !== index));
+	};
+
+	const handleCreate = async () => {
+		if (!createName || !createUrl || createEvents.length === 0) return;
+		const customHeaders: Record<string, string> = {};
+		createHeaders.forEach(({ key, value }) => {
+			if (key) customHeaders[key] = value;
+		});
+		await createWebhook.mutateAsync({
+			name: createName,
+			url: createUrl,
+			events: createEvents,
+			secret: createSecret || undefined,
+			customHeaders:
+				Object.keys(customHeaders).length > 0 ? customHeaders : undefined,
+		});
+		setCreateOpen(false);
+		setCreateName("");
+		setCreateUrl("");
+		setCreateSecret("");
+		setCreateEvents([]);
+		setCreateHeaders([]);
+	};
+
+	const handleCreateClose = (open: boolean) => {
+		if (!open) {
+			setCreateOpen(false);
+			setCreateName("");
+			setCreateUrl("");
+			setCreateSecret("");
+			setCreateEvents([]);
+			setCreateHeaders([]);
+		}
 	};
 
 	if (!clerkToken) {
@@ -185,6 +291,266 @@ export function WebhooksTab() {
 						Receive real-time notifications for events
 					</p>
 				</div>
+				<Sheet open={createOpen} onOpenChange={handleCreateClose}>
+					<Button size="sm" onClick={() => setCreateOpen(true)}>
+						<Plus className="size-4 mr-1" />
+						New Webhook
+					</Button>
+					<SheetContent
+						side="right"
+						className="w-[480px] max-w-full overflow-y-auto"
+					>
+						<SheetHeader>
+							<SheetTitle>New Webhook</SheetTitle>
+							<p className="text-sm text-muted-foreground">
+								Configure a new webhook endpoint
+							</p>
+						</SheetHeader>
+						<div className="space-y-6 mt-6">
+							<div className="space-y-2">
+								<Label>Name</Label>
+								<Input
+									value={createName}
+									onChange={(e) => setCreateName(e.target.value)}
+									placeholder="My Webhook"
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label>URL</Label>
+								<Input
+									value={createUrl}
+									onChange={(e) => setCreateUrl(e.target.value)}
+									placeholder="https://example.com/webhook"
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label>Secret Key (Optional)</Label>
+								<Input
+									type="password"
+									value={createSecret}
+									onChange={(e) => setCreateSecret(e.target.value)}
+									placeholder="••••••••••••••••"
+								/>
+								<p className="text-xs text-muted-foreground">
+									Used to generate HMAC signature in X-Zernio-Signature header
+								</p>
+							</div>
+							<div className="space-y-2">
+								<div className="flex items-center justify-between">
+									<Label>Custom Headers (Optional)</Label>
+									<Button variant="ghost" size="sm" onClick={addCustomHeader}>
+										Add Header
+									</Button>
+								</div>
+								{createHeaders.map((header, i) => (
+									<div key={i} className="flex gap-2">
+										<Input
+											placeholder="Key"
+											value={header.key}
+											onChange={(e) =>
+												updateCustomHeader(i, "key", e.target.value)
+											}
+										/>
+										<Input
+											placeholder="Value"
+											value={header.value}
+											onChange={(e) =>
+												updateCustomHeader(i, "value", e.target.value)
+											}
+										/>
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => removeCustomHeader(i)}
+										>
+											✕
+										</Button>
+									</div>
+								))}
+							</div>
+							<div className="space-y-3">
+								<Label>Events</Label>
+								{EVENT_OPTIONS.filter((g) => g.group === "Posts").length >
+									0 && (
+									<div className="space-y-2">
+										<p className="text-xs font-medium text-muted-foreground uppercase">
+											Posts
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{EVENT_OPTIONS.filter((o) => o.group === "Posts").map(
+												(opt) => (
+													<button
+														type="button"
+														key={opt.value}
+														onClick={() => toggleCreateEvent(opt.value)}
+														className={cn(
+															"px-2 py-1 text-xs rounded border transition-colors",
+															createEvents.includes(opt.value)
+																? "bg-primary text-primary-foreground border-primary"
+																: "border-border hover:border-primary",
+														)}
+													>
+														{opt.label}
+													</button>
+												),
+											)}
+										</div>
+									</div>
+								)}
+								{EVENT_OPTIONS.filter((g) => g.group === "Accounts").length >
+									0 && (
+									<div className="space-y-2">
+										<p className="text-xs font-medium text-muted-foreground uppercase">
+											Accounts
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{EVENT_OPTIONS.filter((o) => o.group === "Accounts").map(
+												(opt) => (
+													<button
+														type="button"
+														key={opt.value}
+														onClick={() => toggleCreateEvent(opt.value)}
+														className={cn(
+															"px-2 py-1 text-xs rounded border transition-colors",
+															createEvents.includes(opt.value)
+																? "bg-primary text-primary-foreground border-primary"
+																: "border-border hover:border-primary",
+														)}
+													>
+														{opt.label}
+													</button>
+												),
+											)}
+										</div>
+									</div>
+								)}
+								{EVENT_OPTIONS.filter((g) => g.group === "Messages").length >
+									0 && (
+									<div className="space-y-2">
+										<p className="text-xs font-medium text-muted-foreground uppercase">
+											Messages
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{EVENT_OPTIONS.filter((o) => o.group === "Messages").map(
+												(opt) => (
+													<button
+														type="button"
+														key={opt.value}
+														onClick={() => toggleCreateEvent(opt.value)}
+														className={cn(
+															"px-2 py-1 text-xs rounded border transition-colors",
+															createEvents.includes(opt.value)
+																? "bg-primary text-primary-foreground border-primary"
+																: "border-border hover:border-primary",
+														)}
+													>
+														{opt.label}
+													</button>
+												),
+											)}
+										</div>
+									</div>
+								)}
+								{EVENT_OPTIONS.filter((g) => g.group === "Comments").length >
+									0 && (
+									<div className="space-y-2">
+										<p className="text-xs font-medium text-muted-foreground uppercase">
+											Comments
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{EVENT_OPTIONS.filter((o) => o.group === "Comments").map(
+												(opt) => (
+													<button
+														type="button"
+														key={opt.value}
+														onClick={() => toggleCreateEvent(opt.value)}
+														className={cn(
+															"px-2 py-1 text-xs rounded border transition-colors",
+															createEvents.includes(opt.value)
+																? "bg-primary text-primary-foreground border-primary"
+																: "border-border hover:border-primary",
+														)}
+													>
+														{opt.label}
+													</button>
+												),
+											)}
+										</div>
+									</div>
+								)}
+								{EVENT_OPTIONS.filter((g) => g.group === "Reviews").length >
+									0 && (
+									<div className="space-y-2">
+										<p className="text-xs font-medium text-muted-foreground uppercase">
+											Reviews
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{EVENT_OPTIONS.filter((o) => o.group === "Reviews").map(
+												(opt) => (
+													<button
+														type="button"
+														key={opt.value}
+														onClick={() => toggleCreateEvent(opt.value)}
+														className={cn(
+															"px-2 py-1 text-xs rounded border transition-colors",
+															createEvents.includes(opt.value)
+																? "bg-primary text-primary-foreground border-primary"
+																: "border-border hover:border-primary",
+														)}
+													>
+														{opt.label}
+													</button>
+												),
+											)}
+										</div>
+									</div>
+								)}
+								{EVENT_OPTIONS.filter((g) => g.group === "Ads").length > 0 && (
+									<div className="space-y-2">
+										<p className="text-xs font-medium text-muted-foreground uppercase">
+											Ads
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{EVENT_OPTIONS.filter((o) => o.group === "Ads").map(
+												(opt) => (
+													<button
+														type="button"
+														key={opt.value}
+														onClick={() => toggleCreateEvent(opt.value)}
+														className={cn(
+															"px-2 py-1 text-xs rounded border transition-colors",
+															createEvents.includes(opt.value)
+																? "bg-primary text-primary-foreground border-primary"
+																: "border-border hover:border-primary",
+														)}
+													>
+														{opt.label}
+													</button>
+												),
+											)}
+										</div>
+									</div>
+								)}
+							</div>
+							<Button
+								className="w-full"
+								onClick={handleCreate}
+								disabled={
+									!createName ||
+									!createUrl ||
+									createEvents.length === 0 ||
+									createWebhook.isPending
+								}
+							>
+								{createWebhook.isPending ? (
+									<Loader2 className="size-4 animate-spin" />
+								) : (
+									"Create Webhook"
+								)}
+							</Button>
+						</div>
+					</SheetContent>
+				</Sheet>
 			</div>
 
 			{/* Webhook List */}
@@ -309,7 +675,7 @@ export function WebhooksTab() {
 									<button
 										type="button"
 										key={opt.value}
-										onClick={() => toggleEvent(opt.value)}
+										onClick={() => toggleEditEvent(opt.value)}
 										className={cn(
 											"px-2 py-1 text-xs rounded border transition-colors",
 											editEvents.includes(opt.value)

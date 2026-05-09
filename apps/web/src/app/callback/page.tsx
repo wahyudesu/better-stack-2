@@ -43,7 +43,10 @@ function CallbackContent() {
 
 				if (connected) {
 					// Store account via API call to server
-					const profileId = searchParams?.get("profileId") || "";
+					const profileId =
+						searchParams?.get("localProfileId") ||
+						searchParams?.get("profileId") ||
+						"";
 					const username = searchParams?.get("username") || "Connected Account";
 					const avatarUrl = searchParams?.get("avatarUrl") || undefined;
 
@@ -56,6 +59,7 @@ function CallbackContent() {
 								accountId: profileId,
 								accountName: decodeURIComponent(username),
 								avatarUrl,
+								profileId, // local brand UUID
 							}),
 						});
 					} catch (e) {

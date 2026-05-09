@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "@/stores";
+import { useZernio } from "@/hooks/use-zernio";
+import { getZernioErrorMessage } from "@/lib/zernio-error";
 
 export const brandKeys = {
 	all: ["brands"] as const,
@@ -7,72 +8,68 @@ export const brandKeys = {
 };
 
 export function useBrands() {
-	const apiKey = useAuthStore((s) => s.apiKey);
+	const { zernio, loading, error } = useZernio();
 
-	return useQuery({
+	const query = useQuery({
 		queryKey: brandKeys.list(),
-		enabled: !!apiKey,
 		queryFn: async () => {
-			const res = await fetch("/api/profiles");
-			if (!res.ok) throw new Error("Failed to fetch brands");
-			return res.json() as Promise<
-				Array<{
-					id: string;
-					name: string;
-					description: string | null;
-					is_default: boolean;
-					zernio_profile_id: string | null;
-				}>
-			>;
+			if (!zernio) return [];
+			const res = await zernio.profiles.listProfiles();
+			if (!res.data) throw new Error(getZernioErrorMessage(res.error));
+			// Response is ProfilesListResponse with profiles array inside
+			const profiles = (res.data as any).profiles ?? [];
+			return profiles as Array<{
+				_id: string;
+				name: string;
+				is_default?: boolean;
+			}>;
 		},
+		enabled: !loading && !!zernio,
 	});
+
+	return {
+		data: query.data ?? [],
+		isLoading: loading || query.isFetching,
+		error: error || query.error,
+	};
 }
 
 export function useBrandMutations() {
 	const queryClient = useQueryClient();
+	const { zernio } = useZernio();
 
 	return {
 		async createBrand(name: string) {
-			const res = await fetch("/api/profiles", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name }),
-			});
-			if (!res.ok) {
-				const err = await res.json();
-				throw new Error((err as any).error || "Failed to create brand");
-			}
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.profiles.createProfile({ body: { name } });
+			if (!res.data) throw new Error(getZernioErrorMessage(res.error));
 			queryClient.invalidateQueries({ queryKey: brandKeys.all });
-			return res.json();
+			return res.data;
 		},
 
 		async updateBrand(
 			id: string,
 			data: { name?: string; is_default?: boolean },
 		) {
-			const res = await fetch(`/api/profiles/${id}`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(data),
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.profiles.updateProfile({
+				path: { profileId: id },
+				body: data,
 			});
-			if (!res.ok) {
-				const err = await res.json();
-				throw new Error((err as any).error || "Failed to update brand");
-			}
+			if (!res.data) throw new Error(getZernioErrorMessage(res.error));
 			queryClient.invalidateQueries({ queryKey: brandKeys.all });
-			return res.json();
+			return res.data;
 		},
 
 		async deleteBrand(id: string) {
-			const res = await fetch(`/api/profiles/${id}`, {
-				method: "DELETE",
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.profiles.deleteProfile({
+				path: { profileId: id },
 			});
-			if (!res.ok) {
-				const err = await res.json();
-				throw new Error((err as any).error || "Failed to delete brand");
-			}
+			if (!res.data && res.error)
+				throw new Error(getZernioErrorMessage(res.error));
 			queryClient.invalidateQueries({ queryKey: brandKeys.all });
-			return res.json();
+			return res.data;
 		},
 	};
 }

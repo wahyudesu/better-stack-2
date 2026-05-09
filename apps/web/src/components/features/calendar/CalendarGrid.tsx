@@ -286,7 +286,7 @@ export function CalendarGrid({
 						const dayNames = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 						return (
 							<div
-								key={`month-empty-${dayNames[i % 7]}`}
+								key={`month-empty-${i}`}
 								className="min-h-[240px] p-2 bg-muted/20 border border-border/30"
 							/>
 						);

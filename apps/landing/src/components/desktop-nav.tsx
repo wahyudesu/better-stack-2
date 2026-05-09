@@ -2,7 +2,6 @@ import {
 	NavigationMenu,
 	NavigationMenuContent,
 	NavigationMenuItem,
-	NavigationMenuLink,
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
@@ -58,13 +57,14 @@ export function DesktopNav() {
 							</div>
 							<div className="space-y-2 p-3">
 								{companyLinks2.map((item, i) => (
-									<NavigationMenuLink
+									<a
+										className="flex items-center gap-2 rounded-lg p-2 text-sm transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1"
 										href={item.href}
 										key={`item-${item.label}-${i}`}
 									>
 										{item.icon}
 										{item.label}
-									</NavigationMenuLink>
+									</a>
 								))}
 							</div>
 						</div>

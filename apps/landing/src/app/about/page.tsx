@@ -4,7 +4,7 @@ import { UsersIcon, TargetIcon, HeartIcon, ZapIcon } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About ZenPost - Building the Future of Social Media Management",
+  title: "About ZenPost - Social Media Management for Indonesia",
   description:
     "Learn about ZenPost's mission to help Indonesian creators and businesses manage social media more efficiently. Meet our team and values.",
   alternates: {
@@ -16,6 +16,14 @@ export const metadata: Metadata = {
       "Discover how ZenPost helps creators save 3-5 hours weekly on social media management.",
     url: "https://zenpost.in/about",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ZenPost - Social Media Dashboard",
+      },
+    ],
   },
 };
 

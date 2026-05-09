@@ -142,10 +142,4 @@ function DepthTabsPanel({
 	);
 }
 
-export {
-	DepthTabs,
-	DepthTabsList,
-	DepthTabsTrigger,
-	DepthTabsPanel,
-	DepthTabsPanel as DepthTabsContent,
-};
+export { DepthTabs, DepthTabsList, DepthTabsTrigger, DepthTabsPanel };

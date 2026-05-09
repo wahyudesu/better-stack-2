@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import React from "react";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { Button } from "@/components/ui/button";
-import { navLinks } from "@/components/header";
+import { navLinks } from "@/components/nav-links";
 import { XIcon, MenuIcon } from "lucide-react";
 
 export function MobileNav() {

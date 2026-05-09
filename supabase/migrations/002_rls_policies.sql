@@ -60,19 +60,40 @@ CREATE POLICY "media_owner_insert" ON media FOR INSERT
   TO authenticated
   WITH CHECK (clerk_id = (auth.jwt()->>'sub'));
 
--- Organizations
-CREATE POLICY "organizations_owner_select" ON organizations FOR SELECT
+-- Organizations: user must be a member of the org (via membership table)
+-- This replaces the old clerk_id = jwt.sub check which only worked for personal orgs
+CREATE POLICY "organizations_member_select" ON organizations FOR SELECT
   TO authenticated
-  USING (clerk_id = (auth.jwt()->>'sub'));
+  USING (
+    clerk_org_id IN (
+      SELECT DISTINCT clerk_org_id
+      FROM organization_memberships
+      WHERE clerk_user_id = (auth.jwt()->>'sub')
+    )
+  );
 
-CREATE POLICY "organizations_owner_insert" ON organizations FOR INSERT
+CREATE POLICY "organizations_member_insert" ON organizations FOR INSERT
   TO authenticated
-  WITH CHECK (clerk_id = (auth.jwt()->>'sub'));
+  WITH CHECK (true); -- Webhooks handle via admin client; allow for now
 
-CREATE POLICY "organizations_owner_update" ON organizations FOR UPDATE
+CREATE POLICY "organizations_member_update" ON organizations FOR UPDATE
   TO authenticated
-  USING (clerk_id = (auth.jwt()->>'sub'));
+  USING (
+    EXISTS (
+      SELECT 1 FROM organization_memberships om
+      WHERE om.clerk_org_id = organizations.clerk_org_id
+      AND om.clerk_user_id = (auth.jwt()->>'sub')
+      AND om.role = 'org:admin'
+    )
+  );
 
-CREATE POLICY "organizations_owner_delete" ON organizations FOR DELETE
+CREATE POLICY "organizations_member_delete" ON organizations FOR DELETE
   TO authenticated
-  USING (clerk_id = (auth.jwt()->>'sub'));
+  USING (
+    EXISTS (
+      SELECT 1 FROM organization_memberships om
+      WHERE om.clerk_org_id = organizations.clerk_org_id
+      AND om.clerk_user_id = (auth.jwt()->>'sub')
+      AND om.role = 'org:admin'
+    )
+  );

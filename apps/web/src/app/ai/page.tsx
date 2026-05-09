@@ -41,7 +41,7 @@ export default function AIChatPage() {
 					AI Content Analysis
 				</h1>
 				<DropdownMenu>
-					<DropdownMenuTrigger>
+					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" size="sm" className="gap-1">
 							MCP Setup
 							<ChevronDownIcon className="h-4 w-4" />

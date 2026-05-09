@@ -4,7 +4,7 @@ Marketing landing page for Better Stack 2 social media dashboard.
 
 ## Tech Stack
 
-- **Framework**: Next.js 16.1.5 + React 19
+- **Framework**: Next.js 16 + React 19
 - **Styling**: Tailwind CSS v4
 - **Testing**: Vitest + Playwright
 - **Animation**: Motion (Framer Motion v12)
@@ -26,6 +26,33 @@ Marketing landing page for Better Stack 2 social media dashboard.
 - Business owners (handle own brand)
 - Social media managers
 - Freelance creators
+
+## Page Structure
+
+```
+src/app/(home)/              # Home page routes
+├── components/
+│   ├── hero.tsx             # Hero section
+│   ├── comparison.tsx        # Comparison with competitors
+│   ├── cta-section.tsx       # Call to action
+│   └── journey.tsx           # User journey
+├── layout.tsx                # Home layout
+└── page.tsx                  # Home page
+
+src/components/              # Shared landing components
+├── desktop-nav.tsx          # Desktop navigation
+├── mobile-nav.tsx           # Mobile navigation
+├── header.tsx                # Header wrapper
+├── footer.tsx                # Footer
+├── logo.tsx                  # Logo component
+├── nav-data.tsx              # Navigation data
+├── waitlist-modal.tsx        # Waitlist signup modal
+├── agent-terminal.tsx        # Agent terminal demo
+└── ui/                       # UI primitives
+    ├── depth-buttons.tsx
+    ├── depth-tabs.tsx
+    └── navigation-menu.tsx
+```
 
 ## Design Guidelines
 
@@ -59,6 +86,7 @@ Marketing landing page for Better Stack 2 social media dashboard.
 ## Commands
 
 ```bash
+cd apps/landing
 pnpm run dev          # Start dev server
 pnpm run build        # Build for production
 pnpm run deploy       # Deploy to Cloudflare
@@ -70,6 +98,6 @@ pnpm run test:e2e     # Playwright e2e tests
 ## Goals
 
 - Fast loading (Cloudflare edge)
-- SEO optimized
+- SEO optimized (sitemap, robots.txt)
 - Responsive (mobile-first)
 - Accessible (WCAG AA)

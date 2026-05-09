@@ -57,6 +57,13 @@ Charts use `@visx` library with composable children pattern:
 - Mock data from `/lib/data/analytics-data.ts`
 - Format utilities from `/lib/metrics.ts`
 
+## Supabase Schema
+
+User identity via Clerk → Supabase pattern:
+```typescript
+const { data: user } = await supabase.from("users").select("id").eq("clerk_id", userId).single();
+```
+
 ## Before Making Changes
 
 1. Read `apps/web/AGENTS.md` for general guidelines

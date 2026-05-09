@@ -4,16 +4,24 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy - ZenPost",
   description:
-    "Read ZenPost's privacy policy. Learn how we collect, use, and protect your personal information when you use our social media management platform.",
+    "Read ZenPost's privacy policy. Learn how we collect, use, and protect your personal information when you use our social media management platform. Your data is secure with us.",
   alternates: {
     canonical: "https://zenpost.in/privacy",
   },
   openGraph: {
     title: "ZenPost Privacy Policy",
     description:
-      "How ZenPost handles your data and protects your privacy.",
+      "How ZenPost handles your data and protects your privacy. We are committed to keeping your personal information safe.",
     url: "https://zenpost.in/privacy",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ZenPost - Social Media Dashboard",
+      },
+    ],
   },
 };
 

@@ -4,16 +4,24 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms of Service - ZenPost",
   description:
-    "Read ZenPost's terms of service. Understand the rules, acceptable use policies, and legal terms governing your use of our platform.",
+    "Read ZenPost's terms of service. Understand the rules, acceptable use policies, and legal terms governing your use of our platform. Last updated April 2025.",
   alternates: {
     canonical: "https://zenpost.in/terms",
   },
   openGraph: {
     title: "ZenPost Terms of Service",
     description:
-      "The terms and conditions that govern your use of ZenPost.",
+      "The terms and conditions that govern your use of ZenPost. Please read carefully before using our platform.",
     url: "https://zenpost.in/terms",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ZenPost - Social Media Dashboard",
+      },
+    ],
   },
 };
 

@@ -15,7 +15,7 @@ export function CtaSection() {
 						Join waitlist &amp; get early access
 					</h2>
 					<p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-						Be first to know when ZenPost launches. No spam, unsubscribe anytime.
+					Be the first to know when ZenPost launches. We'll notify you as soon as we go live.
 					</p>
 
 					<div className="w-full max-w-sm mx-auto">
@@ -25,7 +25,7 @@ export function CtaSection() {
 					</div>
 
 					<p className="text-xs text-muted-foreground mt-4">
-						Join 2,847+ creators and businesses in Indonesia
+					Be among first to know when ZenPost launches.
 					</p>
 				</div>
 			</div>

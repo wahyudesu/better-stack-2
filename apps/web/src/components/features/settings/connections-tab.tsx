@@ -29,23 +29,8 @@ import "react-social-icons/google";
 import "react-social-icons/telegram";
 import "react-social-icons/snapchat";
 import "react-social-icons/discord";
-import "react-social-icons/bsky.app";
-import "react-social-icons/instagram";
-import "react-social-icons/tiktok";
-import "react-social-icons/x";
-import "react-social-icons/youtube";
-import "react-social-icons/facebook";
-import "react-social-icons/linkedin";
-import "react-social-icons/pinterest";
-import "react-social-icons/threads";
-import "react-social-icons/whatsapp";
-import "react-social-icons/reddit";
-import "react-social-icons/google";
-import "react-social-icons/telegram";
-import "react-social-icons/snapchat";
-import "react-social-icons/discord";
-import "react-social-icons/bsky.app";
-import { AlertCircle, Loader2, LogOut, Settings2 } from "lucide-react";
+import { Skeleton } from "@zenpost/ui/components/skeleton";
+import { AlertCircle, LogOut, Settings2 } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -180,27 +165,48 @@ export function ConnectionsTab() {
 		id: string;
 		name: string;
 	} | null>(null);
+	const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+	const [showSyncDialog, setShowSyncDialog] = useState(false);
+	const [syncPendingBrand, setSyncPendingBrand] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
 
-	// Convert accounts to Connection format
-	// account._id = Zernio account ID (for display and mutations)
+	// Set default brand on load
+	const activeBrandId =
+		selectedBrandId ||
+		brands.find((b) => b.is_default)?.id ||
+		brands[0]?.id ||
+		null;
+
+	// Filter accounts by selected brand
 	const connectedAccounts: Connection[] =
-		accountsData?.accounts?.map((account: any) => {
-			const health = _healthMap[account._id];
-			return {
-				id: account.platform,
-				name: getPlatformConfig(account.platform)?.name || account.platform,
-				network:
-					getPlatformConfig(account.platform)?.network || account.platform,
-				connected: true,
-				handle: account.username || account.displayName || null,
-				followers: null,
-				status: (health as any)?.isHealthy !== false ? "healthy" : "error",
-				tokenStatus: "valid",
-				accountId: account._id,
-				profilePicture: account.profilePicture,
-				isOrganization: linkedinOrganization[account._id] ?? false,
-			};
-		}) || [];
+		accountsData?.accounts
+			?.filter((account: any) => {
+				// If no brand selected, show all; otherwise filter by brand
+				if (!activeBrandId) return true;
+				// account.profileId is the brand/profile_id from the social_accounts table
+				return (
+					account.profileId === activeBrandId || account.profileId === null
+				);
+			})
+			.map((account: any) => {
+				const health = _healthMap[account._id];
+				return {
+					id: account.platform,
+					name: getPlatformConfig(account.platform)?.name || account.platform,
+					network:
+						getPlatformConfig(account.platform)?.network || account.platform,
+					connected: true,
+					handle: account.username || account.displayName || null,
+					followers: null,
+					status: (health as any)?.isHealthy !== false ? "healthy" : "error",
+					tokenStatus: "valid",
+					accountId: account._id,
+					profilePicture: account.profilePicture,
+					isOrganization: linkedinOrganization[account._id] ?? false,
+				};
+			}) || [];
 
 	// Available platforms not yet connected (grouped by category)
 	const connectedPlatforms = new Set(connectedAccounts.map((c) => c.id));
@@ -225,14 +231,33 @@ export function ConnectionsTab() {
 	const availableConnections = getAvailableConnections();
 
 	const handleConnect = async (platform: string) => {
+		if (!activeBrandId) {
+			setBrandName("");
+			setEditingBrand(null);
+			setShowBrandDialog(true);
+			return;
+		}
 		setConnectingPlatform(platform);
 		try {
-			const result = await connectAccount.mutateAsync({ platform });
+			// Pass selected brand ID to connect
+			const result = await connectAccount.mutateAsync({
+				platform,
+				profileId: activeBrandId,
+			});
 			if (result?.authUrl) {
 				window.location.href = result.authUrl;
 			}
 		} catch (error) {
-			console.error("Failed to connect:", error);
+			if (error instanceof Error && error.message === "BRAND_NEEDS_SYNC") {
+				const brand = brands.find((b) => b.id === activeBrandId);
+				setSyncPendingBrand({
+					id: activeBrandId,
+					name: brand?.name || "Unknown",
+				});
+				setShowSyncDialog(true);
+			} else {
+				console.error("Failed to connect:", error);
+			}
 		} finally {
 			setConnectingPlatform(null);
 		}
@@ -281,9 +306,54 @@ export function ConnectionsTab() {
 	if (accountsLoading) {
 		return (
 			<div className="flex flex-col gap-6">
-				<div className="flex items-center justify-center py-12">
-					<Loader2 className="size-6 animate-spin text-muted-foreground" />
+				{/* Brand selector skeleton */}
+				<div className="space-y-3">
+					<Skeleton className="h-4 w-24" />
+					<div className="flex flex-wrap gap-2">
+						<Skeleton className="h-8 w-28" />
+						<Skeleton className="h-8 w-32" />
+						<Skeleton className="h-8 w-24" />
+					</div>
 				</div>
+
+				{/* Connected accounts skeleton */}
+				<div className="space-y-3">
+					<Skeleton className="h-4 w-20" />
+					<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+						{[...Array(3)].map((_, i) => (
+							<Card key={i} className="p-4">
+								<div className="flex items-center gap-3 mb-3">
+									<Skeleton className="size-8 rounded-full" />
+									<div className="flex-1 space-y-1.5">
+										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-3 w-16" />
+									</div>
+								</div>
+								<div className="flex justify-end">
+									<Skeleton className="h-7 w-28" />
+								</div>
+							</Card>
+						))}
+					</div>
+				</div>
+
+				{/* Available platforms skeleton */}
+				{[...Array(2)].map((_, ci) => (
+					<div key={ci} className="space-y-3">
+						<Skeleton className="h-4 w-20" />
+						<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							{[...Array(3)].map((_, i) => (
+								<Card key={i} className="p-4">
+									<div className="flex flex-col items-center gap-2">
+										<Skeleton className="size-7 w-7 rounded-full" />
+										<Skeleton className="h-4 w-20" />
+										<Skeleton className="h-8 w-full rounded-lg" />
+									</div>
+								</Card>
+							))}
+						</div>
+					</div>
+				))}
 			</div>
 		);
 	}
@@ -309,55 +379,54 @@ export function ConnectionsTab() {
 
 	return (
 		<div className="flex flex-col gap-6">
-			{/* Brands Section */}
-			<div className="space-y-3">
-				<div className="flex items-center justify-between">
+			{/* Brand Selector */}
+			{brands.length > 0 && (
+				<div className="space-y-3">
 					<div className="flex items-center gap-2">
-						<p className="font-display font-semibold text-sm">Brands</p>
-						<span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-							{brands.length}
-						</span>
+						<p className="font-display font-semibold text-sm">Select Brand</p>
 					</div>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => {
-							setBrandName("");
-							setEditingBrand(null);
-							setShowBrandDialog(true);
-						}}
-					>
-						Add Brand
-					</Button>
-				</div>
-				<div className="flex flex-wrap gap-2">
-					{brands.map((brand) => (
-						<div
-							key={brand.id}
-							className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 pr-2 shadow-sm"
+					<div className="flex flex-wrap gap-2">
+						{brands.map((brand) => {
+							const isSelected = brand.id === activeBrandId;
+							return (
+								<button
+									key={brand.id}
+									onClick={() => setSelectedBrandId(brand.id)}
+									className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 pr-2 shadow-sm transition-all ${
+										isSelected
+											? "border-primary bg-primary/5 ring-1 ring-primary"
+											: "bg-card hover:bg-muted/50"
+									}`}
+								>
+									<span className="text-xs font-medium truncate max-w-32">
+										{brand.name}
+									</span>
+									{brand.is_default && (
+										<span className="text-[10px] bg-primary/10 text-primary px-1 rounded">
+											default
+										</span>
+									)}
+									{isSelected && (
+										<span className="size-1.5 rounded-full bg-primary ml-1" />
+									)}
+								</button>
+							);
+						})}
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={() => {
+								setBrandName("");
+								setEditingBrand(null);
+								setShowBrandDialog(true);
+							}}
+							className="h-7 text-xs"
 						>
-							<span className="text-xs font-medium truncate max-w-32">
-								{brand.name}
-							</span>
-							{brand.is_default && (
-								<span className="text-[10px] bg-primary/10 text-primary px-1 rounded">
-									default
-								</span>
-							)}
-							<button
-								onClick={() => {
-									setBrandName(brand.name);
-									setEditingBrand({ id: brand.id, name: brand.name });
-									setShowBrandDialog(true);
-								}}
-								className="ml-1 rounded hover:bg-muted p-0.5 cursor-pointer"
-							>
-								<Settings2 className="size-3 text-muted-foreground" />
-							</button>
-						</div>
-					))}
+							Add Brand
+						</Button>
+					</div>
 				</div>
-			</div>
+			)}
 
 			{/* Connected Accounts */}
 			<div className="space-y-3">
@@ -563,6 +632,11 @@ export function ConnectionsTab() {
 						<AlertDialogTitle>
 							{editingBrand ? "Edit Brand" : "Add Brand"}
 						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{editingBrand
+								? "Update your brand name."
+								: "Create a brand to organize your social media accounts."}
+						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<div className="">
 						<input
@@ -575,15 +649,60 @@ export function ConnectionsTab() {
 							onKeyDown={(e) => e.key === "Enter" && handleSaveBrand()}
 						/>
 					</div>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={handleSaveBrand}>
+							{editingBrand ? "Save" : "Create"}
+						</AlertDialogAction>
+					</AlertDialogFooter>
 					{editingBrand && (
 						<Button
 							variant="destructive"
 							onClick={() => handleDeleteBrand(editingBrand.id)}
-							className="mr-auto"
+							className="mt-2"
 						>
 							Delete
 						</Button>
 					)}
+				</AlertDialogContent>
+			</AlertDialog>
+
+			{/* Sync Brand Dialog */}
+			<AlertDialog open={showSyncDialog} onOpenChange={setShowSyncDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Brand Not Synced</AlertDialogTitle>
+						<AlertDialogDescription>
+							The brand "{syncPendingBrand?.name}" is not synced with Zernio
+							yet. Do you want to sync it now?
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={async () => {
+								if (!syncPendingBrand) return;
+								try {
+									await brandMutations.updateBrand(syncPendingBrand.id, {
+										name: syncPendingBrand.name,
+									});
+									setShowSyncDialog(false);
+									// Retry connect
+									const result = await connectAccount.mutateAsync({
+										platform: connectingPlatform || "",
+										profileId: syncPendingBrand.id,
+									});
+									if (result?.authUrl) {
+										window.location.href = result.authUrl;
+									}
+								} catch (e) {
+									console.error("Sync failed:", e);
+								}
+							}}
+						>
+							Sync Now
+						</AlertDialogAction>
+					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
 

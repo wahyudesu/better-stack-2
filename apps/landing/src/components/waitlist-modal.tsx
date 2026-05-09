@@ -107,14 +107,16 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
         <p className="text-sm text-red-500">{errorMsg}</p>
       )}
 
-      <DepthButton
-        type="submit"
-        variant="blue"
-        className="w-full py-3"
-        disabled={status === "loading"}
-      >
-        {status === "loading" ? "Joining..." : "Join Waitlist"}
-      </DepthButton>
+      <div className="flex justify-end">
+        <DepthButton
+          type="submit"
+          variant="blue"
+          className="py-3"
+          disabled={status === "loading"}
+        >
+          {status === "loading" ? "Joining..." : "Join Waitlist"}
+        </DepthButton>
+      </div>
     </form>
   );
 }
@@ -165,11 +167,11 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
         <DialogHeader>
           <DialogTitle>Join Waitlist</DialogTitle>
           <DialogDescription>
-            We want to know who you are. Select the account type that best fits.
+            Tell us a bit about how you plan to use the platform.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 relative">
           <Input
             type="email"
             value={email}
@@ -186,14 +188,16 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
           {step === "type" ? (
             <WaitlistForm email={email} onSuccess={handleSuccess} />
           ) : (
-            <DepthButton
-              onClick={handleSubmit}
-              variant="blue"
-              className="w-full py-3"
-              disabled={status === "loading"}
-            >
-              Continue
-            </DepthButton>
+            <div className="flex justify-end">
+              <DepthButton
+                onClick={handleSubmit}
+                variant="blue"
+                className="py-3"
+                disabled={status === "loading"}
+              >
+                Continue
+              </DepthButton>
+            </div>
           )}
         </div>
       </DialogContent>

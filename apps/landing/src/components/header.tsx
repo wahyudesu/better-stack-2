@@ -4,21 +4,7 @@ import { Logo } from "@/components/logo";
 import { useScroll } from "@/hooks/use-scroll";
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/mobile-nav";
-
-export const navLinks = [
-	{
-		label: "Features",
-		href: "#features",
-	},
-	{
-		label: "Pricing",
-		href: "#pricing",
-	},
-	{
-		label: "Free Tools",
-		href: "#free-tools",
-	},
-];
+import { navLinks } from "@/components/nav-links";
 
 export function Header() {
 	const scrolled = useScroll(10);
