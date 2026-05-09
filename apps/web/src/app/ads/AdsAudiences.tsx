@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, Pencil, Plus, Trash2, Users } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

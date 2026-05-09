@@ -80,7 +80,10 @@ export function TemplateManagerDialog({
 		const flatTemplate: ComposerTemplate = {
 			id: template.id,
 			name: template.name,
-			createdAt: template.createdAt.getTime(),
+			createdAt:
+				typeof template.createdAt === "string"
+					? new Date(template.createdAt).getTime()
+					: template.createdAt.getTime(),
 			platform: template.config.platform,
 			contentType: template.config.format,
 			goal: template.config.purpose,

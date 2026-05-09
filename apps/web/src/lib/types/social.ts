@@ -6,6 +6,7 @@
 export type { PostMedia } from "./content/media";
 export type { PostStatus } from "./content/post-status";
 export type { ProfilePlatform, ProfileStatus } from "./core/platform";
+export type { CalendarPostItem, DashboardPostItem } from "./content/view";
 
 import type { PostMedia } from "./content/media";
 import type { PostStatus } from "./content/post-status";

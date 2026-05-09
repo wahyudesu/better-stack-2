@@ -12,11 +12,9 @@ import {
 	MessageSquare,
 	MoreHorizontal,
 	Plus,
-	Send,
 	Trash2,
 	Users,
 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Badge } from "@/components/ui/badge";
@@ -109,7 +107,7 @@ const emptyForm: AutomationForm = {
 function BroadcastsTab() {
 	const queryClient = useQueryClient();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [editingBroadcast, setEditingBroadcast] = useState<Broadcast | null>(
+	const [_editingBroadcast, setEditingBroadcast] = useState<Broadcast | null>(
 		null,
 	);
 
@@ -124,7 +122,7 @@ function BroadcastsTab() {
 	});
 
 	// Create mutation
-	const createMutation = useMutation({
+	const _createMutation = useMutation({
 		mutationFn: async (body: {
 			profileId: string;
 			accountId: string;
@@ -306,7 +304,9 @@ function BroadcastsTab() {
 function SequencesTab() {
 	const queryClient = useQueryClient();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [editingSequence, setEditingSequence] = useState<Sequence | null>(null);
+	const [_editingSequence, setEditingSequence] = useState<Sequence | null>(
+		null,
+	);
 
 	// Fetch sequences
 	const { data: sequencesData, isLoading } = useQuery({
@@ -319,7 +319,7 @@ function SequencesTab() {
 	});
 
 	// Create mutation
-	const createMutation = useMutation({
+	const _createMutation = useMutation({
 		mutationFn: async (body: {
 			profileId: string;
 			accountId: string;

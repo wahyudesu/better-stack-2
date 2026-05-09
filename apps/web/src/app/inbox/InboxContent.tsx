@@ -10,7 +10,6 @@ import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import { Bot, MessageSquare, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
-import { useAuthGate } from "@/components/auth";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,7 @@ import {
 import { api } from "@/lib/client";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/stores/auth-store";
 import { ChatPanel } from "./components/ChatPanel";
 import {
 	type Conversation,
@@ -90,7 +89,7 @@ export function InboxContent() {
 	const queryClient = useQueryClient();
 	const [activeTab, setActiveTab] = useState("messages");
 	const [platform, setPlatform] = useState<PlatformFilterValue>("all");
-	const [typeFilter, setTypeFilter] = useState<TypeFilter>("message");
+	const [typeFilter, _setTypeFilter] = useState<TypeFilter>("message");
 	const [selectedConversation, setSelectedConversation] =
 		useState<Conversation | null>(null);
 	const [messageInput, setMessageInput] = useState("");

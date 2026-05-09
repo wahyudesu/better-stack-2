@@ -10,15 +10,16 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { DepthButton } from "@/components/ui/depth-buttons";
-import { BuildingIcon, StoreIcon } from "lucide-react";
+import { BuildingIcon, StoreIcon, UserIcon } from "lucide-react";
 import { isValidEmail } from "@/lib/utils";
 import posthog from "posthog-js";
 
-type UserType = "agency_owner" | "brand_owner";
+type UserType = "agency_owner" | "brand_owner" | "creator_freelance";
 
-const userTypeOptions: { value: UserType; label: string; Icon: typeof BuildingIcon }[] = [
-  { value: "agency_owner", label: "Agency Owner", Icon: BuildingIcon },
-  { value: "brand_owner", label: "Brand Owner", Icon: StoreIcon },
+const userTypeOptions: { value: UserType; label: string; description: string; Icon: typeof BuildingIcon }[] = [
+  { value: "agency_owner", label: "Agency", description: "For managing multiple client accounts", Icon: BuildingIcon },
+  { value: "brand_owner", label: "Brand", description: "For your company, product, or store", Icon: StoreIcon },
+  { value: "creator_freelance", label: "Creator", description: "For personal content and audience growth", Icon: UserIcon },
 ];
 
 interface WaitlistResponse {
@@ -76,7 +77,7 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <p className="text-sm text-muted-foreground text-center">Select your account type</p>
+      <p className="text-sm text-muted-foreground text-center">What best describes you?</p>
       <div className="flex flex-row gap-3 w-full">
         {userTypeOptions.map((opt) => (
           <label
@@ -97,6 +98,7 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
             />
             <opt.Icon className="size-6" />
             <span className="font-medium">{opt.label}</span>
+            <span className="text-xs text-muted-foreground">{opt.description}</span>
           </label>
         ))}
       </div>
@@ -159,7 +161,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Join Waitlist</DialogTitle>
           <DialogDescription>

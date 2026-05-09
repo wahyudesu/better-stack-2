@@ -3,7 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { ClerkProvider } from "@/components/clerk-provider";
 import { Toaster } from "@/components/ui/sonner";
 import FeaturebaseMessenger from "@/components/featurebase-messenger";
-import { SimpleHeader } from "@/components/simple-header";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 
@@ -119,7 +119,7 @@ export default function RootLayout({
           />
         </head>
         <body className="antialiased">
-          <SimpleHeader />
+          <Header />
           {children}
           <Footer />
           <Toaster />

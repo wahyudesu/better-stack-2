@@ -61,7 +61,6 @@ import {
 	recentPosts,
 	socialMediaOptions,
 	timeOptions,
-	topPosts,
 } from "@/lib/data/analytics-data";
 import { STAT_DEFINITIONS } from "@/lib/types/analytics";
 

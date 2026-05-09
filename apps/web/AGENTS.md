@@ -18,7 +18,7 @@ pnpm run build        # Production build
 
 - **Framework**: Next.js 16.2 + React 19
 - **Routing**: Next.js App Router (react-router-dom v7 for some routes)
-- **Backend**: Convex (read `convex/_generated/ai/guidelines.md` first)
+- **Backend**: Supabase (PostgreSQL) via API routes + `@supabase/ssr` for server-side auth
 - **Auth**: Clerk (`@clerk/nextjs`)
 - **Data Fetching**: @tanstack/react-query
 - **State**: zustand
@@ -32,6 +32,7 @@ pnpm run build        # Production build
 ```
 apps/web/src/
 ├── app/                   # Next.js App Router pages
+│   ├── api/               # API routes (Supabase backend)
 │   ├── dashboard/         # Main dashboard with analytics
 │   ├── analytics/         # Deep analytics with charts
 │   ├── posts/             # Content calendar + management
@@ -53,7 +54,6 @@ apps/web/src/
 │   ├── api/               # API client functions
 │   ├── stores/            # zustand stores
 │   └── metrics.ts        # Metric formatting utilities
-└── convex/                # Convex backend definitions
 ```
 
 ## Component Patterns
@@ -92,10 +92,7 @@ apps/web/src/
 - `src/lib/types/social.ts` - Social media type definitions
 - `src/lib/data/social-data.ts` - Sample data for development
 - `src/lib/api/` - API client functions for backend communication
-
-## Before Modifying Convex Code
-
-Always read `convex/_generated/ai/guidelines.md` first for Convex-specific patterns and rules.
+- `src/lib/supabase.ts` - Supabase client setup with Clerk auth
 
 ## Deployment
 
@@ -111,14 +108,38 @@ pnpm run desktop:build # Tauri desktop build
 ## Before Making Changes
 
 1. Read root `AGENTS.md` and `CLAUDE.md` for project context
-2. For Convex code: read `convex/_generated/ai/guidelines.md` first
-3. Check existing components for patterns before adding new ones
-4. Run `pnpm run check` before committing
+2. Check existing components for patterns before adding new ones
+3. Run `pnpm run check` before committing
 
-<!-- convex-ai-start -->
-This project uses [Convex](https://convex.dev) as its backend.
+## Supabase Schema & API Routes
 
-When working on Convex code, **always read `convex/_generated/ai/guidelines.md` first** for important guidelines on how to correctly use Convex APIs and patterns. The file contains rules that override what you may have learned about Convex from training data.
+### User Identity Pattern
+All API routes MUST use this pattern to access user data:
 
-Convex agent skills for common tasks can be installed by running `npx convex ai-files install`.
-<!-- convex-ai-end -->
+```typescript
+// 1. Get user UUID from Clerk ID
+const { data: user } = await supabase
+  .from("users")
+  .select("id")
+  .eq("clerk_id", userId)
+  .single();
+
+if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+// 2. Query child tables with user_id (NOT clerk_id)
+const { data } = await supabase
+  .from("posts")
+  .select("*")
+  .eq("user_id", user.id);
+```
+
+### Tables
+- `users` — `clerk_id` (Clerk ID), `id` (UUID PK)
+- `user_settings` — `user_id` (UUID FK), `api_key`, `last_synced_at`
+- `posts`, `social_accounts`, `media` — `user_id` (UUID FK)
+- `organizations` — `clerk_id` (TEXT, direct)
+
+### Important
+- Child tables (`posts`, `social_accounts`, `media`) use `user_id` FK — NOT `clerk_id`
+- `organizations` uses `clerk_id` directly (no FK)
+- Never query child tables with `clerk_id` directly — will cause Postgres error

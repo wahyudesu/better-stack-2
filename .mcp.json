@@ -2,11 +2,18 @@
   "mcpServers": {
     "better-t-stack": {
       "command": "pnpm",
-      "args": ["dlx", "create-better-t-stack@latest", "mcp"]
+      "args": [
+        "dlx",
+        "create-better-t-stack@latest",
+        "mcp"
+      ]
     },
     "context7": {
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
     },
     "cloudflare-docs": {
       "type": "sse",
@@ -14,11 +21,22 @@
     },
     "shadcn": {
       "command": "npx",
-      "args": ["-y", "shadcn@latest", "mcp"]
+      "args": [
+        "-y",
+        "shadcn@latest",
+        "mcp"
+      ]
     },
     "next-devtools": {
       "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
+      "args": [
+        "-y",
+        "next-devtools-mcp@latest"
+      ]
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=hqhnecutwpcoaazrjnzd"
     }
   }
 }

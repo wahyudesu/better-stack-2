@@ -10,21 +10,17 @@ type CallbackStep = "processing" | "success" | "error";
 function CallbackContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const clerkToken = useAuthStore((s) => s.clerkToken);
+	const setApiKey = useAuthStore((s) => s.setApiKey);
 
 	const [step, setStep] = useState<CallbackStep>("processing");
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (!clerkToken) {
-			router.push("/");
-			return;
-		}
-
 		const handleCallback = async () => {
 			try {
 				const connected = searchParams?.get("connected");
 				const errorParam = searchParams?.get("error");
+				const apiKeyParam = searchParams?.get("apiKey");
 
 				if (errorParam) {
 					setError(errorParam);
@@ -32,29 +28,45 @@ function CallbackContent() {
 					return;
 				}
 
+				// If Zernio returned an apiKey in the callback, store it
+				if (apiKeyParam) {
+					setApiKey(apiKeyParam);
+					// Also persist to backend
+					fetch("/api/user/api-key", {
+						method: "PATCH",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ apiKey: apiKeyParam }),
+					}).catch((e) => {
+						console.warn("[callback] failed to persist apiKey:", e);
+					});
+				}
+
 				if (connected) {
 					// Store account via API call to server
 					const profileId = searchParams?.get("profileId") || "";
 					const username = searchParams?.get("username") || "Connected Account";
+					const avatarUrl = searchParams?.get("avatarUrl") || undefined;
 
 					try {
-						await fetch("/api/accounts/add", {
+						await fetch("/api/social-accounts", {
 							method: "POST",
 							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify({
 								platform: connected,
 								accountId: profileId,
 								accountName: decodeURIComponent(username),
+								avatarUrl,
 							}),
 						});
 					} catch (e) {
-						// API not available yet, continue anyway
 						console.warn("API not configured:", e);
 					}
 				}
 
 				setStep("success");
-				setTimeout(() => router.push("/settings"), 1500);
+				// Sync all accounts from Zernio to ensure consistency
+				fetch("/api/social-accounts", { method: "POST" }).catch(console.warn);
+				setTimeout(() => router.push("/settings"), 2000);
 			} catch (err) {
 				console.error("Callback error:", err);
 				setError(
@@ -65,7 +77,7 @@ function CallbackContent() {
 		};
 
 		handleCallback();
-	}, [clerkToken, router, searchParams]);
+	}, [router, searchParams, setApiKey]);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background p-4">

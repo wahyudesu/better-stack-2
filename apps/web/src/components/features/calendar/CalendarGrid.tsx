@@ -71,7 +71,7 @@ export function CalendarGrid({
 		[onDragStart],
 	);
 
-	const handleWeekEventClick = useCallback(
+	const _handleWeekEventClick = useCallback(
 		(ev: CalendarEvent) => {
 			return (e: React.MouseEvent) => {
 				e.stopPropagation();
@@ -89,7 +89,7 @@ export function CalendarGrid({
 		[onDateClick],
 	);
 
-	const handleMonthEventClick = useCallback(
+	const _handleMonthEventClick = useCallback(
 		(ev: CalendarEvent) => {
 			return (e: React.MouseEvent) => {
 				e.stopPropagation();

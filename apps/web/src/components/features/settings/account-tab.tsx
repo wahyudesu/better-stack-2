@@ -5,7 +5,6 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
-import { useMutation, useQuery } from "convex/react";
 import { Calendar, CheckCircle2, KeyRound, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,20 +19,20 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { api } from "@/convex/_generated/api";
 import { TIMEZONES } from "@/lib/constants/settings";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/stores/auth-store";
 import type { FirstDayOfWeek, TimeFormat } from "./types";
 
 export function AccountTab() {
 	const { user, isLoaded } = useUser();
 	const { openUserProfile } = useClerk();
-	const { setApiKey, setUsageStats } = useAuthStore();
+	const { apiKey, setApiKey, setUsageStats } = useAuthStore();
 
 	const [firstDayOfWeek, setFirstDayOfWeek] =
 		useState<FirstDayOfWeek>("monday");
 	const [timezone, setTimezone] = useState("Asia/Jakarta");
 	const [timeFormat, setTimeFormat] = useState<TimeFormat>("24h");
+	const [loading, setLoading] = useState(false);
 
 	const fullName =
 		user?.fullName ??
@@ -49,14 +48,7 @@ export function AccountTab() {
 	const hasChanges =
 		fullName !== originalFullName || jobTitle !== originalJobTitle;
 
-	// Convex query to get API key from database
-	const storedApiKey = useQuery(api.users.getApiKey);
-	// Convex mutation to remove API key
-	const upsertApiKeyMutation = useMutation(api.users.upsertApiKey);
-
-	// Use Convex-stored API key as source of truth
-	const apiKey = storedApiKey ?? null;
-
+	// Use API key from auth store (set via Zernio OAuth flow)
 	const maskedKey = apiKey
 		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
 		: "";
@@ -75,9 +67,22 @@ export function AccountTab() {
 	};
 
 	const handleDisconnect = async () => {
-		await upsertApiKeyMutation({ apiKey: null });
-		setApiKey(null);
-		setUsageStats(null);
+		setLoading(true);
+		try {
+			const res = await fetch("/api/user/api-key", {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ apiKey: null }),
+			});
+			if (res.ok) {
+				setApiKey(null);
+				setUsageStats(null);
+			}
+		} catch (err) {
+			console.error("[AccountTab] disconnect failed:", err);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	const getInitials = () => {
@@ -257,6 +262,7 @@ export function AccountTab() {
 									variant="destructive"
 									size="sm"
 									onClick={handleDisconnect}
+									disabled={loading}
 								>
 									<Trash2 className="size-4" />
 								</Button>
@@ -297,7 +303,7 @@ export function AccountTab() {
 
 			{/* Calendar Settings */}
 			<Card>
-				<CardContent className="p-4 space-y-3">
+				<CardContent className="space-y-3">
 					<div className="flex items-center gap-2">
 						<Calendar className="h-4 w-4" />
 						<p className="font-display font-semibold text-sm">

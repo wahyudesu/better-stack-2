@@ -3,7 +3,64 @@
  * Merges ComposerTemplate and ContentScriptTemplate into one.
  */
 
+import { z } from "zod";
 import type { ProfilePlatform } from "../core/platform";
+
+// ============================================================
+// VALIDATION SCHEMA
+// ============================================================
+
+const STORAGE_KEY = "content_templates";
+
+// Validation schema for content templates from localStorage
+const contentTemplateSchema = z.object({
+	id: z.string(),
+	name: z.string().max(200),
+	description: z.string().max(500).optional(),
+	config: z.object({
+		platform: z.string(),
+		format: z.enum(["single", "thread", "carousel", "reels", "story"]),
+		purpose: z.enum([
+			"edukasi",
+			"entertainment",
+			"promosi",
+			"engagement",
+			"branding",
+			"sales",
+		]),
+		framework: z.enum(["aida", "pas", "bab", "sss", "fab", "custom"]),
+		tone: z.string().max(50),
+		persona: z.enum([
+			"expert-mentor",
+			"friendly-relatable",
+			"professional",
+			"provocative",
+			"storyteller",
+			"coachable",
+			"custom",
+		]),
+		topic: z.string().optional(),
+		customInstructions: z.string().optional(),
+	}),
+	prompt: z.string().optional(),
+	content: z.string().optional(),
+	isPreset: z.boolean(),
+	workspaceId: z.string().optional(),
+	createdBy: z.string(),
+	createdAt: z.string().or(z.date()),
+	updatedAt: z.string().or(z.date()),
+});
+
+type SafeTemplate = z.infer<typeof contentTemplateSchema>;
+
+// Sanitize and validate a single template
+function sanitizeTemplate(raw: unknown): SafeTemplate | null {
+	try {
+		return contentTemplateSchema.parse(raw);
+	} catch {
+		return null;
+	}
+}
 
 // ============================================================
 // TEMPLATE CORE
@@ -39,7 +96,7 @@ export type TemplatePersona =
 	| "custom";
 
 export interface TemplateConfig {
-	platform: ProfilePlatform;
+	platform: string;
 	format: TemplateFormat;
 	purpose: TemplatePurpose;
 	framework: TemplateFramework;
@@ -67,8 +124,8 @@ export interface ContentTemplate {
 	workspaceId?: string;
 	/** Who created this template */
 	createdBy: string;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt: Date | string;
+	updatedAt: Date | string;
 }
 
 // ============================================================
@@ -76,35 +133,39 @@ export interface ContentTemplate {
 // ============================================================
 
 export interface TemplateManager {
-	templates: ContentTemplate[];
+	templates: SafeTemplate[];
 	saveTemplate: (
 		template: Omit<ContentTemplate, "id" | "createdAt" | "updatedAt">,
-	) => ContentTemplate;
+	) => SafeTemplate;
 	deleteTemplate: (id: string) => void;
-	loadTemplate: (id: string) => ContentTemplate | undefined;
+	loadTemplate: (id: string) => SafeTemplate | undefined;
 	updateTemplate: (
 		id: string,
 		updates: Partial<ContentTemplate>,
-	) => ContentTemplate | undefined;
-	duplicateTemplate: (id: string) => ContentTemplate | undefined;
+	) => SafeTemplate | undefined;
+	duplicateTemplate: (id: string) => SafeTemplate | undefined;
 }
 
-const STORAGE_KEY = "content_templates";
-
 export function createTemplateManager(): TemplateManager {
-	let templates: ContentTemplate[] = [];
+	let templates: SafeTemplate[] = [];
 
-	const loadFromStorage = (): ContentTemplate[] => {
+	const loadFromStorage = (): SafeTemplate[] => {
 		if (typeof window === "undefined") return [];
 		try {
 			const stored = localStorage.getItem(STORAGE_KEY);
-			return stored ? JSON.parse(stored) : [];
+			if (!stored) return [];
+			const parsed = JSON.parse(stored);
+			if (!Array.isArray(parsed)) return [];
+			// Validate and sanitize each template - drop invalid ones
+			return parsed
+				.map(sanitizeTemplate)
+				.filter((t): t is SafeTemplate => t !== null);
 		} catch {
 			return [];
 		}
 	};
 
-	const saveToStorage = (updated: ContentTemplate[]) => {
+	const saveToStorage = (updated: SafeTemplate[]) => {
 		if (typeof window === "undefined") return;
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
@@ -121,12 +182,12 @@ export function createTemplateManager(): TemplateManager {
 		},
 
 		saveTemplate(partial) {
-			const newTemplate: ContentTemplate = {
+			const newTemplate: SafeTemplate = {
 				...partial,
 				id: `template-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
 				createdAt: new Date(),
 				updatedAt: new Date(),
-			};
+			} as SafeTemplate;
 			templates = [...templates, newTemplate];
 			saveToStorage(templates);
 			return newTemplate;
@@ -148,7 +209,7 @@ export function createTemplateManager(): TemplateManager {
 					...templates[index],
 					...updates,
 					updatedAt: new Date(),
-				};
+				} as SafeTemplate;
 				saveToStorage(templates);
 				return templates[index];
 			}

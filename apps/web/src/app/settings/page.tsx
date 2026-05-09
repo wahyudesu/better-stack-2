@@ -42,7 +42,7 @@ function SettingsContent() {
 			// Update URL without adding to history
 			const url = new URL(window.location.href);
 			url.searchParams.set("tab", tab);
-			router.replace(url.pathname + "?" + url.searchParams.toString());
+			router.replace(`${url.pathname}?${url.searchParams.toString()}`);
 		},
 		[router],
 	);
@@ -54,7 +54,7 @@ function SettingsContent() {
 			setActiveTabState(tab as TabId);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams]);
+	}, [searchParams, activeTab]);
 
 	return (
 		<SettingsLayout activeTab={activeTab} onTabChange={setActiveTab}>

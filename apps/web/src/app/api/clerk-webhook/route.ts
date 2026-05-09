@@ -1,5 +1,6 @@
-import { createHmac } from "crypto";
+import { createHmac } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase";
 
 const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET!;
 
@@ -33,6 +34,9 @@ export async function POST(req: NextRequest) {
 	const event = JSON.parse(body);
 	const { type, data } = event as { type: string; data: any };
 
+	// Handle organization events - forward to server
+	// User auth is handled by Clerk+Supabase native integration
+	// No need to sync users to auth.users
 	switch (type) {
 		case "organization.created":
 		case "organization.updated":

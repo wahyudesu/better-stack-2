@@ -1,6 +1,5 @@
 // apps/web/src/lib/zernio-user.ts
 
-import type { ApiResponse } from "./client";
 import { api } from "./client";
 
 export interface ZernioUser {

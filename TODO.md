@@ -49,6 +49,26 @@ jika sudah sama data nya maka buatkan saya planning, terapkan jugua best practic
 
 buatkan saya planning untuk intergasi clerk organization dgn user/tetams yang ada di server zernio
 
+# cloudflare deploy fix (2026-05-07)
+```
+NEXT_PUBLIC_CONVEX_URL=https://trustworthy-basilisk-416.convex.cloud \
+NEXT_PUBLIC_CONVEX_SITE_URL=https://trustworthy-basilisk-416.convex.site \
+pnpm dlx @opennextjs/cloudflare build && \
+  CONVEX_DEPLOY_KEY="prod:trustworthy-basilisk-416|eyJ2MiI6IjczNDY4ZTBlMGNiZTQ3Mjg5NDVjNTkwNjNiNjc1ZjQ1In0=" \
+  npx convex deploy && \
+  pnpm dlx @opennextjs/cloudflare deploy
+```
 
+```
+pnpm dlx @opennextjs/cloudflare build && CONVEX_DEPLOY_KEY="prod:trustworthy-basilisk-416|eyJ2MiI6IjczNDY4ZTBlMGNiZTQ3Mjg5NDVjNTkwNjNiNjc1ZjQ1In0=" npx convex deploy && pnpm dlx @opennextjs/cloudflare deploy
+```
 
 dgn menggunakan multi agent secara parallel lakukan pnpm build pada landing, web dan server, jika ada error perbaiki, iterasi hingga ketiganya berhasil di build
+
+sesuaikan kembali yah, karena aku gajadi pake drizzle orm tapi aku pake full supabase, dan gaada di monorepo yah, setupnya fullstack di aplikasi web ini
+
+ini udah cukup buat di
+- [ ] auth berhasil
+- [ ] social media connection berhasil
+- [ ] fetch content berhasil
+- [ ] harus clean cuy, dan terapkan best practice

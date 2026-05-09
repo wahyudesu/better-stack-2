@@ -61,11 +61,13 @@ export function UserMenu({ avatarSrc, isLoaded, isSignedIn }: UserMenuProps) {
 
 	// Use passed props first, fallback to hook data
 	const isUserLoaded = isLoaded ?? !!user;
-	const isUserSignedIn = isSignedIn ?? !!user;
+	const _isUserSignedIn = isSignedIn ?? !!user;
 	const avatarUrl = user?.imageUrl ?? avatarSrc;
 
 	const handleLogout = () => {
-		clerkSignOut(() => router.push("/"));
+		// Clerk requires active session for OrganizationSwitcher.
+		// If signed out, skip the callback (session already cleared).
+		clerkSignOut({ redirectUrl: "/" });
 	};
 
 	const handleMenuItemClick = (

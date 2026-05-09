@@ -1,78 +1,78 @@
--- Migration: Enable RLS on all tables
--- Run after 001_initial_schema.sql
--- Uses Clerk Supabase integration (auth.jwt()->>'sub')
+-- Migration: RLS policies using Clerk JWT (auth.jwt()->>'sub')
+-- Follows official Clerk+Supabase integration docs
+-- Clerk as third-party auth provider must be enabled in Supabase dashboard
 
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE social_accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE media ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
 
--- Users: user can only see/edit own row via clerk_id
-CREATE POLICY "users_owner_select" ON users FOR SELECT
+-- User settings
+CREATE POLICY "user_settings_owner_select" ON user_settings FOR SELECT
   TO authenticated
-  USING (clerk_id = (auth.jwt()->>'sub')::text);
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
-CREATE POLICY "users_owner_insert" ON users FOR INSERT
+CREATE POLICY "user_settings_owner_insert" ON user_settings FOR INSERT
   TO authenticated
-  WITH CHECK (clerk_id = (auth.jwt()->>'sub')::text);
+  WITH CHECK (clerk_id = (auth.jwt()->>'sub'));
 
-CREATE POLICY "users_owner_update" ON users FOR UPDATE
+CREATE POLICY "user_settings_owner_update" ON user_settings FOR UPDATE
   TO authenticated
-  USING (clerk_id = (auth.jwt()->>'sub')::text);
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
--- Social accounts: via user->clerk_id lookup
+-- Social accounts
 CREATE POLICY "social_accounts_owner_select" ON social_accounts FOR SELECT
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "social_accounts_owner_insert" ON social_accounts FOR INSERT
   TO authenticated
-  WITH CHECK (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  WITH CHECK (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "social_accounts_owner_delete" ON social_accounts FOR DELETE
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
--- Posts: via user->clerk_id lookup
+-- Posts
 CREATE POLICY "posts_owner_select" ON posts FOR SELECT
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "posts_owner_insert" ON posts FOR INSERT
   TO authenticated
-  WITH CHECK (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  WITH CHECK (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "posts_owner_update" ON posts FOR UPDATE
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "posts_owner_delete" ON posts FOR DELETE
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
--- Media: via user->clerk_id lookup
+-- Media
 CREATE POLICY "media_owner_select" ON media FOR SELECT
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "media_owner_insert" ON media FOR INSERT
   TO authenticated
-  WITH CHECK (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  WITH CHECK (clerk_id = (auth.jwt()->>'sub'));
 
--- Organizations: via user->clerk_id lookup
+-- Organizations
 CREATE POLICY "organizations_owner_select" ON organizations FOR SELECT
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "organizations_owner_insert" ON organizations FOR INSERT
   TO authenticated
-  WITH CHECK (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  WITH CHECK (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "organizations_owner_update" ON organizations FOR UPDATE
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));
 
 CREATE POLICY "organizations_owner_delete" ON organizations FOR DELETE
   TO authenticated
-  USING (user_id IN (SELECT id FROM users WHERE clerk_id = (auth.jwt()->>'sub')::text));
+  USING (clerk_id = (auth.jwt()->>'sub'));

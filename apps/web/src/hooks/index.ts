@@ -50,11 +50,8 @@ export {
 	postKeys,
 	useCreatePost,
 	useDeletePost,
-	useEditPost,
 	usePosts,
-	useRetryPost,
-	useUnpublishPost,
-	useUpdatePost,
+	useSyncPosts,
 } from "./use-posts";
 export {
 	profileKeys,

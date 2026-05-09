@@ -1,14 +1,8 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import {
-	Label,
-	PolarGrid,
-	PolarRadiusAxis,
-	RadialBar,
-	RadialBarChart,
-} from "recharts";
 import { buttonVariants } from "@/components/ui/button";
 import {
 	Card,
@@ -17,22 +11,14 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 
+const SentimentChart = dynamic(
+	() => import("./sentiment-chart-lazy").then((mod) => mod.SentimentChart),
+	{ ssr: false, loading: () => <div className="size-[68px]" /> },
+);
+
 const sentimentScore = 98;
-
-const chartData = [{ sentiment: sentimentScore, fill: "var(--color-safari)" }];
-
-const chartConfig = {
-	sentiment: {
-		label: "Sentiment",
-	},
-	safari: {
-		label: "Safari",
-		color: "hsl(var(--chart-2))",
-	},
-} satisfies ChartConfig;
 
 // Get health status based on sentiment score
 function getHealthStatus(score: number): {
@@ -92,51 +78,7 @@ export function SentimentCard() {
 				<div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-4 w-full">
 					{/* Radial chart */}
 					<div className="shrink-0">
-						<ChartContainer config={chartConfig} className="size-[68px]">
-							<RadialBarChart
-								data={chartData}
-								startAngle={90}
-								endAngle={443}
-								innerRadius={25}
-								outerRadius={35}
-							>
-								<PolarGrid
-									gridType="circle"
-									radialLines={false}
-									stroke="none"
-									polarRadius={[34, 26]}
-								/>
-								<RadialBar
-									dataKey="sentiment"
-									style={{ fill: "#22c55e" }}
-									cornerRadius={4}
-								/>
-								<PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-									<Label
-										content={({ viewBox }) => {
-											if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-												return (
-													<text
-														x={viewBox.cx}
-														y={viewBox.cy}
-														textAnchor="middle"
-														dominantBaseline="middle"
-													>
-														<tspan
-															x={viewBox.cx}
-															y={viewBox.cy}
-															className="fill-foreground text-lg"
-														>
-															{chartData[0].sentiment}
-														</tspan>
-													</text>
-												);
-											}
-										}}
-									/>
-								</PolarRadiusAxis>
-							</RadialBarChart>
-						</ChartContainer>
+						<SentimentChart />
 					</div>
 
 					{/* Text */}

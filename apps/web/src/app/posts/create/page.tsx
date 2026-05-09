@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AccountSelector } from "@/components/features/create-post/account-selector";
 import { ContentEditor } from "@/components/features/create-post/content-editor";
 import { PublishOptions } from "@/components/features/create-post/publish-options";
@@ -18,23 +18,37 @@ import type {
 	ProfilePlatform,
 	SocialMediaProfile,
 } from "@/lib/types/social";
+import { useDraftStore } from "@/stores/draft-store";
 
 type PublishMode = "now" | "schedule" | "queue" | "draft";
 
 export default function CreatePostPage() {
-	const [content, setContent] = useState("");
-	const [media, setMedia] = useState<PostMedia[]>([]);
-	const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
-	const [publishMode, setPublishMode] = useState<PublishMode>("now");
-	const [scheduledDate, setScheduledDate] = useState("");
-	const [scheduledTime, setScheduledTime] = useState("");
-	const [timezone, setTimezone] = useState("Asia/Jakarta");
-	const [showPreview, setShowPreview] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [activePlatform, setActivePlatform] =
-		useState<ProfilePlatform>("instagram");
-	const [maxChars, setMaxChars] = useState(2200);
+
+	const {
+		content,
+		media,
+		selectedAccountIds,
+		publishMode,
+		scheduledDate,
+		scheduledTime,
+		timezone,
+		showPreview,
+		activePlatform,
+		maxChars,
+		setContent,
+		setMedia,
+		setSelectedAccountIds,
+		setPublishMode,
+		setScheduledDate,
+		setScheduledTime,
+		setTimezone,
+		setShowPreview,
+		setActivePlatform,
+		setMaxChars,
+		clearDraft,
+	} = useDraftStore();
 
 	// Get accounts from TanStack Query
 	const { data: accountsData } = useQuery({
@@ -114,7 +128,8 @@ export default function CreatePostPage() {
 				return;
 			}
 
-			// Success - redirect to posts page
+			// Success - clear draft and redirect to posts page
+			clearDraft();
 			window.location.href = "/posts";
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to create post");

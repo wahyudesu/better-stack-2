@@ -4,32 +4,37 @@
 
 "use client";
 
-import { useMutation, useQuery } from "convex/react";
 import { CheckCircle2, KeyRound, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { api } from "@/convex/_generated/api";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/stores/auth-store";
 
 export function SecurityTab() {
-	const { setApiKey, setUsageStats } = useAuthStore();
-
-	// Convex query to get API key from database
-	const storedApiKey = useQuery(api.users.getApiKey);
-	// Convex mutation to remove API key
-	const upsertApiKeyMutation = useMutation(api.users.upsertApiKey);
-
-	// Use Convex-stored API key as source of truth
-	const apiKey = storedApiKey ?? null;
+	const { apiKey, setApiKey, setUsageStats } = useAuthStore();
+	const [loading, setLoading] = useState(false);
 
 	const maskedKey = apiKey
 		? `${apiKey.slice(0, 8)}${"•".repeat(Math.max(0, apiKey.length - 12))}${apiKey.slice(-4)}`
 		: "";
 
 	const handleDisconnect = async () => {
-		await upsertApiKeyMutation({ apiKey: null });
-		setApiKey(null);
-		setUsageStats(null);
+		setLoading(true);
+		try {
+			const res = await fetch("/api/user/api-key", {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ apiKey: null }),
+			});
+			if (res.ok) {
+				setApiKey(null);
+				setUsageStats(null);
+			}
+		} catch (err) {
+			console.error("[SecurityTab] disconnect failed:", err);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -93,6 +98,7 @@ export function SecurityTab() {
 									variant="destructive"
 									size="sm"
 									onClick={handleDisconnect}
+									disabled={loading}
 								>
 									<Trash2 className="size-4 mr-1" />
 									Disconnect

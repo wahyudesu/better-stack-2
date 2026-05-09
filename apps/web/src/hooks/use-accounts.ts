@@ -1,7 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { api } from "@/convex/_generated/api";
 import type { SocialAccount } from "@/lib/client";
 import { useAuthStore } from "@/stores";
 
@@ -10,21 +8,16 @@ export const accountKeys = {
 	list: () => ["accounts", "list"] as const,
 };
 
-// Extended SocialAccount with Convex doc ID for internal use
-interface ConvexSocialAccount extends SocialAccount {
-	convexId?: string; // Convex document ID for mutations
-}
+interface ApiAccount extends SocialAccount {}
 
-// Convert Convex account to SocialAccount format (matches Zernio structure)
-function convertToSocialAccount(account: any): ConvexSocialAccount {
+function convertToSocialAccount(account: any): ApiAccount {
 	const isActive = account.status === "active";
-	const createdAt = account.createdAt
-		? new Date(account.createdAt).toISOString()
-		: new Date(account.connectedAt).toISOString();
+	const createdAt = account.connectedAt
+		? new Date(account.connectedAt).toISOString()
+		: new Date().toISOString();
 
 	return {
-		_id: account.accountId, // Zernio's account _id for display
-		convexId: account._id, // Convex document ID for mutations
+		_id: account.accountId,
 		platform: account.platform,
 		username: account.accountName || "",
 		displayName: account.accountName || undefined,
@@ -36,59 +29,51 @@ function convertToSocialAccount(account: any): ConvexSocialAccount {
 	};
 }
 
-// Sync staleness threshold: 2 minutes
-const SYNC_STALE_MS = 2 * 60 * 1000;
+async function fetchAccounts(): Promise<ApiAccount[]> {
+	const res = await fetch("/api/social-accounts");
+	if (!res.ok) throw new Error("Failed to fetch accounts");
+	const data = await res.json();
+	return Array.isArray(data) ? data.map(convertToSocialAccount) : [];
+}
+
+async function deleteAccount(accountId: string) {
+	const res = await fetch("/api/social-accounts", {
+		method: "DELETE",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ accountId }),
+	});
+	if (!res.ok) throw new Error("Failed to delete account");
+	return res.json();
+}
 
 /**
- * Hook to fetch all social accounts for current user from Convex
- * Auto-syncs from Zernio if data is stale (>2 min since last sync)
+ * Hook to fetch all social accounts
  */
 export function useAccounts() {
 	const apiKey = useAuthStore((s) => s.apiKey);
-	const queryClient = useQueryClient();
+	const _queryClient = useQueryClient();
 
-	const convexAccounts = useQuery(api.socialAccounts.list);
-	const userInfoQuery = useQuery(api.users.getUserInfo);
-	const syncMutation = useAction(api.socialAccounts.syncFromZernio);
+	const { data, isLoading, error } = useQuery({
+		queryKey: accountKeys.list(),
+		queryFn: fetchAccounts,
+		enabled: !!apiKey,
+	});
 
-	// Trigger sync on mount - always sync if we have apiKey and accounts is empty
+	// Trigger sync on mount if no apiKey
 	useEffect(() => {
-		if (!apiKey) {
-			console.log("[useAccounts] No apiKey, skipping sync");
-			return;
-		}
-
-		// Sync if: no userInfo yet (loading), OR stale (>2min), OR accounts empty
-		const shouldSync =
-			!userInfoQuery ||
-			!userInfoQuery.lastSyncedAt ||
-			Date.now() - userInfoQuery.lastSyncedAt > SYNC_STALE_MS ||
-			(convexAccounts !== undefined && convexAccounts.length === 0);
-
-		console.log("[useAccounts] sync check:", {
-			hasApiKey: !!apiKey,
-			userInfoQuery,
-			convexAccountsLen: convexAccounts?.length,
-			shouldSync,
-		});
-
-		if (shouldSync) {
-			console.log("[useAccounts] Triggering sync from Zernio");
-			syncMutation({}).catch((e) =>
+		if (!apiKey) return;
+		// Sync if accounts empty
+		if (data !== undefined && data.length === 0) {
+			fetch("/api/zernio/sync", { method: "POST" }).catch((e) =>
 				console.error("[useAccounts] Sync failed:", e),
 			);
 		}
-	}, [apiKey, userInfoQuery, convexAccounts]);
-
-	// Map Convex accounts to SocialAccount format
-	const accounts = convexAccounts
-		? convexAccounts.map(convertToSocialAccount)
-		: [];
+	}, [apiKey, data]);
 
 	return {
-		data: { accounts },
-		isLoading: convexAccounts === undefined && !!apiKey,
-		error: null,
+		data: { accounts: data ?? [] },
+		isLoading,
+		error,
 	};
 }
 
@@ -97,25 +82,84 @@ export function useAccounts() {
  */
 export function useDeleteAccount() {
 	const queryClient = useQueryClient();
-	const deleteMutation = useMutation(api.socialAccounts.deleteAccount);
 
 	return {
 		mutateAsync: async (accountId: string) => {
-			await deleteMutation({ accountId });
+			await deleteAccount(accountId);
 			queryClient.invalidateQueries({ queryKey: accountKeys.all });
 		},
 		isPending: false,
 	};
 }
 
+/**
+ * Stub hook - health check not implemented
+ */
 export function useAccountsHealth() {
 	return { data: null };
 }
 
-export function useConnectAccount() {
-	return {
-		mutateAsync: async (_params: { platform: string }) => {
-			return { authUrl: "" };
+/**
+ * Hook to get or create a local profile for the current user
+ */
+export function useZernioProfile() {
+	const apiKey = useAuthStore((s) => s.apiKey);
+
+	return useQuery({
+		queryKey: ["profiles"],
+		enabled: !!apiKey,
+		queryFn: async () => {
+			// Get existing profiles
+			const listRes = await fetch("/api/profiles");
+			if (!listRes.ok) throw new Error("Failed to fetch profiles");
+			const profiles = await listRes.json();
+
+			// If we have one, return the default
+			if (Array.isArray(profiles) && profiles.length > 0) {
+				const defaultProfile =
+					profiles.find((p: any) => p.is_default) || profiles[0];
+				return defaultProfile as {
+					id: string;
+					name: string;
+					zernio_profile_id: string | null;
+				};
+			}
+
+			// Create a default profile
+			const createRes = await fetch("/api/profiles", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ name: "Default Profile", is_default: true }),
+			});
+			if (!createRes.ok) throw new Error("Failed to create profile");
+			return createRes.json() as Promise<{
+				id: string;
+				name: string;
+				zernio_profile_id: string | null;
+			}>;
 		},
+	});
+}
+
+/**
+ * Hook to initiate OAuth connection for a social platform
+ */
+export function useConnectAccount() {
+	const { data: profile, isLoading } = useZernioProfile();
+
+	return {
+		mutateAsync: async ({ platform }: { platform: string }) => {
+			if (isLoading || !profile) {
+				throw new Error("Profile not ready");
+			}
+			// Redirect to Zernio OAuth with profileId
+			const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+			const redirectUrl = `${baseUrl}/callback`;
+			window.location.href = `/api/zernio/connect?platform=${platform}&profileId=${profile.zernio_profile_id || profile.id}&redirect_url=${encodeURIComponent(redirectUrl)}`;
+			return {
+				authUrl: `/api/zernio/connect?platform=${platform}&profileId=${profile.zernio_profile_id || profile.id}&redirect_url=${encodeURIComponent(redirectUrl)}`,
+			};
+		},
+		isPending: isLoading,
 	};
 }

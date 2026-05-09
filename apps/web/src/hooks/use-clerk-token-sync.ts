@@ -1,54 +1,56 @@
 "use client";
 
 import { useOrganization, useUser } from "@clerk/nextjs";
-import { useMutation, useQuery } from "convex/react";
-import { useEffect } from "react";
-import { api } from "@/convex/_generated/api";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/stores";
 
 /**
- * Sync Clerk user + org to Convex and load API key from Convex.
- * API key is stored in Convex users table after Zernio OAuth.
+ * Sync Clerk user + org to Supabase backend via API routes.
+ * Also loads Zernio apiKey from backend and sets in store.
  */
 export function useClerkTokenSync() {
 	const { user } = useUser();
 	const { organization } = useOrganization();
-	const setApiKey = useAuthStore((s) => s.setApiKey);
+	const loadedRef = useRef(false);
 
-	// Mutations
-	const ensureUser = useMutation(api.users.ensureUser);
-	const syncOrganization = useMutation(api.organizations.syncFromClerk);
-
-	// Query to get API key from Convex
-	const storedApiKey = useQuery(api.users.getApiKey);
-
+	// Sync user to Supabase via API
 	useEffect(() => {
 		if (!user) return;
 
-		// Sync user to Convex
-		ensureUser({
-			email: user?.emailAddresses?.[0]?.emailAddress ?? "",
-			displayName: user?.fullName ?? user?.firstName ?? "",
-			avatarUrl: user?.imageUrl ?? undefined,
-		}).catch((err) => {
-			console.error("[useClerkTokenSync] ensureUser failed:", err);
+		// Sync user to Supabase auth.users
+		// Production: Clerk webhook handles this. Local dev: call sync endpoint.
+		fetch("/api/auth/sync", { method: "POST" }).catch((err) => {
+			console.error("[useClerkTokenSync] syncUser failed:", err);
 		});
 
 		// Sync org (if user is in one)
 		if (organization) {
-			syncOrganization({
-				orgName: organization.name,
-				orgLogo: organization.imageUrl ?? undefined,
+			fetch("/api/organizations", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					orgName: organization.name,
+					orgLogo: organization.imageUrl ?? undefined,
+				}),
 			}).catch((err) => {
 				console.error("[useClerkTokenSync] syncOrganization failed:", err);
 			});
 		}
-	}, [user, organization, ensureUser, syncOrganization]);
 
-	// Load API key from Convex into auth store
-	useEffect(() => {
-		if (storedApiKey) {
-			setApiKey(storedApiKey);
-		}
-	}, [storedApiKey, setApiKey]);
+		// Load Zernio apiKey from backend and set in store
+		// Use ref to avoid infinite loop from setApiKey dependency
+		if (loadedRef.current) return;
+		loadedRef.current = true;
+
+		fetch("/api/user")
+			.then((r) => r.json())
+			.then((data: any) => {
+				if (data.api_key) {
+					useAuthStore.getState().setApiKey(data.api_key);
+				}
+			})
+			.catch((err) => {
+				console.error("[useClerkTokenSync] loadApiKey failed:", err);
+			});
+	}, [user, organization]);
 }

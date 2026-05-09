@@ -1,38 +1,41 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from "@clerk/nextjs/server";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-// Clerk token provider for server-side Supabase client
-export async function createServerSupabaseClient(): Promise<SupabaseClient> {
-  const token = await auth().getToken();
-
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      async accessToken() {
-        return token;
-      },
-    }
-  );
+/**
+ * Server-side Supabase client - uses admin key (bypasses RLS).
+ * Auth handled by Clerk middleware, no need for RLS here.
+ */
+export function createServerSupabaseClient() {
+	return createClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.SUPABASE_SECRET_KEY!,
+	);
 }
 
-// For client-side usage (in API routes with auth)
-export function createClerkSupabaseClient(sessionToken: string | null): SupabaseClient {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      async accessToken() {
-        return sessionToken;
-      },
-    }
-  );
+/**
+ * Client-side Supabase client - requires access token from Clerk.
+ * Used only in client components with valid Clerk session.
+ */
+export function createClerkSupabaseClient(accessToken: string | null) {
+	return createClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+		{
+			async accessToken() {
+				return accessToken;
+			},
+		},
+	);
 }
 
-// Admin client for internal operations (bypasses RLS)
+/**
+ * Admin client for internal operations.
+ * BYPASSES RLS - uses secret key (sb_secret_xxx).
+ * Used for: webhook handlers, cron jobs, admin operations.
+ */
 export function createAdminClient(): SupabaseClient {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+	return createClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.SUPABASE_SECRET_KEY!,
+	);
 }

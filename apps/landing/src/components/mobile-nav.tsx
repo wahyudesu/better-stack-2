@@ -1,18 +1,12 @@
-"use client";
-
-import { useState } from "react";
 import { cn } from "@/lib/utils";
+import React from "react";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { Button } from "@/components/ui/button";
-import { navSections } from "@/components/nav-links";
-import { LinkItem } from "@/components/sheard";
-import { WaitlistModal } from "@/components/waitlist-modal";
-import Link from "next/link";
+import { navLinks } from "@/components/header";
 import { XIcon, MenuIcon } from "lucide-react";
 
 export function MobileNav() {
-	const [open, setOpen] = useState(false);
-	const [waitlistOpen, setWaitlistOpen] = useState(false);
+	const [open, setOpen] = React.useState(false);
 
 	return (
 		<div className="md:hidden">
@@ -25,65 +19,36 @@ export function MobileNav() {
 				size="icon"
 				variant="outline"
 			>
-				<div
-					className={cn(
-						"transition-all",
-						open ? "scale-100 opacity-100" : "scale-0 opacity-0"
-					)}
-				>
-					<XIcon />
-				</div>
-				<div
-					className={cn(
-						"absolute transition-all",
-						open ? "scale-0 opacity-0" : "scale-100 opacity-100"
-					)}
-				>
-					<MenuIcon />
-				</div>
+				{open ? (
+					<XIcon className="size-4.5" />
+				) : (
+					<MenuIcon className="size-4.5" />
+				)}
 			</Button>
 			{open && (
-				<Portal className="top-14">
+				<Portal className="top-14" id="mobile-menu">
 					<PortalBackdrop />
 					<div
 						className={cn(
-							"size-full overflow-y-auto p-4",
-							"data-[slot=open]:zoom-in-97 ease-out data-[slot=open]:animate-in"
+							"data-[slot=open]:zoom-in-97 ease-out data-[slot=open]:animate-in",
+							"size-full p-4"
 						)}
 						data-slot={open ? "open" : "closed"}
 					>
-						<div className="flex w-full flex-col gap-y-2">
-							{navSections.map((section) => (
-								<div key={section.label} className="flex flex-col gap-1">
-									<span className="px-2 py-1 text-sm font-medium text-muted-foreground">
-										{section.label}
-									</span>
-									{section.items.map((link) => (
-										<LinkItem
-											className="rounded-lg p-2 active:bg-muted dark:active:bg-muted/50"
-											key={link.label}
-											{...link}
-										/>
-									))}
-								</div>
+						<div className="grid gap-y-2">
+							{navLinks.map((link) => (
+								<Button className="justify-start" key={link.label} variant="ghost" render={<a href={link.href} />} nativeButton={false}>{link.label}</Button>
 							))}
 						</div>
-						<div className="mt-5 flex flex-col gap-2">
-							<Link href="/app">
-								<Button className="w-full" variant="outline">
-									Login
-								</Button>
-							</Link>
-							<Link href="/app">
-								<Button className="w-full" variant="ghost">
-									Sign Up
-								</Button>
-							</Link>
+						<div className="mt-12 flex flex-col gap-2">
+							<Button className="w-full" variant="outline">
+								Sign In
+							</Button>
+							<Button className="w-full">Get Started</Button>
 						</div>
 					</div>
 				</Portal>
 			)}
-			<WaitlistModal open={waitlistOpen} onOpenChange={setWaitlistOpen} />
 		</div>
 	);
 }

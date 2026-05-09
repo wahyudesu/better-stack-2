@@ -13,7 +13,7 @@ import {
 import { PlatformIcon } from "@/components/ui/PlatformIcon";
 import { api } from "@/lib/client";
 import { samplePosts } from "@/lib/data/social-data";
-import type { ContentPost } from "@/lib/types";
+import type { ContentPost } from "@/lib/types/social";
 
 export interface RecentPostsCardProps {
 	posts?: ContentPost[];

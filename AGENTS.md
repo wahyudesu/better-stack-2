@@ -3,7 +3,7 @@
 ## Project Type
 
 Monorepo pnpm workspace with:
-- `apps/web` - Next.js 16 + Convex backend (social media dashboard)
+- `apps/web` - Next.js 16 + Supabase backend (social media dashboard)
 - `apps/landing` - Marketing landing page
 - `apps/server` - Server components (Hono + Cloudflare Workers)
 - `packages/ui` - Shared UI components
@@ -15,7 +15,7 @@ Monorepo pnpm workspace with:
 
 ### Web App
 - Next.js 16.2 + React 19
-- Convex for backend
+- Supabase (PostgreSQL) via API routes + `@supabase/ssr` for server-side auth
 - Clerk for auth
 - @base-ui/react for UI primitives
 - react-router-dom v7 for routing
@@ -82,6 +82,40 @@ All social media API endpoints declared in `apps/server`. See `apps/server/GUIDE
 **Supported platforms**: Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube, Pinterest, Reddit, Bluesky, Threads, Google Business, Telegram, Snapchat, WhatsApp, Discord
 
 **Key features**: Account connection (OAuth), post creation/scheduling, cross-platform posting, analytics, inbox (DMs/comments/reviews), ad management
+
+## Supabase Schema & User Identity
+
+### User Identity Flow
+```
+Clerk userId (string) → users.clerk_id → users.id (UUID) → child_tables.user_id (FK)
+```
+
+### Schema Rules
+- **`users` table**: `clerk_id` (TEXT, Clerk ID), `id` (UUID, PK)
+- **`user_settings` table**: `user_id` (UUID, FK to users), `api_key`, `last_synced_at`
+- **Child tables** (`posts`, `social_accounts`, `media`): `user_id` (UUID, FK to users) — NOT `clerk_id`
+- **`organizations` table**: `clerk_id` (TEXT, direct — no FK)
+
+### API Route Pattern
+All API routes that query child tables MUST:
+1. Query `users` table first: `.from("users").select("id").eq("clerk_id", userId)`
+2. Then query child tables with `user_id`: `.eq("user_id", user.id)`
+
+```typescript
+// CORRECT
+const { data: user } = await supabase.from("users").select("id").eq("clerk_id", userId).single();
+if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+const { data } = await supabase.from("posts").select("*").eq("user_id", user.id);
+
+// WRONG - will cause "column does not exist" error
+await supabase.from("posts").select("*").eq("clerk_id", userId);
+```
+
+### Organizations Exception
+`organizations` table stores `clerk_id` directly (not via FK). Query directly:
+```typescript
+await supabase.from("organizations").select("*").eq("clerk_id", userId);
+```
 
 ## Before Making Changes
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Briefcase, LayoutDashboard, Users } from "lucide-react";
+import { Briefcase, LayoutDashboard, Users } from "lucide-react";
 import { useState } from "react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { DepthButtonMenu } from "@/components/ui/depth-button-menu";

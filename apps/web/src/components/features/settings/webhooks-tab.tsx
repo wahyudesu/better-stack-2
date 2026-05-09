@@ -38,7 +38,7 @@ import {
 	useWebhookSettings,
 } from "@/hooks/use-webhooks";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/stores/auth-store";
 
 const EVENT_OPTIONS = [
 	{ value: "post.published", label: "Post Published" },

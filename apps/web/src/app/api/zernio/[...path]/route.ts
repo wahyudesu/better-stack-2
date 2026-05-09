@@ -1,7 +1,8 @@
+import { auth } from "@clerk/nextjs/server";
 import { type NextRequest, NextResponse } from "next/server";
-import { useAuthStore } from "@/stores";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
 type RouteContext = {
 	params: Promise<{ path: string[] }>;
@@ -29,20 +30,42 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
 async function proxyRequest(request: NextRequest, context: RouteContext) {
 	const { path } = await context.params;
-	const clerkToken = useAuthStore.getState().clerkToken;
 
-	if (!clerkToken) {
-		return NextResponse.json(
-			{ error: "Not authenticated or Clerk token not set" },
-			{ status: 401 },
-		);
+	// Authenticate via Clerk session (server-side)
+	const { userId } = await auth();
+	if (!userId) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	const base = API_BASE_URL.endsWith("/") ? API_BASE_URL : `${API_BASE_URL}/`;
-	const targetPath = path.join("/");
-	const targetUrl = new URL(targetPath, base);
+	// Fetch user's internal user_id from Clerk userId, then get api_key
+	const supabase = createServerSupabaseClient();
 
-	// Forward query params
+	// Single RPC call instead of 2 sequential queries (async-parallel fix)
+	const { data: apiKey, error: rpcError } = await supabase.rpc(
+		"get_api_key_by_clerk_id",
+		{ p_clerk_id: userId },
+	);
+
+	if (rpcError || !apiKey) {
+		return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+	}
+
+	const base = SERVER_URL.endsWith("/") ? SERVER_URL : `${SERVER_URL}/`;
+	const targetPath = path.join("/");
+	const targetUrl = new URL(`v1/${targetPath}`, base);
+
+	// For /v1/connect routes — platform must be a path segment, not query param
+	// e.g. /api/zernio/connect?platform=youtube → /v1/connect/youtube
+	if (path[0] === "connect") {
+		const platform = request.nextUrl.searchParams.get("platform");
+		if (platform) {
+			targetUrl.pathname = `/v1/connect/${platform}`;
+			// Remove platform from query params to avoid duplication
+			request.nextUrl.searchParams.delete("platform");
+		}
+	}
+
+	// Forward remaining query params
 	request.nextUrl.searchParams.forEach((value, key) => {
 		targetUrl.searchParams.set(key, value);
 	});
@@ -54,11 +77,9 @@ async function proxyRequest(request: NextRequest, context: RouteContext) {
 
 		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
+			Authorization: `Bearer ${apiKey}`,
 			...(body && { "Content-Length": String(body.length) }),
 		};
-
-		// Forward Clerk token as Bearer token - server will validate and extract API key
-		headers["Authorization"] = `Bearer ${clerkToken}`;
 
 		const response = await fetch(targetUrl.toString(), {
 			method: request.method,

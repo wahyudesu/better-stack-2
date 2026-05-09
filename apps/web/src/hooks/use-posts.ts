@@ -1,6 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { useAction, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Post } from "@/lib/client";
 
 export interface CreatePostBody {
@@ -19,15 +17,19 @@ export const postKeys = {
 	queue: () => ["posts", "queue"] as const,
 };
 
-// Convert Convex post to Post format
+// Convert API post to Post format
 function convertToPost(post: any): Post {
 	return {
-		_id: post._id,
+		_id: post.id,
 		text: post.text || post.content,
 		platforms: post.platforms || [],
 		status: post.status || "draft",
-		scheduledAt: post.scheduledAt,
-		publishedAt: post.publishedAt,
+		scheduledAt: post.scheduledAt
+			? new Date(post.scheduledAt).toISOString()
+			: undefined,
+		publishedAt: post.publishedAt
+			? new Date(post.publishedAt).toISOString()
+			: undefined,
 		media: post.mediaUrls?.map((url: string) => ({
 			url,
 			type: "image" as const,
@@ -35,35 +37,70 @@ function convertToPost(post: any): Post {
 		mediaItems: post.mediaUrls?.map((url: string) => ({ url })),
 		profileId: "",
 		socialAccountIds: post.accountIds || [],
-		createdAt: post.createdAt,
-		updatedAt: post.updatedAt,
+		createdAt: post.createdAt
+			? new Date(post.createdAt).toISOString()
+			: new Date().toISOString(),
+		updatedAt: post.updatedAt
+			? new Date(post.updatedAt).toISOString()
+			: new Date().toISOString(),
 	};
 }
 
-// Sync staleness threshold: 2 minutes
-const SYNC_STALE_MS = 2 * 60 * 1000;
+async function fetchPosts(): Promise<Post[]> {
+	const res = await fetch("/api/posts");
+	if (!res.ok) throw new Error("Failed to fetch posts");
+	const data = await res.json();
+	return Array.isArray(data) ? data.map(convertToPost) : [];
+}
+
+async function createPost(body: {
+	text: string;
+	platforms: string[];
+	scheduledAt?: number;
+	mediaUrls?: string[];
+	socialAccountIds?: string[];
+	profileId?: string;
+}) {
+	const res = await fetch("/api/posts", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body),
+	});
+	if (!res.ok) throw new Error("Failed to create post");
+	return res.json();
+}
+
+async function deletePost(postId: string) {
+	const res = await fetch("/api/posts", {
+		method: "DELETE",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ postId }),
+	});
+	if (!res.ok) throw new Error("Failed to delete post");
+	return res.json();
+}
 
 /**
- * Hook to fetch all posts from Convex
+ * Hook to fetch all posts
  */
 export function usePosts() {
-	const convexPosts = useQuery(api.posts.list);
-
-	const posts = convexPosts ? convexPosts.map(convertToPost) : [];
+	const { data, isLoading, error } = useQuery({
+		queryKey: postKeys.list(),
+		queryFn: fetchPosts,
+	});
 
 	return {
-		data: { posts },
-		isLoading: convexPosts === undefined,
-		error: null,
+		data: { posts: data ?? [] },
+		isLoading,
+		error,
 	};
 }
 
 /**
- * Hook to create a new post (writes to Zernio then stores in Convex)
+ * Hook to create a new post
  */
 export function useCreatePost() {
 	const queryClient = useQueryClient();
-	const createAction = useAction(api.posts.createPostToZernio);
 
 	return {
 		mutateAsync: async (params: {
@@ -74,14 +111,7 @@ export function useCreatePost() {
 			socialAccountIds?: string[];
 			profileId?: string;
 		}) => {
-			const result = await createAction({
-				text: params.text,
-				platforms: params.platforms,
-				scheduledAt: params.scheduledAt,
-				mediaUrls: params.mediaUrls || [],
-				socialAccountIds: params.socialAccountIds || [],
-				profileId: params.profileId,
-			});
+			const result = await createPost(params);
 			queryClient.invalidateQueries({ queryKey: postKeys.all });
 			return result;
 		},
@@ -93,11 +123,10 @@ export function useCreatePost() {
  */
 export function useDeletePost() {
 	const queryClient = useQueryClient();
-	const deleteMutation = useAction(api.posts.deletePostToZernio);
 
 	return {
 		mutateAsync: async (postId: string) => {
-			await deleteMutation({ postId });
+			await deletePost(postId);
 			queryClient.invalidateQueries({ queryKey: postKeys.all });
 		},
 		mutate: async (
@@ -105,7 +134,7 @@ export function useDeletePost() {
 			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
 		) => {
 			try {
-				await deleteMutation({ postId });
+				await deletePost(postId);
 				queryClient.invalidateQueries({ queryKey: postKeys.all });
 				callbacks?.onSuccess?.();
 			} catch (err) {
@@ -115,80 +144,88 @@ export function useDeletePost() {
 	};
 }
 
-// Placeholder
-export function useQueue() {
-	return { data: null };
-}
-
-export function useQueueSlots() {
-	return { data: [] };
-}
-
-export function useEditPost() {
-	return {
-		mutateAsync: async () => {},
-		isPending: false,
-		mutate: async () => {},
-	};
-}
-
-export function useUpdatePost() {
-	return {
-		mutateAsync: async (params: object) => ({ success: true }),
-		mutate: async (
-			_params: object,
-			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
-		) => {
-			callbacks?.onSuccess?.();
-		},
-		isPending: false,
-	};
-}
-
-export function useRetryPost() {
-	return {
-		mutateAsync: async () => ({}),
-		mutate: async (
-			_id: string,
-			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
-		) => {
-			callbacks?.onSuccess?.();
-		},
-		isPending: false,
-	};
-}
-
-export function useUnpublishPost() {
-	return {
-		mutateAsync: async () => ({}),
-		mutate: async (
-			_id: string,
-			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
-		) => {
-			callbacks?.onSuccess?.();
-		},
-		isPending: false,
-	};
-}
-
-// Sync hook - uses Convex action to fetch from Zernio
+// Sync hook - fetches from Zernio via API route
 export function useSyncPosts() {
-	const syncAction = useAction(api.posts.syncFromZernio);
-	const userInfoQuery = useQuery(api.users.getUserInfo);
-
-	const shouldSync =
-		!userInfoQuery ||
-		!userInfoQuery.lastSyncedAt ||
-		Date.now() - userInfoQuery.lastSyncedAt > SYNC_STALE_MS;
+	const queryClient = useQueryClient();
 
 	return {
 		mutateAsync: async (_params?: object) => {
-			if (!shouldSync) {
-				console.log("[useSyncPosts] Data fresh, skipping sync");
-				return { success: true, synced: 0 };
-			}
-			return syncAction({});
+			const res = await fetch("/api/zernio/sync", { method: "POST" });
+			if (!res.ok) throw new Error("Sync failed");
+			const result = await res.json();
+			queryClient.invalidateQueries({ queryKey: postKeys.all });
+			return result;
 		},
 		isPending: false,
+	};
+}
+
+// Edit hook - stub implementation
+export function useEditPost() {
+	return {
+		mutate: async (
+			_postId: string,
+			_callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
+			try {
+				_callbacks?.onSuccess?.();
+			} catch (err) {
+				_callbacks?.onError?.(err as Error);
+			}
+		},
+	};
+}
+
+// Update hook - stub implementation
+export function useUpdatePost() {
+	return {
+		mutate: async (
+			params: { postId: string; scheduledAt?: string },
+			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
+			try {
+				// Stub: would call PATCH /api/posts
+				console.log("updatePost stub:", params);
+				callbacks?.onSuccess?.();
+			} catch (err) {
+				callbacks?.onError?.(err as Error);
+			}
+		},
+	};
+}
+
+// Retry hook - stub implementation
+export function useRetryPost() {
+	return {
+		mutate: async (
+			postId: string,
+			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
+			try {
+				// Stub: would call POST /api/posts/retry
+				console.log("retryPost stub:", postId);
+				callbacks?.onSuccess?.();
+			} catch (err) {
+				callbacks?.onError?.(err as Error);
+			}
+		},
+	};
+}
+
+// Unpublish hook - stub implementation
+export function useUnpublishPost() {
+	return {
+		mutate: async (
+			postId: string,
+			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
+		) => {
+			try {
+				// Stub: would call POST /api/posts/unpublish
+				console.log("unpublishPost stub:", postId);
+				callbacks?.onSuccess?.();
+			} catch (err) {
+				callbacks?.onError?.(err as Error);
+			}
+		},
 	};
 }

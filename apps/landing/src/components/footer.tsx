@@ -5,7 +5,6 @@ const footerLinks = {
     title: "Product",
     links: [
       { label: "Tools", href: "/tools" },
-      { label: "Comparison", href: "/comparison" },
     ],
   },
   tools: {
@@ -59,9 +58,9 @@ export function Footer() {
                     key={social.label}
                     href={social.href}
                     className="w-9 h-9 rounded-full bg-muted hover:bg-primary/10 flex items-center justify-center transition-colors"
-                    aria-label={social.label}
+                    aria-label={`${social.icon} ${social.label}`}
                   >
-                    <span className="text-sm">{social.icon}</span>
+                    <span className="text-sm" aria-hidden="true">{social.icon}</span>
                   </a>
                 ))}
               </div>

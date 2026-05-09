@@ -8,9 +8,9 @@ import type {
 	ContentTypeAnalytics,
 	DemographicDataItem,
 	PlatformAnalytics,
+	RecentPostItem,
 	TopPerformingPost,
-} from "@/lib/types";
-import type { DemographicApiItem, RecentPostItem } from "@/lib/types/analytics";
+} from "@/lib/types/analytics";
 
 // ============================================================
 // PLATFORM ANALYTICS

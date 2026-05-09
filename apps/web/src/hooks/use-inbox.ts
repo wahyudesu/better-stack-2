@@ -6,7 +6,7 @@ import {
 	mockReviews,
 } from "@/data/inbox-mock";
 import { api } from "@/lib/client";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/stores/auth-store";
 
 export const inboxKeys = {
 	conversations: (accountId?: string, platform?: string) =>

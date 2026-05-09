@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { api } from "@/lib/client";
 import { sampleProfiles } from "@/lib/data/social-data";
-import { useAppStore, useAuthStore } from "@/stores";
+import { useAppStore } from "@/stores/app-store";
+import { useAuthStore } from "@/stores/auth-store";
 
 export const profileKeys = {
 	all: ["profiles"] as const,

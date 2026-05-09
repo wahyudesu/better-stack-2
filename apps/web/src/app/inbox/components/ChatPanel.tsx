@@ -5,13 +5,12 @@ import {
 } from "@zenpost/ui/components/avatar";
 import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import { MoreVertical, Paperclip, Send, Smile, Star, Tag } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
 import { Input } from "@/components/ui/input";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { Conversation, CustomerLabel } from "../types";
-import { getPlatformConfig, labelConfig } from "../types";
+import { getPlatformConfig } from "../types";
 
 interface ChatPanelProps {
 	conversation: Conversation;

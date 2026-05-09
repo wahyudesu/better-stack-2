@@ -9,7 +9,6 @@ import {
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Button } from "@/components/ui/button";
 import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
-import { DepthButton } from "@/components/ui/depth-buttons";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 

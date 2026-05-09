@@ -33,5 +33,15 @@
 	"vars": {
 		"CLERK_SECRET_KEY": "FIXME"
 	},
-	"keep_vars": true
+	"keep_vars": true,
+	"routes": [
+    {
+      "pattern": "zenpost.wahyuikbal.com",
+      "custom_domain": true,
+    },
+    {
+      "pattern": "www.zenpost.wahyuikbal.com",
+      "zone_name": "wahyuikbal.com",
+    },
+  ],
 }

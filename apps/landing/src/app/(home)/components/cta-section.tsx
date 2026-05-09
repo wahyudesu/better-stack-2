@@ -19,7 +19,7 @@ export function CtaSection() {
 					</p>
 
 					<div className="w-full max-w-sm mx-auto">
-						<DepthButton variant="blue" onClick={() => setOpen(true)} className="w-full">
+						<DepthButton variant="blue" onClick={() => setOpen(true)}>
 							Join Waitlist
 						</DepthButton>
 					</div>

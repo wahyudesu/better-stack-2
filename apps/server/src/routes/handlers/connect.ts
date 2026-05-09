@@ -9,7 +9,10 @@ export function createConnectHandlers() {
 	return {
 		/** GET /v1/connect/:platform */
 		connect: async (c: Context) => {
-			const platform = c.req.param('platform')!
+			const platform = c.req.param('platform') || c.req.query('platform') as string;
+			if (!platform) {
+				return c.json({ error: 'platform query param required' }, 400);
+			}
 			const fetch = createFetchFromHono(c)
 			const apiKey = c.get('userApiKey') || ''
 			const baseUrl = (c.env as any)?.API_BASE_URL || 'https://zernio.com/api'

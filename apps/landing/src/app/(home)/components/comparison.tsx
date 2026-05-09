@@ -190,8 +190,8 @@ export function Comparison() {
             <table className="w-full text-sm border-separate border-spacing-0">
               <thead>
                 <tr>
-                  <th className="w-24 lg:w-32 pb-4 text-left"></th>
-                  <th className="w-16 sm:w-20 text-center font-semibold relative pb-4 px-1 sm:px-2 align-bottom bg-green-muted/50 border-t-[2px] border-l-[2px] border-r-[2px] border-t-green-primary/25 border-l-green-primary/15 border-r-green-primary/15 rounded-tl-xl rounded-tr-xl text-green-dark pt-8">
+                  <th className="w-20 lg:w-24 pb-4 text-left"></th>
+                  <th className="w-12 sm:w-14 text-center font-semibold relative pb-4 px-0.5 sm:px-1 align-bottom bg-green-muted/50 border-t-[2px] border-l-[2px] border-r-[2px] border-t-green-primary/25 border-l-green-primary/15 border-r-green-primary/15 rounded-tl-xl rounded-tr-xl text-green-dark pt-8">
                     <span className="absolute top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
                       <span className="bg-green-primary text-white text-[9px] font-black tracking-widest uppercase px-3 py-1 rounded-full">
                         Best Value
@@ -202,7 +202,7 @@ export function Comparison() {
                   {competitors.map((comp) => (
                     <th
                       key={comp}
-                      className="w-14 sm:w-16 text-center font-semibold relative pb-4 px-1 align-bottom text-text-secondary/75 pt-4"
+                      className="w-12 sm:w-14 text-center font-semibold relative pb-4 px-0.5 align-bottom text-text-secondary/75 pt-4"
                     >
                       <span className="text-[11px] sm:text-[13px]">{comp}</span>
                     </th>

@@ -9,7 +9,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useStreakStore } from "@/stores";
+import { useStreakStore } from "@/stores/streak-store";
 
 export function StreakPopover() {
 	const { currentStreak, longestStreak, totalPosts, getStreakMessage } =

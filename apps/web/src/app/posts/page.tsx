@@ -37,7 +37,6 @@ import {
 	useUnpublishPost,
 	useUpdatePost,
 } from "@/hooks/use-posts";
-import { useProfiles } from "@/hooks/use-profiles";
 import type { Post } from "@/lib/client";
 import { api } from "@/lib/client";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
@@ -174,7 +173,7 @@ export default function PostsPage() {
 	// Sync on mount to get latest from Zernio
 	useEffect(() => {
 		syncPosts({}).catch(console.error);
-	}, []);
+	}, [syncPosts]);
 
 	// Fetch posts from TanStack Query
 	const { data: postsData } = usePosts();
@@ -307,7 +306,7 @@ export default function PostsPage() {
 	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
 		null,
 	);
-	const [popoverOpen, setPopoverOpen] = useState(false);
+	const [_popoverOpen, setPopoverOpen] = useState(false);
 	const [logsOpen, setLogsOpen] = useState(false);
 	const [postLogs, setPostLogs] = useState<any[]>([]);
 	const [logsLoading, setLogsLoading] = useState(false);

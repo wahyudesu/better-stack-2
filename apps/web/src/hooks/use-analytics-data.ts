@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/client";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/stores/auth-store";
 
 export interface AnalyticsFilters {
 	accountId: string;

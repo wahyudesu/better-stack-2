@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/client";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/stores/auth-store";
 
 export const automationKeys = {
 	sequences: (status?: string) => ["automation", "sequences", status] as const,

@@ -1,14 +1,11 @@
 "use client";
 
-import { ClerkProvider as ClerkProviderBase, useAuth } from "@clerk/nextjs";
+import { ClerkProvider as ClerkProviderBase } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
-import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { convex } from "@/lib/convex-client";
 
 /**
- * ClerkProvider with shadcn theme + Convex integration.
- * ConvexProviderWithClerk bridges Clerk auth to Convex.
- * Must wrap the entire app so Convex functions can use auth.
+ * ClerkProvider with shadcn theme.
+ * No Convex wrapper - Supabase replaces Convex backend.
  */
 export default function ClerkProvider({
 	children,
@@ -16,9 +13,7 @@ export default function ClerkProvider({
 }: React.ComponentProps<typeof ClerkProviderBase>) {
 	return (
 		<ClerkProviderBase {...props} appearance={{ theme: shadcn }}>
-			<ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-				{children}
-			</ConvexProviderWithClerk>
+			{children}
 		</ClerkProviderBase>
 	);
 }

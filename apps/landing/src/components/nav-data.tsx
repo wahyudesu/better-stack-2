@@ -102,5 +102,4 @@ export const navSections: NavSection[] = [
 
 export const topNavLinks = [
 	{ label: "Free Tools", href: "/tools" },
-	{ label: "Comparison", href: "/comparison" },
 ] as const;

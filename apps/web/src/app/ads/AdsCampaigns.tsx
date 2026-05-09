@@ -3,7 +3,6 @@
 import { ScrollArea } from "@zenpost/ui/components/scroll-area";
 import {
 	BarChart3,
-	Calendar,
 	ChevronDown,
 	DollarSign,
 	Eye,

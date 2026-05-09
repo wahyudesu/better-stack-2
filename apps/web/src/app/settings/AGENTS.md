@@ -21,7 +21,7 @@ Max-width 1024px, centered with `px-5 py-4`.
 ## Tab Components
 
 ### AccountTab
-disini pas pertama kali login maka akan sinkronkan data dari clerk dan convex, zernio api key fetch dari data convex
+disini pas pertama kali login maka akan sinkronkan data dari clerk dan supabase, zernio api key fetch dari supabase
 - Avatar upload UI
 - Password change form
 

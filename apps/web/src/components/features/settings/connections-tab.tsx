@@ -5,17 +5,31 @@
 
 "use client";
 
-import { useQuery } from "convex/react";
 import { useState } from "react";
-import { SocialIcon } from "react-social-icons/component";
-import { api } from "@/convex/_generated/api";
+import { SocialIcon } from "react-social-icons";
 import {
 	useAccounts,
 	useAccountsHealth,
 	useConnectAccount,
 	useDeleteAccount,
 } from "@/hooks/use-accounts";
-import { useAuthStore } from "@/stores";
+import { useBrandMutations, useBrands } from "@/hooks/use-brands";
+import { useAuthStore } from "@/stores/auth-store";
+import "react-social-icons/instagram";
+import "react-social-icons/tiktok";
+import "react-social-icons/x";
+import "react-social-icons/youtube";
+import "react-social-icons/facebook";
+import "react-social-icons/linkedin";
+import "react-social-icons/pinterest";
+import "react-social-icons/threads";
+import "react-social-icons/whatsapp";
+import "react-social-icons/reddit";
+import "react-social-icons/google";
+import "react-social-icons/telegram";
+import "react-social-icons/snapchat";
+import "react-social-icons/discord";
+import "react-social-icons/bsky.app";
 import "react-social-icons/instagram";
 import "react-social-icons/tiktok";
 import "react-social-icons/x";
@@ -56,7 +70,6 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import type { SocialAccount } from "@/lib/client";
 
 interface Connection {
 	id: string;
@@ -69,7 +82,6 @@ interface Connection {
 	tokenStatus?: "valid" | "expired" | "invalid";
 	expiresAt?: string;
 	accountId?: string;
-	convexId?: string; // Convex document ID for mutations
 	profilePicture?: string;
 	isOrganization?: boolean;
 	permissions?: {
@@ -147,6 +159,8 @@ export function ConnectionsTab() {
 	const _healthMap: Record<string, any> = {};
 	const connectAccount = useConnectAccount();
 	const deleteAccount = useDeleteAccount();
+	const { data: brands = [] } = useBrands();
+	const brandMutations = useBrandMutations();
 
 	const [dialog, setDialog] = useState<{
 		open: boolean;
@@ -160,10 +174,15 @@ export function ConnectionsTab() {
 	const [linkedinOrganization, setLinkedinOrganization] = useState<
 		Record<string, boolean>
 	>({});
+	const [showBrandDialog, setShowBrandDialog] = useState(false);
+	const [brandName, setBrandName] = useState("");
+	const [editingBrand, setEditingBrand] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
 
 	// Convert accounts to Connection format
-	// account._id = Zernio account ID (for display)
-	// account.convexId = Convex document ID (for mutations)
+	// account._id = Zernio account ID (for display and mutations)
 	const connectedAccounts: Connection[] =
 		accountsData?.accounts?.map((account: any) => {
 			const health = _healthMap[account._id];
@@ -178,7 +197,6 @@ export function ConnectionsTab() {
 				status: (health as any)?.isHealthy !== false ? "healthy" : "error",
 				tokenStatus: "valid",
 				accountId: account._id,
-				convexId: account.convexId,
 				profilePicture: account.profilePicture,
 				isOrganization: linkedinOrganization[account._id] ?? false,
 			};
@@ -234,18 +252,32 @@ export function ConnectionsTab() {
 		setLinkedinOrganization((prev) => ({ ...prev, [accountId]: value }));
 	};
 
-	// Loading
-	if (accountsLoading) {
-		return (
-			<div className="flex flex-col gap-6">
-				<div className="flex items-center justify-center py-12">
-					<Loader2 className="size-6 animate-spin text-muted-foreground" />
-				</div>
-			</div>
-		);
-	}
+	const handleDeleteBrand = async (id: string) => {
+		if (!confirm("Delete this brand? Connected accounts will be unlinked."))
+			return;
+		try {
+			await brandMutations.deleteBrand(id);
+			setShowBrandDialog(false);
+		} catch (error) {
+			console.error("Failed to delete brand:", error);
+		}
+	};
 
-	// Loading state
+	const handleSaveBrand = async () => {
+		if (!brandName.trim()) return;
+		try {
+			if (editingBrand) {
+				await brandMutations.updateBrand(editingBrand.id, { name: brandName });
+			} else {
+				await brandMutations.createBrand(brandName);
+			}
+			setShowBrandDialog(false);
+		} catch (error) {
+			console.error("Failed to save brand:", error);
+		}
+	};
+
+	// Loading
 	if (accountsLoading) {
 		return (
 			<div className="flex flex-col gap-6">
@@ -277,6 +309,56 @@ export function ConnectionsTab() {
 
 	return (
 		<div className="flex flex-col gap-6">
+			{/* Brands Section */}
+			<div className="space-y-3">
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-2">
+						<p className="font-display font-semibold text-sm">Brands</p>
+						<span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+							{brands.length}
+						</span>
+					</div>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={() => {
+							setBrandName("");
+							setEditingBrand(null);
+							setShowBrandDialog(true);
+						}}
+					>
+						Add Brand
+					</Button>
+				</div>
+				<div className="flex flex-wrap gap-2">
+					{brands.map((brand) => (
+						<div
+							key={brand.id}
+							className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 pr-2 shadow-sm"
+						>
+							<span className="text-xs font-medium truncate max-w-32">
+								{brand.name}
+							</span>
+							{brand.is_default && (
+								<span className="text-[10px] bg-primary/10 text-primary px-1 rounded">
+									default
+								</span>
+							)}
+							<button
+								onClick={() => {
+									setBrandName(brand.name);
+									setEditingBrand({ id: brand.id, name: brand.name });
+									setShowBrandDialog(true);
+								}}
+								className="ml-1 rounded hover:bg-muted p-0.5 cursor-pointer"
+							>
+								<Settings2 className="size-3 text-muted-foreground" />
+							</button>
+						</div>
+					))}
+				</div>
+			</div>
+
 			{/* Connected Accounts */}
 			<div className="space-y-3">
 				<div className="flex items-center gap-2">
@@ -411,7 +493,7 @@ export function ConnectionsTab() {
 												open: true,
 												id: c.id,
 												name: c.name,
-												accountId: c.convexId,
+												accountId: c.accountId,
 											})
 										}
 										className="h-7 px-2 text-xs text-destructive/50 hover:text-destructive transition-colors"
@@ -473,6 +555,37 @@ export function ConnectionsTab() {
 					</div>
 				);
 			})}
+
+			{/* Brand Dialog */}
+			<AlertDialog open={showBrandDialog} onOpenChange={setShowBrandDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{editingBrand ? "Edit Brand" : "Add Brand"}
+						</AlertDialogTitle>
+					</AlertDialogHeader>
+					<div className="">
+						<input
+							type="text"
+							value={brandName}
+							onChange={(e) => setBrandName(e.target.value)}
+							placeholder="Brand name"
+							className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+							autoFocus
+							onKeyDown={(e) => e.key === "Enter" && handleSaveBrand()}
+						/>
+					</div>
+					{editingBrand && (
+						<Button
+							variant="destructive"
+							onClick={() => handleDeleteBrand(editingBrand.id)}
+							className="mr-auto"
+						>
+							Delete
+						</Button>
+					)}
+				</AlertDialogContent>
+			</AlertDialog>
 
 			{/* Disconnect Dialog */}
 			<AlertDialog

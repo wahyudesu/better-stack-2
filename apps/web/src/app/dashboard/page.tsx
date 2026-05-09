@@ -53,7 +53,7 @@ import {
 import type { DemographicDataItem } from "@/lib/data/demographics";
 import { useMetricPreference } from "@/lib/hooks/use-metric-pref";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-import { calculateTrend, formatMetricValue } from "@/lib/metrics";
+import { formatMetricValue } from "@/lib/metrics";
 import type {
 	DemoView,
 	GeoView,
@@ -134,7 +134,7 @@ function generateData(
 		seed = (seed + seedString.charCodeAt(i)) | 0;
 	}
 	// Store original seed for previous period calculation
-	const baseSeed = seed;
+	const _baseSeed = seed;
 	const random = () => seededRandom(seed++);
 
 	const days = DAYS_MAP[timeRange] ?? 7;
@@ -234,15 +234,15 @@ function generateData(
 
 	// Calculate stats from chart data
 	const totalEngagements = chartData.reduce((sum, d) => sum + d.engagements, 0);
-	const totalFollowers = chartData[chartData.length - 1]?.followers || 0;
-	const avgEngagements = totalEngagements / days;
+	const _totalFollowers = chartData[chartData.length - 1]?.followers || 0;
+	const _avgEngagements = totalEngagements / days;
 
 	// Previous period (first half vs second half)
 	const midpoint = Math.floor(days / 2);
 	const firstHalfEngagements = chartData
 		.slice(0, midpoint)
 		.reduce((sum, d) => sum + d.engagements, 0);
-	const secondHalfEngagements = chartData
+	const _secondHalfEngagements = chartData
 		.slice(midpoint)
 		.reduce((sum, d) => sum + d.engagements, 0);
 	const previousEngagements = firstHalfEngagements;
