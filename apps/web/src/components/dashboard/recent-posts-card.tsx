@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import {
@@ -11,7 +10,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { PlatformIcon } from "@/components/ui/PlatformIcon";
-import { api } from "@/lib/client";
+import { usePosts } from "@/hooks/use-posts";
 import { samplePosts } from "@/lib/data/social-data";
 import type { ContentPost } from "@/lib/types/social";
 
@@ -26,27 +25,11 @@ export function RecentPostsCard({
 	analyticsHref = "/analytics",
 	profileId,
 }: RecentPostsCardProps) {
-	const {
-		data: postsData,
-		isLoading,
-		error,
-	} = useQuery({
-		queryKey: ["recent-posts", profileId],
-		queryFn: async () => {
-			const { data, error } = await api.getPosts({
-				status: "published",
-				sortBy: "created-desc",
-				limit: 8,
-				profileId,
-			});
-			if (error) throw error;
-			return data?.posts ?? [];
-		},
-	});
+	const { data: postsData, isLoading, error } = usePosts();
 
-	// Transform API posts to ContentPost format
-	const posts = postsData
-		? postsData.map(transformApiPost)
+	// Transform Zernio posts to ContentPost format
+	const posts = postsData?.posts
+		? postsData.posts.map(transformZernioPost)
 		: (propPosts ?? samplePosts.slice(0, 8));
 
 	// Loading skeleton
@@ -132,41 +115,42 @@ export function RecentPostsCard({
 }
 
 /**
- * Transform API post to ContentPost format
- * API: GET /v1/posts
- * Response: { posts: [{ _id, title?, content?, publishedAt, platforms, mediaItems }] }
+ * Transform Zernio post to ContentPost format
  */
-function transformApiPost(apiPost: {
+function transformZernioPost(zernioPost: {
 	_id: string;
-	title?: string;
-	content?: string;
 	text?: string;
+	content?: string;
 	publishedAt?: string;
-	scheduledFor?: string;
+	scheduledAt?: string;
 	createdAt?: string;
 	platforms?: Array<{ platform: string; status: string }>;
 	mediaItems?: Array<{ url: string; type?: string }>;
 }): ContentPost {
 	return {
-		id: apiPost._id,
-		title: apiPost.title ?? apiPost.content ?? apiPost.text ?? "",
-		content: apiPost.content ?? apiPost.text ?? apiPost.title ?? "",
+		id: zernioPost._id,
+		title: zernioPost.text ?? zernioPost.content ?? "",
+		content: zernioPost.content ?? zernioPost.text ?? "",
 		media:
-			apiPost.mediaItems?.map((m) => ({
+			zernioPost.mediaItems?.map((m) => ({
 				url: m.url,
 				type: m.type as "image" | "video",
 			})) ?? [],
-		platforms: (apiPost.platforms ?? []).map(
+		platforms: (zernioPost.platforms ?? []).map(
 			(p) => p.platform as ContentPost["platforms"][number],
 		),
-		scheduledAt: apiPost.scheduledFor
-			? new Date(apiPost.scheduledFor)
+		scheduledAt: zernioPost.scheduledAt
+			? new Date(zernioPost.scheduledAt)
 			: undefined,
-		publishedAt: apiPost.publishedAt
-			? new Date(apiPost.publishedAt)
+		publishedAt: zernioPost.publishedAt
+			? new Date(zernioPost.publishedAt)
 			: undefined,
-		createdAt: apiPost.createdAt ? new Date(apiPost.createdAt) : new Date(),
-		updatedAt: apiPost.createdAt ? new Date(apiPost.createdAt) : new Date(),
+		createdAt: zernioPost.createdAt
+			? new Date(zernioPost.createdAt)
+			: new Date(),
+		updatedAt: zernioPost.createdAt
+			? new Date(zernioPost.createdAt)
+			: new Date(),
 		profileIds: [],
 		status: "published",
 	};

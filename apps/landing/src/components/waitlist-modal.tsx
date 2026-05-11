@@ -82,7 +82,7 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
         {userTypeOptions.map((opt) => (
           <label
             key={opt.value}
-            className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer transition-all text-center ${
+            className={`flex-1 flex flex-col items-center gap-2 py-4 px-2 rounded-xl border cursor-pointer transition-all text-center ${
               selectedType === opt.value
                 ? "border-primary bg-primary/5"
                 : "border-input hover:bg-muted"
@@ -163,7 +163,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Join Waitlist</DialogTitle>
           <DialogDescription>
@@ -172,6 +172,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
         </DialogHeader>
 
         <div className="flex flex-col gap-4 relative">
+          <div className="flex justify-start">
           <Input
             type="email"
             value={email}
@@ -182,6 +183,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
             placeholder="Enter your email"
             disabled={status === "loading"}
           />
+          </div>
           {status === "error" && errorMsg && (
             <p className="text-sm text-red-500">{errorMsg}</p>
           )}

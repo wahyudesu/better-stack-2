@@ -9,187 +9,56 @@ import type {
 	PostStatus,
 	ViewMode,
 } from "@/components/features/calendar/PostControls";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { DepthButton } from "@/components/ui/depth-buttons";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import type { Platform } from "@/components/ui/PlatformIcon";
 import type { CalendarPlatform } from "@/data/mock";
 import {
 	useDeletePost,
-	useEditPost,
 	usePosts,
 	useRetryPost,
 	useSyncPosts,
 	useUnpublishPost,
 	useUpdatePost,
 } from "@/hooks/use-posts";
-import type { Post } from "@/lib/client";
-import { api } from "@/lib/client";
 import { getDaysInMonth, getFirstDayOfMonth } from "@/lib/constants";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
-
-// CalendarEvent interface
-interface CalendarEvent {
-	id: string;
-	title: string;
-	date: string;
-	platform: CalendarPlatform;
-	platforms?: CalendarPlatform[];
-	type: "post" | "story" | "reel" | "video" | "tweet" | "live";
-	time?: string;
-	description?: string;
-	status:
-		| "scheduled"
-		| "published"
-		| "draft"
-		| "review"
-		| "publishing"
-		| "failed"
-		| "cancelled";
-	color: string;
-	thumbnail?: string;
-	mediaType?: "image" | "video";
-	postUrl?: string;
-}
-
-// Platform colors
-const PLATFORM_COLORS: Record<string, string> = {
-	instagram: "328 70% 55%",
-	tiktok: "349 70% 56%",
-	twitter: "203 89% 53%",
-	youtube: "0 72% 51%",
-	linkedin: "217 91% 60%",
-	facebook: "220 44% 41%",
-	pinterest: "340 82% 52%",
-};
-
-/**
- * Convert server Post to CalendarEvent format
- * Handles both local Convex posts and Zernio API response format
- */
-function postToCalendarEvent(post: Post): CalendarEvent {
-	// Zernio uses scheduledFor, local uses scheduledAt
-	const targetDate = (post as any).scheduledFor
-		? new Date((post as any).scheduledFor)
-		: post.scheduledAt
-			? new Date(post.scheduledAt)
-			: post.publishedAt
-				? new Date(post.publishedAt)
-				: new Date(post.createdAt);
-
-	const date = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
-	const time = `${String(targetDate.getHours()).padStart(2, "0")}:${String(targetDate.getMinutes()).padStart(2, "0")}`;
-
-	// Zernio API uses "content" field, fallback to "text"
-	const postText = post.content || post.text || "";
-
-	// Zernio: platforms is array of { platform, accountId, status, ... }
-	// Extract accountIds from platforms if available
-	let accountIds: string[] = [];
-	let primaryPlatform = "instagram";
-
-	if ((post as any).platforms && Array.isArray((post as any).platforms)) {
-		const platforms = (post as any).platforms as Array<{
-			platform?: string;
-			accountId?: { _id?: string } | string;
-		}>;
-		accountIds = platforms
-			.map((p) => {
-				if (typeof p.accountId === "object" && p.accountId !== null) {
-					return (p.accountId as any)._id || "";
-				}
-				return String(p.accountId || "");
-			})
-			.filter(Boolean);
-		primaryPlatform = platforms[0]?.platform || "instagram";
-	} else if (post.socialAccountIds && post.socialAccountIds.length > 0) {
-		accountIds = post.socialAccountIds;
-		primaryPlatform = (post as any).platform || "instagram";
-	}
-
-	return {
-		id: post._id,
-		title: postText.slice(0, 50) + (postText.length > 50 ? "..." : ""),
-		date,
-		platform: primaryPlatform as CalendarPlatform,
-		platforms: accountIds as CalendarPlatform[],
-		type: "post",
-		time,
-		description: postText,
-		status: post.status,
-		color: PLATFORM_COLORS[primaryPlatform] || "328 70% 55%",
-		thumbnail:
-			post.media?.[0]?.url ||
-			(post as any).mediaItems?.[0]?.url ||
-			(post as any).mediaUrls?.[0],
-		mediaType: post.media?.[0]?.type === "video" ? "video" : "image",
-	};
-}
-
-// Calculate week range - defined outside component to avoid unnecessary re-renders
-function getWeekRange(date: Date) {
-	const d = new Date(date);
-	const day = d.getDay();
-	const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
-	const startOfWeek = new Date(d.setDate(diff));
-	const endOfWeek = new Date(startOfWeek);
-	endOfWeek.setDate(endOfWeek.getDate() + 6);
-	return { startOfWeek, endOfWeek };
-}
+import { DeleteDialog, LogsDialog, UnpublishDialog } from "./dialogs";
+import type { CalendarEvent } from "./utils";
+import { getWeekRange, postToCalendarEvent } from "./utils";
 
 export default function PostsPage() {
-	// View mode states
 	const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 	const [calendarView, setCalendarView] = useState<CalendarView>("month");
 	const [postStatus, setPostStatus] = useState<PostStatus>("all");
 
-	// Use a fixed date for initial render to prevent hydration mismatch
+	// Hydration-safe date initialization
 	const [currentDate, setCurrentDate] = useState<Date>(
 		() => new Date("2026-01-01T00:00:00"),
 	);
+	useEffect(() => setCurrentDate(new Date()), []);
 
-	// Update to actual date on client mount only (after hydration)
-	useEffect(() => {
-		setCurrentDate(new Date());
-	}, []);
-
-	// Sync posts from Zernio on mount
+	// Sync posts on mount
 	const { mutateAsync: syncPosts, isPending: isSyncing } = useSyncPosts();
-
-	// Sync on mount to get latest from Zernio
 	useEffect(() => {
 		syncPosts({}).catch(console.error);
 	}, [syncPosts]);
 
-	// Fetch posts from TanStack Query
+	// Posts data
 	const { data: postsData } = usePosts();
 	const posts = postsData?.posts ?? [];
 
-	// Convert posts to CalendarEvent format
 	const localEvents = useMemo(() => {
-		if (!posts || posts.length === 0) return [];
+		if (!posts?.length) return [];
 		return posts.map((post) => postToCalendarEvent(post));
 	}, [posts]);
 
+	// Drag state
 	const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
 	const [selectedPlatform, setSelectedPlatform] = useState<Platform | "all">(
 		"all" as const,
 	);
 
+	// Calendar computation
 	const year = currentDate.getFullYear();
 	const month = currentDate.getMonth();
 	const daysInMonth = getDaysInMonth(year, month);
@@ -204,24 +73,21 @@ export default function PostsPage() {
 
 	const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
 	const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
-
 	const prevWeek = () => {
-		const newDate = new Date(currentDate);
-		newDate.setDate(newDate.getDate() - 7);
-		setCurrentDate(newDate);
+		const d = new Date(currentDate);
+		d.setDate(d.getDate() - 7);
+		setCurrentDate(d);
 	};
-
 	const nextWeek = () => {
-		const newDate = new Date(currentDate);
-		newDate.setDate(newDate.getDate() + 7);
-		setCurrentDate(newDate);
+		const d = new Date(currentDate);
+		d.setDate(d.getDate() + 7);
+		setCurrentDate(d);
 	};
-
 	const handlePrev = calendarView === "week" ? prevWeek : prevMonth;
 	const handleNext = calendarView === "week" ? nextWeek : nextMonth;
 	const displayName = calendarView === "week" ? weekName : monthName;
 
-	// Filter events by platform and status
+	// Filter events
 	const filteredEvents = useMemo(() => {
 		let result =
 			selectedPlatform === "all"
@@ -231,13 +97,12 @@ export default function PostsPage() {
 					);
 
 		if (postStatus !== "all") {
-			if (postStatus === "pending") {
-				result = result.filter((e) => e.status === "scheduled");
-			} else {
-				result = result.filter((e) => e.status === postStatus);
-			}
+			result = result.filter((e) =>
+				postStatus === "pending"
+					? e.status === "scheduled"
+					: e.status === postStatus,
+			);
 		}
-
 		return result;
 	}, [localEvents, selectedPlatform, postStatus]);
 
@@ -250,21 +115,20 @@ export default function PostsPage() {
 		return map;
 	}, [filteredEvents]);
 
+	// Drag handlers
 	const handleDragStart = useCallback(
 		(e: React.DragEvent, event: CalendarEvent) => {
 			setDraggedEvent(event);
 			e.dataTransfer.effectAllowed = "move";
-			if (e.currentTarget instanceof HTMLElement) {
+			if (e.currentTarget instanceof HTMLElement)
 				e.currentTarget.style.opacity = "0.5";
-			}
 		},
 		[],
 	);
 
 	const handleDragEnd = useCallback((e: React.DragEvent) => {
-		if (e.currentTarget instanceof HTMLElement) {
+		if (e.currentTarget instanceof HTMLElement)
 			e.currentTarget.style.opacity = "1";
-		}
 		setDraggedEvent(null);
 	}, []);
 
@@ -274,7 +138,6 @@ export default function PostsPage() {
 	}, []);
 
 	const { mutate: updatePost } = useUpdatePost();
-
 	const handleDrop = useCallback(
 		(e: React.DragEvent, targetDate: string) => {
 			e.preventDefault();
@@ -285,12 +148,8 @@ export default function PostsPage() {
 			updatePost(
 				{ postId: draggedEvent.id, scheduledAt: newScheduledAt },
 				{
-					onSuccess: () => {
-						toast.success("Post rescheduled");
-					},
-					onError: (err) => {
-						toast.error(`Failed to reschedule: ${err.message}`);
-					},
+					onSuccess: () => toast.success("Post rescheduled"),
+					onError: (err) => toast.error(`Failed to reschedule: ${err.message}`),
 				},
 			);
 			setDraggedEvent(null);
@@ -302,134 +161,52 @@ export default function PostsPage() {
 		window.location.href = `/posts/create?date=${dateStr}`;
 	}, []);
 
-	// Post actions popover state
+	// Event actions
 	const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
 		null,
 	);
-	const [_popoverOpen, setPopoverOpen] = useState(false);
 	const [logsOpen, setLogsOpen] = useState(false);
-	const [postLogs, setPostLogs] = useState<any[]>([]);
-	const [logsLoading, setLogsLoading] = useState(false);
+	const [deleteOpen, setDeleteOpen] = useState(false);
+	const [unpublishOpen, setUnpublishOpen] = useState(false);
 
-	const { mutate: deletePost } = useDeletePost();
-	const { mutate: unpublishPost } = useUnpublishPost();
 	const { mutate: retryPost } = useRetryPost();
-	const { mutate: editPost } = useEditPost();
 
-	const handleEventClick = useCallback((event: CalendarEvent) => {
+	const handleEventClick = useCallback(
+		(event: CalendarEvent) => setSelectedEvent(event),
+		[],
+	);
+
+	const handleDeleteClick = useCallback((event: CalendarEvent) => {
 		setSelectedEvent(event);
+		setDeleteOpen(true);
 	}, []);
 
-	const _handleDeleteClick = useCallback(
-		(event: CalendarEvent) => {
-			setSelectedEvent(event);
-			setPopoverOpen(false);
-			deletePost(event.id, {
-				onSuccess: () => {
-					toast.success("Post deleted");
-				},
-				onError: (err) => {
-					toast.error(`Failed to delete: ${err.message}`);
-				},
-			});
-		},
-		[deletePost],
-	);
+	const handleUnpublishClick = useCallback((event: CalendarEvent) => {
+		setSelectedEvent(event);
+		setUnpublishOpen(true);
+	}, []);
 
-	const _handleUnpublishClick = useCallback(
+	const handleRetryClick = useCallback(
 		(event: CalendarEvent) => {
-			setSelectedEvent(event);
-			setPopoverOpen(false);
-			unpublishPost(event.id, {
-				onSuccess: () => {
-					toast.success("Post unpublished");
-				},
-				onError: (err) => {
-					toast.error(`Failed to unpublish: ${err.message}`);
-				},
-			});
-		},
-		[unpublishPost],
-	);
-
-	const _handleRetryClick = useCallback(
-		(event: CalendarEvent) => {
-			setPopoverOpen(false);
 			retryPost(event.id, {
-				onSuccess: () => {
-					toast.success("Post retry queued");
-				},
-				onError: (err) => {
-					toast.error(`Failed to retry: ${err.message}`);
-				},
+				onSuccess: () => toast.success("Post retry queued"),
+				onError: (err) => toast.error(`Failed to retry: ${err.message}`),
 			});
 		},
 		[retryPost],
 	);
 
-	const _handleViewLogs = useCallback((event: CalendarEvent) => {
-		setPopoverOpen(false);
+	const handleViewLogs = useCallback((event: CalendarEvent) => {
+		setSelectedEvent(event);
 		setLogsOpen(true);
-		setLogsLoading(true);
-		api
-			.getPostLogs(event.id)
-			.then(({ data, error }) => {
-				if (error) {
-					toast.error(`Failed to load logs: ${error}`);
-				} else {
-					setPostLogs(data?.logs || []);
-				}
-			})
-			.finally(() => setLogsLoading(false));
 	}, []);
 
-	// Delete/Unpublish modal state
-	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-	const [unpublishModalOpen, setUnpublishModalOpen] = useState(false);
+	const handleDeleted = useCallback(() => setSelectedEvent(null), []);
 
-	const _handleDeleteConfirm = useCallback((event: CalendarEvent) => {
-		setSelectedEvent(event);
-		setDeleteModalOpen(true);
-	}, []);
+	const todayStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
 
-	const _handleUnpublishConfirm = useCallback((event: CalendarEvent) => {
-		setSelectedEvent(event);
-		setUnpublishModalOpen(true);
-	}, []);
-
-	const confirmDelete = useCallback(() => {
-		if (!selectedEvent) return;
-		deletePost(selectedEvent.id, {
-			onSuccess: () => {
-				toast.success("Post deleted");
-				setDeleteModalOpen(false);
-				setSelectedEvent(null);
-			},
-			onError: (err) => {
-				toast.error(`Failed to delete: ${err.message}`);
-			},
-		});
-	}, [selectedEvent, deletePost]);
-
-	const confirmUnpublish = useCallback(() => {
-		if (!selectedEvent) return;
-		unpublishPost(selectedEvent.id, {
-			onSuccess: () => {
-				toast.success("Post unpublished");
-				setUnpublishModalOpen(false);
-				setSelectedEvent(null);
-			},
-			onError: (err) => {
-				toast.error(`Failed to unpublish: ${err.message}`);
-			},
-		});
-	}, [selectedEvent, unpublishPost]);
-
-	const today = currentDate;
-	const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-	// Calculate cells based on calendar view
-	const cells: { day: number | null; dateStr: string }[] = useMemo(() => {
+	// Calendar cells
+	const cells = useMemo(() => {
 		if (calendarView === "month") {
 			const monthCells: { day: number | null; dateStr: string }[] = [];
 			for (let i = 0; i < firstDay; i++)
@@ -444,7 +221,6 @@ export default function PostsPage() {
 				monthCells.push({ day: null, dateStr: "" });
 			return monthCells;
 		} else {
-			// Week view - show 7 days of the current week
 			const weekCells: { day: number | null; dateStr: string }[] = [];
 			const startOfWeek = weekRange.startOfWeek;
 			for (let i = 0; i < 7; i++) {
@@ -463,7 +239,7 @@ export default function PostsPage() {
 		<div className={pageContainerClassName} style={pageMaxWidth}>
 			{/* Header */}
 			<div className="flex flex-row items-end justify-between">
-				<div className="">
+				<div>
 					<h1 className="text-2xl font-bold tracking-tight">Posts</h1>
 					<p className="text-sm text-muted-foreground">
 						{isSyncing ? "Syncing..." : "Manage & schedule your content"}
@@ -473,9 +249,7 @@ export default function PostsPage() {
 					size="sm"
 					variant="blue"
 					className="gap-1.5"
-					onClick={() => {
-						window.location.href = "/posts/create";
-					}}
+					onClick={() => (window.location.href = "/posts/create")}
 				>
 					<svg
 						width="14"
@@ -522,10 +296,10 @@ export default function PostsPage() {
 					onDragEnd={handleDragEnd}
 					onDragOver={handleDragOver}
 					onDrop={handleDrop}
-					onDelete={_handleDeleteClick}
-					onUnpublish={_handleUnpublishClick}
-					onRetry={_handleRetryClick}
-					onViewLogs={_handleViewLogs}
+					onDelete={handleDeleteClick}
+					onUnpublish={handleUnpublishClick}
+					onRetry={handleRetryClick}
+					onViewLogs={handleViewLogs}
 					calendarView={calendarView}
 				/>
 			)}
@@ -534,93 +308,29 @@ export default function PostsPage() {
 				<PostCardsView
 					events={filteredEvents}
 					onEventClick={handleEventClick}
-					onDelete={_handleDeleteClick}
-					onUnpublish={_handleUnpublishClick}
+					onDelete={handleDeleteClick}
+					onUnpublish={handleUnpublishClick}
 				/>
 			)}
 
-			{/* Logs Dialog */}
-			<Dialog open={logsOpen} onOpenChange={setLogsOpen}>
-				<DialogContent className="max-w-lg">
-					<DialogHeader>
-						<DialogTitle>Post Logs</DialogTitle>
-					</DialogHeader>
-					{logsLoading ? (
-						<div className="py-8 text-center text-muted-foreground text-sm">
-							Loading logs...
-						</div>
-					) : postLogs.length === 0 ? (
-						<div className="py-8 text-center text-muted-foreground text-sm">
-							No logs available
-						</div>
-					) : (
-						<div className="max-h-80 overflow-y-auto space-y-2">
-							{postLogs.map((log: any, i: number) => (
-								<div
-									key={i}
-									className="text-sm p-2 rounded-md bg-muted/50 border"
-								>
-									<div className="flex items-center justify-between">
-										<span className="font-medium text-xs uppercase">
-											{log.status || log.level || "info"}
-										</span>
-										<span className="text-xs text-muted-foreground">
-											{log.createdAt
-												? new Date(log.createdAt).toLocaleString()
-												: ""}
-										</span>
-									</div>
-									<p className="text-sm mt-1">{log.message || log.text}</p>
-								</div>
-							))}
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
-
-			{/* Delete Confirmation Modal */}
-			<AlertDialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Post</AlertDialogTitle>
-						<AlertDialogDescription>
-							Are you sure you want to delete this post? This action cannot be
-							undone.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={confirmDelete}
-							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-						>
-							Delete
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-
-			{/* Unpublish Confirmation Modal */}
-			<AlertDialog
-				open={unpublishModalOpen}
-				onOpenChange={setUnpublishModalOpen}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Unpublish Post</AlertDialogTitle>
-						<AlertDialogDescription>
-							Are you sure you want to unpublish this post? It will be removed
-							from your social accounts.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={confirmUnpublish}>
-							Unpublish
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			{/* Dialogs */}
+			<LogsDialog
+				open={logsOpen}
+				onOpenChange={setLogsOpen}
+				event={selectedEvent}
+			/>
+			<DeleteDialog
+				open={deleteOpen}
+				onOpenChange={setDeleteOpen}
+				event={selectedEvent}
+				onDeleted={handleDeleted}
+			/>
+			<UnpublishDialog
+				open={unpublishOpen}
+				onOpenChange={setUnpublishOpen}
+				event={selectedEvent}
+				onUnpublished={handleDeleted}
+			/>
 		</div>
 	);
 }

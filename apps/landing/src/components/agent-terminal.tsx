@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 const terminalLines = [
-  { type: "input", text: "betterstack agent --task 'Create engagement report for client X'" },
+  { type: "input", text: "zenpost agent --task 'Create engagement report for client X'" },
   { type: "output", text: "🤖 Agent initialized. Running task..." },
   { type: "output", text: "" },
   { type: "output", text: "📊 Fetching data from 12 platforms..." },
@@ -26,7 +26,7 @@ const terminalLines = [
   { type: "output", text: "│  Top Post: Reel #47 (12.4K views)       │" },
   { type: "output", text: "└─────────────────────────────────────────┘" },
   { type: "output", text: "" },
-  { type: "input", text: "betterstack agent --insight" },
+  { type: "input", text: "zenpost agent --insight" },
   { type: "output", text: "💡 Best time to post: 7PM - 9PM local time" },
   { type: "output", text: "💡 Trending hashtags: #growth #marketing" },
   { type: "output", text: "" },
@@ -68,7 +68,7 @@ export function AgentTerminal() {
           <div className="h-3 w-3 rounded-full bg-[#27C93F]" />
         </div>
         <div className="flex-1 text-center text-xs text-[#8B949E]">
-          betterstack-agent — bash
+          zenpost-agent — bash
         </div>
       </div>
 
@@ -79,7 +79,7 @@ export function AgentTerminal() {
           <div className="flex items-center gap-2 text-[#58A6FF]">
             <span className="text-[#7EE787]">➜</span>
             <span className="text-[#FF7B72]">~</span>
-            <span className="text-[#C9D1D9]"> betterstack agent --help</span>
+            <span className="text-[#C9D1D9]"> zenpost agent --help</span>
           </div>
           <div className="text-[#8B949E] text-xs mb-4">
             AI Agent CLI — Automate your social media workflow
@@ -122,7 +122,7 @@ export function AgentTerminal() {
         </div>
         <div className="flex items-center gap-2">
           <span>Type</span>
-          <span className="text-[#58A6FF]">betterstack agent --help</span>
+          <span className="text-[#58A6FF]">zenpost agent --help</span>
           <span>for commands</span>
         </div>
       </div>

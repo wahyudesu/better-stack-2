@@ -102,6 +102,7 @@ export interface PlatformFilterDropdownProps {
 	size?: "default" | "sm" | "lg";
 	align?: "start" | "center" | "end";
 	includeAllOption?: boolean;
+	excludeAllOption?: boolean;
 }
 
 export function PlatformFilterDropdown({
@@ -111,13 +112,15 @@ export function PlatformFilterDropdown({
 	size = "default",
 	align = "start",
 	includeAllOption = true,
+	excludeAllOption = false,
 }: PlatformFilterDropdownProps) {
+	const options = getPlatformOptions(includeAllOption && !excludeAllOption);
 	return (
 		<DepthButtonMenu
 			mode="radio"
 			value={value}
 			onChange={onChange}
-			options={getPlatformOptions(includeAllOption)}
+			options={options}
 			placeholder="All Platforms"
 			className={className}
 			size={size}

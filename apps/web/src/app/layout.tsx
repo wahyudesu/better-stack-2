@@ -1,3 +1,4 @@
+import { Agentation } from "agentation";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
 						<BottomMenu />
 					</Providers>
 				</ClientClerkProvider>
+				{process.env.NODE_ENV === "development" && <Agentation />}
 			</body>
 		</html>
 	);

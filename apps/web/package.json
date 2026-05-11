@@ -89,6 +89,7 @@
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
 		"@zenpost/config": "workspace:*",
+		"agentation": "^3.0.2",
 		"alchemy": "catalog:",
 		"tailwindcss": "catalog:",
 		"typescript": "^5",

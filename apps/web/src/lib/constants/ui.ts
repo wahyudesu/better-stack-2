@@ -21,45 +21,38 @@
  * - cancelled: Cancelled before publish
  */
 export const statusBadgeStyles: Record<string, { bg: string; text: string }> = {
-	// Published - Success state (green)
+	// All use muted/card style - subtle and neutral
 	published: {
-		bg: "hsl(142 76% 36% / 0.15)",
-		text: "hsl(142 76% 36%)",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
-	// Scheduled - Primary/pending state (blue)
 	scheduled: {
-		bg: "hsl(var(--primary) / 0.15)",
-		text: "hsl(var(--primary))",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
-	// Draft - Neutral/inactive state (gray)
 	draft: {
-		bg: "hsl(var(--muted) / 0.5)",
-		text: "hsl(var(--muted-foreground))",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
-	// Review - Warning/attention state (yellow/orange)
 	review: {
-		bg: "hsl(38 92% 50% / 0.15)",
-		text: "hsl(38 92% 50%)",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
-	// Publishing - In-progress state (blue/indigo)
 	publishing: {
-		bg: "hsl(221 83% 53% / 0.15)",
-		text: "hsl(221 83% 53%)",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
-	// Failed - Error state (red)
 	failed: {
-		bg: "hsl(0 84% 60% / 0.15)",
-		text: "hsl(0 84% 60%)",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
-	// Cancelled - Neutral/stopped state (gray)
 	cancelled: {
-		bg: "hsl(var(--muted) / 0.3)",
-		text: "hsl(var(--muted-foreground))",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
-	// Legacy "pending" - maps to "review" for backward compatibility
 	pending: {
-		bg: "hsl(38 92% 50% / 0.15)",
-		text: "hsl(38 92% 50%)",
+		bg: "bg-muted/50",
+		text: "text-muted-foreground",
 	},
 };
 

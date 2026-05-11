@@ -113,9 +113,9 @@ export function ContentCard({
 				</div>
 			) : (
 				<>
-					<div className="flex gap-3 mb-2">
+					<div className="flex flex-col sm:flex-row gap-3 mb-2">
 						{event.thumbnail ? (
-							<div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg">
+							<div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg self-start">
 								<Image
 									src={event.thumbnail}
 									alt={event.description || event.title}
@@ -130,7 +130,7 @@ export function ContentCard({
 								)}
 							</div>
 						) : (
-							<div className="h-14 w-14 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
+							<div className="h-14 w-14 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0 self-start">
 								<Video className="h-8 w-8 text-muted-foreground/50" />
 							</div>
 						)}
@@ -174,12 +174,10 @@ export function ContentCard({
 
 	return (
 		<Popover>
-			<PopoverTrigger>
-				<div>{cardContent}</div>
-			</PopoverTrigger>
+			<PopoverTrigger>{cardContent}</PopoverTrigger>
 			<PopoverContent
 				side="right"
-				className="w-80 p-0 overflow-hidden"
+				className="w-72 p-0 overflow-hidden"
 				sideOffset={8}
 			>
 				{/* Header */}

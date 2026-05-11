@@ -63,6 +63,7 @@ export interface ChatMessage {
 
 export interface Conversation {
 	id: string;
+	accountId: string;
 	platform: Platform;
 	type: "message" | "comment";
 	sender: string;

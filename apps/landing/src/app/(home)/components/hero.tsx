@@ -62,12 +62,12 @@ export function Hero() {
               </Badge>
             </div>
 
-            <div className="space-y-5 max-w-2xl mx-auto text-center items-center">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-                Social Media Management Tool for Agencies and Brand Owner
+            <div className="space-y-5 max-w-3xl mx-auto text-center items-center">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+                Social Media Tool for Agencies and Brand Owner
               </h1>
               <p className="text-lg text-muted-foreground mx-auto max-w-xl leading-relaxed">
-                Schedule and boost content, manage conversations, and track performance — all in one simple place. No more tab-switching.
+                Everything you need to run social media: scheduling, conversations, and performance tracking in one place that actually makes sense.
               </p>
             </div>
 

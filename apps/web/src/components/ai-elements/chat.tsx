@@ -3,6 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { Sparkles } from "lucide-react";
+import { useMemo } from "react";
 import {
 	Attachment,
 	AttachmentPreview,
@@ -64,14 +65,23 @@ export type AIChatProps = {
 	onInputChange?: (value: string) => void;
 };
 
-const REFERENCE_PROMPTS = [
-	"Analisis winning konten di platform Instagram",
-	"Buatkan strategi content calendar untuk TikTok",
-	" Tips meningkatkan engagement rate di LinkedIn",
+const ALL_REFERENCE_PROMPTS = [
+	"Analisis performa konten Instagram selama seminggu terakhir",
+	"Buat content pillar dari konten Instagram yang sudah ada",
+	"Riset ide konten viral berdasarkan niche brand",
+	"Buat content calendar social media untuk 30 hari",
+	"Analisis kompetitor dan peluang konten yang bisa dimanfaatkan",
+	"Optimasi caption, hook, dan CTA untuk meningkatkan conversion",
+	"Rekomendasi strategi growth social media tanpa ads",
 ] as const;
 
 export function AIChat({ inputValue, onInputChange }: AIChatProps) {
 	const { messages, status, sendMessage } = useChat();
+
+	const randomPrompts = useMemo(() => {
+		const shuffled = [...ALL_REFERENCE_PROMPTS].sort(() => Math.random() - 0.5);
+		return shuffled.slice(0, 3);
+	}, []);
 
 	const handleSubmit = (message: PromptInputMessage) => {
 		const hasText = Boolean(message.text);
@@ -85,6 +95,11 @@ export function AIChat({ inputValue, onInputChange }: AIChatProps) {
 			text: message.text || "Sent with attachments",
 			files: message.files,
 		});
+
+		// Clear input after sending
+		if (onInputChange) {
+			onInputChange("");
+		}
 	};
 
 	return (
@@ -124,14 +139,16 @@ export function AIChat({ inputValue, onInputChange }: AIChatProps) {
 				<ConversationScrollButton />
 			</Conversation>
 
-			<div className="mb-3 flex flex-wrap gap-2">
-				{REFERENCE_PROMPTS.map((prompt) => (
+			<div className="mb-3 flex flex-nowrap gap-2 overflow-x-auto pb-2 scrollbar-hide justify-center">
+				{randomPrompts.map((prompt) => (
 					<button
 						key={prompt}
 						type="button"
-						className="rounded-full border px-3 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted"
+						className="rounded-xl border px-3 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted"
 						onClick={() => {
-							if (onInputChange) onInputChange(prompt);
+							if (onInputChange) {
+								onInputChange(prompt);
+							}
 						}}
 					>
 						{prompt}

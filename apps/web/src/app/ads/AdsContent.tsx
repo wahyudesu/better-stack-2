@@ -7,7 +7,7 @@ import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { AdsAudiences } from "./AdsAudiences";
 import { AdsCampaigns } from "./AdsCampaigns";
-import { AdsOverview } from "./AdsOverview";
+import AdsOverviewServer from "./AdsOverviewServer";
 
 const tabs = [
 	{
@@ -94,7 +94,7 @@ export function AdsContent() {
 			)}
 
 			{/* Tab content */}
-			{activeTab === "overview" && <AdsOverview />}
+			{activeTab === "overview" && <AdsOverviewServer />}
 			{activeTab === "campaigns" && (
 				<AdsCampaigns platform={platformFilter} status={statusFilter} />
 			)}

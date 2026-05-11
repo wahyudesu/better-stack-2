@@ -1,0 +1,1759 @@
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@zenpost/ui/components/avatar";
+import { ScrollArea } from "@zenpost/ui/components/scroll-area";
+import {
+	Bot,
+	Calendar,
+	Clock,
+	Edit2,
+	Hash,
+	Mail,
+	MessageSquare,
+	MoreHorizontal,
+	Plus,
+	Star,
+	Trash2,
+	Users,
+} from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { AnimatedTabs } from "@/components/ui/animated-tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
+import {
+	DepthButtonGroup,
+	GroupedDepthButton,
+} from "@/components/ui/depth-buttons";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+	PlatformFilterDropdown,
+	type PlatformFilterValue,
+} from "@/components/ui/platform-filter";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+	getMockMessages,
+	mockComments,
+	mockConversations,
+	mockReviews,
+	shouldUseMockData,
+} from "@/data/inbox-mock";
+import { inboxApi } from "@/lib/api/inbox";
+import type { CommentAutomation } from "@/lib/client";
+import { api } from "@/lib/client";
+import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
+import { ChatPanel } from "./components/ChatPanel";
+import {
+	type Conversation,
+	type CustomerLabel,
+	getPlatformConfig,
+	labelConfig,
+	type ServerConversation,
+	type ServerMessage,
+} from "./types";
+
+function formatRelativeTime(dateStr: string) {
+	const date = new Date(dateStr);
+	const now = new Date();
+	const diff = now.getTime() - date.getTime();
+	const minutes = Math.floor(diff / 60000);
+	const hours = Math.floor(diff / 3600000);
+	const days = Math.floor(diff / 86400000);
+	if (minutes < 1) return "now";
+	if (minutes < 60) return `${minutes}m`;
+	if (hours < 24) return `${hours}h`;
+	if (days < 7) return `${days}d`;
+	return date.toLocaleDateString();
+}
+
+function mapServerConversation(src: ServerConversation): Conversation {
+	return {
+		id: src.id,
+		platform: src.platform as Conversation["platform"],
+		type: "message",
+		sender: src.participantName || "Unknown",
+		avatar:
+			src.participantPicture ||
+			`https://i.pravatar.cc/150?u=${src.participantId}`,
+		isOnline: false,
+		isRead: src.status === "archived" || (src.unreadCount ?? 0) === 0,
+		isStarred: false,
+		lastMessage: src.lastMessage || "",
+		lastMessageTime: formatRelativeTime(src.updatedTime),
+		unreadCount: src.unreadCount ?? 0,
+		messages: [],
+		mediaPost: undefined,
+		customerLabel: undefined,
+	};
+}
+
+type TypeFilter = "message" | "comment";
+type SortBy = "newest" | "name";
+type MessageFilter = "all" | "unread" | "favorites";
+
+export function InboxContent() {
+	const queryClient = useQueryClient();
+	const [activeTab, setActiveTab] = useState("messages");
+	const [platform, setPlatform] = useState<PlatformFilterValue>("all");
+	const [typeFilter, _setTypeFilter] = useState<TypeFilter>("message");
+	const [selectedConversation, setSelectedConversation] =
+		useState<Conversation | null>(null);
+	const [messageInput, setMessageInput] = useState("");
+	const [searchQuery, setSearchQuery] = useState("");
+	const [sortBy, setSortBy] = useState<SortBy>("newest");
+	const [messageFilter, setMessageFilter] = useState<MessageFilter>("all");
+
+	// Comments tab state
+	const [commentPlatform, setCommentPlatform] =
+		useState<PlatformFilterValue>("all");
+	const [replyTarget, setReplyTarget] = useState<{
+		postId: string;
+		commentId: string;
+		platform: string;
+	} | null>(null);
+	const [replyText, setReplyText] = useState("");
+	const [isReplying, setIsReplying] = useState(false);
+
+	// Reviews tab state
+	const [reviewPlatform, setReviewPlatform] =
+		useState<PlatformFilterValue>("all");
+	const [reviewFilter, setReviewFilter] = useState<
+		"all" | "replied" | "not_replied"
+	>("all");
+
+	// Campaign dialog state
+	const [campaignDialogOpen, setCampaignDialogOpen] = useState(false);
+	const [activeCampaignTab, setActiveCampaignTab] = useState<
+		"broadcasts" | "sequences" | "comment-to-dm"
+	>("broadcasts");
+
+	// Conversations query
+	const { data: conversationsResult, isLoading: conversationsLoading } = useQuery({
+		queryKey: ["inbox", "conversations", { platform }],
+		queryFn: async () => {
+			if (!useAuthStore.getState().clerkToken) {
+				return { conversations: mockConversations, pagination: null };
+			}
+			const res = await inboxApi.listConversations({
+				platform: platform === "all" ? undefined : platform,
+				limit: 50,
+			});
+			if (res.error && shouldUseMockData(res.error)) {
+				return { conversations: mockConversations, pagination: null };
+			}
+			if (res.error) throw new Error(res.error);
+			return {
+				conversations: res.data?.conversations ?? [],
+				pagination: res.data?.pagination ?? null,
+			};
+		},
+	});
+
+	const conversationsData = conversationsResult?.conversations ?? [];
+
+	const serverConversations = useMemo(() => {
+		// Handle both array and object shapes
+		if (Array.isArray(conversationsData)) return conversationsData.map(mapServerConversation);
+		if (conversationsData && typeof conversationsData === "object" && "conversations" in conversationsData) {
+			return (
+				conversationsData as { conversations: ServerConversation[] }
+			).conversations.map(mapServerConversation);
+		}
+		return [];
+	}, [conversationsData]);
+
+	// Messages query
+	const { data: messagesData, isLoading: messagesLoading } = useQuery({
+		queryKey: ["inbox", "messages", selectedConversation?.id],
+		queryFn: async () => {
+			if (!selectedConversation) return [];
+			if (!useAuthStore.getState().clerkToken)
+				return getMockMessages(selectedConversation.id);
+			const res = await inboxApi.listMessages({
+				conversationId: selectedConversation.id,
+				accountId: selectedConversation.id,
+				limit: 50,
+				sortOrder: "desc",
+			});
+			if (res.error && shouldUseMockData(res.error))
+				return getMockMessages(selectedConversation.id);
+			if (res.error) throw new Error(res.error);
+			return res.data?.messages ?? [];
+		},
+		enabled: !!selectedConversation,
+	});
+
+	// Mutations
+	const sendMessageMutation = useMutation({
+		mutationFn: async ({ text }: { text: string }) => {
+			if (!selectedConversation) return;
+			const res = await inboxApi.sendMessage({
+				conversationId: selectedConversation.id,
+				accountId: selectedConversation.id,
+				message: text,
+			});
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "messages", selectedConversation?.id],
+			});
+			queryClient.invalidateQueries({ queryKey: ["inbox", "conversations"] });
+			setMessageInput("");
+		},
+	});
+
+	const markAsReadMutation = useMutation({
+		mutationFn: async (conversationId: string) => {
+			// Note: updateConversation now requires accountId, using conv.id as placeholder
+			const res = await inboxApi.updateConversation(conversationId, {
+				accountId: conversationId,
+				status: "active",
+			});
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: ["inbox", "conversations"] }),
+	});
+
+	// Handlers
+	const handleSelectConversation = useCallback(
+		(conv: Conversation) => {
+			setSelectedConversation(conv);
+			if (!conv.isRead) markAsReadMutation.mutate(conv.id);
+		},
+		[markAsReadMutation],
+	);
+
+	const handleSendMessage = useCallback(() => {
+		if (!messageInput.trim()) return;
+		sendMessageMutation.mutate({ text: messageInput });
+	}, [messageInput, sendMessageMutation]);
+
+	const handleKeyPress = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && !e.shiftKey) {
+			e.preventDefault();
+			handleSendMessage();
+		}
+	};
+
+	const handleLabelChange = useCallback(
+		(label: CustomerLabel) => {
+			if (!selectedConversation) return;
+			setSelectedConversation({
+				...selectedConversation,
+				customerLabel: label,
+			});
+		},
+		[selectedConversation],
+	);
+
+	const handleReply = async () => {
+		if (!replyTarget || !replyText.trim()) return;
+		setIsReplying(true);
+		try {
+			// accountId needed but not stored in replyTarget - using placeholder
+			// TODO: pass accountId properly when triggering reply
+			await api.privateReply(replyTarget.postId, replyTarget.commentId, {
+				accountId: replyTarget.postId,
+				message: replyText,
+			});
+			setReplyTarget(null);
+			setReplyText("");
+		} finally {
+			setIsReplying(false);
+		}
+	};
+
+	// Filter & sort conversations
+	const filteredConversations = useMemo(() => {
+		const result = serverConversations.filter((conv) => {
+			const matchesPlatform = platform === "all" || conv.platform === platform;
+			const matchesType = conv.type === typeFilter;
+			const matchesSearch =
+				!searchQuery ||
+				conv.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
+			let matchesMessageFilter = true;
+			if (messageFilter === "unread")
+				matchesMessageFilter = !conv.isRead || conv.unreadCount > 0;
+			else if (messageFilter === "favorites")
+				matchesMessageFilter = conv.isStarred;
+			return (
+				matchesPlatform && matchesType && matchesSearch && matchesMessageFilter
+			);
+		});
+		if (sortBy === "newest")
+			result.sort(
+				(a, b) =>
+					new Date(b.lastMessageTime).getTime() -
+					new Date(a.lastMessageTime).getTime(),
+			);
+		else result.sort((a, b) => a.sender.localeCompare(b.sender));
+		return result;
+	}, [
+		serverConversations,
+		platform,
+		typeFilter,
+		searchQuery,
+		sortBy,
+		messageFilter,
+	]);
+
+	const tabs = [
+		{
+			id: "messages",
+			label: "Messages",
+			icon: <MessageSquare className="h-5 w-5" />,
+		},
+		{
+			id: "comments",
+			label: "Comments",
+			icon: <MessageSquare className="h-5 w-5" />,
+		},
+		{
+			id: "reviews",
+			label: "Reviews",
+			icon: <MessageSquare className="h-5 w-5" />,
+		},
+	];
+
+	return (
+		<div className={pageContainerClassName} style={pageMaxWidth}>
+			{/* Header */}
+			<div className="flex items-start justify-between mb-4">
+				<div>
+					<h1 className="font-display text-2xl font-bold tracking-tight">
+						Inbox
+					</h1>
+					<p className="text-sm text-muted-foreground">
+						Manage conversations and automation
+					</p>
+				</div>
+			</div>
+
+			{/* Tabs + Actions */}
+			<div className="flex items-center justify-between mb-6">
+				<AnimatedTabs
+					tabs={tabs}
+					activeTab={activeTab}
+					onChange={setActiveTab}
+					variant="underline"
+				/>
+				<div className="flex items-center gap-2">
+					{/*<Button variant="outline" size="sm">
+						<Link href="/contacts">
+							Contacts
+						</Link>
+					</Button>*/}
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setCampaignDialogOpen(true)}
+					>
+						<Bot className="h-4 w-4 mr-1" />
+						Campaigns
+					</Button>{" "}
+				</div>
+			</div>
+
+			{/* Campaign Dialog */}
+			<Dialog open={campaignDialogOpen} onOpenChange={setCampaignDialogOpen}>
+				<DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+					<DialogHeader>
+						<DialogTitle>Campaigns</DialogTitle>
+					</DialogHeader>
+
+					<div className="flex gap-4 min-h-0 flex-1 overflow-hidden">
+						{/* Vertical tabs - same style as settings */}
+						<nav className="w-[130px] shrink-0 space-y-0.5">
+							<button
+								type="button"
+								onClick={() => setActiveCampaignTab("broadcasts")}
+								className={cn(
+									"flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+									activeCampaignTab === "broadcasts"
+										? "bg-muted font-semibold text-foreground"
+										: "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+								)}
+							>
+								<Mail className="h-4 w-4" />
+								Broadcasts
+							</button>
+							<button
+								type="button"
+								onClick={() => setActiveCampaignTab("sequences")}
+								className={cn(
+									"flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+									activeCampaignTab === "sequences"
+										? "bg-muted font-semibold text-foreground"
+										: "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+								)}
+							>
+								<Calendar className="h-4 w-4" />
+								Sequences
+							</button>
+							<button
+								type="button"
+								onClick={() => setActiveCampaignTab("comment-to-dm")}
+								className={cn(
+									"flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+									activeCampaignTab === "comment-to-dm"
+										? "bg-muted font-semibold text-foreground"
+										: "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+								)}
+							>
+								<Bot className="h-4 w-4" />
+								Comment-to-DM
+							</button>
+						</nav>
+
+						{/* Campaign content */}
+						<div className="flex-1 min-w-0 overflow-y-auto">
+							{activeCampaignTab === "broadcasts" && <CampaignBroadcastsTab />}
+							{activeCampaignTab === "sequences" && <CampaignSequencesTab />}
+							{activeCampaignTab === "comment-to-dm" && (
+								<CampaignCommentToDmTab />
+							)}
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			{/* Messages Tab */}
+			{activeTab === "messages" && (
+				<>
+					<div className="flex items-center gap-2 mb-4">
+						<PlatformFilterDropdown value={platform} onChange={setPlatform} />
+					</div>
+
+					<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[600px]">
+						{/* Conversation List */}
+						<Card className="border-border/50 overflow-hidden flex flex-col">
+							<div className="p-3 border-b border-border/50 space-y-2">
+								<div className="flex items-center justify-between gap-2 pb-2">
+									<DepthButtonGroup>
+										<GroupedDepthButton
+											position="first"
+											size="sm"
+											variant={messageFilter === "all" ? "blue" : "outline"}
+											onClick={() => setMessageFilter("all")}
+										>
+											All
+										</GroupedDepthButton>
+										<GroupedDepthButton
+											position="middle"
+											size="sm"
+											variant={messageFilter === "unread" ? "blue" : "outline"}
+											onClick={() => setMessageFilter("unread")}
+										>
+											Unread
+										</GroupedDepthButton>
+										<GroupedDepthButton
+											position="last"
+											size="sm"
+											variant={
+												messageFilter === "favorites" ? "blue" : "outline"
+											}
+											onClick={() => setMessageFilter("favorites")}
+										>
+											Favorites
+										</GroupedDepthButton>
+									</DepthButtonGroup>
+									<DepthButtonMenu
+										value={sortBy}
+										onChange={(v) => setSortBy(v as SortBy)}
+										options={[
+											{ value: "newest", label: "Terbaru" },
+											{ value: "name", label: "Nama" },
+										]}
+										placeholder="Sort"
+										size="sm"
+									/>
+								</div>
+								<div className="relative">
+									<Input
+										placeholder="Search conversations..."
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+										className="pl-10 h-9 font-medium"
+									/>
+								</div>
+							</div>
+
+							<ScrollArea className="flex-1">
+								<div className="p-2 space-y-1">
+									{conversationsLoading ? (
+										<div className="text-center py-8">
+											<p className="text-sm text-muted-foreground">
+												Loading conversations...
+											</p>
+										</div>
+									) : filteredConversations.length === 0 ? (
+										<div className="text-center py-8">
+											<p className="text-sm text-muted-foreground">
+												No conversations found
+											</p>
+										</div>
+									) : (
+										filteredConversations.map((conv) => {
+											const config = getPlatformConfig(conv.platform);
+											const Icon = config.icon;
+											const isSelected = selectedConversation?.id === conv.id;
+											return (
+												<button
+													type="button"
+													key={conv.id}
+													onClick={() => handleSelectConversation(conv)}
+													className={cn(
+														"w-full text-left p-3 rounded-xl transition-all hover:bg-muted/50",
+														isSelected ? "bg-muted" : "",
+														!conv.isRead && "bg-primary/5",
+													)}
+												>
+													<div className="flex items-start gap-3">
+														<div className="relative">
+															<Avatar className="h-10 w-10">
+																<AvatarImage src={conv.avatar} />
+																<AvatarFallback>
+																	{conv.sender[0].toUpperCase()}
+																</AvatarFallback>
+															</Avatar>
+															{conv.isOnline && (
+																<div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
+															)}
+														</div>
+														<div className="flex-1 min-w-0">
+															<div className="flex items-center justify-between mb-1">
+																<div className="flex items-center gap-1.5">
+																	<span className="font-semibold text-sm truncate">
+																		{conv.sender}
+																	</span>
+																	{conv.isStarred && (
+																		<Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+																	)}
+																	{conv.type === "message" &&
+																		conv.customerLabel &&
+																		conv.customerLabel !== "none" && (
+																			<Badge
+																				variant="outline"
+																				className={cn(
+																					"text-[9px] px-1.5 py-0 h-4 border",
+																					labelConfig[conv.customerLabel]
+																						.bgColor,
+																					labelConfig[conv.customerLabel].color,
+																				)}
+																			>
+																				{labelConfig[conv.customerLabel].label}
+																			</Badge>
+																		)}
+																</div>
+																<span className="text-xs text-muted-foreground whitespace-nowrap">
+																	{conv.lastMessageTime}
+																</span>
+															</div>
+															<div className="flex items-center gap-1.5 mb-1">
+																<div
+																	className={cn(
+																		"flex items-center",
+																		config.color,
+																	)}
+																>
+																	<Icon className="h-3 w-3" />
+																</div>
+																<span className="text-[10px] text-muted-foreground capitalize">
+																	{config.name}
+																</span>
+															</div>
+															<p className="text-xs text-muted-foreground truncate">
+																{conv.lastMessage}
+															</p>
+														</div>
+														{conv.unreadCount > 0 && (
+															<Badge className="h-5 min-w-5 px-1 flex items-center justify-center bg-primary text-primary-foreground text-[10px]">
+																{conv.unreadCount}
+															</Badge>
+														)}
+													</div>
+												</button>
+											);
+										})
+									)}
+								</div>
+							</ScrollArea>
+						</Card>
+
+						{/* Chat View */}
+						<Card
+							className={cn(
+								"hidden lg:flex lg:col-span-2 border-border/50 overflow-hidden flex-col",
+								!selectedConversation && "items-center justify-center",
+							)}
+						>
+							{!selectedConversation ? (
+								<div className="text-center p-8">
+									<MessageSquare className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+									<p className="text-muted-foreground">
+										Select a conversation to start messaging
+									</p>
+								</div>
+							) : (
+								<ChatPanel
+									conversation={selectedConversation}
+									messages={messagesData ?? []}
+									isLoading={messagesLoading}
+									messageInput={messageInput}
+									onMessageInputChange={setMessageInput}
+									onSendMessage={handleSendMessage}
+									onKeyDown={handleKeyPress}
+									onLabelChange={handleLabelChange}
+								/>
+							)}
+						</Card>
+					</div>
+				</>
+			)}
+
+			{/* Comments Tab */}
+			{activeTab === "comments" && (
+				<div className="space-y-4">
+					<div className="flex items-center gap-2">
+						<PlatformFilterDropdown
+							value={commentPlatform}
+							onChange={setCommentPlatform}
+						/>
+					</div>
+					{mockComments.filter(
+						(c) => commentPlatform === "all" || c.platform === commentPlatform,
+					).length === 0 ? (
+						<Card className="border-border/50 p-8 text-center">
+							<MessageSquare className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+							<p className="text-muted-foreground">No comments found</p>
+						</Card>
+					) : (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+							{mockComments
+								.filter(
+									(c) =>
+										commentPlatform === "all" || c.platform === commentPlatform,
+								)
+								.map((post) => {
+									const config = getPlatformConfig(post.platform);
+									const Icon = config.icon;
+									return (
+										<Card
+											key={post.id}
+											className="border-border/50 p-4 hover:bg-muted/30 transition-colors"
+										>
+											<div className="flex items-start gap-3">
+												{post.picture && (
+													<img
+														src={post.picture}
+														alt="Post"
+														className="w-16 h-16 rounded-lg object-cover shrink-0"
+													/>
+												)}
+												<div className="flex-1 min-w-0">
+													<div className="flex items-center gap-2 mb-1">
+														<div
+															className={cn("flex items-center", config.color)}
+														>
+															<Icon className="h-3 w-3" />
+														</div>
+														<span className="text-xs text-muted-foreground">
+															@{post.accountUsername}
+														</span>
+														<span className="text-xs text-muted-foreground">
+															{formatRelativeTime(post.createdTime)}
+														</span>
+													</div>
+													<p className="text-sm mb-2 line-clamp-2">
+														{post.content}
+													</p>
+													<div className="flex items-center gap-4 text-xs text-muted-foreground">
+														<span className="flex items-center gap-1">
+															<MessageSquare className="h-3.5 w-3.5" />
+															{post.commentCount}
+														</span>
+														<span className="flex items-center gap-1">
+															<Star className="h-3.5 w-3.5" />
+															{post.likeCount}
+														</span>
+													</div>
+													{replyTarget?.commentId === post.id ? (
+														<div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+															<Textarea
+																placeholder="Write your reply..."
+																value={replyText}
+																onChange={(e) => setReplyText(e.target.value)}
+																className="min-h-[60px] resize-none text-sm"
+															/>
+															<div className="flex gap-2">
+																<Button
+																	onClick={handleReply}
+																	disabled={!replyText.trim() || isReplying}
+																	size="sm"
+																>
+																	{isReplying ? "Sending..." : "Send"}
+																</Button>
+																<Button
+																	variant="outline"
+																	size="sm"
+																	onClick={() => {
+																		setReplyTarget(null);
+																		setReplyText("");
+																	}}
+																>
+																	Cancel
+																</Button>
+															</div>
+														</div>
+													) : (
+														<Button
+															variant="outline"
+															size="sm"
+															className="mt-2 h-7 text-xs"
+															onClick={() =>
+																setReplyTarget({
+																	postId: post.id,
+																	commentId: post.id,
+																	platform: post.platform,
+																})
+															}
+														>
+															Reply
+														</Button>
+													)}
+												</div>
+											</div>
+										</Card>
+									);
+								})}
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* Reviews Tab */}
+			{activeTab === "reviews" && (
+				<div className="space-y-4">
+					<div className="flex items-center gap-2">
+						<PlatformFilterDropdown
+							value={reviewPlatform}
+							onChange={setReviewPlatform}
+						/>
+						<DepthButtonGroup>
+							<GroupedDepthButton
+								position="first"
+								size="sm"
+								variant={reviewFilter === "all" ? "blue" : "outline"}
+								onClick={() => setReviewFilter("all")}
+							>
+								All
+							</GroupedDepthButton>
+							<GroupedDepthButton
+								position="middle"
+								size="sm"
+								variant={reviewFilter === "not_replied" ? "blue" : "outline"}
+								onClick={() => setReviewFilter("not_replied")}
+							>
+								Not Replied
+							</GroupedDepthButton>
+							<GroupedDepthButton
+								position="last"
+								size="sm"
+								variant={reviewFilter === "replied" ? "blue" : "outline"}
+								onClick={() => setReviewFilter("replied")}
+							>
+								Replied
+							</GroupedDepthButton>
+						</DepthButtonGroup>
+					</div>
+					{mockReviews.filter((r) => {
+						if (reviewPlatform !== "all" && r.platform !== reviewPlatform)
+							return false;
+						if (reviewFilter === "replied" && !r.hasReply) return false;
+						if (reviewFilter === "not_replied" && r.hasReply) return false;
+						return true;
+					}).length === 0 ? (
+						<Card className="border-border/50 p-8 text-center">
+							<Star className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+							<p className="text-muted-foreground">No reviews found</p>
+						</Card>
+					) : (
+						<div className="space-y-3">
+							{mockReviews
+								.filter((r) => {
+									if (reviewPlatform !== "all" && r.platform !== reviewPlatform)
+										return false;
+									if (reviewFilter === "replied" && !r.hasReply) return false;
+									if (reviewFilter === "not_replied" && r.hasReply)
+										return false;
+									return true;
+								})
+								.map((review) => {
+									const config = getPlatformConfig(review.platform);
+									const Icon = config.icon;
+									return (
+										<Card
+											key={review.id}
+											className="border-border/50 p-4 hover:bg-muted/30 transition-colors"
+										>
+											<div className="flex items-start gap-3">
+												<Avatar className="h-10 w-10">
+													<AvatarImage
+														src={
+															review.reviewer.profileImage ||
+															`https://i.pravatar.cc/150?u=${review.reviewer.name}`
+														}
+													/>
+													<AvatarFallback>
+														{review.reviewer.name[0].toUpperCase()}
+													</AvatarFallback>
+												</Avatar>
+												<div className="flex-1 min-w-0">
+													<div className="flex items-center gap-2 mb-1">
+														<span className="font-semibold text-sm">
+															{review.reviewer.name}
+														</span>
+														<div className="flex items-center">
+															{[1, 2, 3, 4, 5].map((star) => (
+																<Star
+																	key={star}
+																	className={cn(
+																		"h-3.5 w-3.5",
+																		star <= review.rating
+																			? "fill-yellow-400 text-yellow-400"
+																			: "text-muted-foreground/30",
+																	)}
+																/>
+															))}
+														</div>
+														<div
+															className={cn("flex items-center", config.color)}
+														>
+															<Icon className="h-3 w-3" />
+														</div>
+														<span className="text-xs text-muted-foreground">
+															{formatRelativeTime(review.created)}
+														</span>
+													</div>
+													<p className="text-sm text-muted-foreground mb-2">
+														{review.text}
+													</p>
+													{review.hasReply && review.reply?.text && (
+														<div className="bg-primary/5 border border-primary/10 rounded-lg p-3 text-sm">
+															<span className="text-xs font-medium text-primary">
+																Reply:
+															</span>{" "}
+															{review.reply.text}
+														</div>
+													)}
+													{!review.hasReply && (
+														<Badge variant="outline" className="mt-2 text-xs">
+															Not Replied
+														</Badge>
+													)}
+												</div>
+											</div>
+										</Card>
+									);
+								})}
+						</div>
+					)}
+				</div>
+			)}
+		</div>
+	);
+}
+
+// ============================================================================
+// CAMPAIGN SUB-TAB COMPONENTS
+// ============================================================================
+
+function CampaignBroadcastsTab() {
+	const queryClient = useQueryClient();
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+	// Fetch broadcasts
+	const { data: broadcastsData, isLoading } = useQuery({
+		queryKey: ["inbox", "broadcasts"],
+		queryFn: async () => {
+			const res = await api.listBroadcasts({});
+			if (res.error) throw new Error(res.error);
+			return (res.data?.broadcasts ?? []) as Array<{
+				_id: string;
+				name: string;
+				status: "draft" | "scheduled" | "sending" | "sent" | "cancelled";
+				accountId: string;
+				accountUsername?: string;
+				recipientCount?: number;
+				scheduledAt?: string;
+				sentAt?: string;
+				createdAt: string;
+			}>;
+		},
+	});
+
+	// Delete mutation
+	const deleteMutation = useMutation({
+		mutationFn: async (broadcastId: string) => {
+			const res = await api.deleteBroadcast(broadcastId);
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "broadcasts"] });
+		},
+	});
+
+	const statusBadge = (status: string) => {
+		const config: Record<string, { label: string; className: string }> = {
+			draft: { label: "Draft", className: "bg-gray-500/10 text-gray-500" },
+			scheduled: {
+				label: "Scheduled",
+				className: "bg-blue-500/10 text-blue-500",
+			},
+			sending: {
+				label: "Sending",
+				className: "bg-yellow-500/10 text-yellow-500",
+			},
+			sent: { label: "Sent", className: "bg-green-500/10 text-green-500" },
+			cancelled: {
+				label: "Cancelled",
+				className: "bg-red-500/10 text-red-500",
+			},
+		};
+		return (
+			<Badge className={cn("text-xs", config[status]?.className)}>
+				{config[status]?.label}
+			</Badge>
+		);
+	};
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center justify-between">
+				<p className="text-sm text-muted-foreground">
+					{broadcastsData?.length ?? 0} broadcast
+					{broadcastsData?.length !== 1 ? "s" : ""}
+				</p>
+				<Button
+					onClick={() => setIsDialogOpen(true)}
+					size="sm"
+					className="gap-2"
+				>
+					<Plus className="h-4 w-4" />
+					New Broadcast
+				</Button>
+			</div>
+
+			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+				<DialogContent className="max-w-lg">
+					<DialogHeader>
+						<DialogTitle>Create Broadcast</DialogTitle>
+					</DialogHeader>
+					<div className="space-y-4">
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								Broadcast Name
+							</label>
+							<Input placeholder="e.g., Summer Sale Announcement" />
+						</div>
+						<div>
+							<label className="text-sm font-medium mb-2 block">Account</label>
+							<Input placeholder="Account ID" />
+						</div>
+						<div className="flex gap-2 pt-2">
+							<Button
+								variant="outline"
+								className="flex-1"
+								onClick={() => setIsDialogOpen(false)}
+							>
+								Cancel
+							</Button>
+							<Button className="flex-1">Create Broadcast</Button>
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			{isLoading ? (
+				<Card className="p-8 text-center">
+					<p className="text-muted-foreground">Loading broadcasts...</p>
+				</Card>
+			) : !broadcastsData || broadcastsData.length === 0 ? (
+				<Card className="p-8 text-center">
+					<Mail className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+					<p className="text-muted-foreground">No broadcasts yet</p>
+					<p className="text-sm text-muted-foreground mt-1">
+						Create your first broadcast to send messages to contacts
+					</p>
+				</Card>
+			) : (
+				<div className="space-y-3">
+					{broadcastsData.map((broadcast) => (
+						<Card key={broadcast._id} className="p-4">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-3">
+									<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+										<Mail className="h-5 w-5 text-primary" />
+									</div>
+									<div>
+										<div className="flex items-center gap-2">
+											<h3 className="font-semibold">{broadcast.name}</h3>
+											{statusBadge(broadcast.status)}
+										</div>
+										<div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+											{broadcast.recipientCount !== undefined && (
+												<span className="flex items-center gap-1">
+													<Users className="h-3 w-3" />
+													{broadcast.recipientCount} recipients
+												</span>
+											)}
+											{broadcast.scheduledAt && (
+												<span className="flex items-center gap-1">
+													<Clock className="h-3 w-3" />
+													{new Date(broadcast.scheduledAt).toLocaleString()}
+												</span>
+											)}
+										</div>
+									</div>
+								</div>
+								<DropdownMenu>
+									<DropdownMenuTrigger>
+										<Button variant="ghost" size="icon">
+											<MoreHorizontal className="h-4 w-4" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										<DropdownMenuItem>
+											<Edit2 className="h-4 w-4 mr-2" />
+											Edit
+										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem
+											className="text-destructive"
+											onClick={() => deleteMutation.mutate(broadcast._id)}
+										>
+											<Trash2 className="h-4 w-4 mr-2" />
+											Delete
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</div>
+						</Card>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
+function CampaignSequencesTab() {
+	const queryClient = useQueryClient();
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+	// Fetch sequences
+	const { data: sequencesData, isLoading } = useQuery({
+		queryKey: ["inbox", "sequences"],
+		queryFn: async () => {
+			const res = await api.listSequences();
+			if (res.error) throw new Error(res.error);
+			return (res.data?.sequences ?? []) as Array<{
+				_id: string;
+				name: string;
+				status: "draft" | "active" | "paused" | "completed";
+				steps: Array<{ delay?: number; action?: string; templateId?: string }>;
+				enrolledCount?: number;
+				completedCount?: number;
+				createdAt: string;
+			}>;
+		},
+	});
+
+	// Activate/Pause mutation
+	const toggleMutation = useMutation({
+		mutationFn: async ({
+			sequenceId,
+			action,
+		}: {
+			sequenceId: string;
+			action: "activate" | "pause";
+		}) => {
+			const res =
+				action === "activate"
+					? await api.activateSequence(sequenceId)
+					: await api.pauseSequence(sequenceId);
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "sequences"] });
+		},
+	});
+
+	const statusBadge = (status: string) => {
+		const config: Record<string, { label: string; className: string }> = {
+			draft: { label: "Draft", className: "bg-gray-500/10 text-gray-500" },
+			active: { label: "Active", className: "bg-green-500/10 text-green-500" },
+			paused: {
+				label: "Paused",
+				className: "bg-yellow-500/10 text-yellow-500",
+			},
+			completed: {
+				label: "Completed",
+				className: "bg-blue-500/10 text-blue-500",
+			},
+		};
+		return (
+			<Badge className={cn("text-xs", config[status]?.className)}>
+				{config[status]?.label}
+			</Badge>
+		);
+	};
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center justify-between">
+				<p className="text-sm text-muted-foreground">
+					{sequencesData?.length ?? 0} sequence
+					{sequencesData?.length !== 1 ? "s" : ""}
+				</p>
+				<Button
+					onClick={() => setIsDialogOpen(true)}
+					size="sm"
+					className="gap-2"
+				>
+					<Plus className="h-4 w-4" />
+					New Sequence
+				</Button>
+			</div>
+
+			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+				<DialogContent className="max-w-lg">
+					<DialogHeader>
+						<DialogTitle>Create Sequence</DialogTitle>
+					</DialogHeader>
+					<div className="space-y-4">
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								Sequence Name
+							</label>
+							<Input placeholder="e.g., Welcome Series" />
+						</div>
+						<div className="flex gap-2 pt-2">
+							<Button
+								variant="outline"
+								className="flex-1"
+								onClick={() => setIsDialogOpen(false)}
+							>
+								Cancel
+							</Button>
+							<Button className="flex-1">Create Sequence</Button>
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			{isLoading ? (
+				<Card className="p-8 text-center">
+					<p className="text-muted-foreground">Loading sequences...</p>
+				</Card>
+			) : !sequencesData || sequencesData.length === 0 ? (
+				<Card className="p-8 text-center">
+					<Calendar className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+					<p className="text-muted-foreground">No sequences yet</p>
+					<p className="text-sm text-muted-foreground mt-1">
+						Create drip campaigns to engage contacts over time
+					</p>
+				</Card>
+			) : (
+				<div className="space-y-3">
+					{sequencesData.map((sequence) => (
+						<Card key={sequence._id} className="p-4">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-3">
+									<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+										<Calendar className="h-5 w-5 text-primary" />
+									</div>
+									<div>
+										<div className="flex items-center gap-2">
+											<h3 className="font-semibold">{sequence.name}</h3>
+											{statusBadge(sequence.status)}
+										</div>
+										<div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+											<span className="flex items-center gap-1">
+												<Hash className="h-3 w-3" />
+												{sequence.steps.length} step
+												{sequence.steps.length !== 1 ? "s" : ""}
+											</span>
+											{sequence.enrolledCount !== undefined && (
+												<span className="flex items-center gap-1">
+													<Users className="h-3 w-3" />
+													{sequence.enrolledCount} enrolled
+												</span>
+											)}
+										</div>
+									</div>
+								</div>
+								<div className="flex items-center gap-2">
+									{(sequence.status === "draft" ||
+										sequence.status === "paused") && (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() =>
+												toggleMutation.mutate({
+													sequenceId: sequence._id,
+													action: "activate",
+												})
+											}
+										>
+											Activate
+										</Button>
+									)}
+									{sequence.status === "active" && (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() =>
+												toggleMutation.mutate({
+													sequenceId: sequence._id,
+													action: "pause",
+												})
+											}
+										>
+											Pause
+										</Button>
+									)}
+									<DropdownMenu>
+										<DropdownMenuTrigger>
+											<Button variant="ghost" size="icon">
+												<MoreHorizontal className="h-4 w-4" />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<DropdownMenuItem>
+												<Edit2 className="h-4 w-4 mr-2" />
+												Edit
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem className="text-destructive">
+												<Trash2 className="h-4 w-4 mr-2" />
+												Delete
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</div>
+							</div>
+						</Card>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
+function CampaignCommentToDmTab() {
+	const queryClient = useQueryClient();
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const [editingAutomation, setEditingAutomation] =
+		useState<CommentAutomation | null>(null);
+	const [form, setForm] = useState<{
+		name: string;
+		accountId: string;
+		platformPostId: string;
+		keywords: string;
+		matchMode: "contains" | "exact";
+		dmMessage: string;
+		commentReply: string;
+		assignTo: string;
+	}>({
+		name: "",
+		accountId: "",
+		platformPostId: "",
+		keywords: "",
+		matchMode: "contains",
+		dmMessage: "",
+		commentReply: "",
+		assignTo: "",
+	});
+
+	// Fetch automations
+	const { data: automationsData, isLoading } = useQuery({
+		queryKey: ["inbox", "comment-automations"],
+		queryFn: async () => {
+			const res = await api.listCommentAutomations();
+			if (res.error) throw new Error(res.error);
+			return (res.data?.automations ?? []) as CommentAutomation[];
+		},
+	});
+
+	// Create mutation
+	const createMutation = useMutation({
+		mutationFn: async (
+			body: Parameters<typeof api.createCommentAutomation>[0],
+		) => {
+			const res = await api.createCommentAutomation(body);
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
+			closeDialog();
+		},
+	});
+
+	// Update mutation
+	const updateMutation = useMutation({
+		mutationFn: async ({
+			automationId,
+			...body
+		}: {
+			automationId: string;
+			name?: string;
+			keywords?: string[];
+			matchMode?: "contains" | "exact";
+			dmMessage?: string;
+			commentReply?: string;
+			assignTo?: string;
+			isActive?: boolean;
+		}) => {
+			const res = await api.updateCommentAutomation(automationId, body);
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
+			closeDialog();
+		},
+	});
+
+	// Delete mutation
+	const deleteMutation = useMutation({
+		mutationFn: async (automationId: string) => {
+			const res = await api.deleteCommentAutomation(automationId);
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
+		},
+	});
+
+	// Toggle active mutation
+	const toggleMutation = useMutation({
+		mutationFn: async ({
+			automationId,
+			isActive,
+		}: {
+			automationId: string;
+			isActive: boolean;
+		}) => {
+			const res = await api.updateCommentAutomation(automationId, { isActive });
+			if (res.error) throw new Error(res.error);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["inbox", "comment-automations"],
+			});
+		},
+	});
+
+	const openCreateDialog = () => {
+		setEditingAutomation(null);
+		setForm({
+			name: "",
+			accountId: "",
+			platformPostId: "",
+			keywords: "",
+			matchMode: "contains",
+			dmMessage: "",
+			commentReply: "",
+			assignTo: "",
+		});
+		setIsDialogOpen(true);
+	};
+
+	const openEditDialog = (automation: CommentAutomation) => {
+		setEditingAutomation(automation);
+		setForm({
+			name: automation.name,
+			accountId: automation.accountId,
+			platformPostId: automation.platformPostId || "",
+			keywords: automation.keywords?.join(", ") || "",
+			matchMode: automation.matchMode || "contains",
+			dmMessage: automation.dmMessage || "",
+			commentReply: automation.commentReply || "",
+			assignTo: (automation as any).assignTo || "",
+		});
+		setIsDialogOpen(true);
+	};
+
+	const closeDialog = () => {
+		setIsDialogOpen(false);
+		setEditingAutomation(null);
+		setForm({
+			name: "",
+			accountId: "",
+			platformPostId: "",
+			keywords: "",
+			matchMode: "contains",
+			dmMessage: "",
+			commentReply: "",
+			assignTo: "",
+		});
+	};
+
+	const saveAutomation = () => {
+		const keywordsArray = form.keywords
+			.split(",")
+			.map((k) => k.trim().toLowerCase())
+			.filter(Boolean);
+
+		if (editingAutomation) {
+			updateMutation.mutate({
+				automationId: editingAutomation._id,
+				name: form.name,
+				keywords: keywordsArray,
+				matchMode: form.matchMode,
+				dmMessage: form.dmMessage,
+				commentReply: form.commentReply,
+				assignTo: form.assignTo,
+			});
+		} else {
+			createMutation.mutate({
+				name: form.name,
+				accountId: form.accountId,
+				platformPostId: form.platformPostId || undefined,
+				keywords: keywordsArray,
+				matchMode: form.matchMode,
+				dmMessage: form.dmMessage,
+				commentReply: form.commentReply || undefined,
+			});
+		}
+	};
+
+	const updateForm = (field: string, value: string) => {
+		setForm((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const activeCount = automationsData?.filter((a) => a.isActive).length ?? 0;
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center justify-between">
+				<p className="text-sm text-muted-foreground">
+					{activeCount} active rule{activeCount !== 1 ? "s" : ""}
+				</p>
+				<Button onClick={openCreateDialog} size="sm" className="gap-2">
+					<Plus className="h-4 w-4" />
+					New Rule
+				</Button>
+			</div>
+
+			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+				<DialogContent className="max-w-lg">
+					<DialogHeader>
+						<DialogTitle>
+							{editingAutomation ? "Edit Rule" : "Create Comment-to-DM Rule"}
+						</DialogTitle>
+					</DialogHeader>
+
+					<div className="space-y-4">
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								Rule Name
+							</label>
+							<Input
+								placeholder="e.g., Welcome DM, Thank you comment..."
+								value={form.name}
+								onChange={(e) => updateForm("name", e.target.value)}
+								className="font-medium"
+							/>
+						</div>
+
+						{!editingAutomation && (
+							<div>
+								<label className="text-sm font-medium mb-2 block">
+									Account ID
+								</label>
+								<Input
+									placeholder="Instagram or Facebook account ID"
+									value={form.accountId}
+									onChange={(e) => updateForm("accountId", e.target.value)}
+									className="font-medium"
+								/>
+							</div>
+						)}
+
+						{!editingAutomation && (
+							<div>
+								<label className="text-sm font-medium mb-2 block">
+									Post ID (Optional)
+								</label>
+								<Input
+									placeholder="Leave empty for account-wide automation"
+									value={form.platformPostId}
+									onChange={(e) => updateForm("platformPostId", e.target.value)}
+									className="font-medium"
+								/>
+								<p className="text-xs text-muted-foreground mt-1">
+									Scope this rule to a specific post. Omit for all posts.
+								</p>
+							</div>
+						)}
+
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								<Hash className="h-4 w-4 inline mr-1" />
+								Keywords
+							</label>
+							<Input
+								placeholder="love, amazing, awesome, great"
+								value={form.keywords}
+								onChange={(e) => updateForm("keywords", e.target.value)}
+								className="font-medium"
+							/>
+							<p className="text-xs text-muted-foreground mt-1">
+								Separate keywords with commas. Leave empty to match all.
+							</p>
+						</div>
+
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								Match Mode
+							</label>
+							<Select
+								value={form.matchMode}
+								onValueChange={(v) => updateForm("matchMode", v ?? "contains")}
+							>
+								<SelectTrigger className="font-medium">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="contains">Contains (default)</SelectItem>
+									<SelectItem value="exact">Exact Match</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								<MessageSquare className="h-4 w-4 inline mr-1" />
+								DM Message
+							</label>
+							<Textarea
+								placeholder="Type the automatic DM to send..."
+								value={form.dmMessage}
+								onChange={(e) => updateForm("dmMessage", e.target.value)}
+								rows={3}
+								className="resize-none font-medium"
+							/>
+						</div>
+
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								<MessageSquare className="h-4 w-4 inline mr-1" />
+								Comment Reply (Optional)
+							</label>
+							<Textarea
+								placeholder="Optional public reply to the comment..."
+								value={form.commentReply}
+								onChange={(e) => updateForm("commentReply", e.target.value)}
+								rows={2}
+								className="resize-none font-medium"
+							/>
+						</div>
+
+						<div>
+							<label className="text-sm font-medium mb-2 block">
+								<Plus className="h-4 w-4 inline mr-1" />
+								Assign To (Optional)
+							</label>
+							<Input
+								placeholder="User or team to assign"
+								value={form.assignTo}
+								onChange={(e) => updateForm("assignTo", e.target.value)}
+								className="font-medium"
+							/>
+						</div>
+
+						<div className="flex gap-2 pt-2">
+							<Button
+								variant="outline"
+								className="flex-1"
+								onClick={closeDialog}
+							>
+								Cancel
+							</Button>
+							<Button
+								className="flex-1"
+								disabled={
+									!form.name ||
+									(!form.accountId && !editingAutomation) ||
+									!form.dmMessage
+								}
+								onClick={saveAutomation}
+							>
+								{editingAutomation ? "Save Changes" : "Create Rule"}
+							</Button>
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			{isLoading ? (
+				<Card className="p-8 text-center">
+					<p className="text-muted-foreground">Loading rules...</p>
+				</Card>
+			) : !automationsData || automationsData.length === 0 ? (
+				<Card className="p-8 text-center">
+					<Bot className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+					<p className="text-muted-foreground">No comment-to-DM rules yet</p>
+					<p className="text-sm text-muted-foreground mt-1">
+						Create rules to automatically send DMs based on comment keywords
+					</p>
+				</Card>
+			) : (
+				<div className="space-y-3">
+					{automationsData.map((automation) => (
+						<Card
+							key={automation._id}
+							className={cn(
+								"p-4 transition-all",
+								!automation.isActive && "opacity-60",
+							)}
+						>
+							<div className="flex items-start justify-between gap-4">
+								<div className="flex-1 min-w-0">
+									<div className="flex items-center gap-3 mb-2">
+										<h3 className="font-semibold truncate">
+											{automation.name}
+										</h3>
+										<Badge className="shrink-0 bg-blue-500/10 text-blue-500">
+											<MessageSquare className="h-3 w-3 mr-1" />
+											Comment to DM
+										</Badge>
+										{!automation.isActive && (
+											<Badge variant="outline" className="shrink-0">
+												Disabled
+											</Badge>
+										)}
+									</div>
+
+									{automation.dmMessage && (
+										<p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+											{automation.dmMessage}
+										</p>
+									)}
+
+									<div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+										<div className="flex items-center gap-1">
+											<span>Account:</span>
+											<code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+												{automation.accountUsername || automation.accountId}
+											</code>
+										</div>
+
+										{automation.keywords && automation.keywords.length > 0 && (
+											<div className="flex items-center gap-1">
+												<Hash className="h-3 w-3" />
+												<span>{automation.keywords.join(", ")}</span>
+											</div>
+										)}
+
+										{automation.matchMode && (
+											<div className="flex items-center gap-1">
+												<span>Match:</span>
+												<span>{automation.matchMode}</span>
+											</div>
+										)}
+
+										{(automation as any).assignTo && (
+											<div className="flex items-center gap-1">
+												<Plus className="h-3 w-3" />
+												<span>{(automation as any).assignTo}</span>
+											</div>
+										)}
+
+										<div className="flex items-center gap-1">
+											<Clock className="h-3 w-3" />
+											<span>{automation.createdAt}</span>
+										</div>
+									</div>
+								</div>
+
+								<div className="flex items-center gap-2 shrink-0">
+									<Switch
+										checked={automation.isActive}
+										onCheckedChange={() =>
+											toggleMutation.mutate({
+												automationId: automation._id,
+												isActive: !automation.isActive,
+											})
+										}
+									/>
+									<Button
+										variant="ghost"
+										size="icon"
+										onClick={() => openEditDialog(automation)}
+									>
+										<Edit2 className="h-4 w-4" />
+									</Button>
+									<Button
+										variant="ghost"
+										size="icon"
+										onClick={() => deleteMutation.mutate(automation._id)}
+										className="text-destructive hover:text-destructive"
+									>
+										<Trash2 className="h-4 w-4" />
+									</Button>
+								</div>
+							</div>
+						</Card>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}

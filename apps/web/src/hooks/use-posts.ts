@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useZernio } from "@/hooks/use-zernio";
 import type { Post } from "@/lib/client";
 import { getZernioErrorMessage } from "@/lib/zernio-error";
@@ -21,14 +21,18 @@ export const postKeys = {
 
 // Convert API post to Post format
 function convertToPost(post: any): Post {
+	// Zernio uses scheduledFor, local uses scheduledAt
+	const scheduledAt =
+		(post.scheduledFor ?? post.scheduledAt)
+			? new Date(post.scheduledFor ?? post.scheduledAt).toISOString()
+			: undefined;
+
 	return {
 		_id: post.id ?? post._id,
 		text: post.text || post.content,
 		platforms: post.platforms || [],
 		status: post.status || "draft",
-		scheduledAt: post.scheduledAt
-			? new Date(post.scheduledAt).toISOString()
-			: undefined,
+		scheduledAt,
 		publishedAt: post.publishedAt
 			? new Date(post.publishedAt).toISOString()
 			: undefined,
@@ -146,26 +150,13 @@ export function useDeletePost() {
 	const queryClient = useQueryClient();
 	const { zernio } = useZernio();
 
-	return {
-		mutateAsync: async (postId: string) => {
+	return useMutation({
+		mutationFn: async (postId: string) => {
 			if (!zernio) throw new Error("Zernio not initialized");
 			await deletePost(zernio, postId);
 			queryClient.invalidateQueries({ queryKey: postKeys.all });
 		},
-		mutate: async (
-			postId: string,
-			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
-		) => {
-			try {
-				if (!zernio) throw new Error("Zernio not initialized");
-				await deletePost(zernio, postId);
-				queryClient.invalidateQueries({ queryKey: postKeys.all });
-				callbacks?.onSuccess?.();
-			} catch (err) {
-				callbacks?.onError?.(err as Error);
-			}
-		},
-	};
+	});
 }
 
 // Sync hook - fetches from Zernio directly
@@ -242,16 +233,10 @@ export function useRetryPost() {
 
 // Unpublish hook - stub implementation
 export function useUnpublishPost() {
-	return {
-		mutate: async (
-			_postId: string,
-			callbacks?: { onSuccess?: () => void; onError?: (err: Error) => void },
-		) => {
-			try {
-				callbacks?.onSuccess?.();
-			} catch (err) {
-				callbacks?.onError?.(err as Error);
-			}
+	return useMutation({
+		mutationFn: async (postId: string) => {
+			// Stub - actual implementation would call zernio.posts.unpublishPost
+			console.log("Unpublish post:", postId);
 		},
-	};
+	});
 }

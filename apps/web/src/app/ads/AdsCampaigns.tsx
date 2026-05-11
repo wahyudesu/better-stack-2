@@ -352,7 +352,7 @@ function CampaignRow({ campaign, ads }: { campaign: AdCampaign; ads: Ad[] }) {
 									</span>
 								</SheetDescription>
 							</div>
-							<span
+							{/*<span
 								className={cn(
 									"inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium shrink-0",
 									currentStatus.color,
@@ -362,14 +362,14 @@ function CampaignRow({ campaign, ads }: { campaign: AdCampaign; ads: Ad[] }) {
 									className={cn("w-1.5 h-1.5 rounded-full", currentStatus.dot)}
 								/>
 								{currentStatus.label}
-							</span>
+							</span>*/}
 						</div>
 
 						{/* Campaign metrics summary cards */}
 						{campaign.metrics && (
-							<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+							<div className="grid grid-cols-2 gap-3 mt-4">
 								<Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-0">
-									<CardContent className="p-3 text-center">
+									<CardContent className="p-0 text-center">
 										<DollarSign className="h-4 w-4 mx-auto mb-1 text-primary" />
 										<div className="text-lg font-bold">
 											{formatCurrency(campaign.metrics.spend)}
@@ -380,7 +380,7 @@ function CampaignRow({ campaign, ads }: { campaign: AdCampaign; ads: Ad[] }) {
 									</CardContent>
 								</Card>
 								<Card className="bg-muted/30 border-0">
-									<CardContent className="p-3 text-center">
+									<CardContent className="p-0 text-center">
 										<Eye className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
 										<div className="text-lg font-bold">
 											{formatNumber(campaign.metrics.impressions)}
@@ -391,7 +391,7 @@ function CampaignRow({ campaign, ads }: { campaign: AdCampaign; ads: Ad[] }) {
 									</CardContent>
 								</Card>
 								<Card className="bg-muted/30 border-0">
-									<CardContent className="p-3 text-center">
+									<CardContent className="p-0 text-center">
 										<MousePointer className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
 										<div className="text-lg font-bold">
 											{formatNumber(campaign.metrics.clicks)}
@@ -400,7 +400,7 @@ function CampaignRow({ campaign, ads }: { campaign: AdCampaign; ads: Ad[] }) {
 									</CardContent>
 								</Card>
 								<Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-0">
-									<CardContent className="p-3 text-center">
+									<CardContent className="p-0 text-center">
 										<TrendingUp className="h-4 w-4 mx-auto mb-1 text-green-600 dark:text-green-400" />
 										<div className="text-lg font-bold text-green-600 dark:text-green-400">
 											{campaign.metrics.roas.toFixed(2)}x
@@ -495,16 +495,16 @@ function AdCard({ ad }: { ad: Ad }) {
 		statusConfig[ad.status as keyof typeof statusConfig] || statusConfig.active;
 
 	return (
-		<Card className="overflow-hidden hover:border-primary/20 transition-colors">
-			<CardContent className="p-0">
-				<div className="flex">
+		<Card className="overflow-hidden hover:border-primary/20 transition-colors border border-border">
+			<CardContent>
+				<div className="flex gap-4">
 					{/* Ad thumbnail */}
 					<div className="w-24 h-24 shrink-0 bg-muted flex items-center justify-center">
 						{ad.creative?.thumbnailUrl ? (
 							<img
 								src={ad.creative.thumbnailUrl}
 								alt={ad.name}
-								className="w-full h-full object-cover"
+								className="w-full h-full object-cover rounded-lg"
 							/>
 						) : (
 							<span className="text-3xl font-bold text-muted-foreground/30">
@@ -514,7 +514,7 @@ function AdCard({ ad }: { ad: Ad }) {
 					</div>
 
 					{/* Ad info */}
-					<div className="flex-1 p-3 min-w-0">
+					<div className="flex-1 min-w-0">
 						<div className="flex items-start justify-between gap-2">
 							<div className="min-w-0 flex-1">
 								<div className="flex items-center gap-2 mb-1">
@@ -534,9 +534,9 @@ function AdCard({ ad }: { ad: Ad }) {
 									{ad.creative?.body ?? "No ad copy"}
 								</div>
 								<div className="flex items-center gap-2 text-xs">
-									<Badge variant="outline" className="text-[10px] capitalize">
+									{/*<Badge variant="outline" className="text-[10px] capitalize">
 										{ad.adType}
-									</Badge>
+									</Badge>*/}
 									{ad.metrics && (
 										<>
 											<span className="font-medium">
@@ -549,6 +549,11 @@ function AdCard({ ad }: { ad: Ad }) {
 										</>
 									)}
 								</div>
+								{ad.metrics && (
+									<span className="text-muted-foreground">
+										{formatNumber(ad.metrics.impressions)} impression
+									</span>
+								)}
 							</div>
 							<Button
 								variant="ghost"

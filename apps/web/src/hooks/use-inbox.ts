@@ -5,6 +5,7 @@ import {
 	mockConversations,
 	mockReviews,
 } from "@/data/inbox-mock";
+import { inboxApi } from "@/lib/api/inbox";
 import { api } from "@/lib/client";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -30,7 +31,7 @@ export function useConversations(accountId?: string, platform?: string) {
 			if (!useAuthStore.getState().clerkToken) {
 				return mockConversations;
 			}
-			const { data, error } = await api.listConversations({
+			const { data, error } = await inboxApi.listConversations({
 				accountId,
 				platform,
 				limit: 50,
@@ -52,7 +53,7 @@ export function useConversation(
 		queryKey: inboxKeys.conversation(conversationId ?? ""),
 		queryFn: async () => {
 			if (!conversationId) return null;
-			const { data, error } = await api.getConversation(
+			const { data, error } = await inboxApi.getConversation(
 				conversationId,
 				accountId ?? "",
 			);
@@ -72,7 +73,8 @@ export function useMessages(conversationId: string | null, accountId?: string) {
 			if (!useAuthStore.getState().clerkToken) {
 				return getMockMessages(conversationId);
 			}
-			const { data, error } = await api.listMessages(conversationId, {
+			const { data, error } = await inboxApi.listMessages({
+				conversationId,
 				accountId: accountId ?? "",
 				limit: 50,
 			});
@@ -90,7 +92,8 @@ export function useSendMessage(conversationId: string, accountId: string) {
 
 	return useMutation({
 		mutationFn: async (text: string) => {
-			const { data, error } = await api.sendMessage(conversationId, {
+			const { data, error } = await inboxApi.sendMessage({
+				conversationId,
 				accountId,
 				message: text,
 			});
@@ -110,7 +113,10 @@ export function useMarkAsRead(conversationId: string, accountId: string) {
 
 	return useMutation({
 		mutationFn: async () => {
-			const { error } = await api.markAsRead(conversationId, accountId);
+			const { error } = await inboxApi.updateConversation(conversationId, {
+				accountId,
+				status: "active",
+			});
 			if (error) throw error;
 		},
 		onSuccess: () => {

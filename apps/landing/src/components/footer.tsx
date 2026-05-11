@@ -26,20 +26,13 @@ const footerLinks = {
   },
 };
 
-const socials = [
-  { label: "Twitter", icon: "𝕏", href: "#" },
-  { label: "Instagram", icon: "📷", href: "#" },
-  { label: "LinkedIn", icon: "in", href: "#" },
-  { label: "TikTok", icon: "♪", href: "#" },
-];
-
 export function Footer() {
   return (
     <footer className="">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           {/* Top section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8 ">
             {/* Brand */}
             <div className="col-span-1 sm:col-span-2 lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
@@ -52,7 +45,7 @@ export function Footer() {
                 Schedule and boost content, manage conversations, and track performance across social media in one simple place.
               </p>
               {/* Social links */}
-              <div className="flex items-center gap-3">
+              {/*<div className="flex items-center gap-3">
                 {socials.map((social) => (
                   <a
                     key={social.label}
@@ -63,11 +56,11 @@ export function Footer() {
                     <span className="text-sm" aria-hidden="true">{social.icon}</span>
                   </a>
                 ))}
-              </div>
+              </div>*/}
             </div>
 
             {/* Product links */}
-            <div>
+            {/*<div>
               <h4 className="font-semibold mb-4">{footerLinks.product.title}</h4>
               <ul className="space-y-3">
                 {footerLinks.product.links.map((link) => (
@@ -81,7 +74,7 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div>*/}
 
             {/* Company links */}
             <div>

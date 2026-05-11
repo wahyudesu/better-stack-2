@@ -3,9 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bot, Calendar, Mail, MessageSquare, Plus, Users } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
 	Dialog,

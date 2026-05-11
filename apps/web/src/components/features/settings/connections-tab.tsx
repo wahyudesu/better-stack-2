@@ -30,7 +30,7 @@ import "react-social-icons/telegram";
 import "react-social-icons/snapchat";
 import "react-social-icons/discord";
 import { Skeleton } from "@zenpost/ui/components/skeleton";
-import { AlertCircle, LogOut, Settings2 } from "lucide-react";
+import { AlertCircle, Loader2, LogOut, Settings2 } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -175,8 +175,8 @@ export function ConnectionsTab() {
 	// Set default brand on load
 	const activeBrandId =
 		selectedBrandId ||
-		brands.find((b) => b.is_default)?.id ||
-		brands[0]?.id ||
+		brands.find((b) => b.is_default)?._id ||
+		brands[0]?._id ||
 		null;
 
 	// Filter accounts by selected brand
@@ -249,7 +249,7 @@ export function ConnectionsTab() {
 			}
 		} catch (error) {
 			if (error instanceof Error && error.message === "BRAND_NEEDS_SYNC") {
-				const brand = brands.find((b) => b.id === activeBrandId);
+				const brand = brands.find((b) => b._id === activeBrandId);
 				setSyncPendingBrand({
 					id: activeBrandId,
 					name: brand?.name || "Unknown",
@@ -386,12 +386,27 @@ export function ConnectionsTab() {
 						<p className="font-display font-semibold text-sm">Select Brand</p>
 					</div>
 					<div className="flex flex-wrap gap-2">
+						{/* All brands filter */}
+						<button
+							key="__all__"
+							onClick={() => setSelectedBrandId(null)}
+							className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 pr-2 shadow-sm transition-all ${
+								activeBrandId === null
+									? "border-primary bg-primary/5 ring-1 ring-primary"
+									: "bg-card hover:bg-muted/50"
+							}`}
+						>
+							<span className="text-xs font-medium">All</span>
+							{activeBrandId === null && (
+								<span className="size-1.5 rounded-full bg-primary ml-1" />
+							)}
+						</button>
 						{brands.map((brand) => {
-							const isSelected = brand.id === activeBrandId;
+							const isSelected = brand._id === activeBrandId;
 							return (
 								<button
-									key={brand.id}
-									onClick={() => setSelectedBrandId(brand.id)}
+									key={brand._id}
+									onClick={() => setSelectedBrandId(brand._id)}
 									className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 pr-2 shadow-sm transition-all ${
 										isSelected
 											? "border-primary bg-primary/5 ring-1 ring-primary"

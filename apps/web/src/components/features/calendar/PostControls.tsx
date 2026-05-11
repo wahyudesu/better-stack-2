@@ -28,6 +28,7 @@ interface PostControlsProps {
 	onPostStatusChange: (status: PostStatus) => void;
 	selectedPlatform?: Platform | "all";
 	onPlatformChange?: (platform: Platform | "all") => void;
+	excludeAllPlatform?: boolean;
 }
 
 export function PostControls({
@@ -42,6 +43,7 @@ export function PostControls({
 	onPostStatusChange,
 	selectedPlatform = "all",
 	onPlatformChange,
+	excludeAllPlatform = false,
 }: PostControlsProps) {
 	const viewModeTabs = [
 		{
@@ -77,7 +79,7 @@ export function PostControls({
 						>
 							<ChevronLeft className="h-4 w-4" />
 						</Button>
-						<span className="min-w-[140px] text-center text-sm font-semibold">
+						<span className="min-w-[80px] text-center text-sm font-semibold">
 							{monthName}
 						</span>
 						<Button
@@ -114,6 +116,7 @@ export function PostControls({
 					<PlatformFilterDropdown
 						value={selectedPlatform}
 						onChange={(value) => onPlatformChange(value)}
+						excludeAllOption={excludeAllPlatform}
 					/>
 				)}
 				<AnimatedTabs

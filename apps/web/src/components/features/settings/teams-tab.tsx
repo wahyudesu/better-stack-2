@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
 	DropdownMenu,
+	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -139,6 +141,52 @@ function formatProfileAccess(profileAccess: string[]): string {
 	return `${profileAccess.length} profile${profileAccess.length > 1 ? "s" : ""}`;
 }
 
+/**
+ * Profile selector for team member profile access
+ */
+function ProfileAccessSelector({ member }: { member: TeamMember }) {
+	// Mock profiles for selector
+	const availableProfiles = [
+		{ id: "all", name: "All Profiles" },
+		{ id: "64f0a1b2c3d4e5f6a7b8c9d0", name: "Marketing" },
+		{ id: "64f0a1b2c3d4e5f6a7b8c9d1", name: "Sales" },
+		{ id: "64f0a1b2c3d4e5f6a7b8c9d2", name: "Support" },
+	];
+
+	const handleSelect = (profileId: string) => {
+		// Update member profile access (mock - would call API in real app)
+		console.log(`Updated ${member.name} profile access to:`, profileId);
+	};
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger className="text-left">
+				<span className="cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
+					{formatProfileAccess(member.profileAccess)}
+				</span>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="start" className="w-48">
+				<DropdownMenuItem onClick={() => handleSelect("all")}>
+					All Profiles
+				</DropdownMenuItem>
+				<DropdownMenuSeparator />
+				{availableProfiles.slice(1).map((profile) => {
+					const isSelected = member.profileAccess.includes(profile.id);
+					return (
+						<DropdownMenuCheckboxItem
+							key={profile.id}
+							checked={isSelected}
+							onCheckedChange={() => handleSelect(profile.id)}
+						>
+							{profile.name}
+						</DropdownMenuCheckboxItem>
+					);
+				})}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
 export function TeamsTab() {
 	const [members] = useState<TeamMember[]>(mockUsersResponse.users);
 	const currentUserId = mockUsersResponse.currentUserId;
@@ -224,9 +272,7 @@ export function TeamsTab() {
 											</span>
 										</td>
 										<td className="px-4 py-3">
-											<span className="text-sm text-muted-foreground">
-												{formatProfileAccess(member.profileAccess)}
-											</span>
+											<ProfileAccessSelector member={member} />
 										</td>
 										<td className="px-4 py-3">
 											<span className="text-sm text-muted-foreground">
