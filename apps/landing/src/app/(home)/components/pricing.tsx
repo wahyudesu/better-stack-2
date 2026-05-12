@@ -20,7 +20,7 @@ const PLANS = [
       "2 social accounts",
       "1 team member",
       "Unlimited posts",
-      "Publishing + analytics + comments + DMs + ads",
+      "Publishing + analytics + comments + DMs",
     ],
     cta: "Contact Us",
     ctaHref: "/contact",
@@ -93,6 +93,7 @@ export function PricingSection() {
           </p>
         </div>
 
+        <div className="mx-auto max-w-5xl">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map(
             ({
@@ -109,8 +110,8 @@ export function PricingSection() {
                 key={name}
                 className={
                   highlighted
-                    ? "relative overflow-hidden bg-primary text-primary-foreground ring-1 ring-primary"
-                    : ""
+                    ? "relative overflow-hidden p-2 bg-primary text-primary-foreground ring-1 ring-primary"
+                    : "border-border ring-0 border p-2"
                 }
               >
                 {highlighted && (
@@ -119,7 +120,7 @@ export function PricingSection() {
                   </div>
                 )}
 
-                <CardHeader className="m-0 w-full p-6">
+                <CardHeader className="m-0 w-full p-4">
                   <div className="flex items-center justify-between">
                     <CardTitle
                       className={
@@ -180,10 +181,10 @@ export function PricingSection() {
                 </CardHeader>
 
                 <CardContent
-                  className={`border-t p-6 ${
+                  className={`border-t p-4 ${
                     highlighted
-                      ? "border-primary-foreground/20"
-                      : "border-border"
+                      ? ""
+                      : ""
                   }`}
                 >
                   <ul className="flex flex-col gap-3">
@@ -211,6 +212,7 @@ export function PricingSection() {
               </Card>
             )
           )}
+        </div>
         </div>
       </div>
     </section>

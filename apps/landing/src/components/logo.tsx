@@ -1,19 +1,64 @@
 import type React from "react";
 
 export const LogoIcon = (props: React.ComponentProps<"svg">) => (
-	<svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
-		<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+	<svg
+		viewBox="0 0 32 32"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<rect width="32" height="32" rx="8" fill="currentColor" />
+		<path
+			d="M8 12L16 20L24 12"
+			stroke="white"
+			strokeWidth="2.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M8 20L16 12L24 20"
+			stroke="white"
+			strokeWidth="2.5"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			opacity="0.5"
+		/>
 	</svg>
 );
 
 export const Logo = (props: React.ComponentProps<"svg">) => (
 	<svg
-		fill="currentColor"
-		viewBox="0 0 84 24"
+		viewBox="0 0 88 24"
+		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
 		{...props}
 	>
-		<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-		<text x="28" y="17" fontFamily="system-ui, sans-serif" fontSize="16" fontWeight="700" fill="currentColor">ZenPost</text>
+		<rect width="24" height="24" rx="6" fill="currentColor" />
+		<path
+			d="M6 9L12 15L18 9"
+			stroke="white"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M6 15L12 9L18 15"
+			stroke="white"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			opacity="0.5"
+		/>
+		<text
+			x="30"
+			y="16"
+			fontFamily="system-ui, -apple-system, sans-serif"
+			fontSize="15"
+			fontWeight="600"
+			fill="currentColor"
+			letterSpacing="-0.5"
+		>
+			ZenPost
+		</text>
 	</svg>
 );
