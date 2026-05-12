@@ -9,7 +9,7 @@ import {
   FaUsers,
   FaGlobe,
   FaClock,
-  FaFileInvoice,
+  // FaFileInvoice,
   FaBriefcase,
   FaLayerGroup,
   FaRocket,
