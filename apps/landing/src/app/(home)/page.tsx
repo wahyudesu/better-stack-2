@@ -2,6 +2,7 @@ import { Hero } from "@/app/(home)/components/hero";
 import { Solutions } from "@/app/(home)/components/solutions";
 import { FeaturesGrid } from "@/app/(home)/components/features-grid";
 import { Journey } from "@/app/(home)/components/journey";
+import { PricingSection } from "@/app/(home)/components/pricing";
 import { Comparison } from "@/app/(home)/components/comparison";
 import { FAQ } from "@/app/(home)/components/faq";
 import { CtaSection } from "@/app/(home)/components/cta-section";
@@ -16,6 +17,7 @@ export default function Home() {
         <FeaturesGrid />
         <Journey />
         <Comparison />
+        <PricingSection />
         <FAQ /> 
         <CtaSection />
       </main>

@@ -142,5 +142,57 @@ email sequence
 positioning statement
 pricing
 brand voice-->
+## Pricing
 
-## PRICING
+### Starter — Free
+Perfect for individuals getting started.
+
+- 2 social accounts
+- 1 team member
+- Unlimited posts
+- Publishing + analytics + comments + DMs + ads
+
+[ Contact Us ]
+
+---
+
+### Creator — Rp249k/mo
+For creators and small brands who need more power.
+
+- 5 social accounts
+- 2 team members
+- Unlimited posts
+- Publishing + analytics + comments + DMs + ads
+- AI content tools
+
+[ Contact Us ]
+
+---
+
+### Team — Rp999k/mo
+Built for growing teams and collaborative workflows.
+
+- 15 social accounts
+- 10 team members
+- Unlimited posts
+- Publishing + analytics + comments + DMs + ads
+- Team collaboration
+- Approval workflow
+- AI workspace tools
+
+[ Contact Us ]
+
+---
+
+### Agency — Custom Pricing
+Built for agencies and larger marketing teams.
+
+- 100+ social accounts
+- Unlimited team members
+- White-label support
+- Client workspace management
+- Approval workflow
+- Priority support
+- Advanced automation & API access
+
+[ Contact Us ]

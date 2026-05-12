@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AgentTerminal } from "@/components/agent-terminal";
 
-type TabId = "agents" | "analytics" | "inbox" | "scheduler" | "ads";
+type TabId = "agents" | "analytics" | "inbox" | "scheduler" | "channels" | "ads";
 
 const tabContent: Record<
   TabId,
@@ -32,6 +32,11 @@ const tabContent: Record<
     title: "Smart Scheduler",
     description:
       "Plan, schedule, and auto-post to all your platforms — from one calendar.",
+  },
+  channels: {
+    title: "Connected Channels",
+    description:
+      "Manage all your social media accounts in one place — connect once, post everywhere.",
   },
   ads: {
     title: "Ads Analytics",
@@ -86,6 +91,7 @@ export function Hero() {
                   <TabsTrigger value="analytics" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Analytics</TabsTrigger>
                   <TabsTrigger value="inbox" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Inbox</TabsTrigger>
                   <TabsTrigger value="scheduler" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Scheduler</TabsTrigger>
+                  <TabsTrigger value="channels" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Channels</TabsTrigger>
                   <TabsTrigger value="ads" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Ads</TabsTrigger>
                 </TabsList>
               </div>
@@ -97,7 +103,7 @@ export function Hero() {
               <TabsContent value="analytics" className="mt-2">
                 <div className="overflow-hidden rounded-2xl border border-border/80">
                   <Image
-                    src="/okok.png"
+                    src="/shots/content.png"
                     alt={tabContent.analytics.title}
                     width={1200}
                     height={675}
@@ -111,7 +117,7 @@ export function Hero() {
               <TabsContent value="inbox" className="mt-2">
                 <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
                   <Image
-                    src="/okok.png"
+                    src="/shots/inbox.png"
                     alt={tabContent.inbox.title}
                     width={1200}
                     height={675}
@@ -125,8 +131,22 @@ export function Hero() {
               <TabsContent value="scheduler" className="mt-2">
                 <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
                   <Image
-                    src="/okok.png"
+                    src="/shots/content.png"
                     alt={tabContent.scheduler.title}
+                    width={1200}
+                    height={675}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                    loading="lazy"
+                    className="w-full h-auto"
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="channels" className="mt-2">
+                <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+                  <Image
+                    src="/shots/connection.png"
+                    alt={tabContent.channels.title}
                     width={1200}
                     height={675}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
@@ -139,7 +159,7 @@ export function Hero() {
               <TabsContent value="ads" className="mt-2">
                 <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
                   <Image
-                    src="/okok.png"
+                    src="/shots/ads.png"
                     alt={tabContent.ads.title}
                     width={1200}
                     height={675}
