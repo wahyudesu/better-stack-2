@@ -60,11 +60,6 @@ const features = [
     description: "AI analyzes your audience's active hours and auto-posts at the optimal moment.",
   },
   {
-    icon: <FaFileInvoice />,
-    title: "White-label Reports",
-    description: "Generate professional reports with your branding. Download as PDF or share via link.",
-  },
-  {
     icon: <FaBriefcase />,
     title: "Multi-Brand Support",
     description: "Manage multiple brands from one dashboard. Perfect for agencies handling many clients.",
@@ -115,7 +110,7 @@ export function FeaturesGrid() {
           </div>
 
           {/* Feature grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 justify-items-center">
             {features.map((feature, index) => (
               <div
                 key={index}

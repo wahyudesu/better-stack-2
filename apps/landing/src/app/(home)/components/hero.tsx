@@ -85,14 +85,14 @@ export function Hero() {
           {/* Product preview tabs */}
           <div className="w-full pt-16">
             <Tabs defaultValue="agents" className="w-full">
-              <div className="flex justify-center">
-                <TabsList className="gap-2">
-                  <TabsTrigger value="agents" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Agents</TabsTrigger>
-                  <TabsTrigger value="analytics" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Analytics</TabsTrigger>
-                  <TabsTrigger value="inbox" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Inbox</TabsTrigger>
-                  <TabsTrigger value="scheduler" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Scheduler</TabsTrigger>
-                  <TabsTrigger value="channels" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Channels</TabsTrigger>
-                  <TabsTrigger value="ads" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm">Ads</TabsTrigger>
+              <div className="flex justify-center -mx-4 px-4 overflow-x-auto pb-2">
+                <TabsList className="gap-2 shrink-0">
+                  <TabsTrigger value="agents" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm whitespace-nowrap">Agents</TabsTrigger>
+                  <TabsTrigger value="analytics" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm whitespace-nowrap">Analytics</TabsTrigger>
+                  <TabsTrigger value="inbox" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm whitespace-nowrap">Inbox</TabsTrigger>
+                  <TabsTrigger value="scheduler" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm whitespace-nowrap">Scheduler</TabsTrigger>
+                  <TabsTrigger value="channels" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm whitespace-nowrap">Channels</TabsTrigger>
+                  <TabsTrigger value="ads" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm whitespace-nowrap">Ads</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -101,7 +101,7 @@ export function Hero() {
               </TabsContent>
 
               <TabsContent value="analytics" className="mt-2">
-                <div className="overflow-hidden rounded-2xl border border-border/80">
+                <div className="overflow-hidden rounded-2xl">
                   <Image
                     src="/shots/content.png"
                     alt={tabContent.analytics.title}
@@ -115,7 +115,7 @@ export function Hero() {
               </TabsContent>
 
               <TabsContent value="inbox" className="mt-2">
-                <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+                <div className="overflow-hidden rounded-2xl">
                   <Image
                     src="/shots/inbox.png"
                     alt={tabContent.inbox.title}
@@ -129,7 +129,7 @@ export function Hero() {
               </TabsContent>
 
               <TabsContent value="scheduler" className="mt-2">
-                <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+                <div className="overflow-hidden rounded-2xl">
                   <Image
                     src="/shots/content.png"
                     alt={tabContent.scheduler.title}
@@ -143,7 +143,7 @@ export function Hero() {
               </TabsContent>
 
               <TabsContent value="channels" className="mt-2">
-                <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+                <div className="overflow-hidden rounded-2xl">
                   <Image
                     src="/shots/connection.png"
                     alt={tabContent.channels.title}
@@ -157,7 +157,7 @@ export function Hero() {
               </TabsContent>
 
               <TabsContent value="ads" className="mt-2">
-                <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+                <div className="overflow-hidden rounded-2xl">
                   <Image
                     src="/shots/ads.png"
                     alt={tabContent.ads.title}

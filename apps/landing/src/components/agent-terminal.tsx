@@ -3,33 +3,41 @@
 import { useState, useEffect } from "react";
 
 const terminalLines = [
-  { type: "input", text: "zenpost agent --task 'Create engagement report for client X'" },
+  { type: "input", text: "zenpost agent --task 'Plan Q2 ads campaign for Brand X'" },
   { type: "output", text: "🤖 Agent initialized. Running task..." },
   { type: "output", text: "" },
-  { type: "output", text: "📊 Fetching data from 12 platforms..." },
-  { type: "output", text: "   ✓ Twitter (247 engagements)" },
-  { type: "output", text: "   ✓ Instagram (1.2K engagements)" },
-  { type: "output", text: "   ✓ LinkedIn (89 engagements)" },
-  { type: "output", text: "   ✓ Facebook (456 engagements)" },
-  { type: "output", text: "   ✓ TikTok (3.8K engagements)" },
-  { type: "output", text: "   ..." },
+  { type: "output", text: "📁 Fetching assets from Google Drive..." },
+  { type: "output", text: "   ✓ campaign-banners/ (12 files)" },
+  { type: "output", text: "   ✓ product-shots/ (8 files)" },
+  { type: "output", text: "   ✓ copy-guides/ (3 files)" },
   { type: "output", text: "" },
-  { type: "output", text: "📈 Generating report..." },
+  { type: "output", text: "🎯 Planning ads campaign..." },
   { type: "output", text: "" },
   { type: "output", text: "┌─────────────────────────────────────────┐" },
-  { type: "output", text: "│  CLIENT X - ENGAGEMENT REPORT           │" },
-  { type: "output", text: "│  Period: May 1-7, 2026                   │" },
+  { type: "output", text: "│  Q2 CAMPAIGN — BRAND X                  │" },
+  { type: "output", text: "│  Budget: $5,000/month                   │" },
   { type: "output", text: "├─────────────────────────────────────────┤" },
-  { type: "output", text: "│  Total Engagements: 6,831               │" },
-  { type: "output", text: "│  Growth: +18.3% ↑                       │" },
-  { type: "output", text: "│  Best Platform: TikTok                  │" },
-  { type: "output", text: "│  Top Post: Reel #47 (12.4K views)       │" },
+  { type: "output", text: "│  Meta Ads:     $2,000  (40%)            │" },
+  { type: "output", text: "│  Google Ads:   $1,500  (30%)           │" },
+  { type: "output", text: "│  TikTok Ads:   $1,500  (30%)           │" },
+  { type: "output", text: "│  Target: 25-40, DTC shoppers            │" },
+  { type: "output", text: "│  Duration: Apr 1 - Jun 30              │" },
   { type: "output", text: "└─────────────────────────────────────────┘" },
   { type: "output", text: "" },
-  { type: "input", text: "zenpost agent --insight" },
-  { type: "output", text: "💡 Best time to post: 7PM - 9PM local time" },
-  { type: "output", text: "💡 Trending hashtags: #growth #marketing" },
+  { type: "input", text: "zenpost agent --create-content --drive folderId123" },
+  { type: "output", text: "📸 Generating content for Instagram & LinkedIn..." },
+  { type: "output", text: "   ✓ Batched 8 images from Drive" },
+  { type: "output", text: "   ✓ Resized for Instagram (1080x1080)" },
+  { type: "output", text: "   ✓ Resized for LinkedIn (1200x627)" },
   { type: "output", text: "" },
+  { type: "output", text: "   📤 Uploading to Instagram..." },
+  { type: "output", text: "   ✓ Posted: carousel-1.jpg" },
+  { type: "output", text: "   ✓ Posted: carousel-2.jpg" },
+  { type: "output", text: "" },
+  { type: "output", text: "   📤 Uploading to LinkedIn..." },
+  { type: "output", text: "   ✓ Posted: brand-x-campaign.jpg" },
+  { type: "output", text: "" },
+  { type: "output", text: "✅ 5 posts scheduled across 2 platforms" },
 ];
 
 export function AgentTerminal() {
@@ -118,7 +126,7 @@ export function AgentTerminal() {
             <span className="h-2 w-2 rounded-full bg-[#27C93F]" />
             Agent Active
           </span>
-          <span>12 platforms connected</span>
+          <span>Google Drive connected</span>
         </div>
         <div className="flex items-center gap-2">
           <span>Type</span>
