@@ -31,7 +31,7 @@ export function Header() {
 					className="rounded-full p-2 hover:bg-muted dark:hover:bg-muted/50"
 					href="#"
 				>
-					<Logo className="h-4" />
+					<Logo className="h-8" />
 				</a>
 				<div className="hidden items-center gap-6 md:flex">
 					{navLinks.map((link) => (

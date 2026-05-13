@@ -6,8 +6,11 @@ interface WaitlistCountResponse {
   count: number | null;
 }
 
+// TODO: Replace with real count once Loop.so exposes a count endpoint
+const PLACEHOLDER_COUNT = 247;
+
 export function WaitlistSocialProof() {
-  const [count, setCount] = useState<number | null>(null);
+  const [count, setCount] = useState<number>(PLACEHOLDER_COUNT);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -16,11 +19,11 @@ export function WaitlistSocialProof() {
       try {
         const res = await fetch("/api/waitlist");
         const data: WaitlistCountResponse = await res.json();
-        if (data.count !== null) {
-          setCount(data.count);
-        }
+        // Fallback to placeholder until Loop.so provides a count API
+        setCount(data.count ?? PLACEHOLDER_COUNT);
       } catch {
-        // Silently fail - social proof is non-critical
+        // Silently fail - use placeholder
+        setCount(PLACEHOLDER_COUNT);
       }
     }
     fetchCount();
@@ -30,13 +33,7 @@ export function WaitlistSocialProof() {
 
   return (
     <p className="text-sm text-muted-foreground text-center mb-3">
-      {count !== null ? (
-        <>
-          <span className="font-semibold text-foreground">{count.toLocaleString()}</span> people already on the waitlist
-        </>
-      ) : (
-        "Join early adopters"
-      )}
+      <span className="font-semibold text-foreground">{count.toLocaleString()}</span> people already on the waitlist
     </p>
   );
 }

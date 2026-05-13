@@ -78,6 +78,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      // Loop.so returned non-JSON - could be success with empty body or error page
+      if (response.ok) {
+        return NextResponse.json({ success: true, message: "You're on the waitlist!" }, { status: 201 });
+      }
+      throw new Error(`Unexpected response: ${response.status}`);
+    }
+
     const data: { success: boolean; message?: string } = await response.json();
 
     if (!data.success) {
