@@ -1,4 +1,3 @@
-import { Footer } from "@/components/footer";
 import { FAQ } from "@/app/(home)/components/faq";
 import { ContactOptions } from "./contact-options";
 import type { Metadata } from "next";
