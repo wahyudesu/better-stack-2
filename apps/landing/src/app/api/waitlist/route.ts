@@ -78,16 +78,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const contentType = response.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      // Loop.so returned non-JSON - could be success with empty body or error page
-      if (response.ok) {
-        return NextResponse.json({ success: true, message: "You're on the waitlist!" }, { status: 201 });
-      }
-      throw new Error(`Unexpected response: ${response.status}`);
+    const text = await response.text();
+
+    if (!text.trim()) {
+      return NextResponse.json(
+        { success: true, message: "You're on the waitlist!" },
+        { status: 201 }
+      );
     }
 
-    const data: { success: boolean; message?: string } = await response.json();
+    let data: { success: boolean; message?: string };
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Invalid JSON from Loop.so: ${text.slice(0, 100)}`);
+    }
 
     if (!data.success) {
       posthog.capture({
