@@ -27,7 +27,7 @@ const features = [
   {
     icon: <FaInbox />,
     title: "Brand Inbox",
-    description: "All DMs, comments, and mentions from 14+ platforms — in one inbox. Nothing slips through.",
+    description: "All DMs, comments, and mentions from 14+ platforms-in one inbox. Nothing slips through.",
   },
   {
     icon: <FaCalendar />,
@@ -37,12 +37,12 @@ const features = [
   {
     icon: <FaWandMagic />,
     title: "AI Analytics Assistant",
-    description: "Ask your data anything. Get answers on what's driving growth — not more charts.",
+    description: "Ask your data anything. Get answers on what's driving growth-not more charts.",
   },
   {
     icon: <FaImages />,
     title: "Media Library",
-    description: "Store and organize all your brand assets — images, videos, GIFs. Access anytime.",
+    description: "Store and organize all your brand assets-images, videos, GIFs. Access anytime.",
   },
   {
     icon: <FaUsers />,
@@ -67,12 +67,12 @@ const features = [
   {
     icon: <FaLayerGroup />,
     title: "Sentiment Analysis",
-    description: "Spot negative feedback early — before it becomes a public complaint.",
+    description: "Spot negative feedback early-before it becomes a public complaint.",
   },
   {
     icon: <FaRocket />,
     title: "Ads Campaign Boosting",
-    description: "Amplify your best-performing posts with paid boost — directly from the dashboard.",
+    description: "Amplify your best-performing posts with paid boost-directly from the dashboard.",
   },
   {
     icon: <FaCircleUser />,
@@ -82,7 +82,7 @@ const features = [
   {
     icon: <FaRotate />,
     title: "24/7 Automation",
-    description: "Set it and forget it. Auto-post, auto-reply, and auto-schedule — running while you sleep.",
+    description: "Set it and forget it. Auto-post, auto-reply, and auto-schedule-running while you sleep.",
   },
   {
     icon: <FaBolt />,
@@ -105,7 +105,7 @@ export function FeaturesGrid() {
               Everything you need to dominate social media
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              From scheduling to analytics — all the tools to plan, publish, engage, and grow across 14+ platforms.
+              From scheduling to analytics-all the tools to plan, publish, engage, and grow across 14+ platforms.
             </p>
           </div>
 

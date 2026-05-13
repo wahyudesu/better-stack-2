@@ -7,22 +7,22 @@ import { PhoneCall } from "lucide-react";
 
 const faqs = [
   {
-    question: "Can Zernio handle thousands of client accounts?",
+    question: "Can Zenpost handle thousands of client accounts?",
     answer:
       "Yes. Scales to unlimited accounts, no changes needed.",
   },
   {
-    question: "Can AI agents use Zernio to post on social media?",
+    question: "Can AI agents use Zenpost to post on social media?",
     answer:
-      "Yes. Zernio ships an MCP server with 280+ tools. Connect it to Claude Desktop, Cursor, or any MCP-compatible client and your agent can post, schedule, read analytics, and manage DMs via natural language.",
+      "Yes. Zenpost ships an MCP server with 280+ tools. Connect it to Claude Desktop, Cursor, or any MCP-compatible client and your agent can post, schedule, read analytics, and manage DMs via natural language.",
   },
   {
-    question: "Which social media platforms does Zernio support?",
+    question: "Which social media platforms does Zenpost support?",
     answer:
       "15 platforms: Instagram, TikTok, X/Twitter, Facebook, LinkedIn, YouTube, WhatsApp, Threads, Pinterest, Reddit, Bluesky, Telegram, Google Business, Snapchat, and Discord. With Ads API support for 7 platforms.",
   },
   {
-    question: "Will posting through Zernio get my accounts banned or reduce reach?",
+    question: "Will posting through Zenpost get my accounts banned or reduce reach?",
     answer:
       "No. We only use official platform APIs, so your posts are treated exactly like native posts.",
   },

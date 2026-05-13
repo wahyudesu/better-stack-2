@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useClerk } from "@clerk/nextjs";
 import {
   Dialog,
@@ -118,6 +118,16 @@ export function WaitlistModal({ open, onOpenChange, initialEmail, onSuccess }: W
   const [step, setStep] = useState<"email" | "type">(initialEmail ? "type" : "email");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Sync when dialog opens with initialEmail
+  const prevOpenRef = useRef(open);
+  useEffect(() => {
+    if (open && !prevOpenRef.current && initialEmail) {
+      setEmail(initialEmail);
+      setStep("type");
+    }
+    prevOpenRef.current = open;
+  }, [open, initialEmail]);
 
   function handleSuccess() {
     onOpenChange(false);

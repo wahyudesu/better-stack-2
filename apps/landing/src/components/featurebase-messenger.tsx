@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Script from "next/script";
 
 declare global {
@@ -11,29 +11,43 @@ declare global {
   }
 }
 
+function bootFeaturebase() {
+  if (typeof window === "undefined") return;
+
+  const win = window;
+  if (typeof win.Featurebase !== "function") {
+    console.warn("Featurebase SDK not loaded yet");
+    return;
+  }
+
+  win.Featurebase("boot", {
+    appId: "69ecac10fbb00ef1c7b64475",
+    theme: "light",
+    language: "en",
+  });
+}
+
 const FeaturebaseMessenger = () => {
+  const [sdkLoaded, setSdkLoaded] = useState(false);
+
   useEffect(() => {
-    const win = window;
-
-    if (typeof win.Featurebase !== "function") {
-      win.Featurebase = function () {
-        (win.Featurebase!.q = win.Featurebase!.q || []).push(arguments);
-      };
+    if (sdkLoaded) {
+      bootFeaturebase();
     }
-
-    win.Featurebase("boot", {
-      appId: "69ecac10fbb00ef1c7b64475",
-      theme: "light",
-      language: "en",
-    });
-  }, []);
+  }, [sdkLoaded]);
 
   return (
-    <Script
-      src="https://do.featurebase.app/js/sdk.js"
-      id="featurebase-sdk"
-      strategy="afterInteractive"
-    />
+    <>
+      <Script
+        src="https://do.featurebase.app/js/sdk.js"
+        id="featurebase-sdk"
+        strategy="afterInteractive"
+        onLoad={() => {
+          console.log("Featurebase SDK loaded");
+          setSdkLoaded(true);
+        }}
+      />
+    </>
   );
 };
 

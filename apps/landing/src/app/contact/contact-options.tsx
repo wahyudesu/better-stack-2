@@ -1,52 +1,88 @@
 "use client";
 
 import posthog from "posthog-js";
-import { Mail, FileText, MessageCircle } from "lucide-react";
+import { Mail, Headphones, MessageCircle } from "lucide-react";
 
 const contactOptions = [
   {
-    icon: <FileText className="w-6 h-6" />,
-    title: "Docs",
-    description: "Read it first, it's helpful.",
-    href: "#",
+    icon: <Headphones className="w-5 h-5" />,
+    title: "Support",
+    description: "Get help, report bugs.",
     color: "bg-blue-500/10 text-blue-500",
+    action: "featurebase",
   },
   {
-    icon: <MessageCircle className="w-6 h-6" />,
-    title: "Telegram",
-    description: "Message the founder directly.",
-    href: "#",
-    color: "bg-primary/10 text-primary",
+    icon: <MessageCircle className="w-5 h-5" />,
+    title: "WhatsApp",
+    description: "Chat with us directly.",
+    href: "https://wa.me/6281234567890",
+    color: "bg-green-500/10 text-green-500",
   },
   {
-    icon: <Mail className="w-6 h-6" />,
+    icon: <Mail className="w-5 h-5" />,
     title: "Email",
     description: "We read them all, we promise.",
     href: "mailto:hello@zenpost.id",
-    color: "bg-green-500/10 text-green-500",
+    color: "bg-primary/10 text-primary",
   },
 ];
 
+function ContactCard({ option }: { option: (typeof contactOptions)[number] }) {
+  const handleClick = () => {
+    posthog.capture("contact_option_clicked", { option: option.title.toLowerCase() });
+    if (option.action === "featurebase") {
+      console.log("Featurebase check:", {
+        exists: typeof window.Featurebase,
+        isFunc: typeof window.Featurebase === "function",
+      });
+      if (typeof window.Featurebase === "function") {
+        window.Featurebase("show");
+      } else {
+        console.warn("Featurebase not loaded yet");
+      }
+    }
+  };
+
+  const content = (
+    <>
+      <div className={`w-16 h-12 rounded-3xl mx-auto bg-card border border-border flex items-center justify-center mb-3`}>
+        {option.icon}
+      </div>
+      <h3 className="font-semibold mb-1">{option.title}</h3>
+      <p className="text-xs text-muted-foreground">{option.description}</p>
+    </>
+  );
+
+  if (option.href) {
+    return (
+      <a
+        href={option.href}
+        target={option.href.startsWith("http") ? "_blank" : undefined}
+        rel={option.href.startsWith("http") ? "noopener noreferrer" : undefined}
+        className="bg-muted cursor-pointer hover:bg-secondary group rounded-4xl p-5 transition-all text-center"
+        onClick={handleClick}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className="bg-secondary cursor-pointer group rounded-4xl p-5 transition-all text-center w-full"
+      onClick={handleClick}
+    >
+      {content}
+    </button>
+  );
+}
+
 export function ContactOptions() {
   return (
-    <div className="grid md:grid-cols-3 gap-6">
+    <div className="grid md:grid-cols-3 gap-4">
       {contactOptions.map((option) => (
-        <a
-          key={option.title}
-          href={option.href}
-          className="group bg-card border border-border rounded-xl p-8 hover:shadow-lg transition-all hover:border-primary/30"
-          onClick={() => posthog.capture("contact_option_clicked", { option: option.title.toLowerCase() })}
-        >
-          <div
-            className={`w-12 h-12 rounded-xl ${option.color} flex items-center justify-center mb-4`}
-          >
-            {option.icon}
-          </div>
-          <h3 className="font-semibold text-lg mb-2">{option.title}</h3>
-          <p className="text-sm text-muted-foreground">
-            {option.description}
-          </p>
-        </a>
+        <ContactCard key={option.title} option={option} />
       ))}
     </div>
   );

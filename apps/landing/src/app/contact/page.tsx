@@ -32,21 +32,15 @@ export default function ContactPage() {
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-24 bg-secondary text-secondary-foreground">
+        <section className="py-24 text-secondary-foreground">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto text-center">
-              <h1 className="text-4xl sm:text-5xl font-bold mb-4">Contact</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold mb-4">Contact</h1>
               <p className="text-xl text-secondary-foreground/70 mb-8">
                 Questions about setup, billing, privacy, or anything else? We&apos;re happy to help.
               </p>
             </div>
-          </div>
-        </section>
-
-        {/* Contact Options */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-3xl mx-auto">
               <ContactOptions />
             </div>
           </div>
@@ -56,7 +50,7 @@ export default function ContactPage() {
         <FAQ />
       </main>
 
-      <Footer />
+      {/*<Footer />*/}
     </div>
   );
 }
