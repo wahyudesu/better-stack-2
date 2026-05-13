@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { HeroWaitlistForm } from "@/components/hero-waitlist-form";
+import posthog from "posthog-js";
+import { HeroWaitlistForm } from "@/app/(home)/components/hero-waitlist-form";
 import { WaitlistSocialProof } from "@/components/waitlist-social-proof";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -84,7 +85,7 @@ export function Hero() {
 
           {/* Product preview tabs */}
           <div className="w-full pt-16">
-            <Tabs defaultValue="agents" className="w-full">
+            <Tabs defaultValue="agents" className="w-full" onValueChange={(tab) => posthog.capture("hero_tab_selected", { tab })}>
               <div className="flex justify-center -mx-4 px-4 overflow-x-auto pb-2">
                 <TabsList className="gap-2 shrink-0">
                   <TabsTrigger value="agents" className="p-2 sm:p-3 rounded-full text-xs sm:text-sm whitespace-nowrap">Agents</TabsTrigger>

@@ -1,35 +1,41 @@
 <wizard-report>
 # PostHog post-wizard report
 
-The wizard has completed a deep integration of PostHog analytics into the Better Stack 2 landing page. The integration covers both client-side and server-side tracking, user identification, exception capture, and a PostHog reverse proxy via Next.js rewrites.
+The wizard has completed a deep integration of PostHog analytics into the ZenPost landing page. The project already had `posthog-js` and `posthog-node` installed and a server-side client configured. The integration was extended with client-side initialization via `instrumentation-client.ts`, a reverse proxy via Next.js rewrites, new event captures across key conversion touchpoints, and environment variable configuration.
 
 **Changes made:**
 
-- `instrumentation-client.ts` (new) — Initializes `posthog-js` on the client using Next.js 15.3+ `instrumentation-client.ts` pattern. Enables session replay, exception capture, and automatic pageview tracking via `/ingest` proxy.
-- `src/lib/posthog-server.ts` (new) — Singleton `posthog-node` client for server-side event capture, with `flushAt: 1` and `flushInterval: 0` for edge-safe flushing.
-- `next.config.ts` — Added `/ingest` rewrites to proxy PostHog requests through the Next.js app (improves ad-blocker resilience) and `skipTrailingSlashRedirect: true`.
-- `src/components/waitlist-form.tsx` — Captures `waitlist_signup_submitted` before the API call, passes `X-POSTHOG-DISTINCT-ID` and `X-POSTHOG-SESSION-ID` headers to correlate client/server events, calls `posthog.identify()` on success, and `posthog.captureException()` on error.
-- `src/components/header.tsx` — Captures `header_cta_clicked` with a `cta` property (`sign_in` or `get_started`) on each header button click.
-- `src/app/api/waitlist/route.ts` — Captures `waitlist_signup_success` (with user ID and email), `waitlist_signup_error` (with error type), and calls `posthog.identify()` server-side using the client's distinct ID passed via request headers.
-- `.env.local` — Added `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and `NEXT_PUBLIC_POSTHOG_HOST`.
+- **`instrumentation-client.ts`** — Updated `api_host` from direct PostHog URL to `/ingest` (reverse proxy) for better reliability and ad-blocker resistance.
+- **`next.config.ts`** — Added `/ingest/static/*`, `/ingest/array/*`, and `/ingest/*` rewrites routing through Next.js to PostHog.
+- **`apps/landing/.env.local`** — Set `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and `NEXT_PUBLIC_POSTHOG_HOST`.
+- **`src/app/(home)/components/hero-waitlist-form.tsx`** — Captures `waitlist_cta_clicked` with `location: "hero"` when the Join Waitlist button is clicked.
+- **`src/app/(home)/components/cta-section.tsx`** — Captures `waitlist_cta_clicked` with `location: "cta_section"` when the bottom CTA button is clicked.
+- **`src/app/(home)/components/hero.tsx`** — Captures `hero_tab_selected` with `tab` property when a feature preview tab is clicked (Agents, Analytics, Inbox, Scheduler, Channels, Ads).
+- **`src/app/(home)/components/pricing.tsx`** — Captures `pricing_plan_contact_clicked` with `plan` and `price` properties when a pricing plan CTA is clicked.
+- **`src/app/contact/contact-options.tsx`** — New client component that captures `contact_option_clicked` with `option` property (docs, telegram, email).
+- **`src/app/contact/page.tsx`** — Replaced inline contact options with the new `ContactOptions` client component.
 
 | Event | Description | File |
 |---|---|---|
-| `waitlist_signup_submitted` | User submits the waitlist form with their email | `src/components/waitlist-form.tsx` |
-| `waitlist_signup_success` | Waitlist user successfully created (server-side) | `src/app/api/waitlist/route.ts` |
-| `waitlist_signup_error` | Signup failed — duplicate email or server error (server-side) | `src/app/api/waitlist/route.ts` |
-| `header_cta_clicked` | User clicked Sign In or Get Started in the header | `src/components/header.tsx` |
+| `waitlist_cta_clicked` | User clicks "Join Waitlist" in the hero form | `src/app/(home)/components/hero-waitlist-form.tsx` |
+| `waitlist_cta_clicked` | User clicks "Join Waitlist" in the CTA section | `src/app/(home)/components/cta-section.tsx` |
+| `waitlist_join_success` | User successfully joins the waitlist via Clerk | `src/components/waitlist-modal.tsx` (existing) |
+| `waitlist_signup_success` | Server confirms waitlist signup to Loops.so | `src/app/api/waitlist/route.ts` (existing) |
+| `waitlist_signup_error` | Server-side error during waitlist signup | `src/app/api/waitlist/route.ts` (existing) |
+| `hero_tab_selected` | User clicks a feature tab in the hero | `src/app/(home)/components/hero.tsx` |
+| `pricing_plan_contact_clicked` | User clicks "Contact Us" on a pricing plan | `src/app/(home)/components/pricing.tsx` |
+| `contact_option_clicked` | User clicks a contact option (docs/telegram/email) | `src/app/contact/contact-options.tsx` |
 
 ## Next steps
 
-We've built a dashboard and 5 insights for you to monitor user behavior:
+We've built some insights and a dashboard for you to keep an eye on user behavior, based on the events we just instrumented:
 
-- **Dashboard**: [Analytics basics](https://us.posthog.com/project/289543/dashboard/1469488)
-- **Waitlist signups over time**: [OOAfe4Id](https://us.posthog.com/project/289543/insights/OOAfe4Id)
-- **Waitlist signup conversion funnel**: [kLveoRsS](https://us.posthog.com/project/289543/insights/kLveoRsS)
-- **Total waitlist signups**: [ysy5KI3O](https://us.posthog.com/project/289543/insights/ysy5KI3O)
-- **Header CTA clicks by type**: [4dWtPlhH](https://us.posthog.com/project/289543/insights/4dWtPlhH)
-- **Waitlist signup errors**: [i12LIOAN](https://us.posthog.com/project/289543/insights/i12LIOAN)
+- [Analytics basics dashboard](/dashboard/1580323)
+- [Waitlist Conversion Funnel](/insights/5iK6OFaA) — drop-off from CTA click to successful join
+- [Waitlist CTA Clicks by Location](/insights/9M8r3ep3) — hero vs CTA section comparison
+- [Hero Feature Tab Interest](/insights/NSTm4dHZ) — which product features attract most attention
+- [Pricing Plan Interest](/insights/vfqh7u09) — which plan gets the most contact clicks
+- [Waitlist Signups vs Errors](/insights/0xepvyEG) — server-side health monitoring
 
 ### Agent skill
 

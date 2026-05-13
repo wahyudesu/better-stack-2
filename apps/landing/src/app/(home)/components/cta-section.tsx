@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { WaitlistModal } from "@/components/waitlist-modal";
 import { DepthButton } from "@/components/ui/depth-buttons";
 
@@ -19,7 +20,7 @@ export function CtaSection() {
 					</p>
 
 					<div className="w-full max-w-sm mx-auto">
-						<DepthButton variant="blue" onClick={() => setOpen(true)}>
+						<DepthButton variant="blue" onClick={() => { posthog.capture("waitlist_cta_clicked", { location: "cta_section" }); setOpen(true); }}>
 							Join Waitlist
 						</DepthButton>
 					</div>

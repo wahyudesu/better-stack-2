@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { Check, MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -170,6 +171,7 @@ export function PricingSection() {
                       <a
                         href={ctaHref}
                         className="mt-4 flex w-full items-center justify-center gap-2"
+                        onClick={() => posthog.capture("pricing_plan_contact_clicked", { plan: name, price })}
                       />
                     }
                     variant={highlighted ? "secondary" : "outline"}

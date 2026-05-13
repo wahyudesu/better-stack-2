@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { HeroWaitlistForm } from "./hero-waitlist-form";
+import { HeroWaitlistForm } from "../app/(home)/components/hero-waitlist-form";
 
 describe("HeroWaitlistForm", () => {
   beforeEach(() => {

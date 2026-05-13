@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useClerk } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -22,19 +23,15 @@ const userTypeOptions: { value: UserType; label: string; description: string; Ic
   { value: "creator_freelance", label: "Creator", description: "For personal content and audience growth", Icon: UserIcon },
 ];
 
-interface WaitlistResponse {
-  success: boolean;
-  message?: string;
-  error?: string;
-}
-
 interface WaitlistModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialEmail?: string;
+  onSuccess?: () => void;
 }
 
 function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => void }) {
+  const clerk = useClerk();
   const [selectedType, setSelectedType] = useState<UserType | "">("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -51,16 +48,11 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
     setErrorMsg("");
 
     try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, userType: selectedType }),
-      });
+      // clerk.waitlist is available in Clerk v7+
+      const result = await (clerk as unknown as { waitlist: { join: (p: { emailAddress: string }) => Promise<{ error: unknown }> } }).waitlist.join({ emailAddress: email });
 
-      const data: WaitlistResponse = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to join waitlist");
+      if (result.error) {
+        throw new Error("Failed to join waitlist");
       }
 
       posthog.capture("waitlist_join_success", {
@@ -121,7 +113,7 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
   );
 }
 
-export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModalProps) {
+export function WaitlistModal({ open, onOpenChange, initialEmail, onSuccess }: WaitlistModalProps) {
   const [email, setEmail] = useState(initialEmail || "");
   const [step, setStep] = useState<"email" | "type">(initialEmail ? "type" : "email");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
@@ -132,6 +124,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
     setEmail("");
     setStep("email");
     setStatus("success");
+    onSuccess?.();
   }
 
   function handleOpenChange(newOpen: boolean) {
@@ -172,34 +165,34 @@ export function WaitlistModal({ open, onOpenChange, initialEmail }: WaitlistModa
         </DialogHeader>
 
         <div className="flex flex-col gap-4 relative">
-          <div className="flex justify-start">
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (status === "error") setStatus("idle");
-            }}
-            placeholder="Enter your email"
-            disabled={status === "loading"}
-          />
-          </div>
-          {status === "error" && errorMsg && (
-            <p className="text-sm text-red-500">{errorMsg}</p>
-          )}
           {step === "type" ? (
             <WaitlistForm email={email} onSuccess={handleSuccess} />
           ) : (
-            <div className="flex justify-end">
-              <DepthButton
-                onClick={handleSubmit}
-                variant="blue"
-                className="py-3"
+            <>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (status === "error") setStatus("idle");
+                }}
+                placeholder="Enter your email"
                 disabled={status === "loading"}
-              >
-                Continue
-              </DepthButton>
-            </div>
+              />
+              {status === "error" && errorMsg && (
+                <p className="text-sm text-red-500">{errorMsg}</p>
+              )}
+              <div className="flex justify-end">
+                <DepthButton
+                  onClick={handleSubmit}
+                  variant="blue"
+                  className="py-3"
+                  disabled={status === "loading"}
+                >
+                  Continue
+                </DepthButton>
+              </div>
+            </>
           )}
         </div>
       </DialogContent>
