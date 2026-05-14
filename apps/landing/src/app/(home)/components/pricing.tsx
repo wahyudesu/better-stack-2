@@ -1,7 +1,7 @@
 "use client";
 
 import posthog from "posthog-js";
-import { Check, MessageCircle } from "lucide-react";
+import { Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
