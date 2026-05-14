@@ -87,7 +87,7 @@ function WaitlistForm({ email, onSuccess, onEmailChange }: { email: string; onSu
       <Input
         type="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => onEmailChange(e.target.value)}
         className="bg-muted"
       />
       <p className="text-sm text-muted-foreground text-center">What best describes you?</p>
@@ -201,7 +201,7 @@ export function WaitlistModal({ open, onOpenChange, initialEmail, onSuccess }: W
 
         <div className="flex flex-col gap-4 relative">
           {step === "type" ? (
-            <WaitlistForm email={email} onSuccess={handleSuccess} />
+            <WaitlistForm email={email} onSuccess={handleSuccess} onEmailChange={setEmail} />
           ) : (
             <>
               <Input
