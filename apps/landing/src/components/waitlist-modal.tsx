@@ -30,7 +30,7 @@ interface WaitlistModalProps {
   onSuccess?: () => void;
 }
 
-function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => void }) {
+function WaitlistForm({ email, onSuccess, onEmailChange }: { email: string; onSuccess: () => void; onEmailChange: (email: string) => void }) {
   const { waitlist, errors, fetchStatus } = useWaitlist();
   const [selectedType, setSelectedType] = useState<UserType | "">("");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
