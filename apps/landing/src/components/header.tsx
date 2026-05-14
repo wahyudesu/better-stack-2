@@ -33,7 +33,7 @@ export function Header() {
       >
         <a
           className="rounded-full p-2 hover:bg-muted dark:hover:bg-muted/50"
-          href="#"
+          href="/"
         >
           <Logo className="h-8" />
         </a>

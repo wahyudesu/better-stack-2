@@ -1,15 +1,15 @@
 export const navLinks = [
 	{
 		label: "Features",
-		href: "#features",
+		href: "/#features",
 	},
 	{
 		label: "Pricing",
-		href: "#pricing",
+		href: "/#pricing",
 	},
 	{
 		label: "Free Tools",
-		href: "#free-tools",
+		href: "/tools",
 	},
 ];
 

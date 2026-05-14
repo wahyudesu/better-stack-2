@@ -7,22 +7,22 @@ const contactOptions = [
   {
     icon: <Headphones className="w-5 h-5" />,
     title: "Support",
-    description: "Get help, report bugs.",
+    description: "Need help, found a bug, or got feature ideas? Send us a message",
     color: "bg-blue-500/10 text-blue-500",
     action: "featurebase",
   },
   {
     icon: <MessageCircle className="w-5 h-5" />,
     title: "WhatsApp",
-    description: "Chat with us directly.",
+    description: "Wanna chat directly with the team? We’re just one message away",
     href: "https://wa.me/6281234567890",
     color: "bg-green-500/10 text-green-500",
   },
   {
     icon: <Mail className="w-5 h-5" />,
     title: "Email",
-    description: "We read them all, we promise.",
-    href: "mailto:hello@zenpost.id",
+    description: "Got questions, random ideas, feedback, or just wanna say hi? Hit us up at wahyu@zenpost.in",
+    href: "mailto:why@wahyuikbal.com",
     color: "bg-primary/10 text-primary",
   },
 ];

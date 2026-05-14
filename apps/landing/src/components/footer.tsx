@@ -1,11 +1,11 @@
 "use client";
 
+import { Logo } from "@/components/logo";
+
 const footerLinks = {
   product: {
     title: "Product",
-    links: [
-      { label: "Tools", href: "/tools" },
-    ],
+    links: [{ label: "Tools", href: "/tools" }],
   },
   tools: {
     title: "Tools",
@@ -18,7 +18,6 @@ const footerLinks = {
     title: "Company",
     links: [
       { label: "About", href: "/about" },
-      // { label: "Blog", href: "/blog" },
       { label: "Contact", href: "/contact" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
@@ -36,45 +35,12 @@ export function Footer() {
             {/* Brand */}
             <div className="col-span-1 sm:col-span-2 lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">ZP</span>
-                </div>
-                <span className="font-bold text-lg">ZenPost</span>
+                <Logo className="h-8" />
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 Schedule and boost content, manage conversations, and track performance across social media in one simple place.
               </p>
-              {/* Social links */}
-              {/*<div className="flex items-center gap-3">
-                {socials.map((social) => (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    className="w-9 h-9 rounded-full bg-muted hover:bg-primary/10 flex items-center justify-center transition-colors"
-                    aria-label={`${social.icon} ${social.label}`}
-                  >
-                    <span className="text-sm" aria-hidden="true">{social.icon}</span>
-                  </a>
-                ))}
-              </div>*/}
             </div>
-
-            {/* Product links */}
-            {/*<div>
-              <h4 className="font-semibold mb-4">{footerLinks.product.title}</h4>
-              <ul className="space-y-3">
-                {footerLinks.product.links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>*/}
 
             {/* Company links */}
             <div>

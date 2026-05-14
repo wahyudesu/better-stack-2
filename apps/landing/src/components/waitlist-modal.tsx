@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useClerk } from "@clerk/nextjs";
+import { useWaitlist } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { DepthButton } from "@/components/ui/depth-buttons";
-import { BuildingIcon, StoreIcon, UserIcon } from "lucide-react";
+import { BuildingIcon, StoreIcon, UserIcon, CheckIcon } from "lucide-react";
 import { isValidEmail } from "@/lib/utils";
 import posthog from "posthog-js";
 
@@ -31,9 +31,9 @@ interface WaitlistModalProps {
 }
 
 function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => void }) {
-  const clerk = useClerk();
+  const { waitlist, errors, fetchStatus } = useWaitlist();
   const [selectedType, setSelectedType] = useState<UserType | "">("");
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -48,11 +48,11 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
     setErrorMsg("");
 
     try {
-      // clerk.waitlist is available in Clerk v7+
-      const result = await (clerk as unknown as { waitlist: { join: (p: { emailAddress: string }) => Promise<{ error: unknown }> } }).waitlist.join({ emailAddress: email });
+      const { error } = await waitlist.join({ emailAddress: email });
 
-      if (result.error) {
-        throw new Error("Failed to join waitlist");
+      if (error) {
+        const errorMessage = errors.fields.emailAddress?.longMessage || error.longMessage || "Failed to join waitlist";
+        throw new Error(errorMessage);
       }
 
       posthog.capture("waitlist_join_success", {
@@ -60,15 +60,36 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
         userType: selectedType,
       });
 
-      onSuccess();
+      setStatus("success");
+      setTimeout(onSuccess, 1500);
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
+  if (status === "success" || waitlist.id) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-6">
+        <div className="size-12 rounded-full bg-green-100 flex items-center justify-center">
+          <CheckIcon className="size-6 text-green-600" />
+        </div>
+        <div className="text-center">
+          <p className="font-semibold text-lg">You&apos;re on the list!</p>
+          <p className="text-sm text-muted-foreground">We&apos;ll notify you when you&apos;re approved.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="bg-muted"
+      />
       <p className="text-sm text-muted-foreground text-center">What best describes you?</p>
       <div className="flex flex-row gap-3 w-full">
         {userTypeOptions.map((opt) => (
@@ -99,14 +120,18 @@ function WaitlistForm({ email, onSuccess }: { email: string; onSuccess: () => vo
         <p className="text-sm text-red-500">{errorMsg}</p>
       )}
 
+      {errors.fields.emailAddress && (
+        <p className="text-sm text-red-500">{errors.fields.emailAddress.longMessage}</p>
+      )}
+
       <div className="flex justify-end">
         <DepthButton
           type="submit"
           variant="blue"
           className="py-3"
-          disabled={status === "loading"}
+          disabled={status === "loading" || fetchStatus === "fetching"}
         >
-          {status === "loading" ? "Joining..." : "Join Waitlist"}
+          {status === "loading" || fetchStatus === "fetching" ? "Joining..." : "Join Waitlist"}
         </DepthButton>
       </div>
     </form>

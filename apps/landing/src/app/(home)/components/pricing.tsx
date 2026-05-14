@@ -177,7 +177,6 @@ export function PricingSection() {
                     variant={highlighted ? "secondary" : "outline"}
                     size="sm"
                   >
-                    <MessageCircle className="size-3.5" />
                     {cta}
                   </Button>
                 </CardHeader>
