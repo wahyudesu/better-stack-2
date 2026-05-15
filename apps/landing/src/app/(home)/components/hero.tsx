@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import posthog from "posthog-js";
+import { useState } from "react";
+import { Waitlist } from "@clerk/nextjs";
 import { HeroWaitlistForm } from "@/app/(home)/components/hero-waitlist-form";
 import { WaitlistSocialProof } from "@/components/waitlist-social-proof";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AgentTerminal } from "@/components/agent-terminal";
+import { DepthButton } from "@/components/ui/depth-buttons";
 
 type TabId = "agents" | "analytics" | "inbox" | "scheduler" | "channels" | "ads";
 
@@ -47,6 +50,8 @@ const tabContent: Record<
 };
 
 export function Hero() {
+  const [showWaitlist, setShowWaitlist] = useState(false);
+
   return (
     <section className="relative overflow-hidden py-16 sm:py-20 lg:py-28" id="hero">
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -208,8 +213,31 @@ export function Hero() {
               <p className="text-muted-foreground">See which posts actually grow your brand — with clear analytics, not guesswork.</p>
             </div>
           </div>
+
+          <div className="mt-12 flex flex-col sm:flex-row justify-center gap-4">
+            <DepthButton
+              variant="blue"
+              className="py-3 px-8 text-base font-medium"
+              onClick={() => setShowWaitlist(true)}
+            >
+              Join Waitlist
+            </DepthButton>
+            <DepthButton
+              variant="outline"
+              className="py-3 px-8 text-base font-medium"
+              onClick={() => window.location.href = "/app"}
+            >
+              Open Dashboard
+            </DepthButton>
+          </div>
         </div>
       </div>
+
+      {showWaitlist && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Waitlist />
+        </div>
+      )}
     </section>
   );
 }
