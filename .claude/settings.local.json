@@ -1,0 +1,10 @@
+{
+  "enabledMcpjsonServers": [
+    "better-t-stack",
+    "context7",
+    "cloudflare-docs",
+    "shadcn",
+    "next-devtools",
+    "supabase"
+  ]
+}
