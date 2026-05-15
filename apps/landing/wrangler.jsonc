@@ -31,6 +31,12 @@
 	},
 	"upload_source_maps": true,
 	"keep_vars": true,
+	"vars": {
+		// Add your environment variables here
+		// "LOOPS_FORM_ID": "your-form-id-here",
+		// "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN": "your-token-here",
+		// "NEXT_PUBLIC_POSTHOG_HOST": "https://app.posthog.com"
+	},
 	"routes": [
     {
       "pattern": "zenpost.wahyuikbal.com",
