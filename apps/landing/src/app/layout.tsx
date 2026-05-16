@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
-import { ClerkProvider } from "@/components/clerk-provider";
 import { Toaster } from "@/components/ui/sonner";
 import FeaturebaseMessenger from "@/components/featurebase-messenger";
 import { Header } from "@/components/header";
@@ -87,8 +86,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="id" suppressHydrationWarning className={GeistSans.variable}>
+    <html lang="id" suppressHydrationWarning className={GeistSans.variable}>
         <head>
           <meta charSet="UTF-8" />
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -126,6 +124,5 @@ export default function RootLayout({
           <FeaturebaseMessenger />
         </body>
       </html>
-    </ClerkProvider>
   );
 }

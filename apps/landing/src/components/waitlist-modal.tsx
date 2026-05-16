@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useWaitlist } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
@@ -30,8 +29,13 @@ interface WaitlistModalProps {
   onSuccess?: () => void;
 }
 
+interface WaitlistResponse {
+  success: boolean;
+  error?: string;
+  position?: number;
+}
+
 function WaitlistForm({ email, onSuccess, onEmailChange }: { email: string; onSuccess: () => void; onEmailChange: (email: string) => void }) {
-  const { waitlist, errors, fetchStatus } = useWaitlist();
   const [selectedType, setSelectedType] = useState<UserType | "">("");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -48,11 +52,16 @@ function WaitlistForm({ email, onSuccess, onEmailChange }: { email: string; onSu
     setErrorMsg("");
 
     try {
-      const { error } = await waitlist.join({ emailAddress: email });
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, userType: selectedType }),
+      });
 
-      if (error) {
-        const errorMessage = errors.fields.emailAddress?.longMessage || error.longMessage || "Failed to join waitlist";
-        throw new Error(errorMessage);
+      const data: WaitlistResponse = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to join waitlist");
       }
 
       posthog.capture("waitlist_join_success", {
@@ -68,15 +77,15 @@ function WaitlistForm({ email, onSuccess, onEmailChange }: { email: string; onSu
     }
   }
 
-  if (status === "success" || waitlist.id) {
+  if (status === "success") {
     return (
       <div className="flex flex-col items-center gap-4 py-6">
         <div className="size-12 rounded-full bg-green-100 flex items-center justify-center">
           <CheckIcon className="size-6 text-green-600" />
         </div>
         <div className="text-center">
-          <p className="font-semibold text-lg">You&apos;re on the list!</p>
-          <p className="text-sm text-muted-foreground">We&apos;ll notify you when you&apos;re approved.</p>
+          <p className="font-semibold text-lg">{"You're on the list!"}</p>
+          <p className="text-sm text-muted-foreground">{"We'll notify you when you're approved."}</p>
         </div>
       </div>
     );
@@ -120,18 +129,14 @@ function WaitlistForm({ email, onSuccess, onEmailChange }: { email: string; onSu
         <p className="text-sm text-red-500">{errorMsg}</p>
       )}
 
-      {errors.fields.emailAddress && (
-        <p className="text-sm text-red-500">{errors.fields.emailAddress.longMessage}</p>
-      )}
-
       <div className="flex justify-end">
         <DepthButton
           type="submit"
           variant="blue"
           className="py-3"
-          disabled={status === "loading" || fetchStatus === "fetching"}
+          disabled={status === "loading"}
         >
-          {status === "loading" || fetchStatus === "fetching" ? "Joining..." : "Join Waitlist"}
+          {status === "loading" ? "Joining..." : "Join Waitlist"}
         </DepthButton>
       </div>
     </form>

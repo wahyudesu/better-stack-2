@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPostHogClient } from "@/lib/posthog-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getResendClient } from "@/lib/resend";
+import { getWaitlistConfirmationEmail } from "@/emails/waitlist-confirmation";
+import posthog from "posthog-js";
 
 interface WaitlistBody {
   email?: string;
-  userType?: string;
+  userType?: "agency_owner" | "brand_owner" | "creator_freelance";
 }
 
+const VALID_USER_TYPES = ["agency_owner", "brand_owner", "creator_freelance"];
+
 export async function GET() {
-  // Loop.so doesn't provide a count API, so return null
-  // The social proof component will handle the fallback gracefully
   return NextResponse.json({ count: null }, { status: 200 });
 }
 
 export async function POST(req: NextRequest) {
   const distinctId = req.headers.get("X-POSTHOG-DISTINCT-ID") ?? "anonymous";
   const sessionId = req.headers.get("X-POSTHOG-SESSION-ID") ?? undefined;
-  const posthog = getPostHogClient();
 
   try {
     const body: WaitlistBody = await req.json();
-    const email = body.email;
+    const email = body.email?.trim().toLowerCase();
     const userType = body.userType;
 
     if (!email || typeof email !== "string") {
@@ -29,14 +31,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!userType || typeof userType !== "string") {
+    if (!userType || !VALID_USER_TYPES.includes(userType)) {
       return NextResponse.json(
         { success: false, error: "User type is required" },
         { status: 400 }
       );
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -45,99 +46,80 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const formId = process.env.LOOPS_FORM_ID;
-    if (!formId) {
-      console.error("LOOPS_FORM_ID not configured");
+    // Check if email already exists
+    const { data: existing } = await supabaseAdmin
+      .from("waitlist")
+      .select("id, email")
+      .eq("email", email)
+      .single();
+
+    if (existing) {
       return NextResponse.json(
-        { success: false, error: "Waitlist not configured" },
-        { status: 503 }
+        { success: false, error: "Email already registered" },
+        { status: 409 }
       );
     }
 
-    // Submit to Loop.so
-    const formBody = new URLSearchParams({
-      email,
-      classifyUser: userType,
-    });
+    // Get current count for position
+    const { count } = await supabaseAdmin
+      .from("waitlist")
+      .select("*", { count: "exact", head: true });
 
-    const response = await fetch(
-      `https://app.loops.so/api/newsletter-form/${formId}`,
-      {
-        method: "POST",
-        body: formBody.toString(),
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
+    const position = (count ?? 0) + 1;
 
-    if (response.status === 429) {
-      return NextResponse.json(
-        { success: false, error: "Too many signups, please try again later" },
-        { status: 429 }
-      );
-    }
-
-    const text = await response.text();
-
-    if (!text.trim()) {
-      return NextResponse.json(
-        { success: true, message: "You're on the waitlist!" },
-        { status: 201 }
-      );
-    }
-
-    let data: { success: boolean; message?: string };
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error(`Invalid JSON from Loop.so: ${text.slice(0, 100)}`);
-    }
-
-    if (!data.success) {
-      posthog.capture({
-        distinctId,
-        event: "waitlist_signup_error",
-        properties: {
-          error: data.message || "loop_error",
-          email,
-          ...(sessionId ? { $session_id: sessionId } : {}),
-        },
-      });
-      return NextResponse.json(
-        { success: false, error: data.message || "Failed to join waitlist" },
-        { status: 400 }
-      );
-    }
-
-    posthog.identify({
-      distinctId,
-      properties: { email, userType },
-    });
-    posthog.capture({
-      distinctId,
-      event: "waitlist_signup_success",
-      properties: {
+    // Insert new waitlist entry
+    const { error: insertError } = await supabaseAdmin
+      .from("waitlist")
+      .insert({
         email,
-        userType,
-        ...(sessionId ? { $session_id: sessionId } : {}),
-      },
+        user_type: userType,
+        position,
+      });
+
+    if (insertError) {
+      console.error("Waitlist insert error:", insertError);
+      return NextResponse.json(
+        { success: false, error: "Failed to join waitlist" },
+        { status: 500 }
+      );
+    }
+
+    posthog.identify(distinctId, { email, userType });
+    posthog.capture("waitlist_signup_success", {
+      email,
+      userType,
+      position,
+      ...(sessionId ? { $session_id: sessionId } : {}),
     });
+
+    // Send confirmation email via Resend (non-blocking)
+    const resend = getResendClient();
+    if (resend) {
+      const { subject, html } = getWaitlistConfirmationEmail({ position });
+      const { error: emailError } = await resend.emails.send({
+        from: "Better Stack 2 <onboarding@resend.dev>",
+        to: [email],
+        subject,
+        html,
+      });
+      if (emailError) {
+        console.error("[Resend] Failed to send waitlist confirmation email:", emailError);
+      }
+    } else {
+      console.warn("[Resend] Skipping email - RESEND_API_KEY not configured");
+    }
 
     return NextResponse.json(
       {
         success: true,
         message: "You're on the waitlist!",
+        position,
       },
       { status: 201 }
     );
   } catch (error) {
-    posthog.capture({
-      distinctId,
-      event: "waitlist_signup_error",
-      properties: {
-        error: "internal_server_error",
-      },
+    posthog.capture("waitlist_signup_error", {
+      error: "internal_server_error",
     });
     console.error("Waitlist error:", error);
     return NextResponse.json(

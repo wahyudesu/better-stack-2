@@ -3,13 +3,13 @@
 import Image from "next/image";
 import posthog from "posthog-js";
 import { useState } from "react";
-import { Waitlist } from "@clerk/nextjs";
 import { HeroWaitlistForm } from "@/app/(home)/components/hero-waitlist-form";
 import { WaitlistSocialProof } from "@/components/waitlist-social-proof";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AgentTerminal } from "@/components/agent-terminal";
 import { DepthButton } from "@/components/ui/depth-buttons";
+import { WaitlistModal } from "@/components/waitlist-modal";
 
 type TabId = "agents" | "analytics" | "inbox" | "scheduler" | "channels" | "ads";
 
@@ -233,11 +233,10 @@ export function Hero() {
         </div>
       </div>
 
-      {showWaitlist && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <Waitlist />
-        </div>
-      )}
+      <WaitlistModal
+        open={showWaitlist}
+        onOpenChange={setShowWaitlist}
+      />
     </section>
   );
 }

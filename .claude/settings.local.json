@@ -1,4 +1,13 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(openspec new *)",
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm run *)"
+    ]
+  },
   "enabledMcpjsonServers": [
     "better-t-stack",
     "context7",

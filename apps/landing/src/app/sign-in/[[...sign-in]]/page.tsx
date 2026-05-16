@@ -1,5 +1,5 @@
-import { SignIn } from "@clerk/nextjs";
+import { WaitlistModal } from "@/components/waitlist-modal";
 
 export default function SignInPage() {
-  return <SignIn />;
+  return <WaitlistModal open={true} onOpenChange={() => {}} />;
 }

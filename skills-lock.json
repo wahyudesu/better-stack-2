@@ -71,6 +71,18 @@
       "sourceType": "github",
       "computedHash": "507f011a70e8b3ae242bdc0bb5b39fd91a1d4049a0f3c281991ccf84973d591c"
     },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase/SKILL.md",
+      "computedHash": "5e179217b674b2c9617e54b09578b1119a315c784c22a9f22d940926de082d87"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "8e41c7417894e6f394614ee7ca3ee5322b1e58d890255d441f42dea98732597f"
+    },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

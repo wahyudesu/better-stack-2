@@ -5,7 +5,7 @@ import { Toaster } from "@zenpost/ui/components/sonner";
 
 export function ClerkProvider({ children }: { children: React.ReactNode }) {
   return (
-    <CP waitlistUrl="/waitlist" signInUrl="/sign-in">
+    <CP>
       {children}
       <Toaster richColors />
     </CP>
