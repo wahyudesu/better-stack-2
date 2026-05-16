@@ -4,6 +4,10 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 export const revalidate = 60;
 
 export async function GET() {
+  if (!supabaseAdmin) {
+    return NextResponse.json({ count: null }, { status: 200 });
+  }
+
   try {
     const { count, error } = await supabaseAdmin
       .from("waitlist")

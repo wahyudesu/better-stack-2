@@ -16,6 +16,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!supabaseAdmin) {
+    return NextResponse.json(
+      { success: false, error: "Service unavailable" },
+      { status: 503 }
+    );
+  }
+
   const distinctId = req.headers.get("X-POSTHOG-DISTINCT-ID") ?? "anonymous";
   const sessionId = req.headers.get("X-POSTHOG-SESSION-ID") ?? undefined;
 
