@@ -67,7 +67,7 @@ export interface Conversation {
 	platform: Platform;
 	type: "message" | "comment";
 	sender: string;
-	avatar: string;
+	avatar: string | null;
 	isOnline: boolean;
 	isRead: boolean;
 	isStarred: boolean;
@@ -100,6 +100,19 @@ export interface ServerConversation {
 		isVerified: boolean | null;
 		fetchedAt: string | null;
 	};
+}
+
+export interface CommentedPost {
+	id: string;
+	accountId: string;
+	accountUsername: string;
+	platform: Platform;
+	content: string;
+	createdTime: string;
+	permalink: string | null;
+	picture: string | null;
+	commentCount: number;
+	likeCount: number;
 }
 
 export interface ServerMessage {

@@ -34,6 +34,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { PlatformFilterDropdown } from "@/components/ui/platform-filter";
 import {
 	Select,
 	SelectContent,
@@ -43,61 +44,115 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type { CommentAutomation } from "@/lib/client";
-import { api } from "@/lib/client";
+import { useZernio } from "@/hooks/use-zernio";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
+import type { ProfilePlatform } from "@/lib/types/social";
 import { cn } from "@/lib/utils";
+import { getZernioErrorMessage } from "@/lib/zernio-error";
 
 // ============================================================================
-// TYPES
+// TYPES (aligned with Zernio SDK types)
 // ============================================================================
 
 interface Broadcast {
 	_id: string;
+	id?: string;
 	name: string;
-	status: "draft" | "scheduled" | "sending" | "sent" | "cancelled";
-	accountId: string;
-	accountUsername?: string;
-	recipientCount?: number;
+	description?: string;
+	platform?: string;
+	accountId?: string;
+	accountName?: string;
+	status:
+		| "draft"
+		| "scheduled"
+		| "sending"
+		| "completed"
+		| "failed"
+		| "cancelled";
+	messagePreview?: string;
 	scheduledAt?: string;
-	sentAt?: string;
+	startedAt?: string;
+	completedAt?: string;
+	recipientCount?: number;
+	sentCount?: number;
+	deliveredCount?: number;
+	readCount?: number;
+	failedCount?: number;
 	createdAt: string;
 }
 
 interface Sequence {
 	_id: string;
+	id?: string;
 	name: string;
-	status: "draft" | "active" | "paused" | "completed";
-	steps: Array<{
-		delay?: number;
-		action?: string;
-		templateId?: string;
+	description?: string;
+	platform?: string;
+	accountId?: string;
+	accountName?: string;
+	status: "draft" | "active" | "paused";
+	messagePreview?: string;
+	stepsCount?: number;
+	exitOnReply?: boolean;
+	exitOnUnsubscribe?: boolean;
+	totalEnrolled?: number;
+	totalCompleted?: number;
+	totalExited?: number;
+	createdAt: string;
+}
+
+interface CommentAutomation {
+	_id: string;
+	id?: string;
+	profileId?: string;
+	name: string;
+	platform?: "instagram" | "facebook";
+	accountId?: string;
+	accountName?: string;
+	platformPostId?: string;
+	postId?: string;
+	postTitle?: string;
+	keywords?: string[];
+	matchMode?: "exact" | "contains";
+	dmMessage?: string;
+	buttons?: Array<{
+		type: "url" | "phone";
+		text: string;
+		url?: string;
+		phone?: string;
 	}>;
-	enrolledCount?: number;
-	completedCount?: number;
+	commentReply?: string;
+	isActive: boolean;
+	stats?: {
+		triggered?: number;
+		dmsSent?: number;
+		dmsFailed?: number;
+		uniqueContacts?: number;
+	};
 	createdAt: string;
 }
 
 interface AutomationForm {
 	name: string;
 	accountId: string;
+	platform: ProfilePlatform;
+	profileId: string;
 	platformPostId: string;
 	keywords: string;
 	matchMode: "contains" | "exact";
 	dmMessage: string;
 	commentReply: string;
-	assignTo: string;
 }
 
 const emptyForm: AutomationForm = {
 	name: "",
 	accountId: "",
+	platform: "instagram",
+	profileId: "",
 	platformPostId: "",
 	keywords: "",
 	matchMode: "contains",
 	dmMessage: "",
 	commentReply: "",
-	assignTo: "",
 };
 
 // ============================================================================
@@ -105,47 +160,138 @@ const emptyForm: AutomationForm = {
 // ============================================================================
 
 function BroadcastsTab() {
+	const { zernio, loading: zernioLoading } = useZernio();
 	const queryClient = useQueryClient();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [_editingBroadcast, setEditingBroadcast] = useState<Broadcast | null>(
+	const [editingBroadcast, setEditingBroadcast] = useState<Broadcast | null>(
 		null,
 	);
+	const [form, setForm] = useState({
+		name: "",
+		accountId: "",
+		platform: "instagram" as ProfilePlatform,
+		profileId: "",
+		description: "",
+		message: "",
+	});
 
 	// Fetch broadcasts
 	const { data: broadcastsData, isLoading } = useQuery({
 		queryKey: ["inbox", "broadcasts"],
 		queryFn: async () => {
-			const res = await api.listBroadcasts({});
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.broadcasts.listBroadcasts({});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return (res.data?.broadcasts ?? []) as Broadcast[];
 		},
+		enabled: !!zernio,
 	});
 
 	// Create mutation
-	const _createMutation = useMutation({
+	const createMutation = useMutation({
 		mutationFn: async (body: {
 			profileId: string;
 			accountId: string;
-			platform: string;
+			platform: ProfilePlatform;
 			name: string;
 			description?: string;
-			message?: object;
+			message?: { text?: string };
 		}) => {
-			const res = await api.createBroadcast(body);
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.broadcasts.createBroadcast({ body });
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["inbox", "broadcasts"] });
-			setIsDialogOpen(false);
+			closeDialog();
+		},
+	});
+
+	// Update mutation
+	const updateMutation = useMutation({
+		mutationFn: async ({
+			broadcastId,
+			...body
+		}: {
+			broadcastId: string;
+			name?: string;
+			description?: string;
+		}) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.broadcasts.updateBroadcast({
+				path: { broadcastId },
+				body,
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "broadcasts"] });
+			closeDialog();
+		},
+	});
+
+	// Send now mutation
+	const sendMutation = useMutation({
+		mutationFn: async (broadcastId: string) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.broadcasts.sendBroadcast({
+				path: { broadcastId },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "broadcasts"] });
+		},
+	});
+
+	// Schedule mutation
+	const scheduleMutation = useMutation({
+		mutationFn: async ({
+			broadcastId,
+			scheduledAt,
+		}: {
+			broadcastId: string;
+			scheduledAt: string;
+		}) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.broadcasts.scheduleBroadcast({
+				path: { broadcastId },
+				body: { scheduledAt },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "broadcasts"] });
+		},
+	});
+
+	// Cancel mutation
+	const cancelMutation = useMutation({
+		mutationFn: async (broadcastId: string) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.broadcasts.cancelBroadcast({
+				path: { broadcastId },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "broadcasts"] });
 		},
 	});
 
 	// Delete mutation
 	const deleteMutation = useMutation({
 		mutationFn: async (broadcastId: string) => {
-			const res = await api.deleteBroadcast(broadcastId);
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.broadcasts.deleteBroadcast({
+				path: { broadcastId },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
@@ -155,7 +301,56 @@ function BroadcastsTab() {
 
 	const openCreateDialog = () => {
 		setEditingBroadcast(null);
+		setForm({
+			name: "",
+			accountId: "",
+			platform: "instagram",
+			profileId: "",
+			description: "",
+			message: "",
+		});
 		setIsDialogOpen(true);
+	};
+
+	const openEditDialog = (broadcast: Broadcast) => {
+		setEditingBroadcast(broadcast);
+		setForm({
+			name: broadcast.name,
+			accountId: broadcast.accountId || "",
+			platform: (broadcast.platform as ProfilePlatform) || "instagram",
+			profileId: "",
+			description: broadcast.description || "",
+			message: broadcast.messagePreview || "",
+		});
+		setIsDialogOpen(true);
+	};
+
+	const closeDialog = () => {
+		setIsDialogOpen(false);
+		setEditingBroadcast(null);
+	};
+
+	const saveBroadcast = () => {
+		if (editingBroadcast) {
+			updateMutation.mutate({
+				broadcastId: editingBroadcast._id,
+				name: form.name,
+				description: form.description || undefined,
+			});
+		} else {
+			createMutation.mutate({
+				profileId: form.profileId || "",
+				accountId: form.accountId,
+				platform: form.platform,
+				name: form.name,
+				description: form.description || undefined,
+				message: form.message ? { text: form.message } : undefined,
+			});
+		}
+	};
+
+	const updateForm = (field: string, value: string) => {
+		setForm((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const statusBadge = (status: Broadcast["status"]) => {
@@ -169,7 +364,14 @@ function BroadcastsTab() {
 				label: "Sending",
 				className: "bg-yellow-500/10 text-yellow-500",
 			},
-			sent: { label: "Sent", className: "bg-green-500/10 text-green-500" },
+			completed: {
+				label: "Completed",
+				className: "bg-green-500/10 text-green-500",
+			},
+			failed: {
+				label: "Failed",
+				className: "bg-red-500/10 text-red-500",
+			},
 			cancelled: {
 				label: "Cancelled",
 				className: "bg-red-500/10 text-red-500",
@@ -181,6 +383,14 @@ function BroadcastsTab() {
 			</Badge>
 		);
 	};
+
+	if (zernioLoading) {
+		return (
+			<Card className="p-8 text-center">
+				<p className="text-muted-foreground">Loading...</p>
+			</Card>
+		);
+	}
 
 	return (
 		<div className="space-y-4">
@@ -198,28 +408,84 @@ function BroadcastsTab() {
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 				<DialogContent className="max-w-lg">
 					<DialogHeader>
-						<DialogTitle>Create Broadcast</DialogTitle>
+						<DialogTitle>
+							{editingBroadcast ? "Edit Broadcast" : "Create Broadcast"}
+						</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-4">
 						<div>
 							<label className="text-sm font-medium mb-2 block">
 								Broadcast Name
 							</label>
-							<Input placeholder="e.g., Summer Sale Announcement" />
+							<Input
+								placeholder="e.g., Summer Sale Announcement"
+								value={form.name}
+								onChange={(e) => updateForm("name", e.target.value)}
+							/>
 						</div>
+						{!editingBroadcast && (
+							<>
+								<div>
+									<label className="text-sm font-medium mb-2 block">
+										Platform
+									</label>
+									<Select
+										value={form.platform}
+										onValueChange={(v) =>
+											updateForm("platform", v ?? "instagram")
+										}
+									>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="instagram">Instagram</SelectItem>
+											<SelectItem value="facebook">Facebook</SelectItem>
+											<SelectItem value="telegram">Telegram</SelectItem>
+											<SelectItem value="twitter">X (Twitter)</SelectItem>
+											<SelectItem value="bluesky">Bluesky</SelectItem>
+											<SelectItem value="reddit">Reddit</SelectItem>
+											<SelectItem value="whatsapp">WhatsApp</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+								<div>
+									<label className="text-sm font-medium mb-2 block">
+										Account ID
+									</label>
+									<Input
+										placeholder="Account ID"
+										value={form.accountId}
+										onChange={(e) => updateForm("accountId", e.target.value)}
+									/>
+								</div>
+							</>
+						)}
 						<div>
-							<label className="text-sm font-medium mb-2 block">Account</label>
-							<Input placeholder="Account ID" />
+							<label className="text-sm font-medium mb-2 block">
+								Description (optional)
+							</label>
+							<Input
+								placeholder="Description"
+								value={form.description}
+								onChange={(e) => updateForm("description", e.target.value)}
+							/>
 						</div>
 						<div className="flex gap-2 pt-2">
 							<Button
 								variant="outline"
 								className="flex-1"
-								onClick={() => setIsDialogOpen(false)}
+								onClick={closeDialog}
 							>
 								Cancel
 							</Button>
-							<Button className="flex-1">Create Broadcast</Button>
+							<Button
+								className="flex-1"
+								disabled={!form.name || (!editingBroadcast && !form.accountId)}
+								onClick={saveBroadcast}
+							>
+								{editingBroadcast ? "Save Changes" : "Create Broadcast"}
+							</Button>
 						</div>
 					</div>
 				</DialogContent>
@@ -264,30 +530,59 @@ function BroadcastsTab() {
 													{new Date(broadcast.scheduledAt).toLocaleString()}
 												</span>
 											)}
+											{broadcast.platform && (
+												<span className="uppercase">{broadcast.platform}</span>
+											)}
 										</div>
 									</div>
 								</div>
-								<DropdownMenu>
-									<DropdownMenuTrigger>
-										<Button variant="ghost" size="icon">
-											<MoreHorizontal className="h-4 w-4" />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent align="end">
-										<DropdownMenuItem>
-											<Edit2 className="h-4 w-4 mr-2" />
-											Edit
-										</DropdownMenuItem>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem
-											className="text-destructive"
-											onClick={() => deleteMutation.mutate(broadcast._id)}
+								<div className="flex items-center gap-2">
+									{broadcast.status === "draft" && (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => sendMutation.mutate(broadcast._id)}
+											disabled={sendMutation.isPending}
 										>
-											<Trash2 className="h-4 w-4 mr-2" />
-											Delete
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
+											Send Now
+										</Button>
+									)}
+									{(broadcast.status === "scheduled" ||
+										broadcast.status === "sending") && (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => cancelMutation.mutate(broadcast._id)}
+											disabled={cancelMutation.isPending}
+										>
+											Cancel
+										</Button>
+									)}
+									<DropdownMenu>
+										<DropdownMenuTrigger>
+											<Button variant="ghost" size="icon">
+												<MoreHorizontal className="h-4 w-4" />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<DropdownMenuItem
+												onClick={() => openEditDialog(broadcast)}
+											>
+												<Edit2 className="h-4 w-4 mr-2" />
+												Edit
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem
+												className="text-destructive"
+												onClick={() => deleteMutation.mutate(broadcast._id)}
+												disabled={deleteMutation.isPending}
+											>
+												<Trash2 className="h-4 w-4 mr-2" />
+												Delete
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</div>
 							</div>
 						</Card>
 					))}
@@ -302,61 +597,118 @@ function BroadcastsTab() {
 // ============================================================================
 
 function SequencesTab() {
+	const { zernio, loading: zernioLoading } = useZernio();
 	const queryClient = useQueryClient();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [_editingSequence, setEditingSequence] = useState<Sequence | null>(
-		null,
-	);
+	const [editingSequence, setEditingSequence] = useState<Sequence | null>(null);
+	const [form, setForm] = useState({
+		name: "",
+		accountId: "",
+		platform: "instagram" as ProfilePlatform,
+		profileId: "",
+		description: "",
+		steps: [{ message: "", delayMinutes: 60 }],
+	});
 
 	// Fetch sequences
 	const { data: sequencesData, isLoading } = useQuery({
 		queryKey: ["inbox", "sequences"],
 		queryFn: async () => {
-			const res = await api.listSequences();
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.sequences.listSequences({});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return (res.data?.sequences ?? []) as Sequence[];
 		},
+		enabled: !!zernio,
 	});
 
 	// Create mutation
-	const _createMutation = useMutation({
+	const createMutation = useMutation({
 		mutationFn: async (body: {
 			profileId: string;
 			accountId: string;
-			platform: string;
+			platform: ProfilePlatform;
 			name: string;
 			description?: string;
-			steps: Array<{
+			steps?: Array<{
 				order: number;
 				delayMinutes: number;
-				message?: object;
-				template?: object;
+				message?: { text?: string };
 			}>;
 		}) => {
-			const res = await api.createSequence(body);
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.sequences.createSequence({ body });
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["inbox", "sequences"] });
-			setIsDialogOpen(false);
+			closeDialog();
 		},
 	});
 
-	// Activate/Pause mutation
-	const toggleMutation = useMutation({
+	// Update mutation
+	const updateMutation = useMutation({
 		mutationFn: async ({
 			sequenceId,
-			action,
+			...body
 		}: {
 			sequenceId: string;
-			action: "activate" | "pause";
+			name?: string;
+			description?: string;
 		}) => {
-			const res =
-				action === "activate"
-					? await api.activateSequence(sequenceId)
-					: await api.pauseSequence(sequenceId);
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.sequences.updateSequence({
+				path: { sequenceId },
+				body,
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "sequences"] });
+			closeDialog();
+		},
+	});
+
+	// Delete mutation
+	const deleteMutation = useMutation({
+		mutationFn: async (sequenceId: string) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.sequences.deleteSequence({
+				path: { sequenceId },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "sequences"] });
+		},
+	});
+
+	// Activate mutation
+	const activateMutation = useMutation({
+		mutationFn: async (sequenceId: string) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.sequences.activateSequence({
+				path: { sequenceId },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["inbox", "sequences"] });
+		},
+	});
+
+	// Pause mutation
+	const pauseMutation = useMutation({
+		mutationFn: async (sequenceId: string) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.sequences.pauseSequence({
+				path: { sequenceId },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
@@ -366,7 +718,64 @@ function SequencesTab() {
 
 	const openCreateDialog = () => {
 		setEditingSequence(null);
+		setForm({
+			name: "",
+			accountId: "",
+			platform: "instagram",
+			profileId: "",
+			description: "",
+			steps: [{ message: "", delayMinutes: 60 }],
+		});
 		setIsDialogOpen(true);
+	};
+
+	const openEditDialog = (sequence: Sequence) => {
+		setEditingSequence(sequence);
+		setForm({
+			name: sequence.name,
+			accountId: sequence.accountId || "",
+			platform: (sequence.platform as ProfilePlatform) || "instagram",
+			profileId: "",
+			description: sequence.description || "",
+			steps: [{ message: sequence.messagePreview || "", delayMinutes: 60 }],
+		});
+		setIsDialogOpen(true);
+	};
+
+	const closeDialog = () => {
+		setIsDialogOpen(false);
+		setEditingSequence(null);
+	};
+
+	const saveSequence = () => {
+		const steps = form.steps
+			.filter((s) => s.message)
+			.map((s, i) => ({
+				order: i + 1,
+				delayMinutes: s.delayMinutes,
+				message: { text: s.message },
+			}));
+
+		if (editingSequence) {
+			updateMutation.mutate({
+				sequenceId: editingSequence._id,
+				name: form.name,
+				description: form.description || undefined,
+			});
+		} else {
+			createMutation.mutate({
+				profileId: form.profileId || "",
+				accountId: form.accountId,
+				platform: form.platform,
+				name: form.name,
+				description: form.description || undefined,
+				steps,
+			});
+		}
+	};
+
+	const updateForm = (field: string, value: string | number) => {
+		setForm((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const statusBadge = (status: Sequence["status"]) => {
@@ -377,10 +786,6 @@ function SequencesTab() {
 				label: "Paused",
 				className: "bg-yellow-500/10 text-yellow-500",
 			},
-			completed: {
-				label: "Completed",
-				className: "bg-blue-500/10 text-blue-500",
-			},
 		};
 		return (
 			<Badge className={cn("text-xs", config[status]?.className)}>
@@ -388,6 +793,14 @@ function SequencesTab() {
 			</Badge>
 		);
 	};
+
+	if (zernioLoading) {
+		return (
+			<Card className="p-8 text-center">
+				<p className="text-muted-foreground">Loading...</p>
+			</Card>
+		);
+	}
 
 	return (
 		<div className="space-y-4">
@@ -405,24 +818,74 @@ function SequencesTab() {
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 				<DialogContent className="max-w-lg">
 					<DialogHeader>
-						<DialogTitle>Create Sequence</DialogTitle>
+						<DialogTitle>
+							{editingSequence ? "Edit Sequence" : "Create Sequence"}
+						</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-4">
 						<div>
 							<label className="text-sm font-medium mb-2 block">
 								Sequence Name
 							</label>
-							<Input placeholder="e.g., Welcome Series" />
+							<Input
+								placeholder="e.g., Welcome Series"
+								value={form.name}
+								onChange={(e) => updateForm("name", e.target.value)}
+							/>
 						</div>
+						{!editingSequence && (
+							<>
+								<div>
+									<label className="text-sm font-medium mb-2 block">
+										Platform
+									</label>
+									<Select
+										value={form.platform}
+										onValueChange={(v) =>
+											updateForm("platform", v ?? "instagram")
+										}
+									>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="instagram">Instagram</SelectItem>
+											<SelectItem value="facebook">Facebook</SelectItem>
+											<SelectItem value="telegram">Telegram</SelectItem>
+											<SelectItem value="twitter">X (Twitter)</SelectItem>
+											<SelectItem value="bluesky">Bluesky</SelectItem>
+											<SelectItem value="reddit">Reddit</SelectItem>
+											<SelectItem value="whatsapp">WhatsApp</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+								<div>
+									<label className="text-sm font-medium mb-2 block">
+										Account ID
+									</label>
+									<Input
+										placeholder="Account ID"
+										value={form.accountId}
+										onChange={(e) => updateForm("accountId", e.target.value)}
+									/>
+								</div>
+							</>
+						)}
 						<div className="flex gap-2 pt-2">
 							<Button
 								variant="outline"
 								className="flex-1"
-								onClick={() => setIsDialogOpen(false)}
+								onClick={closeDialog}
 							>
 								Cancel
 							</Button>
-							<Button className="flex-1">Create Sequence</Button>
+							<Button
+								className="flex-1"
+								disabled={!form.name || (!editingSequence && !form.accountId)}
+								onClick={saveSequence}
+							>
+								{editingSequence ? "Save Changes" : "Create Sequence"}
+							</Button>
 						</div>
 					</div>
 				</DialogContent>
@@ -457,14 +920,17 @@ function SequencesTab() {
 										<div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
 											<span className="flex items-center gap-1">
 												<Hash className="h-3 w-3" />
-												{sequence.steps.length} step
-												{sequence.steps.length !== 1 ? "s" : ""}
+												{sequence.stepsCount ?? 0} step
+												{sequence.stepsCount !== 1 ? "s" : ""}
 											</span>
-											{sequence.enrolledCount !== undefined && (
+											{sequence.totalEnrolled !== undefined && (
 												<span className="flex items-center gap-1">
 													<Users className="h-3 w-3" />
-													{sequence.enrolledCount} enrolled
+													{sequence.totalEnrolled} enrolled
 												</span>
+											)}
+											{sequence.platform && (
+												<span className="uppercase">{sequence.platform}</span>
 											)}
 										</div>
 									</div>
@@ -475,12 +941,8 @@ function SequencesTab() {
 										<Button
 											variant="outline"
 											size="sm"
-											onClick={() =>
-												toggleMutation.mutate({
-													sequenceId: sequence._id,
-													action: "activate",
-												})
-											}
+											onClick={() => activateMutation.mutate(sequence._id)}
+											disabled={activateMutation.isPending}
 										>
 											Activate
 										</Button>
@@ -489,12 +951,8 @@ function SequencesTab() {
 										<Button
 											variant="outline"
 											size="sm"
-											onClick={() =>
-												toggleMutation.mutate({
-													sequenceId: sequence._id,
-													action: "pause",
-												})
-											}
+											onClick={() => pauseMutation.mutate(sequence._id)}
+											disabled={pauseMutation.isPending}
 										>
 											Pause
 										</Button>
@@ -506,12 +964,18 @@ function SequencesTab() {
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">
-											<DropdownMenuItem>
+											<DropdownMenuItem
+												onClick={() => openEditDialog(sequence)}
+											>
 												<Edit2 className="h-4 w-4 mr-2" />
 												Edit
 											</DropdownMenuItem>
 											<DropdownMenuSeparator />
-											<DropdownMenuItem className="text-destructive">
+											<DropdownMenuItem
+												className="text-destructive"
+												onClick={() => deleteMutation.mutate(sequence._id)}
+												disabled={deleteMutation.isPending}
+											>
 												<Trash2 className="h-4 w-4 mr-2" />
 												Delete
 											</DropdownMenuItem>
@@ -528,33 +992,59 @@ function SequencesTab() {
 }
 
 // ============================================================================
-// COMMENT-TO-DM TAB (formerly Automation)
+// COMMENT-TO-DM TAB
 // ============================================================================
 
 function CommentToDmTab() {
+	const { zernio, loading: zernioLoading } = useZernio();
 	const queryClient = useQueryClient();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [editingAutomation, setEditingAutomation] =
 		useState<CommentAutomation | null>(null);
 	const [form, setForm] = useState<AutomationForm>(emptyForm);
+	const [platformFilter, setPlatformFilter] = useState<
+		"all" | "instagram" | "facebook"
+	>("all");
 
 	// Fetch automations
 	const { data: automationsData, isLoading } = useQuery({
-		queryKey: ["inbox", "comment-automations"],
+		queryKey: ["inbox", "comment-automations", { platform: platformFilter }],
 		queryFn: async () => {
-			const res = await api.listCommentAutomations();
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.commentautomations.listCommentAutomations({
+				query: platformFilter !== "all" ? { platform: platformFilter } : {},
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return (res.data?.automations ?? []) as CommentAutomation[];
 		},
+		enabled: !!zernio,
 	});
 
 	// Create mutation
 	const createMutation = useMutation({
-		mutationFn: async (
-			body: Parameters<typeof api.createCommentAutomation>[0],
-		) => {
-			const res = await api.createCommentAutomation(body);
-			if (res.error) throw new Error(res.error);
+		mutationFn: async (body: {
+			profileId: string;
+			accountId: string;
+			platformPostId?: string;
+			postId?: string;
+			postTitle?: string;
+			name: string;
+			keywords?: string[];
+			matchMode?: "exact" | "contains";
+			dmMessage: string;
+			buttons?: Array<{
+				type: "url" | "phone";
+				text: string;
+				url?: string;
+				phone?: string;
+			}>;
+			commentReply?: string;
+		}) => {
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.commentautomations.createCommentAutomation({
+				body,
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
@@ -574,14 +1064,17 @@ function CommentToDmTab() {
 			automationId: string;
 			name?: string;
 			keywords?: string[];
-			matchMode?: "contains" | "exact";
+			matchMode?: "exact" | "contains";
 			dmMessage?: string;
 			commentReply?: string;
-			assignTo?: string;
 			isActive?: boolean;
 		}) => {
-			const res = await api.updateCommentAutomation(automationId, body);
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.commentautomations.updateCommentAutomation({
+				path: { automationId },
+				body,
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
@@ -595,8 +1088,11 @@ function CommentToDmTab() {
 	// Delete mutation
 	const deleteMutation = useMutation({
 		mutationFn: async (automationId: string) => {
-			const res = await api.deleteCommentAutomation(automationId);
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.commentautomations.deleteCommentAutomation({
+				path: { automationId },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
@@ -615,8 +1111,12 @@ function CommentToDmTab() {
 			automationId: string;
 			isActive: boolean;
 		}) => {
-			const res = await api.updateCommentAutomation(automationId, { isActive });
-			if (res.error) throw new Error(res.error);
+			if (!zernio) throw new Error("Zernio not initialized");
+			const res = await zernio.commentautomations.updateCommentAutomation({
+				path: { automationId },
+				body: { isActive },
+			});
+			if (res.error) throw new Error(getZernioErrorMessage(res.error));
 			return res.data;
 		},
 		onSuccess: () => {
@@ -636,13 +1136,14 @@ function CommentToDmTab() {
 		setEditingAutomation(automation);
 		setForm({
 			name: automation.name,
-			accountId: automation.accountId,
+			accountId: automation.accountId || "",
+			platform: automation.platform || "instagram",
+			profileId: automation.profileId || "",
 			platformPostId: automation.platformPostId || "",
 			keywords: automation.keywords?.join(", ") || "",
 			matchMode: automation.matchMode || "contains",
 			dmMessage: automation.dmMessage || "",
 			commentReply: automation.commentReply || "",
-			assignTo: (automation as any).assignTo || "",
 		});
 		setIsDialogOpen(true);
 	};
@@ -666,14 +1167,14 @@ function CommentToDmTab() {
 				keywords: keywordsArray,
 				matchMode: form.matchMode,
 				dmMessage: form.dmMessage,
-				commentReply: form.commentReply,
-				assignTo: form.assignTo,
+				commentReply: form.commentReply || undefined,
 			});
 		} else {
 			createMutation.mutate({
-				name: form.name,
+				profileId: form.profileId || "",
 				accountId: form.accountId,
 				platformPostId: form.platformPostId || undefined,
+				name: form.name,
 				keywords: keywordsArray,
 				matchMode: form.matchMode,
 				dmMessage: form.dmMessage,
@@ -688,12 +1189,37 @@ function CommentToDmTab() {
 
 	const activeCount = automationsData?.filter((a) => a.isActive).length ?? 0;
 
+	if (zernioLoading) {
+		return (
+			<Card className="p-8 text-center">
+				<p className="text-muted-foreground">Loading...</p>
+			</Card>
+		);
+	}
+
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<p className="text-sm text-muted-foreground">
-					{activeCount} active rule{activeCount !== 1 ? "s" : ""}
-				</p>
+				<div className="flex items-center gap-3">
+					<p className="text-sm text-muted-foreground">
+						{activeCount} active rule{activeCount !== 1 ? "s" : ""}
+					</p>
+					<Select
+						value={platformFilter}
+						onValueChange={(v) =>
+							setPlatformFilter(v as "all" | "instagram" | "facebook")
+						}
+					>
+						<SelectTrigger className="w-[140px] h-8">
+							<SelectValue placeholder="Platform" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">All Platforms</SelectItem>
+							<SelectItem value="instagram">Instagram</SelectItem>
+							<SelectItem value="facebook">Facebook</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 				<Button onClick={openCreateDialog} size="sm" className="gap-2">
 					<Plus className="h-4 w-4" />
 					New Rule
@@ -717,22 +1243,41 @@ function CommentToDmTab() {
 								placeholder="e.g., Welcome DM, Thank you comment..."
 								value={form.name}
 								onChange={(e) => updateForm("name", e.target.value)}
-								className="font-medium"
 							/>
 						</div>
 
 						{!editingAutomation && (
-							<div>
-								<label className="text-sm font-medium mb-2 block">
-									Account ID
-								</label>
-								<Input
-									placeholder="Instagram or Facebook account ID"
-									value={form.accountId}
-									onChange={(e) => updateForm("accountId", e.target.value)}
-									className="font-medium"
-								/>
-							</div>
+							<>
+								<div>
+									<label className="text-sm font-medium mb-2 block">
+										Platform
+									</label>
+									<Select
+										value={form.platform}
+										onValueChange={(v) =>
+											updateForm("platform", v as ProfilePlatform)
+										}
+									>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="instagram">Instagram</SelectItem>
+											<SelectItem value="facebook">Facebook</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+								<div>
+									<label className="text-sm font-medium mb-2 block">
+										Account ID
+									</label>
+									<Input
+										placeholder="Instagram or Facebook account ID"
+										value={form.accountId}
+										onChange={(e) => updateForm("accountId", e.target.value)}
+									/>
+								</div>
+							</>
 						)}
 
 						{!editingAutomation && (
@@ -744,7 +1289,6 @@ function CommentToDmTab() {
 									placeholder="Leave empty for account-wide automation"
 									value={form.platformPostId}
 									onChange={(e) => updateForm("platformPostId", e.target.value)}
-									className="font-medium"
 								/>
 								<p className="text-xs text-muted-foreground mt-1">
 									Scope this rule to a specific post. Omit for all posts.
@@ -761,7 +1305,6 @@ function CommentToDmTab() {
 								placeholder="love, amazing, awesome, great"
 								value={form.keywords}
 								onChange={(e) => updateForm("keywords", e.target.value)}
-								className="font-medium"
 							/>
 							<p className="text-xs text-muted-foreground mt-1">
 								Separate keywords with commas. Leave empty to match all.
@@ -776,7 +1319,7 @@ function CommentToDmTab() {
 								value={form.matchMode}
 								onValueChange={(v) => updateForm("matchMode", v ?? "contains")}
 							>
-								<SelectTrigger className="font-medium">
+								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
@@ -796,7 +1339,7 @@ function CommentToDmTab() {
 								value={form.dmMessage}
 								onChange={(e) => updateForm("dmMessage", e.target.value)}
 								rows={3}
-								className="resize-none font-medium"
+								className="resize-none"
 							/>
 						</div>
 
@@ -810,20 +1353,7 @@ function CommentToDmTab() {
 								value={form.commentReply}
 								onChange={(e) => updateForm("commentReply", e.target.value)}
 								rows={2}
-								className="resize-none font-medium"
-							/>
-						</div>
-
-						<div>
-							<label className="text-sm font-medium mb-2 block">
-								<AtSign className="h-4 w-4 inline mr-1" />
-								Assign To (Optional)
-							</label>
-							<Input
-								placeholder="User or team to assign"
-								value={form.assignTo}
-								onChange={(e) => updateForm("assignTo", e.target.value)}
-								className="font-medium"
+								className="resize-none"
 							/>
 						</div>
 
@@ -883,6 +1413,11 @@ function CommentToDmTab() {
 											<MessageSquare className="h-3 w-3 mr-1" />
 											Comment to DM
 										</Badge>
+										{automation.platform && (
+											<Badge variant="outline" className="shrink-0 uppercase">
+												{automation.platform}
+											</Badge>
+										)}
 										{!automation.isActive && (
 											<Badge variant="outline" className="shrink-0">
 												Disabled
@@ -900,7 +1435,7 @@ function CommentToDmTab() {
 										<div className="flex items-center gap-1">
 											<span>Account:</span>
 											<code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-												{automation.accountUsername || automation.accountId}
+												{automation.accountId}
 											</code>
 										</div>
 
@@ -918,18 +1453,25 @@ function CommentToDmTab() {
 											</div>
 										)}
 
-										{(automation as any).assignTo && (
-											<div className="flex items-center gap-1">
-												<AtSign className="h-3 w-3" />
-												<span>{(automation as any).assignTo}</span>
-											</div>
-										)}
-
 										<div className="flex items-center gap-1">
 											<Clock className="h-3 w-3" />
 											<span>{automation.createdAt}</span>
 										</div>
 									</div>
+
+									{automation.stats && (
+										<div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+											{automation.stats.triggered !== undefined && (
+												<span>Triggered: {automation.stats.triggered}</span>
+											)}
+											{automation.stats.dmsSent !== undefined && (
+												<span>Sent: {automation.stats.dmsSent}</span>
+											)}
+											{automation.stats.dmsFailed !== undefined && (
+												<span>Failed: {automation.stats.dmsFailed}</span>
+											)}
+										</div>
+									)}
 								</div>
 
 								<div className="flex items-center gap-2 shrink-0">

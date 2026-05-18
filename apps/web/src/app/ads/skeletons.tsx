@@ -119,3 +119,47 @@ export function AudienceCardSkeleton() {
 		</div>
 	);
 }
+
+export function OverviewSkeleton() {
+	return (
+		<div className="space-y-6">
+			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+				{[...Array(6)].map((_, i) => (
+					<div key={i} className="py-4">
+						<div className="h-3 w-16 animate-pulse bg-muted rounded mb-2" />
+						<div className="h-8 w-20 animate-pulse bg-muted rounded" />
+					</div>
+				))}
+			</div>
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div className="p-6 space-y-3">
+					<div className="h-5 w-36 animate-pulse bg-muted rounded mb-4" />
+					{[...Array(3)].map((_, i) => (
+						<div key={i} className="flex items-center justify-between">
+							<div className="flex items-center gap-2">
+								<div className="h-5 w-12 animate-pulse bg-muted rounded" />
+								<div className="h-4 w-24 animate-pulse bg-muted rounded" />
+							</div>
+							<div className="h-4 w-20 animate-pulse bg-muted rounded" />
+						</div>
+					))}
+				</div>
+				<div className="p-6 space-y-3">
+					<div className="h-5 w-36 animate-pulse bg-muted rounded mb-4" />
+					{[...Array(5)].map((_, i) => (
+						<div key={i} className="flex items-center justify-between">
+							<div className="flex items-center gap-2 min-w-0">
+								<div className="h-5 w-12 animate-pulse bg-muted rounded" />
+								<div className="h-4 w-32 animate-pulse bg-muted rounded" />
+							</div>
+							<div className="flex items-center gap-3 shrink-0">
+								<div className="h-5 w-16 animate-pulse bg-muted rounded" />
+								<div className="h-4 w-12 animate-pulse bg-muted rounded" />
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}

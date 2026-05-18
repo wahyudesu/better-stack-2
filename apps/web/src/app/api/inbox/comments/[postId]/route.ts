@@ -30,13 +30,13 @@ async function getZernioClient() {
 
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: Promise<{ conversationId: string }> },
+	{ params }: { params: Promise<{ postId: string }> },
 ) {
 	try {
-		const { conversationId } = await params;
+		const { postId } = await params;
 		const { searchParams } = new URL(request.url);
-
 		const accountId = searchParams.get("accountId");
+
 		if (!accountId) {
 			return NextResponse.json(
 				{ error: "accountId is required" },
@@ -44,37 +44,24 @@ export async function GET(
 			);
 		}
 
-		const cursor = searchParams.get("cursor") ?? undefined;
-		const limit = searchParams.get("limit")
-			? parseInt(searchParams.get("limit")!, 10)
-			: undefined;
-		const sortOrder = searchParams.get("sortOrder") as
-			| "asc"
-			| "desc"
-			| undefined;
-
 		const zernio = await getZernioClient();
-		const response = await zernio.messages.getInboxConversationMessages({
-			path: { conversationId },
-			query: { accountId, cursor, limit, sortOrder },
+
+		const result = await zernio.comments.getInboxPostComments({
+			path: { postId },
+			query: { accountId },
 		});
 
-		// Zernio SDK: response.data contains { messages, pagination, sortOrderApplied, lastUpdated }
-		const zernioData = response.data as {
-			messages?: Array<Record<string, unknown>>;
+		const zernioData = result.data as {
+			data?: Array<Record<string, unknown>>;
 			pagination?: Record<string, unknown>;
-			sortOrderApplied?: "asc" | "desc";
-			lastUpdated?: string;
 		};
 
 		return NextResponse.json({
-			messages: zernioData?.messages ?? [],
+			comments: zernioData?.data ?? [],
 			pagination: zernioData?.pagination,
-			sortOrderApplied: zernioData?.sortOrderApplied,
-			lastUpdated: zernioData?.lastUpdated,
 		});
 	} catch (error) {
-		console.error("Error listing inbox messages:", error);
+		console.error("Error getting post comments:", error);
 		return NextResponse.json(
 			{ error: error instanceof Error ? error.message : "Unknown error" },
 			{ status: 500 },
@@ -84,16 +71,16 @@ export async function GET(
 
 export async function POST(
 	request: NextRequest,
-	{ params }: { params: Promise<{ conversationId: string }> },
+	{ params }: { params: Promise<{ postId: string }> },
 ) {
 	try {
-		const { conversationId } = await params;
+		const { postId } = await params;
 		const body = (await request.json()) as {
 			accountId: string;
-			message?: string;
-			attachmentUrl?: string;
+			message: string;
+			commentId?: string;
 		};
-		const { accountId, message, attachmentUrl } = body;
+		const { accountId, message, commentId } = body;
 
 		if (!accountId) {
 			return NextResponse.json(
@@ -102,22 +89,55 @@ export async function POST(
 			);
 		}
 
-		if (!message && !attachmentUrl) {
+		const zernio = await getZernioClient();
+
+		// Reply to comment if commentId provided, otherwise reply to post
+		const result = await zernio.comments.replyToInboxPost({
+			path: { postId },
+			body: {
+				accountId,
+				message,
+				...(commentId && { commentId }),
+			},
+		});
+
+		return NextResponse.json(result.data ?? { success: true });
+	} catch (error) {
+		console.error("Error replying to comment:", error);
+		return NextResponse.json(
+			{ error: error instanceof Error ? error.message : "Unknown error" },
+			{ status: 500 },
+		);
+	}
+}
+
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: Promise<{ postId: string }> },
+) {
+	try {
+		const { postId } = await params;
+		const { searchParams } = new URL(request.url);
+		const accountId = searchParams.get("accountId");
+		const commentId = searchParams.get("commentId");
+
+		if (!accountId || !commentId) {
 			return NextResponse.json(
-				{ error: "message or attachmentUrl is required" },
+				{ error: "accountId and commentId are required" },
 				{ status: 400 },
 			);
 		}
 
 		const zernio = await getZernioClient();
-		const response = await zernio.messages.sendInboxMessage({
-			path: { conversationId },
-			body: { accountId, message, attachmentUrl },
+
+		const result = await zernio.comments.deleteInboxComment({
+			path: { postId },
+			query: { accountId, commentId },
 		});
 
-		return NextResponse.json(response);
+		return NextResponse.json(result.data ?? { success: true });
 	} catch (error) {
-		console.error("Error sending inbox message:", error);
+		console.error("Error deleting comment:", error);
 		return NextResponse.json(
 			{ error: error instanceof Error ? error.message : "Unknown error" },
 			{ status: 500 },

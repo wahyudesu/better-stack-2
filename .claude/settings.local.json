@@ -5,7 +5,19 @@
       "Bash(openspec status *)",
       "Bash(openspec instructions *)",
       "Bash(pnpm add *)",
-      "Bash(pnpm run *)"
+      "Bash(pnpm run *)",
+      "Bash(node_modules/.bin/biome check *)",
+      "Bash(npx tsc *)",
+      "Bash(xxd -l 500 src/app/inbox/components/ConversationList.tsx)",
+      "mcp__next-devtools__init",
+      "mcp__next-devtools__nextjs_index",
+      "mcp__next-devtools__nextjs_call",
+      "Bash(pkill -f \"next build\")",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(pnpm install *)",
+      "Bash(biome check *)",
+      "Bash(pnpm biome *)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")"
     ]
   },
   "enabledMcpjsonServers": [

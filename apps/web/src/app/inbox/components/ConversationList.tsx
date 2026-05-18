@@ -1,24 +1,26 @@
 "use client";
 
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from "@zenpost/ui/components/avatar";
+import { Avatar, AvatarFallback } from "@zenpost/ui/components/avatar";
 import { ScrollArea } from "@zenpost/ui/components/scroll-area";
-import { MessageSquare, Star } from "lucide-react";
+import { Search, SortDesc, Star } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
 import {
 	DepthButtonGroup,
 	GroupedDepthButton,
 } from "@/components/ui/depth-buttons";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { Conversation, CustomerLabel } from "../types";
-import { getPlatformConfig, labelConfig } from "../types";
+import { labelConfig } from "../types";
 
 type SortBy = "newest" | "name";
 type MessageFilter = "all" | "unread" | "favorites";
@@ -75,7 +77,16 @@ export function ConversationList({
 	return (
 		<Card className="border-border/50 overflow-hidden flex flex-col h-[600px]">
 			<div className="p-3 border-b border-border/50 space-y-2">
-				<div className="flex items-center justify-between gap-2 pb-2">
+				<div className="relative">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+					<Input
+						placeholder="Search conversations..."
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className="pl-10 h-9 font-medium"
+					/>
+				</div>
+				<div className="flex items-center justify-between gap-2">
 					<DepthButtonGroup>
 						<GroupedDepthButton
 							position="first"
@@ -102,28 +113,26 @@ export function ConversationList({
 							Favorites
 						</GroupedDepthButton>
 					</DepthButtonGroup>
-					<DepthButtonMenu
-						value={sortBy}
-						onChange={(v) => setSortBy(v as SortBy)}
-						options={[
-							{ value: "newest", label: "Terbaru" },
-							{ value: "name", label: "Nama" },
-						]}
-						placeholder="Sort"
-						size="sm"
-					/>
-				</div>
-				<div className="relative">
-					<Input
-						placeholder="Search conversations..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-10 h-9 font-medium"
-					/>
+					<DropdownMenu>
+						<DropdownMenuTrigger className="flex items-center justify-center h-7 w-7 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground">
+							<SortDesc className="h-4 w-4" />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuRadioGroup
+								value={sortBy}
+								onValueChange={(v) => setSortBy(v as SortBy)}
+							>
+								<DropdownMenuRadioItem value="newest">
+									Terbaru
+								</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="name">Nama</DropdownMenuRadioItem>
+							</DropdownMenuRadioGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 
-			<ScrollArea className="flex-1">
+			<ScrollArea className="flex-1 h-0">
 				<div className="p-2 space-y-1">
 					{isLoading ? (
 						<div className="text-center py-8">
@@ -139,8 +148,6 @@ export function ConversationList({
 						</div>
 					) : (
 						filtered.map((conv) => {
-							const config = getPlatformConfig(conv.platform);
-							const Icon = config.icon;
 							const isSelected = selectedId === conv.id;
 							return (
 								<button
@@ -156,7 +163,6 @@ export function ConversationList({
 									<div className="flex items-start gap-3">
 										<div className="relative">
 											<Avatar className="h-10 w-10">
-												<AvatarImage src={conv.avatar} />
 												<AvatarFallback>
 													{formatInitials(conv.sender)}
 												</AvatarFallback>
@@ -191,14 +197,6 @@ export function ConversationList({
 												</div>
 												<span className="text-xs text-muted-foreground whitespace-nowrap">
 													{conv.lastMessageTime}
-												</span>
-											</div>
-											<div className="flex items-center gap-1.5 mb-1">
-												<div className={cn("flex items-center", config.color)}>
-													<Icon className="h-3 w-3" />
-												</div>
-												<span className="text-[10px] text-muted-foreground capitalize">
-													{config.name}
 												</span>
 											</div>
 											<p className="text-xs text-muted-foreground truncate">

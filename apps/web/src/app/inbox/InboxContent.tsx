@@ -1,10 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bot, Calendar, Mail, MessageSquare, Plus, Users } from "lucide-react";
+import { Bot, Calendar, Mail, MessageCircle, MessageSquare, Plus, Star, Users } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -13,7 +13,12 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+} from "@/components/ui/sheet";
 import {
 	PlatformFilterDropdown,
 	type PlatformFilterValue,
@@ -95,6 +100,7 @@ export function InboxContent() {
 	const [selectedConversation, setSelectedConversation] =
 		useState<Conversation | null>(null);
 	const [messageInput, setMessageInput] = useState("");
+	const [mobileChatOpen, setMobileChatOpen] = useState(false);
 
 	// Conversations query
 	const { data: conversationsResult, isLoading: conversationsLoading } =
@@ -201,6 +207,10 @@ export function InboxContent() {
 	const handleSelectConversation = useCallback(
 		(conv: Conversation) => {
 			setSelectedConversation(conv);
+			// On mobile, open the chat sheet
+			if (typeof window !== "undefined" && window.innerWidth < 1024) {
+				setMobileChatOpen(true);
+			}
 			if (!conv.isRead)
 				markAsReadMutation.mutate({
 					conversationId: conv.id,
@@ -242,12 +252,12 @@ export function InboxContent() {
 		{
 			id: "comments",
 			label: "Comments",
-			icon: <MessageSquare className="h-5 w-5" />,
+			icon: <MessageCircle className="h-5 w-5" />,
 		},
 		{
 			id: "reviews",
 			label: "Reviews",
-			icon: <MessageSquare className="h-5 w-5" />,
+			icon: <Star className="h-5 w-5" />,
 		},
 	];
 
@@ -287,7 +297,7 @@ export function InboxContent() {
 
 			{/* Campaign Dialog */}
 			<Dialog open={campaignDialogOpen} onOpenChange={setCampaignDialogOpen}>
-				<DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+				<DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden flex flex-col">
 					<DialogHeader>
 						<DialogTitle>Campaigns</DialogTitle>
 					</DialogHeader>
@@ -340,9 +350,7 @@ export function InboxContent() {
 						<div className="flex-1 min-w-0 overflow-y-auto">
 							{activeCampaignTab === "broadcasts" && <CampaignBroadcastsTab />}
 							{activeCampaignTab === "sequences" && <CampaignSequencesTab />}
-							{activeCampaignTab === "comment-to-dm" && (
-								<CampaignCommentToDmTab />
-							)}
+							{activeCampaignTab === "comment-to-dm" && <CommentToDmTab />}
 						</div>
 					</div>
 				</DialogContent>
@@ -351,46 +359,87 @@ export function InboxContent() {
 			{/* Messages Tab */}
 			{activeTab === "messages" && (
 				<>
-					<div className="flex items-center gap-2 mb-4">
-						<PlatformFilterDropdown value={platform} onChange={setPlatform} />
-					</div>
-
-					<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[600px]">
+					{/* Conversation list - hidden on mobile when chat is open */}
+					<div
+						className={cn(
+							"grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[600px]",
+							mobileChatOpen && "hidden lg:grid"
+						)}
+					>
 						<ConversationList
 							conversations={serverConversations}
 							isLoading={conversationsLoading}
 							selectedId={selectedConversation?.id ?? null}
 							onSelect={handleSelectConversation}
 						/>
-
-						{/* Chat View */}
-						<Card
-							className={cn(
-								"hidden lg:flex lg:col-span-2 border-border/50 overflow-hidden flex-col",
-								!selectedConversation && "items-center justify-center",
-							)}
-						>
-							{!selectedConversation ? (
-								<div className="text-center p-8">
-									<MessageSquare className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-									<p className="text-muted-foreground">
-										Select a conversation to start messaging
-									</p>
-								</div>
-							) : (
-								<ChatPanel
-									conversation={selectedConversation}
-									messages={messagesData ?? []}
-									isLoading={messagesLoading}
-									messageInput={messageInput}
-									onMessageInputChange={setMessageInput}
-									onSendMessage={handleSendMessage}
-									onKeyDown={handleKeyPress}
-									onLabelChange={handleLabelChange}
-								/>
-							)}
-						</Card>
 					</div>
+
+					{/* Chat View - Desktop */}
+					<Card
+						className={cn(
+							"hidden lg:flex lg:col-span-2 border-border/50 overflow-hidden flex-col h-[600px]",
+							!selectedConversation && "items-center justify-center"
+						)}
+					>
+						{!selectedConversation ? (
+							<div className="text-center p-8">
+								<MessageSquare className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+								<p className="text-muted-foreground">
+									Select a conversation to start messaging
+								</p>
+							</div>
+						) : (
+							<ChatPanel
+								conversation={selectedConversation}
+								messages={messagesData ?? []}
+								isLoading={messagesLoading}
+								messageInput={messageInput}
+								onMessageInputChange={setMessageInput}
+								onSendMessage={handleSendMessage}
+								onKeyDown={handleKeyPress}
+								onLabelChange={handleLabelChange}
+							/>
+						)}
+					</Card>
+
+					{/* Chat View - Mobile Sheet */}
+					<Sheet open={mobileChatOpen} onOpenChange={setMobileChatOpen}>
+						<SheetContent className="w-full sm:max-w-lg p-0 flex flex-col">
+							<SheetHeader className="px-4 py-3 border-b">
+								<SheetTitle className="text-sm flex items-center gap-2">
+									{selectedConversation ? (
+										<>
+											<MessageCircle className="h-4 w-4" />
+											{selectedConversation.sender}
+										</>
+									) : (
+										"Chat"
+									)}
+								</SheetTitle>
+							</SheetHeader>
+							<div className="flex-1 overflow-hidden">
+								{selectedConversation ? (
+									<ChatPanel
+										conversation={selectedConversation}
+										messages={messagesData ?? []}
+										isLoading={messagesLoading}
+										messageInput={messageInput}
+										onMessageInputChange={setMessageInput}
+										onSendMessage={handleSendMessage}
+										onKeyDown={handleKeyPress}
+										onLabelChange={handleLabelChange}
+									/>
+								) : (
+									<div className="text-center p-8 h-full flex items-center justify-center">
+										<MessageSquare className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+										<p className="text-muted-foreground">
+											Select a conversation
+										</p>
+									</div>
+								)}
+							</div>
+						</SheetContent>
+					</Sheet>
 				</>
 			)}
 
@@ -398,7 +447,7 @@ export function InboxContent() {
 			{activeTab === "comments" && (
 				<CommentsPanel
 					platform={commentPlatform}
-					onPlatformChange={setCommentPlatform}
+					onPlatformChange={(v) => setCommentPlatform(v)}
 				/>
 			)}
 
@@ -551,7 +600,7 @@ function CampaignSequencesTab() {
 	);
 }
 
-function CampaignCommentToDmTab() {
+function CommentToDmTab() {
 	return (
 		<div className="space-y-4">
 			<Card className="p-8 text-center">
@@ -561,3 +610,5 @@ function CampaignCommentToDmTab() {
 		</div>
 	);
 }
+
+// Unused - CommentToDmTab imported from ./campaigns/InboxCampaigns

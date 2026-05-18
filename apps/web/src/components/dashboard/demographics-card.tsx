@@ -110,7 +110,9 @@ export function DemographicsCard({
 							data={
 								barListData as unknown as Array<{ name: string; value: number }>
 							}
-							valueFormatter={(value) => value.toLocaleString()}
+							valueFormatter={(value) =>
+								new Intl.NumberFormat("en-US").format(value)
+							}
 							sortOrder="descending"
 							className="gap-y-2"
 							showAnimation={false}

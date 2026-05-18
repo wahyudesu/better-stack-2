@@ -4,23 +4,28 @@
 # web
  
 [post]
-- [ ] perbaiki ui new post nya terlebih dahulu
+- [ ] Pada new post ini, buat supaya nampilin dialog terlebih dahulu.
+
+Nah, nanti dari dialog tersebut bisa di-expand supaya, ee, dibuka full ke halaman yang baru.
+
+Jadi, kayak dinamis gitu, cuman di awalnya dialog terlebih dahulu. 
+
 - [ ] pastikan new posts terintrgeasi ke server sehinga bisa upload konten darisana
 
 [dashboard]
-- [ ] cukup pake mock data
+- [z] cukup pake mock data
 
 [analytics]
-- [ ] nanti deh
+- [z] nanti deh
 
 [ads]
-- [ ] cukup pake mock data
+- [x] cukup pake mock data
 
 [inbox]
-- [ ] cukup pake mock data
+- [x] cukup pake mock data
 
 [settings]
-- [ ] beberapa sudah terintegrasi
+- [x] beberapa sudah terintegrasi
 
 # landing
 

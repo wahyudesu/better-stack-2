@@ -45,7 +45,7 @@ export function ContentItemPopover({
 
 	return (
 		<Popover>
-			<PopoverTrigger >
+			<PopoverTrigger>
 				<div>{children}</div>
 			</PopoverTrigger>
 			<PopoverContent

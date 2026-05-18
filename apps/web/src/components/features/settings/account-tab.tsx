@@ -20,6 +20,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { TIMEZONES } from "@/lib/constants/settings";
+import { useAppStore } from "@/stores/app-store";
 import { useAuthStore } from "@/stores/auth-store";
 import type { FirstDayOfWeek, TimeFormat } from "./types";
 
@@ -27,11 +28,14 @@ export function AccountTab() {
 	const { user, isLoaded } = useUser();
 	const { openUserProfile } = useClerk();
 	const { apiKey, setApiKey, setUsageStats } = useAuthStore();
-
-	const [firstDayOfWeek, setFirstDayOfWeek] =
-		useState<FirstDayOfWeek>("monday");
-	const [timezone, setTimezone] = useState("Asia/Jakarta");
-	const [timeFormat, setTimeFormat] = useState<TimeFormat>("24h");
+	const {
+		firstDayOfWeek,
+		setFirstDayOfWeek,
+		timezone,
+		setTimezone,
+		timeFormat,
+		setTimeFormat,
+	} = useAppStore();
 	const [loading, setLoading] = useState(false);
 
 	const fullName =
@@ -273,31 +277,6 @@ export function AccountTab() {
 							</span>
 						)}
 					</div>
-				</CardContent>
-			</Card>
-
-			<Card className="border-destructive/30">
-				<CardContent className="">
-					<div className="flex items-center justify-between">
-						<div>
-							<p className="font-display font-semibold text-sm text-destructive">
-								Danger Zone
-							</p>
-							<p className="text-xs text-muted-foreground">
-								Irreversible and destructive actions.
-							</p>
-						</div>
-						<Button
-							variant="destructive"
-							size="sm"
-							onClick={() => console.log("Delete account")}
-						>
-							Manage Account
-						</Button>
-					</div>
-					<p className="text-xs text-muted-foreground mt-2">
-						Contact support to delete your account
-					</p>
 				</CardContent>
 			</Card>
 

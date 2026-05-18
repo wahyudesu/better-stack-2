@@ -1,13 +1,14 @@
 "use client";
 
 import { Briefcase, LayoutDashboard, Users } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import { DepthButtonMenu } from "@/components/ui/depth-button-menu";
 import { pageContainerClassName, pageMaxWidth } from "@/lib/layout";
 import { AdsAudiences } from "./AdsAudiences";
 import { AdsCampaigns } from "./AdsCampaigns";
 import AdsOverviewServer from "./AdsOverviewServer";
+import { OverviewSkeleton, StatCardSkeleton } from "./skeletons";
 
 const tabs = [
 	{
@@ -94,7 +95,11 @@ export function AdsContent() {
 			)}
 
 			{/* Tab content */}
-			{activeTab === "overview" && <AdsOverviewServer />}
+			{activeTab === "overview" && (
+				<Suspense fallback={<OverviewSkeleton />}>
+					<AdsOverviewServer />
+				</Suspense>
+			)}
 			{activeTab === "campaigns" && (
 				<AdsCampaigns platform={platformFilter} status={statusFilter} />
 			)}

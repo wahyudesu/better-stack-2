@@ -26,14 +26,19 @@ import {
 	TIMEZONES,
 } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/stores/app-store";
 import type { FirstDayOfWeek, TimeFormat } from "./types";
 
 export function PreferencesTab() {
 	const { theme, setTheme } = useTheme();
-	const [firstDayOfWeek, setFirstDayOfWeek] =
-		useState<FirstDayOfWeek>("monday");
-	const [timezone, setTimezone] = useState("Asia/Jakarta");
-	const [timeFormat, setTimeFormat] = useState<TimeFormat>("24h");
+	const {
+		firstDayOfWeek,
+		setFirstDayOfWeek,
+		timezone,
+		setTimezone,
+		timeFormat,
+		setTimeFormat,
+	} = useAppStore();
 	const [selectedColor, setSelectedColor] = useState("default");
 	const [animatedDock, setAnimatedDock] = useState(true);
 	const [projectName, setProjectName] = useState("Acme Corp");

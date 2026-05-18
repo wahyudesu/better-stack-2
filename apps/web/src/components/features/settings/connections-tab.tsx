@@ -30,7 +30,7 @@ import "react-social-icons/telegram";
 import "react-social-icons/snapchat";
 import "react-social-icons/discord";
 import { Skeleton } from "@zenpost/ui/components/skeleton";
-import { AlertCircle, Loader2, LogOut, Settings2 } from "lucide-react";
+import { AlertCircle, Info, Loader2, LogOut } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -209,21 +209,22 @@ export function ConnectionsTab() {
 			}) || [];
 
 	// Available platforms not yet connected (grouped by category)
+	// Note: platforms are NOT filtered by connection status - same platform
+	// can be connected multiple times for different brands
 	const connectedPlatforms = new Set(connectedAccounts.map((c) => c.id));
 
 	const getAvailableConnections = () => {
 		const result: Record<string, Connection[]> = {};
 		for (const [categoryKey, category] of Object.entries(platformCategories)) {
-			result[categoryKey] = category.platforms
-				.filter((p) => !connectedPlatforms.has(p.id))
-				.map((platform) => ({
-					id: platform.id,
-					name: platform.name,
-					network: platform.network,
-					connected: false,
-					handle: null,
-					followers: null,
-				}));
+			// Always show all platforms in each category regardless of connection status
+			result[categoryKey] = category.platforms.map((platform) => ({
+				id: platform.id,
+				name: platform.name,
+				network: platform.network,
+				connected: false, // Always show as available for new connection
+				handle: null,
+				followers: null,
+			}));
 		}
 		return result;
 	};
@@ -504,7 +505,7 @@ export function ConnectionsTab() {
 									</div>
 									<Popover>
 										<PopoverTrigger className="rounded-full p-1.5 hover:bg-muted transition-colors cursor-pointer">
-											<Settings2 className="size-4 text-muted-foreground" />
+											<Info className="size-4 text-muted-foreground" />
 										</PopoverTrigger>
 										<PopoverContent
 											sideOffset={8}
